@@ -23,7 +23,7 @@
         </div>
       </form>
 
-      <router-link :to="{ name: 'account', params: { type: 'sign-up' } }">
+      <router-link :to="{ name: 'signUp' }">
         <button class="signUp" type="submit">Sign Up</button>
       </router-link>
     </div>
@@ -45,11 +45,15 @@ export default {
 
     const onLogin = async () => {
       try {
-        const { data } = await store.dispatch('auth/login', { email: email.value, password: password.value })
-        data ? router.push({ name: 'home' }) : alert('아이디가 존재하지 않거나, 아이디와 비밀번호가 일치하지 않습니다.')
+        const status = await store.dispatch('auth/login', { email: email.value, password: password.value })
+
+        if (status !== 200) {
+          throw new Error()
+        }
+
+        router.push({ name: 'home' })
       } catch (err) {
-        console.log(err)
-        alert('Login failed. Please retry login.')
+        alert('아이디가 존재하지 않거나, 아이디와 비밀번호가 일치하지 않습니다.')
       }
     }
 

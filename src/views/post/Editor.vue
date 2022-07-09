@@ -2,23 +2,26 @@
   <div class="editor">
     <div class="choose">
       <div class="menu">
-        <select v-model="selectedMenu">
-          <option v-for="menu in menus" :key="menu.key" :value="menu.value">
-            {{ menu.value }}
+        <select v-model="selectedTitle" required>
+          <option selected disabled hidden value="">Title</option>
+          <option v-for="title in titles" :key="title" :value="title">
+            {{ title }}
           </option>
         </select>
       </div>
 
-      <div class="subMenu" v-show="subMenus.length">
-        <select v-model="selectedSubMenu">
-          <option v-for="sub in subMenus" :key="sub.key">
-            {{ sub.value }}
+      <div class="subMenu">
+        <select v-model="selectedSubject" v-show="selectedTitle">
+          <option selected disabled hidden value="">Subject</option>
+          <option v-for="subject in subjects" :key="subject">
+            {{ subject }}
           </option>
         </select>
       </div>
 
-      <div class="category" v-show="selectedSubMenu">
-        <select v-model="selectedCategory">
+      <div class="category">
+        <select v-model="selectedCategory" v-show="selectedSubject">
+          <option selected disabled hidden value="">Category</option>
           <option v-for="category in categories" :key="category">
             {{ category }}
           </option>
@@ -32,12 +35,12 @@
     </div>
 
     <div class="title">
-      <input type="text" v-model="title" placeholder="제목" onfocus="this.placeholder=''" onblur="this.placeholder='제목'" />
+      <input type="text" v-model="postTitle" placeholder="제목" onfocus="this.placeholder=''" onblur="this.placeholder='제목'" />
     </div>
 
     <div class="content">
-      <textarea v-model="contentValue" placeholder="당신의 이야기를 적어보세요..."> </textarea>
-      <markdown :source="contentValue" :plugins="plugins" :breaks="true" :xhtmlOut="true" :typographer="true" class="markdown" />
+      <textarea v-model="postContent" placeholder="당신의 이야기를 적어보세요..."> </textarea>
+      <markdown :source="postContent" :plugins="plugins" :breaks="true" :xhtmlOut="true" :typographer="true" class="markdown" />
       <!--<QuillEditor theme="snow" contentType="html" v-model:content="content" :toolbar="option.toolbarOptions" />-->
     </div>
 
@@ -81,7 +84,6 @@ export default {
     const route = router.currentRoute.value
     const store = useStore()
     const Dialog = ref(null)
-    const contentValue = ref()
 
     const plugins = ref([
       {
@@ -102,34 +104,36 @@ export default {
     const post = computed(() => store.state.post.post)
     const isPrivate = ref(false)
 
-    const selectedMenu = ref()
-    const selectedSubMenu = ref()
-    const selectedCategory = ref()
+    const selectedTitle = ref('')
+    const selectedSubject = ref('')
+    const selectedCategory = ref('')
 
-    const menus = ref(inject('menus'))
-    const subMenus = computed(() => (selectedMenu.value ? menus.value.find((menu) => menu.value === selectedMenu.value).sub : []))
-    const categories = computed(() => (selectedSubMenu.value ? subMenus.value.find((sub) => sub.value === selectedSubMenu.value).categories : []))
+    const titles = computed(() => store.getters['menu/getTitles'])
+    const subjects = computed(() => store.getters['menu/getSubjects'](selectedTitle.value))
+    const categories = computed(() => store.getters['menu/getCategories']({ title: selectedTitle.value, subject: selectedSubject.value }))
 
-    const title = computed({
+    watch(selectedTitle, () => {
+      selectedSubject.value = ''
+      selectedCategory.value = ''
+    })
+
+    watch(selectedSubject, () => {
+      selectedCategory.value = ''
+    })
+
+    const postTitle = computed({
       get: () => store.state.post.post.title || '',
       set: (val) => store.commit('post/SET_POST_TITLE', val),
     })
-    const content = computed({
-      get: () => store.state.post.post.content || '',
-      set: (val) => store.commit('post/SET_POST_CONTENT', val),
-    })
+    const postContent = ref('')
     const tag = ref(null)
     const tags = computed({
       get: () => store.state.post.post.tags || [],
       set: (val) => store.commit('post/SET_POST_TAGS', val),
     })
 
-    watch([title, content, tags], () => {
+    watch([postTitle, postContent, tags], () => {
       toggleCanLeavePage(false)
-    })
-
-    watch(selectedMenu, () => {
-      selectedSubMenu.value = selectedCategory.value = ''
     })
 
     const onSubmit = async () => {
@@ -137,11 +141,19 @@ export default {
         toggleCanLeavePage(true)
         let response = null
 
-        selectedMenu.value == null ? alert('메뉴를 선택해주세요') : store.commit('post/SET_POST_STATE', { menu: selectedMenu, sub: selectedSubMenu, category: selectedCategory, isPrivate })
+        selectedTitle.value == null
+          ? alert('메뉴를 선택해주세요')
+          : store.commit('post/SET_POST', {
+              subject: store.getters['menu/getMenuId']({ title: selectedTitle.value, subject: selectedSubject.value }),
+              title: postTitle.value,
+              content: postContent.value,
+              category: selectedCategory.value,
+              isPublic: !isPrivate.value,
+            })
 
         post.value._id ? (response = await store.dispatch('post/editPost', post.value)) : (response = await store.dispatch('post/createPost', post.value))
 
-        response === 200 ? router.push({ name: 'post', params: { idx: store.state.post.posts.length } }) : alert(`Cannot save diary(Server error ${response})`)
+        response === 200 ? router.push({ name: 'home' }) : alert(`Cannot save diary(Server error ${response})`)
       } catch (err) {
         console.log(err)
       }
@@ -206,23 +218,22 @@ export default {
       Dialog,
       plugins,
       option,
-      selectedMenu,
-      selectedSubMenu,
+      selectedTitle,
+      selectedSubject,
       selectedCategory,
-      menus,
-      subMenus,
-      categories,
       isPrivate,
       post,
-      title,
-      content,
+      postTitle,
       tag,
       tags,
       onSubmit,
       addTag,
       delTag,
       goBack,
-      contentValue,
+      postContent,
+      titles,
+      subjects,
+      categories,
     }
   },
 }

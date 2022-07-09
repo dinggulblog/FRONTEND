@@ -14,7 +14,10 @@
       <div class="info">
         <span v-text="dayjs(post.createdAt).format('YYYY년 M월 D일')"></span>
         <span></span>
-        <span><i class="material-icons" :style="[post.likeActive ? { color: 'var(--likeActive)' } : { color: 'var(--like)' }]">favorite</i>{{ post.like }}</span>
+        <span
+          ><i class="material-icons" :style="[post.likeActive ? { color: 'var(--likeActive)' } : { color: 'var(--like)' }]">favorite</i
+          >{{ post.like }}</span
+        >
         <div class="option">
           <button @click="optionToggle = !optionToggle"><i class="material-icons">more_horiz</i></button>
           <ul v-if="!optionToggle">
@@ -84,13 +87,13 @@ export default {
     const postNum = ref(router.currentRoute.value.params.postNum)
     const maxPostNum = ref(store.state.post.posts.length - 1)
 
-    const post = computed({
-      get: () => store.state.post.posts[postNum.value] || {},
-      set: (val) => store.commit('post/SET_POST', val),
-    })
+    //const post = computed({
+    //get: () => store.state.post.posts[postNum.value] || {},
+    //set: (val) => store.commit('post/SET_POST', val),
+    //})
 
-    // const newPost = ref({})
-    // newPost.value = await store.dispatch('post/getPost', store.state.posts[router.currentRoute.value.params.postNum]._id)
+    const post = ref({})
+    post.value = store.dispatch('post/getPost', store.state.posts[router.currentRoute.value.params.postNum]._id)
 
     onBeforeMount(async () => {
       document.title = post.value.title
@@ -112,7 +115,9 @@ export default {
         })
         if (ok) {
           const response = await store.dispatch('post/deletePost', post.value._id)
-          response === 200 ? router.push({ name: 'posts', params: { menu: router.currentRoute.value.params.menu } }) : alert(`Cannot delete post (Server error ${response})`)
+          response === 200
+            ? router.push({ name: 'posts', params: { menu: router.currentRoute.value.params.menu } })
+            : alert(`Cannot delete post (Server error ${response})`)
         }
       } catch (err) {
         console.log(err)

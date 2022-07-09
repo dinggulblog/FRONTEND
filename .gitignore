@@ -1,7 +1,10 @@
 node_modules
 package-lock.json
+jwt-key.pub
 
 # local env files
+.env
+.env.*
 .env.local
 .env.*.local
 

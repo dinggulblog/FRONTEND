@@ -1,15 +1,15 @@
 <template>
   <div class="nav">
     <nav>
-      <ul v-for="menu in menus" :key="menu.owner">
+      <ul v-for="menu in menus" :key="menu.title">
         <li>
-          <router-link v-if="menu.owner !== 'guest'" :to="{ name: 'posts', params: { menu: menu.owner, sub: '' }, query: { pageNum: 1 } }">
-            <i class="material-icons">favorite</i> {{ menu.owner }}
+          <router-link v-if="menu.title !== 'guest'" :to="{ name: 'posts', params: { menu: menu.title, sub: '' }, query: { pageNum: 1 } }">
+            <i class="material-icons">favorite</i> {{ menu.title }}
           </router-link>
-          <span v-else><i class="material-icons">favorite</i> {{ menu.owner }}</span>
+          <span v-else><i class="material-icons">favorite</i> {{ menu.title }}</span>
           <ul v-for="subject in menu.subjects" :key="subject">
             <li>
-              <router-link :to="{ name: 'posts', params: { menu: menu.owner, sub: subject }, query: { pageNum: 1 } }">
+              <router-link :to="{ name: 'posts', params: { menu: menu.title, sub: subject }, query: { pageNum: 1 } }">
                 {{ subject }}
               </router-link>
             </li>
@@ -21,35 +21,16 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
   name: 'navigation',
   setup() {
     const store = useStore()
-    const storeMenus = store.state.menu.menus
-    const owners = []
-    const menus = ref([])
+    const menus = computed(() => store.getters['menu/getFilteredMenus'])
 
-    storeMenus.forEach((storeMenu) => {
-      if (!owners.includes(storeMenu.owner)) owners.push(storeMenu.owner)
-    })
-
-    owners.forEach((owner) => menus.value.push({ owner }))
-
-    for (const menu of storeMenus) {
-      const idx = menus.value.findIndex((m) => m.owner === menu.owner)
-      if (idx >= 0 && menus.value[idx].subjects) {
-        menus.value[idx].subjects.push(menu.subject)
-      } else {
-        menus.value[idx].subjects = [menu.subject]
-      }
-    }
-
-    return {
-      menus,
-    }
+    return { menus }
   },
 }
 </script>

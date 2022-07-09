@@ -1,26 +1,36 @@
 <template>
   <div class="accountEditor">
     <Form @submit="onSubmit" :validation-schema="schema">
-      <h2 v-text="type === 'sign-up' ? 'Create Account' : 'Modify Account'"></h2>
+      <h2 v-text="isNew ? 'Create Account' : 'Modify Account'"></h2>
       <TextInput
         name="email"
         type="email"
         label="E-mail"
-        placeholder="Email"
-        success-message="올바른 이메일 주소입니다."
-        :value="user?.email"
         :disabled="!isNew"
+        :placeholder="user.email ? user.email : 'Email'"
+        :success-message="user.email ? '이메일은 변경할 수 없습니다.' : '올바른 이메일 주소입니다.'"
       />
       <TextInput v-show="!isNew" name="currentPassword" type="password" label="Current Password" placeholder="Current Password" />
-      <TextInput name="password" type="password" label="Password" placeholder="Password" />
+      <TextInput
+        name="password"
+        type="password"
+        :label="user.isActive ? 'New Password' : 'Password'"
+        :placeholder="user ? 'New Password' : 'Password'"
+      />
       <TextInput
         name="passwordConfirmation"
         type="password"
         label="Confirm Password"
-        placeholder="Type it again"
-        success-message="Password is verified."
+        placeholder="Type password again"
+        success-message="비밀번호가 정상적으로 입력되었습니다."
       />
-      <TextInput name="nickname" type="text" label="Name" placeholder="Name" />
+      <TextInput
+        name="nickname"
+        type="text"
+        label="Nickname"
+        :placeholder="user.nickname ? user.nickname : 'Nickname'"
+        success-message="사용할 수 있는 닉네임입니다."
+      />
       <button class="submit-btn" type="submit">Submit</button>
     </Form>
     <Dialog ref="Dialog"></Dialog>
@@ -28,7 +38,7 @@
 </template>
 
 <script>
-import { ref, computed, onBeforeMount } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { Form } from 'vee-validate'
@@ -48,47 +58,58 @@ export default {
     const route = useRoute()
     const router = useRouter()
     const user = computed(() => store.state.auth.user)
-    const type = computed(() => route.params.type)
-    const isNew = ref(type.value == 'sign-up' ? true : false)
-
+    const isNew = computed(() => !route.meta.requiredAuth)
     const Dialog = ref(null)
 
-    onBeforeMount(async () => {
-      try {
-        if (sessionStorage.getItem('nickname')) {
-          await store.dispatch('auth/getUserInfo', sessionStorage.getItem('nickname'))
-        }
-      } catch (error) {
-        router.push({ name: 'login' })
-      }
-    })
-
     const schema = Yup.object().shape({
-      email: Yup.string().required('닉네임을 정해주세요.').email(),
+      email: Yup.string()
+        .required('닉네임을 정해주세요.')
+        .default(user.value ? user.value.email : '')
+        .email(),
       password: Yup.string()
         .required('비밀번호를 입력해주세요')
         .min(4, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.')
-        .max(30, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
+        .max(30, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.')
+        .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
       passwordConfirmation: Yup.string()
         .required('비밀번호를 재입력 해주세요')
         .oneOf([Yup.ref('password'), null], '비밀번호가 일치하지 않습니다.'),
       nickname: Yup.string()
         .required('닉네임을 정해주세요.')
-        .matches(/^[가-힣a-zA-Z\s]+$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
+        .default(user.value ? user.value.nickname : '')
+        .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
     })
 
     async function onSubmit(values) {
       try {
-        if (type.value === 'sign-up') {
+        if (isNew.value) {
           delete values.currentPassword
           const data = await store.dispatch('auth/signUp', values)
-          data ? router.push({ name: 'posts' }) : alert('Create account failed.')
+
+          if (!data) {
+            throw new Error('Create account failed.')
+          }
         } else {
-          const data = await store.dispatch('auth/editAccount', JSON.stringify(values))
-          data ? router.push({ name: 'home' }) : alert('Edit account failed.')
+          values.email = values.email ? values.email : user.value.email
+          values.nickname = values.nickname ? values.nickname : user.value.nickname
+
+          if (values.password) {
+            values.newPassword = values.password
+            delete values.password
+            delete values.passwordConfirmation
+          }
+
+          const { status } = await store.dispatch('auth/editAccount', values)
+
+          if (status === 200) {
+            store.dispatch('auth/logout')
+          } else {
+            throw new Error('Edit account failed.')
+          }
         }
+        router.push({ name: 'home' })
       } catch (err) {
-        alert('Edit account failed.')
+        alert(err.message)
       }
     }
 
@@ -100,18 +121,22 @@ export default {
           okButton: 'Delete',
         })
         if (ok) {
-          const uid = store.state.user.userIdx || sessionStorage.getItem('user')
-          const response = await store.dispatch('delAccount', uid)
-          response.data ? router.push({ name: 'login' }) : alert('Cannot delete account(Server error).')
+          const { status } = await store.dispatch('delAccount', sessionStorage.getItem('nickname'))
+
+          if (status === 200) {
+            store.dispatch('auth/logout')
+            router.push({ name: 'login' })
+          } else {
+            throw new Error('Cannot delete account(Server error)')
+          }
         }
       } catch (err) {
-        console.log(err)
+        alert(err.message)
       }
     }
 
     return {
       user,
-      type,
       isNew,
       Dialog,
       schema,

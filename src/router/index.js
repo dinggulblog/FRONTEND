@@ -18,10 +18,16 @@ const routes = [
     meta: { title: 'Login' },
   },
   {
-    path: '/auth/:type',
+    path: '/auth/sign-up',
+    name: 'signUp',
+    component: Account,
+    meta: { title: 'Sign-up', requiredAuth: false },
+  },
+  {
+    path: '/auth/account',
     name: 'account',
     component: Account,
-    meta: { title: 'Account' },
+    meta: { title: 'Account', requiredAuth: true },
   },
   {
     path: '/posts/:menu/:sub?',
@@ -29,12 +35,12 @@ const routes = [
     component: Posts,
     meta: { title: 'Posts' },
   },
-  { path: '/posts/:menu/:sub/:postNum', name: 'post', component: Post },
+  { path: '/posts/:menu/:sub?/:postNum', name: 'post', component: Post },
   {
     path: '/posts/editor/:postNum?',
     name: 'editor',
     component: Editor,
-    meta: { title: 'Editor' },
+    meta: { title: 'Editor', requiredAuth: true },
   },
   {
     path: '/:catchAll(.*)+',
@@ -48,18 +54,20 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   document.title = to.meta.title
-  /*
-  if (store.state.auth.status.loggedIn && (to.name === 'login' || to.path === '/account/sign-up')) {
+
+  if (!store.state.menu.menus.length) {
+    await store.dispatch('menu/getMenus')
+  }
+
+  if (store.state.auth.user.accessToken && (to.name === 'login' || to.path === '/account/sign-up')) {
     next({ name: 'home' })
-  } else if (!store.state.auth.status.loggedIn && to.meta.requiredAuth) {
+  } else if (!store.state.auth.user.accessToken && to.meta.requiredAuth) {
     next({ name: 'login' })
   } else {
     next()
   }
-  */
-  next()
 })
 
 export default router

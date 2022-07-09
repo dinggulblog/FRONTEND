@@ -2,10 +2,10 @@
   <div class="posts">
     <Toolbar v-show="curRouteParams.menu !== 'guest'" :type="type" @updatedToolbar="updatedToolbar" />
 
-    <div v-if="getPosts.length">
+    <div v-if="posts.length">
       <GuestList v-if="curRouteParams.menu === 'guest'" :sortedPosts="getPosts" />
       <ul v-else :class="type">
-        <template v-for="post in getPosts" :key="post._id">
+        <template v-for="post in posts" :key="post._id">
           <List :post="post" :type="type" />
         </template>
       </ul>
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { ref, computed, watchEffect } from 'vue'
+import { ref, computed, watchEffect, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import Toolbar from '../../components/Toolbar.vue'
@@ -38,30 +38,35 @@ export default {
   setup() {
     const route = useRoute()
     const store = useStore()
-
-    const category = ref('')
-    const sortedBy = ref({})
-    const getPosts = ref([])
-    //const newPosts = ref([])
-    // const curRouteQuery = computed(() => route.query)
+    const curRouteQueries = computed(() => route.query)
     const curRouteParams = computed(() => route.params)
-
-    getPosts.value = store.state.post.posts
-
+    const posts = computed(() => store.state.post.posts)
     const type = ref('list')
+    const category = ref('')
+    const sortedBy = ref('')
 
     const updatedToolbar = (updatedData) => {
       if (updatedData.type) {
         type.value = updatedData.type
-        console.log(type.value)
       } else if (updatedData.category) {
         category.value = updatedData.category
-        console.log(category.value)
       } else if (updatedData.sortedBy) {
         sortedBy.value = updatedData.sortedBy
-        console.log(sortedBy.value)
       }
     }
+
+    watchEffect(async () => {
+      try {
+        const filter = { title: curRouteParams.value.menu, subject: curRouteParams.value.sub }
+        await store.dispatch('post/getPosts', {
+          subject: store.getters['menu/getMenuId'](filter),
+          page: curRouteQueries.value.pageNum,
+          limit: 10,
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    })
 
     watchEffect(() => {
       if (!curRouteParams.value.sub || curRouteParams.value.sub !== 'album') {
@@ -71,15 +76,7 @@ export default {
       }
     })
 
-    /*
-    watchEffect(() => {
-      if (curRouteParams.value || curRouteQuery.value || category.value || sortedBy.value) {
-        newPosts.value = await store.dispatch('post/getPosts', { pageNum : route.query.pageNum, category : category.value, sortedBy : sortedBy.value.key })
-      }
-    })
-  */
-
-    return { curRouteParams, getPosts, Pagenation2, type, updatedToolbar }
+    return { curRouteParams, posts, Pagenation2, type, updatedToolbar }
   },
 }
 </script>

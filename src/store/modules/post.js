@@ -1,76 +1,22 @@
-import axios from 'axios'
-
-const dummyPosts = []
-for (let i = 0; i < 5; i++) {
-  dummyPosts.push({
-    _id: (Math.random() + i).toString().substring(7),
-    author: {
-      _id: (Math.random() + i).toString().substring(7),
-      roles: ['ADMIN'],
-      nickname: 'master',
-    },
-    menu: {
-      _id: (Math.random() + i).toString().substring(7),
-      owner: 'sol',
-      subject: 'album',
-      category: '',
-    },
-    postNum: i,
-    title: '제목' + i,
-    content: '민규 죽어. 반박없음 반박있을시 루비도 같이 죽임',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    isPublic: false,
-    viewCount: i,
-    likeCount: i,
-    comment: i,
-    tag: ['루비바보', '루빙', '치즈', '토리', '밍구'],
-    imageURL: `${i}.jpg`,
-  })
-}
-
-/*
-
-const dummyPosts = []
-for (let i = 1; i < 11; i++) {
-  dummyPosts.push({
-    _id: i,
-    idx: i - 1,
-    title: '제목 입니다 Lorrem Ipsum' + i,
-    content: `참고로 ||을 사용한 두 번째 단락 평가의 경우, 최근 코드에서는 새로운 널 병합 연산자 (??)를 사용할 수도 있습니다. 널 병합 연산자는 첫 번째 연산자가 "널과 유사 (en-US)"한, 즉 null이거나 undefined일 때만 두 번째 피연산자를 반환합니다. ''와 0도 유효한 값이라면 널 병합 연산자가 기본 값을 나타낼 때 더 좋은 선택지입니다.`,
-    createdAt: Date.now(),
-    menu: 'sol',
-    sub: 'album',
-    category: '전체',
-    like: i * 5,
-    likeActive: true,
-    comment: i * 5,
-    imageURL: `${i}.jpg`,
-  })
-}
-*/
+import axios from '../../services/axios'
 
 const state = () => ({
   post: {},
-  posts: dummyPosts,
+  posts: [],
 })
 
-const getters = {
-  /* params: String (subMenu)  /
-  /  return: Array            */
-  getFilteredPosts: (state) => (sub) => {
-    if (!sub) return state.posts
-    else return state.posts.filter((post) => post.sub === sub)
-  },
-}
+const getters = {}
 
 const actions = {
   // params: String (post ID)
   async getPost({ commit }, payload) {
     try {
-      const response = await axios.get(`${process.env.VUE_APP_API_URL}posts/${payload}`)
-      commit('SET_POST', response.data.post)
-      return response.status
+      const {
+        status,
+        data: { data },
+      } = await axios.get(`${process.env.VUE_APP_API_URL}posts/${payload}`)
+      commit('SET_POST', data.post)
+      return status
     } catch (err) {
       console.log(err.message)
     }
@@ -79,9 +25,9 @@ const actions = {
   // params: none
   async getPosts({ commit }, payload) {
     try {
-      const response = await axios.get(process.env.VUE_APP_API_URL + 'posts', { params: payload })
-      commit('SET_POSTS', response.data.posts)
-      return response.status
+      const { data } = await axios.get(process.env.VUE_APP_API_URL + 'posts', { params: payload })
+      console.log(data.data.posts)
+      commit('SET_POSTS', data.data.posts)
     } catch (err) {
       console.log(err.message)
     }
@@ -90,9 +36,9 @@ const actions = {
   // params: Object (category, subject, content, tag)
   async createPost({ commit }, payload) {
     try {
-      const response = await axios.post(process.env.VUE_APP_API_URL + 'post', payload)
-      commit('UPDATE_POSTS', { action: 'create', data: response.data.post })
-      return response.status
+      const { status, data } = await axios.post(process.env.VUE_APP_API_URL + 'posts', payload)
+      commit('UPDATE_POSTS', { action: 'create', data: data.data })
+      return status
     } catch (err) {
       console.log(err.message)
     }

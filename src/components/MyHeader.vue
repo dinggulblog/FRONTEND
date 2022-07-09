@@ -20,7 +20,7 @@
           <div class="menu">
             <ul>
               <li>
-                <router-link :to="{ name: 'account', params: { type: 'editor' } }">Account</router-link>
+                <router-link :to="{ name: 'account' }">Account</router-link>
               </li>
               <li @click="onLogout">Logout</li>
             </ul>
@@ -41,7 +41,7 @@ export default {
   setup() {
     const store = useStore()
     const route = useRoute()
-    const user = computed(() => store.state.auth.user.name)
+    const user = computed(() => store.state.auth.user.nickname)
     const isAuthRoute = computed(() => route.path.startsWith('/auth'))
     const search = ref('')
 

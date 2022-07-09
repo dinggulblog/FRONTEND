@@ -9,15 +9,21 @@
         <i class="material-icons arrow" :class="{ expanded: state.sortedByVisible }">expand_more</i>
         <div :class="{ hidden: !state.sortedByVisible }">
           <ul>
-            <li :class="{ current: item.value === state.selectedSortedBy }" v-for="item in sortOptions" :key="item.key" @click="onSelect('sortedBy', item.value)">{{ item.value }}</li>
+            <li :class="{ current: item.value === state.selectedSortedBy }" v-for="item in sortOptions" :key="item.key" @click="onSelect('sortedBy', item.value)">
+              {{ item.value }}
+            </li>
           </ul>
         </div>
       </div>
     </div>
 
     <div class="typeBtn">
-      <button @click="typeSet('list')" :style="[type === 'list' ? { color: 'var(--point)' } : { color: 'var(--primary)' }]"><i class="material-icons">format_list_bulleted</i></button>
-      <button @click="typeSet('album')" :style="[type === 'album' ? { color: 'var(--point)' } : { color: 'var(--primary)' }]"><i class="material-icons">grid_on</i></button>
+      <button @click="typeSet('list')" :style="[type === 'list' ? { color: 'var(--point)' } : { color: 'var(--primary)' }]">
+        <i class="material-icons">format_list_bulleted</i>
+      </button>
+      <button @click="typeSet('album')" :style="[type === 'album' ? { color: 'var(--point)' } : { color: 'var(--primary)' }]">
+        <i class="material-icons">grid_on</i>
+      </button>
     </div>
 
     <div class="category select" :value="state.selectedCategory">
@@ -28,7 +34,9 @@
         <i class="material-icons arrow" :class="{ expanded: state.categoryVisible }">expand_more</i>
         <div :class="{ hidden: !state.categoryVisible }">
           <ul>
-            <li :class="{ current: item === state.selectedCategory }" v-for="item in categories" :key="item" @click="onSelect('category', item)">{{ item }}</li>
+            <li :class="{ current: item === state.selectedCategory }" v-for="item in categories" :key="item" @click="onSelect('category', item)">
+              {{ item }}
+            </li>
           </ul>
         </div>
       </div>
@@ -49,9 +57,9 @@ export default {
   setup(type, { emit }) {
     const route = useRoute()
     const store = useStore()
-    const storeMenus = store.state.menu.menus
+    const storeMenus = computed(() => store.state.menu.menus)
     const curRouteParams = computed(() => route.params)
-    const categories = computed(() => [...new Set(getCategories(storeMenus, curRouteParams.value))])
+    const categories = computed(() => [...new Set(getCategories(storeMenus.value, curRouteParams.value))])
 
     const typeSet = (selectType) => {
       type = selectType
@@ -61,9 +69,9 @@ export default {
     const getCategories = (menus, routeParams) => {
       let filtered = []
       if (routeParams.menu && routeParams.sub) {
-        filtered = menus.filter((menu) => routeParams.menu === menu.owner && routeParams.sub === menu.subject)
+        filtered = menus.filter((menu) => routeParams.menu === menu.title && routeParams.sub === menu.subject)
       } else if (routeParams.menu) {
-        filtered = menus.filter((menu) => routeParams.menu === menu.owner)
+        filtered = menus.filter((menu) => routeParams.menu === menu.title)
       }
       return filtered.map((elem) => elem.categories).flat()
     }

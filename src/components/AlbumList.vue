@@ -3,7 +3,7 @@
     <ul v-for="post in sortedPosts" :key="post._id">
       <li>
         <div>
-          <router-link :to="{ name: 'post', params: { menu: post.menu, sub: post.sub } }">
+          <router-link :to="{ name: 'post', params: { menu: routeParams.menu, sub: routeParams?.sub } }">
             <div class="thumbNail" :style="{ backgroundImage: 'url(' + require(`@/assets/${post.imageURL}`) + ')' }"></div>
             <h2>{{ post.title }}</h2>
             <p>{{ post.content }}</p>
@@ -22,6 +22,8 @@
 
 <script>
 import dayjs from 'dayjs'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
 export default {
   props: {
@@ -31,7 +33,10 @@ export default {
     },
   },
   setup() {
-    return { dayjs }
+    const route = useRoute()
+    const routeParams = computed(() => route.params)
+
+    return { dayjs, routeParams }
   },
 }
 </script>

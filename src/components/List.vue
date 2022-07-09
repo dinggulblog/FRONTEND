@@ -1,26 +1,28 @@
 <template>
   <li :class="type">
     <div>
-      <div class="thumbNail" v-if="type === 'album'" :style="{ backgroundImage: 'url(' + require(`@/assets/${post.imageURL}`) + ')' }"></div>
+      <div class="thumbNail" v-if="type === 'album' && post.imageURL" :style="{ backgroundImage: 'url(' + require(`@/assets/${post.imageURL}`) + ')' }"></div>
       <h2>
-        <router-link :to="{ name: 'post', params: { menu: post.menu.owner, sub: post.menu.subject, postNum: post.postNum } }">{{ post.postNum }} - {{ post.title }}</router-link>
+        <router-link :to="{ name: 'post', params: { menu: routeParams.menu, sub: routeParams?.sub || '', postNum: post.postNum } }">{{ post.postNum }} - {{ post.title }}</router-link>
       </h2>
       <p>{{ post.content }}</p>
       <div class="postInfo">
         <span v-text="dayjs(post.createdAt).format('YYYY년 M월 D일')"></span>
         <span></span>
-        <span v-if="type === 'album'">댓글 {{ post.comment }}</span>
-        <span><i class="material-icons" :style="[post.likeActive ? { color: 'var(--likeActive)' } : { color: 'var(--like)' }]">favorite</i>{{ post.like }}</span>
+        <span v-if="type === 'album'">댓글 {{ post.commentCount }}</span>
+        <span><i class="material-icons" :style="[post.likeActive ? { color: 'var(--likeActive)' } : { color: 'var(--like)' }]">favorite</i>{{ post.commentCount }}</span>
       </div>
     </div>
 
     <div v-if="type === 'list'">
-      <span>{{ post.comment }}</span>
+      <span>{{ post.commentCount }}</span>
     </div>
   </li>
 </template>
 
 <script>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import dayjs from 'dayjs'
 
 export default {
@@ -33,8 +35,12 @@ export default {
       type: String,
     },
   },
-  setup() {
-    return { dayjs }
+  setup(props) {
+    const route = useRoute()
+    const routeParams = computed(() => route.params)
+    console.log('Post:', props.post)
+
+    return { dayjs, routeParams }
   },
 }
 </script>
