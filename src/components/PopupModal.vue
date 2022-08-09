@@ -9,21 +9,22 @@
 </template>
 
 <script>
+import { ref } from 'vue'
+
 export default {
-  name: 'PopupModal',
-  data() {
-    return {
-      isVisible: false,
+  setup() {
+    const isVisible = ref(false)
+
+    const open = () => {
+      isVisible.value = true
     }
-  },
-  methods: {
-    open() {
-      this.isVisible = true
-    },
-    close() {
-      this.isVisible = false
-    },
-  },
+
+    const close = () => {
+      isVisible.value = false
+    }
+
+    return { isVisible, open, close }
+  }
 }
 </script>
 
@@ -39,27 +40,27 @@ export default {
 
 .popup-modal {
   background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
   position: fixed;
+  align-items: center;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  display: flex;
-  align-items: center;
-  z-index: 50;
+  z-index: 99;
 }
 
 .window {
-  width: 40rem;
-  height: 24rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  margin: 0 auto;
+  width: 40rem;
+  height: 24rem;
+  color: var(--primary);
   font-weight: 400;
   letter-spacing: 0.05rem;
   box-shadow: 0 0 2.4rem 0.3rem rgba(0, 0, 0, 0.05);
   background: #fff;
-  margin: 0 auto;
-  color: var(--primary);
 }
 </style>

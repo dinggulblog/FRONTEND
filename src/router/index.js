@@ -11,42 +11,13 @@ import NotFound from '../views/NotFound.vue'
 const routes = [
   { path: '/', redirect: 'home' },
   { path: '/home', name: 'home', component: Home, meta: { title: 'Home' } },
-  {
-    path: '/auth/login',
-    name: 'login',
-    component: Login,
-    meta: { title: 'Login' },
-  },
-  {
-    path: '/auth/sign-up',
-    name: 'signUp',
-    component: Account,
-    meta: { title: 'Sign-up', requiredAuth: false },
-  },
-  {
-    path: '/auth/account',
-    name: 'account',
-    component: Account,
-    meta: { title: 'Account', requiredAuth: true },
-  },
-  {
-    path: '/posts/:menu/:sub?',
-    name: 'posts',
-    component: Posts,
-    meta: { title: 'Posts' },
-  },
-  { path: '/posts/:menu/:sub?/:postNum', name: 'post', component: Post },
-  {
-    path: '/posts/editor/:postNum?',
-    name: 'editor',
-    component: Editor,
-    meta: { title: 'Editor', requiredAuth: true },
-  },
-  {
-    path: '/:catchAll(.*)+',
-    component: NotFound,
-    meta: { title: 'NotFoundError' },
-  },
+  { path: '/auth/login', name: 'login', component: Login, meta: { title: 'Login' } },
+  { path: '/auth/sign-up', name: 'signUp', component: Account, meta: { title: 'Sign-up', requiredAuth: false } },
+  { path: '/auth/account', name: 'account', component: Account, meta: { title: 'Account', requiredAuth: true } },
+  { path: '/posts/:title/:subject?', name: 'posts', component: Posts, meta: { title: 'Posts' } },
+  { path: '/posts/:title/:subject?/:postNum(\\d+)', name: 'post', component: Post, meta: { title: 'Post' } },
+  { path: '/posts/editor/:postNum?', name: 'editor', component: Editor, meta: { title: 'Editor', requiredAuth: true } },
+  { path: '/:catchAll(.*)+', component: NotFound, meta: { title: 'NotFoundError 404!' } },
 ]
 
 const router = createRouter({
@@ -57,13 +28,19 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   document.title = to.meta.title
 
+  if (!store.state.auth.user.nickname && localStorage.getItem('user')) {
+    store.commit('auth/SET_USER_INFO', JSON.parse(localStorage.getItem('user')))
+  }
+
   if (!store.state.menu.menus.length) {
     await store.dispatch('menu/getMenus')
   }
 
-  if (store.state.auth.user.accessToken && (to.name === 'login' || to.path === '/account/sign-up')) {
+  console.log('auth: ', store.state.auth.user, '\ntoken: ', store.state.auth.token, '\nmenu: ', store.state.menu.menus)
+
+  if (store.state.auth.user.nickname && (to.name === 'login' || to.path === '/auth/sign-up')) {
     next({ name: 'home' })
-  } else if (!store.state.auth.user.accessToken && to.meta.requiredAuth) {
+  } else if (!store.state.auth.user.nickname && to.meta.requiredAuth) {
     next({ name: 'login' })
   } else {
     next()

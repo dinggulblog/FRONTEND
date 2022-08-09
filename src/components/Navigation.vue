@@ -1,19 +1,23 @@
 <template>
   <div class="nav">
     <nav>
-      <ul v-for="menu in menus" :key="menu.title">
+      <ul v-for="title in getters['menu/getTitles']" :key="title">
         <li>
-          <router-link v-if="menu.title !== 'guest'" :to="{ name: 'posts', params: { menu: menu.title, sub: '' }, query: { pageNum: 1 } }">
-            <i class="material-icons">favorite</i> {{ menu.title }}
+
+          <!-- Title menu link -->
+          <router-link :to="{ name: 'posts', params: { title } }">
+            <i class="material-icons">favorite</i> {{ title }}
           </router-link>
-          <span v-else><i class="material-icons">favorite</i> {{ menu.title }}</span>
-          <ul v-for="subject in menu.subjects" :key="subject">
+
+          <!-- Sub menu link -->
+          <ul v-for="subject in getters['menu/getSubjects'](title)" :key="subject">
             <li>
-              <router-link :to="{ name: 'posts', params: { menu: menu.title, sub: subject }, query: { pageNum: 1 } }">
+              <router-link :to="{ name: 'posts', params: { title, subject } }">
                 {{ subject }}
               </router-link>
             </li>
           </ul>
+          
         </li>
       </ul>
     </nav>
@@ -21,16 +25,14 @@
 </template>
 
 <script>
-import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
   name: 'navigation',
   setup() {
-    const store = useStore()
-    const menus = computed(() => store.getters['menu/getFilteredMenus'])
+    const { getters } = useStore()
 
-    return { menus }
+    return { getters }
   },
 }
 </script>

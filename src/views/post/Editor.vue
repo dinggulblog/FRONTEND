@@ -1,49 +1,59 @@
 <template>
   <div class="editor">
-    <div class="choose">
+
+    <!-- Menu toolbar -->
+    <div class="toolbar">
       <div class="menu">
-        <select v-model="selectedTitle" required>
-          <option selected disabled hidden value="">Title</option>
-          <option v-for="title in titles" :key="title" :value="title">
-            {{ title }}
-          </option>
+        <select v-model="states.title" required>
+          <option selected disabled hidden value="">Menu</option>
+          <option v-for="title in getters['menu/getTitles']" :key="title" :value="title">{{ title }}</option>
         </select>
       </div>
 
-      <div class="subMenu">
-        <select v-model="selectedSubject" v-show="selectedTitle">
+      <div class="subject">
+        <select v-model="states.subject" required>
           <option selected disabled hidden value="">Subject</option>
-          <option v-for="subject in subjects" :key="subject">
-            {{ subject }}
-          </option>
+          <option v-for="subject in getters['menu/getSubjects'](states.title)" :key="subject" :value="subject">{{ subject }}</option>
         </select>
       </div>
 
       <div class="category">
-        <select v-model="selectedCategory" v-show="selectedSubject">
+        <select v-model="states.category">
           <option selected disabled hidden value="">Category</option>
-          <option v-for="category in categories" :key="category">
-            {{ category }}
-          </option>
+          <option v-for="category in getters['menu/getCategories']({ title: states.title, subject: states.subject })" :key="category" :value="category">{{ category }}</option>
         </select>
       </div>
 
       <div class="toggle">
-        <button class="material-icons" v-text="isPrivate ? 'toggle_on' : 'toggle_off'" :style="[isPrivate ? { color: 'var(--point)' } : { color: '#E6E6E6' }]" @click="isPrivate = !isPrivate"></button>
-        <span v-text="isPrivate ? 'Secret' : 'Public'" :style="[isPrivate ? { color: 'var(--point)' } : { color: '#BABABA' }]"></span>
+        <button
+          class="material-icons"
+          :style="[states.isPublic ? { color: '#E6E6E6' } : { color: 'var(--point)' }]"
+          @click="togglePublic()"
+        >{{ states.isPublic ? 'toggle_off' : 'toggle_on' }}</button>
+        <span :style="[states.isPublic ? { color: '#BABABA' } : { color: 'var(--point)' }]">{{ states.isPublic ? 'Public' : 'Secret' }}</span>
       </div>
     </div>
 
+    <!-- Post body -->
     <div class="title">
-      <input type="text" v-model="postTitle" placeholder="제목" onfocus="this.placeholder=''" onblur="this.placeholder='제목'" />
+      <input
+        type="text"
+        v-model="title"
+        placeholder="제목을 입력하세요."
+        onfocus="this.placeholder=''"
+        onblur="this.placeholder='제목을 입력하세요.'"
+      />
     </div>
 
     <div class="content">
-      <textarea v-model="postContent" placeholder="당신의 이야기를 적어보세요..."> </textarea>
-      <markdown :source="postContent" :plugins="plugins" :breaks="true" :xhtmlOut="true" :typographer="true" class="markdown" />
-      <!--<QuillEditor theme="snow" contentType="html" v-model:content="content" :toolbar="option.toolbarOptions" />-->
+      <textarea v-model="content" placeholder="당신의 이야기를 적어보세요..."> </textarea>
+      <markdown class="markdown" :source="content" :plugins="plugins" :breaks="true" :xhtmlOut="true" :typographer="true" />
+      <!--<QuillEditor theme="snow" contentType="html" v-model:content="content" :toolbar="options.toolbarOptions" />-->
     </div>
 
+    <button class="submit" @click="onSubmit()">Submit</button>
+
+    <!--
     <div class="tags">
       <transition-group name="list" tag="div" class="tagView">
         <ul v-for="(item, index) in tags" :key="item" v-show="tags">
@@ -53,145 +63,115 @@
           </li>
         </ul>
       </transition-group>
-
       <input type="text" v-model.trim="tag" placeholder="태그는 쉼표(,)로 구분" onfocus="this.placeholder=''" onblur="this.placeholder='태그는 쉼표(,)로 구분'" @keyup="addTag($event)" />
     </div>
-
-    <button @click="onSubmit()" class="submit">Submit</button>
+    -->
   </div>
   <Dialog ref="Dialog"></Dialog>
 </template>
 
 <script>
-import { ref, inject, computed, watch, onMounted, onUpdated, onBeforeUnmount } from 'vue'
-import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import { defineComponent, ref, reactive, watch, onBeforeMount, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
 import { QuillEditor } from '@vueup/vue-quill'
-import Dialog from '../../components/Dialog.vue'
 import Markdown from 'vue3-markdown-it'
 import MarkdownEmoji from 'markdown-it-emoji'
+import Dialog from '../../components/Dialog.vue'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import 'highlight.js/styles/atom-one-dark.css'
 
-export default {
+export default defineComponent({
   name: 'editor',
   components: {
     Dialog,
     Markdown,
   },
   setup(props, { emit }) {
-    const router = useRouter()
-    const route = router.currentRoute.value
-    const store = useStore()
+    const { push, currentRoute } = useRouter()
+    const { state, getters, dispatch } = useStore()
+    const { value: { params } } = currentRoute
+
     const Dialog = ref(null)
+    const plugins = ref([{ plugin: MarkdownEmoji }])
+    const options = {
+      toolbarOptions: [
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ size: ['small', false, 'large', 'huge'] }],
+        [{ color: [] }, { background: [] }],
+        ['link', 'image'],
+        ['clean']
+      ]
+    }
 
-    const plugins = ref([
-      {
-        plugin: MarkdownEmoji,
-      },
-    ])
-
-    const state = {
-      firstUpdate: true,
+    const states = reactive({
+      title: '',
+      subject: '',
+      category: '',
+      isPublic: true,
       canLeavePage: true,
-    }
-    const option = {
-      toolbarOptions: [['bold', 'italic', 'underline', 'strike'], [{ size: ['small', false, 'large', 'huge'] }], [{ color: [] }, { background: [] }], ['link', 'image'], ['clean']],
-    }
-
-    if (!route.params.idx) store.commit('post/SET_POST', { title: '', content: '', tags: [] })
-
-    const post = computed(() => store.state.post.post)
-    const isPrivate = ref(false)
-
-    const selectedTitle = ref('')
-    const selectedSubject = ref('')
-    const selectedCategory = ref('')
-
-    const titles = computed(() => store.getters['menu/getTitles'])
-    const subjects = computed(() => store.getters['menu/getSubjects'](selectedTitle.value))
-    const categories = computed(() => store.getters['menu/getCategories']({ title: selectedTitle.value, subject: selectedSubject.value }))
-
-    watch(selectedTitle, () => {
-      selectedSubject.value = ''
-      selectedCategory.value = ''
     })
 
-    watch(selectedSubject, () => {
-      selectedCategory.value = ''
-    })
-
-    const postTitle = computed({
-      get: () => store.state.post.post.title || '',
-      set: (val) => store.commit('post/SET_POST_TITLE', val),
-    })
-    const postContent = ref('')
-    const tag = ref(null)
-    const tags = computed({
-      get: () => store.state.post.post.tags || [],
-      set: (val) => store.commit('post/SET_POST_TAGS', val),
-    })
-
-    watch([postTitle, postContent, tags], () => {
-      toggleCanLeavePage(false)
-    })
+    const title = ref('')
+    const content = ref('')
 
     const onSubmit = async () => {
-      try {
-        toggleCanLeavePage(true)
-        let response = null
-
-        selectedTitle.value == null
-          ? alert('메뉴를 선택해주세요')
-          : store.commit('post/SET_POST', {
-              subject: store.getters['menu/getMenuId']({ title: selectedTitle.value, subject: selectedSubject.value }),
-              title: postTitle.value,
-              content: postContent.value,
-              category: selectedCategory.value,
-              isPublic: !isPrivate.value,
-            })
-
-        post.value._id ? (response = await store.dispatch('post/editPost', post.value)) : (response = await store.dispatch('post/createPost', post.value))
-
-        response === 200 ? router.push({ name: 'home' }) : alert(`Cannot save diary(Server error ${response})`)
-      } catch (err) {
-        console.log(err)
+      if (!states.title || !states.subject) {
+        return alert('게시글을 삽입할 메뉴를 선택해야 합니다.')
       }
+
+      toggleCanLeavePage(true)
+
+      const post = {
+        _id: state.post.post._id || undefined,
+        subject: getters['menu/getMenuIds']({ title: states.title, subject: states.subject }),
+        category: states.category ? states.category : undefined,
+        isPublic: states.isPublic,
+        title: title.value,
+        content: content.value
+      }
+      const response = params.postNum
+        ? await dispatch('post/updatePost', post)
+        : await dispatch('post/createPost', post)
+
+      response.success
+        ? push({ name: 'post', params: { title: states.title, subject: states.subject, postNum: response.data.post.postNum } })
+        : alert(response.message)
     }
 
-    const addTag = (event) => {
-      if (event.code === 'Comma') {
-        store.commit('post/UPDATE_POST_TAGS', event.target.value)
-        tag.value = ''
-        event.target.value = ''
-      }
-    }
-
-    const delTag = (index) => {
-      store.commit('post/REMOVE_POST_TAG', index)
+    const togglePublic = () => {
+      states.isPublic = !states.isPublic
     }
 
     const toggleCanLeavePage = (bool) => {
-      state.canLeavePage = bool
-      emit('toggle-can-leave-site', state.canLeavePage)
+      states.canLeavePage = bool
+      emit('toggle-can-leave-site', states.canLeavePage)
     }
 
     const unLoadEvent = (event) => {
-      if (!state.canLeaveSite) {
+      if (!states.canLeaveSite) {
         event.preventDefault()
         event.returnValue = ''
       }
     }
 
-    const goBack = () => {
-      router.go(-1)
-    }
+    const stop = watch([title, content], () => {
+      toggleCanLeavePage(false)
+    }, { flush: 'post' })
 
-    onUpdated(() => {
-      if (state.firstUpdate) {
-        state.canLeavePage = true
+    setTimeout(() => {
+      if (!states.canLeavePage) stop()
+    }, 1000 * 60)
+
+    onBeforeMount(() => {
+      if (params.postNum) {
+        const menu = getters['menu/getMenu'](state.post.post.subject)
+        states.title = menu.title
+        states.subject = menu.subject
+        title.value = state.post.post.title
+        content.value = state.post.post.content
+        states.category = state.post.post.category
       }
-      state.firstUpdate = false
     })
 
     onMounted(() => {
@@ -203,40 +183,31 @@ export default {
     })
 
     onBeforeRouteLeave(async (to, from, next) => {
-      if (state.canLeavePage) {
+      if (states.canLeavePage) {
         next()
       } else {
-        const ok = await Dialog.value.show({
-          title: '현재 페이지에서 나가시겠습니까?',
-          message: '작성된 내용은 떠나갈것입니다...',
-        })
+        const ok = await Dialog.value.show({ title: '현재 페이지에서 나가시겠습니까?', message: '작성된 내용은 떠나갈것입니다...' })
         ok ? next() : next(false)
       }
     })
 
-    return {
-      Dialog,
-      plugins,
-      option,
-      selectedTitle,
-      selectedSubject,
-      selectedCategory,
-      isPrivate,
-      post,
-      postTitle,
-      tag,
-      tags,
-      onSubmit,
-      addTag,
-      delTag,
-      goBack,
-      postContent,
-      titles,
-      subjects,
-      categories,
+    /*
+    const addTag = (event) => {
+      if (event.code === 'Comma') {
+        store.commit('post/UPDATE_POST_TAGS', event.target.value)
+        tag.value = ''
+        event.target.value = ''
+      }
     }
+
+    const delTag = (index) => {
+      store.commit('post/REMOVE_POST_TAG', index)
+    }
+    */
+
+    return { getters, Dialog, plugins, options, states, title, content, onSubmit, togglePublic }
   },
-}
+})
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
@@ -258,7 +229,7 @@ export default {
     }
   }
 
-  .choose {
+  .toolbar {
     grid-row: 1 / 2;
     display: grid;
     grid-template-columns: auto auto 1fr;
@@ -282,9 +253,13 @@ export default {
       margin: 0 2.4rem;
     }
 
+    div:nth-child(3) {
+      grid-column: 3 / 4;
+    }
+
     div:nth-child(4) {
-      grid-column: 4 / 5;
       display: grid;
+      grid-column: 4 / 5;
       grid-template-columns: repeat(2, auto);
       justify-content: end;
       align-items: center;

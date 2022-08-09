@@ -1,12 +1,14 @@
+const path = require('path')
+
 module.exports = {
+  outputDir: path.resolve('../backend/public'),
   devServer: {
     hot: true,
     proxy: {
       '/v1': {
-        target: 'http://3.38.49.221:80',
+        target: 'http://localhost:3000',
         changeOrigin: true,
       },
-    },
-    headers: { 'Access-Control-Allow-Origin': '*' },
+    }
   },
 }

@@ -1,54 +1,60 @@
 <template>
   <div class="header">
     <div class="headerWrap">
+
+      <!-- Search div -->
       <div class="search">
         <i class="material-icons">search</i>
-        <input type="text" placeholder="Search for here" v-model="search" />
+        <input type="text" placeholder="Search for here" v-model="searchText" spellcheck="false"/>
       </div>
 
+      <!-- Header logo -->
       <router-link class="logo" :to="{ name: 'home' }">DINGGUL</router-link>
 
+      <!-- Header profile -->
       <div class="user">
-        <router-link :to="{ name: 'editor' }"><i class="material-icons">create</i>New post </router-link>
 
+        <!-- Quick menu -->
+        <router-link :to="{ name: 'editor' }"><i class="material-icons">create</i>New post </router-link>
         <span></span>
 
-        <div class="drop" v-if="user">
-          <button class="btn">{{ user }}</button>
-          <div class="profile"></div>
-
+        <!-- Profile -->
+        <div class="drop" v-if="nickname">
+          <button class="btn">{{ nickname }}</button> <!-- Profile nickname -->
+          <div class="profile"></div>                 <!-- Profile image -->
           <div class="menu">
             <ul>
-              <li>
-                <router-link :to="{ name: 'account' }">Account</router-link>
-              </li>
+              <li><router-link :to="{ name: 'account' }">Account</router-link></li>
               <li @click="onLogout">Logout</li>
             </ul>
           </div>
         </div>
-        <router-link :to="{ name: 'login' }" v-else><i class="material-icons">person</i></router-link>
+        <router-link v-else :to="{ name: 'login' }"><i class="material-icons">person</i></router-link>
+
       </div>
+
     </div>
   </div>
 </template>
 
 <script>
 import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
 export default {
   setup() {
     const store = useStore()
-    const route = useRoute()
-    const user = computed(() => store.state.auth.user.nickname)
-    const isAuthRoute = computed(() => route.path.startsWith('/auth'))
-    const search = ref('')
+    const router = useRouter()
+    const nickname = computed(() => store.state.auth.user.nickname)
+    const searchText = ref('')
 
-    const onLogout = () => {
-      store.dispatch('auth/logout')
+    const onLogout = async () => {
+      const response = await store.dispatch('auth/logout')
+      response.success ? router.push({ name: 'home' }) : alert(response.message)
     }
-    return { isAuthRoute, user, search, onLogout }
+
+    return { nickname, searchText, onLogout }
   },
 }
 </script>

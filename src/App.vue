@@ -1,12 +1,18 @@
 <template>
+  <!-- Global Header -->
   <div class="fixedTop">
     <MyHeader />
   </div>
+
+  <!-- Global Body wrapper -->
   <div class="bodyWrap" :style="[!currentRoute.startsWith('/auth') ? { background: '#fff' } : { background: 'var(--point)' }]">
     <div class="body" :style="[!currentRoute.startsWith('/auth') && !currentRoute.startsWith('/posts/editor') ? { gridTemplateColumns: 'minmax(auto, 30.6rem) 1fr' } : { gridTemplateColumns: '1fr' }]">
+      <!-- Global Navigation -->
       <div class="navigation" v-if="!currentRoute.startsWith('/auth') && !currentRoute.startsWith('/posts/editor')">
         <Navigation />
       </div>
+
+      <!-- Body contents -->
       <div class="view">
         <router-view />
       </div>
@@ -15,7 +21,7 @@
 </template>
 
 <script>
-import { computed, provide, readonly, onBeforeMount, watchEffect } from 'vue'
+import { computed, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 import MyHeader from './components/MyHeader.vue'
 import Navigation from './components/Navigation.vue'
@@ -28,10 +34,8 @@ export default {
   },
   setup() {
     const route = useRoute()
-    const currentRoute = computed(() => route.path.toString())
+    const currentRoute = computed(() => route.path)
     const currentTitle = computed(() => route.meta.title)
-
-    watchEffect(() => route.path)
 
     onBeforeMount(() => {
       document.addEventListener('visibilitychange', changeTitle, false)
@@ -158,7 +162,7 @@ i {
   justify-content: center;
   padding-top: 10rem;
   grid-template-columns: 1fr minmax(auto, 128rem) 1fr;
-  transition: 0.4s linear;
+  transition: 0.2s linear;
 
   .body {
     grid-column: 2 / 3;

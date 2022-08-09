@@ -1,151 +1,110 @@
+import { stringify } from 'querystring'
 import axios from '../../services/axios'
 
 const state = () => ({
+  temp: {},
   post: {},
   posts: [],
 })
 
-const getters = {}
+const getters = {
+  getPostWithNum: (state) => (postNum) => {
+    return state.posts.find((post) => String(post.postNum) === String(postNum)) ?? {}
+  }
+}
 
 const actions = {
   // params: String (post ID)
   async getPost({ commit }, payload) {
     try {
-      const {
-        status,
-        data: { data },
-      } = await axios.get(`${process.env.VUE_APP_API_URL}posts/${payload}`)
-      commit('SET_POST', data.post)
-      return status
+      const { data } = await axios.get(`${process.env.VUE_APP_API_URL}posts/post`, { params: payload })
+      commit('SET_POST', data.data.post)
+      commit('comment/SET_COMMENTS', data.data.comments, { root: true })
+      return data
     } catch (err) {
-      console.log(err.message)
+      return err.response.data
     }
   },
-
-  // params: none
+  
+  // params: Object (subjects & pagenation options)
   async getPosts({ commit }, payload) {
     try {
-      const { data } = await axios.get(process.env.VUE_APP_API_URL + 'posts', { params: payload })
-      console.log(data.data.posts)
+      const { data } = await axios.get(`${process.env.VUE_APP_API_URL}posts`, { params: payload, paramsSerializer: (params) => stringify(params) })
       commit('SET_POSTS', data.data.posts)
+      return data
     } catch (err) {
-      console.log(err.message)
+      return err.response.data
     }
   },
 
-  // params: Object (category, subject, content, tag)
+  // params: Object (post)
   async createPost({ commit }, payload) {
     try {
-      const { status, data } = await axios.post(process.env.VUE_APP_API_URL + 'posts', payload)
-      commit('UPDATE_POSTS', { action: 'create', data: data.data })
-      return status
+      const { data } = await axios.post(`${process.env.VUE_APP_API_URL}posts`, payload)
+      commit('SET_POST', data.data.post)
+      return data
     } catch (err) {
-      console.log(err.message)
+      return err.response.data
     }
   },
 
-  // params: Object (category, subject, content, tag)
-  async editPost({ commit }, payload) {
+  // params: Object (post)
+  async updatePost({ commit }, payload) {
     try {
-      const response = await axios.put(`${process.env.VUE_APP_API_URL}/${payload._id}`, payload)
-      commit('UPDATE_POSTS', { action: 'update', data: response.data.post })
-      return response.status
+      const { data } = await axios.put(`${process.env.VUE_APP_API_URL}posts/${payload._id}`, payload)
+      commit('SET_POST', data.data.post)
+      return data
     } catch (err) {
-      console.log(err.message)
+      return err.response.data
     }
   },
 
-  // params: String (postId)
+  // params: String (post ID)
+  async updateLike({ commit }, payload) {
+    try {
+      const { data } = await axios.put(`${process.env.VUE_APP_API_URL}posts/like/${payload}`)
+      commit('SET_POST_LIKE', data.data.post)
+      return data
+    } catch (err) {
+      return err.response.data
+    }
+  },
+
+  // params: String (post ID)
   async deletePost({ commit }, payload) {
     try {
-      const response = await axios.delete(`${process.env.VUE_APP_API_URL}/${payload}`)
-      commit('UPDATE_POSTS', { action: 'delete', data: response.data.post })
-      return response.status
+      const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}posts/${payload}`)
+      return data
     } catch (err) {
-      console.log(err.message)
+      return err.response.data
     }
   },
 
-  // params: Object
-  /*
-  async fileUpload({ commit }, payload) {
+   // params: String (post ID)
+  async deleteLike({ commit }, payload) {
     try {
-      const response = await axios.post(process.env.VUE_APP_API_URL + 'file', payload)
-      return response.status
+      const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}posts/like/${payload}`)
+      commit('SET_POST_LIKE', data.data.post)
+      return data
     } catch (err) {
-      console.log(err.message)
+      return err.response.data
     }
-  },
-
-  */
+  }
 }
 
 const mutations = {
-  SET_POST(state, data) {
-    state.post = data
+  SET_POST(state, post) {
+    state.post = post
   },
 
-  SET_POST_TITLE(state, title) {
-    state.post.title = title
+  SET_POSTS(state, posts) {
+    state.posts = posts
   },
 
-  SET_POST_CONTENT(state, content) {
-    state.post.content = content
-  },
-
-  SET_POST_TAGS(state, tags) {
-    state.post.tags = tags
-  },
-
-  SET_POST_STATE(state, obj) {
-    state.post.menu = obj.menu
-    state.post.sub = obj.sub
-    state.post.category = obj.category
-    state.post.isPrivate = obj.isPrivate ? true : false
-  },
-
-  UPDATE_POST_TAGS(state, tag) {
-    tag = tag.replace(/,/g, '').trim()
-    if (tag) {
-      state.post.tags.push(tag)
-    }
-  },
-
-  REMOVE_POST_TAG(state, index) {
-    state.post.tags.splice(index, 1)
-  },
-
-  SET_POSTS(state, data) {
-    state.posts = data
-    state.posts.forEach((post, idx) => (post.idx = idx))
-  },
-
-  RESET_POSTS(state) {
-    state.posts.length = 0
-    state.posts = []
-  },
-
-  UPDATE_POSTS(state, { action, post }) {
-    const newPosts = [...state.posts]
-
-    if (!post) {
-      return
-    }
-
-    if (action === 'create') {
-      post.idx = newPosts.length
-      newPosts.push(post)
-    } else if (action === 'update') {
-      newPosts[post.idx] = post
-    } else if (action === 'delete') {
-      newPosts.splice(post.idx, 1)
-      for (let i = post.idx; i++; i < newPosts.length - 1) {
-        newPosts[i].idx -= 1
-      }
-    }
-
-    state.posts = newPosts
-  },
+  SET_POST_LIKE(state, post) {
+    state.post.likes = post.likes
+    state.post.likeCount = post.likeCount
+  }
 }
 
 export default {

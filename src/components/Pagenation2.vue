@@ -1,169 +1,85 @@
 <template>
-  <div class="page">
-    <button class="prevBtn" @click="prevPage" :disabled="firstPageNum === 1" :style="firstPageNum !== 1 ? { color: 'var(--point)', cursor: 'pointer' } : { color: '#ddd', cursor: 'default' }">
+  <div class="page" :style="{ gridTemplateColumns: `auto 800px auto` }">
+    <!-- Prev page button -->
+    <button class="prev-btn" @click="onPrevPage">
       <i class="material-icons">arrow_back_ios_new</i>
-      <span>이전</span>
+      <span>PREV</span>
     </button>
 
-    <div class="pageList">
-      <div class="pageBtn" ref="list">
-        <router-link :to="{ name: 'posts', params: { menu: curRouteParams.menu, sub: curRouteParams.sub }, query: { pageNum: nowPageNum } }">
-          <button
-            v-for="page in pageList"
-            :key="page"
-            :style="page === nowPageNum ? { color: 'var(--point)', fontWeight: 'bold', borderBottom: '2px solid', borderColor: 'var(--point)' } : { color: 'var(--sub)' }"
-            @click="nowPage(page)"
-          >
-            {{ page }}
-          </button>
-        </router-link>
+    <!-- Page button lists -->
+    <div class="pages">
+      <div class="page-btns">
+        <button
+          v-for="p in pages"
+          v-text="p"
+          :key="p"
+          :style="p === page ? { color: 'var(--point)', fontWeight: 'bold', borderBottom: '2px solid', borderColor: 'var(--point)' } : { color: 'var(--sub)' }"
+          @click="onUpdatePage(p)"
+        ></button>
       </div>
     </div>
 
-    <button
-      class="nextBtn"
-      @click="nextPage"
-      :disabled="totalPageNum === lastPageNum"
-      :style="totalPageNum !== lastPageNum ? { color: 'var(--point)', cursor: 'pointer' } : { color: '#ddd', cursor: 'default' }"
-    >
-      <span>다음</span>
+    <!-- Next page button -->
+    <button class="next-btn" @click="onNextPage">
+      <span>NEXT</span>
       <i class="material-icons">arrow_forward_ios</i>
     </button>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, computed, onUnmounted, onBeforeMount, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, watchEffect } from 'vue'
 
 export default {
-  name: 'post',
-  components: {},
-  setup() {
-    const route = useRoute()
-    const curRouteParams = computed(() => route.params)
+  props: {
+    page: {
+      type: Number, // 현재 보고 있는 페이지
+      default: 1,
+    },
+    limit: {
+      type: Number, // 한 페이지에 뜨는 게시글 수
+      default: 10,
+    },
+    maxPage: {
+      type: Number, // Maht.ceil(총 게시물 갯수 / limit)
+      default: 1,
+    },
+  },
+  setup(props, { emit }) {
+    let pageStart = 0
+    const skip = 5 // Next or Prev button 눌렀을 때 넘어가는 페이지 단위
+    const pages = ref(new Set([]))
 
-    const nowPageNum = ref(1)
-    const nowPage = (page) => {
-      nowPageNum.value = page
+    const onUpdatePage = (updatedPage) => {
+      emit('updatePage', { updatedPage })
     }
 
-    const totalPageNum = ref()
-    const pageViewNum = ref(48)
-
-    const PageGroupNum = ref(Math.ceil(nowPageNum.value / pageViewNum.value))
-
-    const firstPageNum = ref(1)
-    const lastPageNum = ref(PageGroupNum.value * pageViewNum.value)
-
-    const pageList = ref([])
-    const pageListSet = () => {
-      for (let i = firstPageNum.value; i <= lastPageNum.value; i++) {
-        pageList.value.push(i)
-      }
-    }
-    pageListSet()
-
-    const prevPage = () => {
-      lastPageNum.value = lastPageNum.value - pageViewNum.value
-      firstPageNum.value = lastPageNum.value - pageViewNum.value + 1
-
-      pageList.value = []
-      pageListSet()
+    const onPrevPage = () => {
+      if (props.page - skip < 1) return
+      changePage(--pageStart, props.maxPage)
+      emit('updatePage', { updatedPage: pageStart * skip + 1 })
     }
 
-    const nextPage = () => {
-      firstPageNum.value = lastPageNum.value + 1
-      lastPageNum.value = lastPageNum.value + pageViewNum.value
-      totalPageNum.value = lastPageNum.value
-
-      pageList.value = []
-      pageListSet()
+    const onNextPage = () => {
+      if (props.maxPage < (pageStart + 1) * skip + 1) return
+      changePage(++pageStart, props.maxPage)
+      emit('updatePage', { updatedPage: pageStart * skip + 1 })
     }
 
-    const list = ref(null)
-    let listScrollWidth = 0
-    let listClientWidth = 0
+    const changePage = (start, max) => {
+      const lastPage = max < skip * (start + 1) ? max : skip * (start + 1)
 
-    let startX = 0
-    let nowX = 0
-    let listX = 0
-
-    onBeforeMount(() => {
-      nextTick(() => {
-        listScrollWidth = list.value.scrollWidth
-        listClientWidth = list.value.clientWidth
-      })
-    })
-
-    onMounted(() => {
-      list.value.addEventListener('mousedown', addEvent)
-    })
-
-    onUnmounted(() => {
-      //list.value.removeEventListener('mousedown', addEvent)
-      document.removeEventListener('mouseup', scrollend)
-    })
-
-    const addEvent = (event) => {
-      startX = event.clientX
-      event.preventDefault()
-      listX = getTranslateX()
-      list.value.addEventListener('click', onClick)
-      document.addEventListener('mousedown', mousedown)
-      document.addEventListener('mousemove', mousemove)
-      document.addEventListener('mouseup', scrollend)
+      pages.value.clear()
+      for (let i = skip * start; i < lastPage; i++) pages.value.add(i + 1)
     }
 
-    const getTranslateX = () => {
-      return parseInt(getComputedStyle(list.value).transform.split(/[^\-0-9]+/g)[5])
-    }
-
-    const mousedown = (event) => {
-      startX = event.clientX
-    }
-
-    const mousemove = (event) => {
-      nowX = event.clientX
-      translate()
-    }
-
-    const translate = () => {
-      list.value.style.transform = 'translateX(' + (listX + nowX - startX) + 'px)'
-    }
-
-    const scrollend = () => {
-      listX = getTranslateX()
-      document.removeEventListener('mousedown', mousedown)
-      document.removeEventListener('mousemove', mousemove)
-      list.value.removeEventListener('click', onClick)
-
-      if (listX > 0) {
-        list.value.style.transform = 'translateX(' + 0 + 'px)'
-        list.value.style.transition = 'all 0.25s ease'
-      } else if (listX < listClientWidth - listScrollWidth) {
-        list.value.style.transform = 'translateX(' + (listClientWidth - listScrollWidth) + 'px)'
-        list.value.style.transition = 'all 0.25s ease'
-      }
-    }
-
-    const onClick = (event) => {
-      if (startX.value - nowX.value !== 0) {
-        event.preventDefault()
-      }
-    }
+    watchEffect(() => changePage((pageStart = 0), props.maxPage))
 
     return {
-      prevPage,
-      nextPage,
-      nowPageNum,
-      pageList,
-      nowPage,
-      lastPageNum,
-      firstPageNum,
-      totalPageNum,
-      list,
-      curRouteParams,
+      pages,
+      onUpdatePage,
+      onPrevPage,
+      onNextPage
     }
   },
 }
@@ -172,41 +88,52 @@ export default {
 <style lang="scss" rel="stylesheet/scss" scoped>
 .page {
   display: grid;
-  grid-template-columns: auto 1fr auto;
   margin: 4.8rem 0;
   color: var(--primary);
   font-size: 1.4rem;
   font-weight: 500;
   align-items: center;
-  max-width: 100%;
-  gap: 0 3rem;
 
-  button.prevBtn {
-    grid-column: 1 / 2;
+  button.prev-btn {
     display: grid;
+    grid-column: 1 / 2;
     grid-template-columns: repeat(2, auto);
     align-items: center;
+    color: var(--point);
+    cursor: pointer;
+    justify-content: end;
   }
 
-  div.pageList {
+  button.next-btn {
+    display: grid;
+    grid-column: 3 / 4;
+    grid-template-columns: repeat(2, auto);
+    align-items: center;
+    color: var(--point);
+    cursor: pointer;
+    justify-content: start;
+
+    i {
+      margin-left: 1.5rem;
+      margin-right: 0;
+    }
+  }
+
+  div.pages {
     grid-column: 2 / 3;
     display: grid;
     align-items: center;
     padding: 2rem 0;
     overflow: hidden;
     position: relative;
-    max-width: 100%;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
 
-    .pageBtn {
-      transform: translateX(0px);
-      width: 100%;
-      position: absolute;
-      white-space: nowrap;
-      transition: all 1s ease;
-
+    .page-btns {
+      overflow: hidden;
       button {
-        transition: all 0.3s ease;
-        margin: 0 1.5rem;
+        margin: 0 1.6rem;
         width: 2.5rem;
         height: 2.5rem;
       }
@@ -215,17 +142,6 @@ export default {
         transform: translateY(-0.5rem);
         transition: all 0.3s ease;
       }
-    }
-  }
-
-  button.nextBtn {
-    grid-column: 3 / 4;
-    display: grid;
-    grid-template-columns: repeat(2, auto);
-    align-items: center;
-
-    i {
-      margin-left: 1.5rem;
     }
   }
 }

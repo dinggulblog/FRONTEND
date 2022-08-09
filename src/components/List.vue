@@ -1,16 +1,19 @@
 <template>
   <li :class="type">
     <div>
-      <div class="thumbNail" v-if="type === 'album' && post.imageURL" :style="{ backgroundImage: 'url(' + require(`@/assets/${post.imageURL}`) + ')' }"></div>
+      <div class="thumbnail" v-if="type === 'album' && post.imageURL" :style="{ backgroundImage: 'url(' + require(`@/assets/${post.imageURL}`) + ')' }"></div>
       <h2>
-        <router-link :to="{ name: 'post', params: { menu: routeParams.menu, sub: routeParams?.sub || '', postNum: post.postNum } }">{{ post.postNum }} - {{ post.title }}</router-link>
+        <router-link :to="{ name: 'post', params: { title, subject, postNum: post.postNum } }">{{ post.postNum }} - {{ post.title }}</router-link>
       </h2>
-      <p>{{ post.content }}</p>
-      <div class="postInfo">
+      <p>
+        {{ markdownText(post.content) }}
+      </p>
+
+      <div class="post-info">
         <span v-text="dayjs(post.createdAt).format('YYYY년 M월 D일')"></span>
         <span></span>
         <span v-if="type === 'album'">댓글 {{ post.commentCount }}</span>
-        <span><i class="material-icons" :style="[post.likeActive ? { color: 'var(--likeActive)' } : { color: 'var(--like)' }]">favorite</i>{{ post.commentCount }}</span>
+        <span><i class="material-icons" :style="[isLike ? { color: 'var(--likeActive)' } : { color: 'var(--like)' }]">favorite</i>{{ post.likeCount }}</span>
       </div>
     </div>
 
@@ -21,26 +24,34 @@
 </template>
 
 <script>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
 import dayjs from 'dayjs'
+import markdownText from 'markdown-to-text'
 
 export default {
   props: {
+    type: {
+      type: String,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    subject: {
+      type: String,
+      default: undefined,
+    },
     post: {
       type: Object,
       required: true,
     },
-    type: {
-      type: String,
+    isLike: {
+      type: Boolean,
+      default: false,
     },
   },
-  setup(props) {
-    const route = useRoute()
-    const routeParams = computed(() => route.params)
-    console.log('Post:', props.post)
-
-    return { dayjs, routeParams }
+  setup() {
+    return { dayjs, markdownText }
   },
 }
 </script>
@@ -82,7 +93,7 @@ li.list {
       letter-spacing: normal;
     }
 
-    .postInfo {
+    .post-info {
       grid-row: 3 / 4;
       padding: 0 0 4.8rem 0;
       font-size: 1.2rem;
@@ -130,7 +141,7 @@ li.list {
       grid-row: 2 / 3;
       width: 4.8rem;
       height: 3.6rem;
-      background: #eeeeee;
+      background: #eaeaea;
       color: #aaaaaa;
       font-size: 1.4rem;
       border-radius: 40% 40% 0% 40%;
@@ -147,7 +158,7 @@ li.album {
     display: grid;
     grid-template-rows: repeat(4, auto);
 
-    .thumbNail {
+    .thumbnail {
       width: 100%;
       height: 18.8rem;
       grid-row: 1 / 2;

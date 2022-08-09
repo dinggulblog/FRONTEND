@@ -1,30 +1,29 @@
 <template>
   <div class="posts">
-    <Toolbar v-show="curRouteParams.menu !== 'guest'" :type="type" @updatedToolbar="updatedToolbar" />
+    <!-- Toolbar -->
+    <Toolbar :type="states.type" :category="states.category" :categories="states.categories" @updatedToolbar="updatedToolbar" />
 
+    <!-- List contents -->
     <div v-if="posts.length">
-      <GuestList v-if="curRouteParams.menu === 'guest'" :sortedPosts="getPosts" />
-      <ul v-else :class="type">
+      <ul :class="states.type">
         <template v-for="post in posts" :key="post._id">
-          <List :post="post" :type="type" />
+          <List :type="states.type" :title="states.title" :subject="states.subject" :post="post" :isLike="post.likes?.includes(user.id) ?? false" />
         </template>
       </ul>
     </div>
-    <div v-else>
-      <span>There is no posts.</span>
-    </div>
+    <div v-else><span>There is no posts.</span></div>
 
-    <Pagenation2 />
+    <!-- Pagenation -->
+    <Pagenation2 :page="page" :limit="limit" :maxPage="maxPage" @updatePage="updatePage" />
   </div>
 </template>
 
 <script>
-import { ref, computed, watchEffect, onBeforeMount } from 'vue'
+import { ref, reactive, computed, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import Toolbar from '../../components/Toolbar.vue'
 import List from '../../components/List.vue'
-import GuestList from '../../components/GuestList.vue'
 import Pagenation2 from '../../components/Pagenation2.vue'
 
 export default {
@@ -32,51 +31,61 @@ export default {
   components: {
     Toolbar,
     List,
-    GuestList,
     Pagenation2,
   },
   setup() {
+    const { state, getters, dispatch } = useStore()
     const route = useRoute()
-    const store = useStore()
-    const curRouteQueries = computed(() => route.query)
-    const curRouteParams = computed(() => route.params)
-    const posts = computed(() => store.state.post.posts)
-    const type = ref('list')
-    const category = ref('')
-    const sortedBy = ref('')
 
-    const updatedToolbar = (updatedData) => {
-      if (updatedData.type) {
-        type.value = updatedData.type
-      } else if (updatedData.category) {
-        category.value = updatedData.category
-      } else if (updatedData.sortedBy) {
-        sortedBy.value = updatedData.sortedBy
+    const page = ref(1)
+    const limit = ref(5)
+    const maxPage = ref(1)
+    const states = reactive({
+      type: 'list',
+      category: 'All',
+      categories: [],
+      title: '',
+      subject: undefined,
+    })
+
+    const params = computed(() => route.params)
+    const user = computed(() => state.auth.user)
+    const posts = computed(() => state.post.posts)
+
+    const updatedToolbar = ({ updatedType, updatedCategory }) => {
+      if (updatedType) {
+        states.type = updatedType
+      } else if (updatedCategory) {
+        states.category = updatedCategory
       }
     }
 
-    watchEffect(async () => {
-      try {
-        const filter = { title: curRouteParams.value.menu, subject: curRouteParams.value.sub }
-        await store.dispatch('post/getPosts', {
-          subject: store.getters['menu/getMenuId'](filter),
-          page: curRouteQueries.value.pageNum,
-          limit: 10,
-        })
-      } catch (error) {
-        console.log(error)
-      }
-    })
+    const updatePage = ({ updatedPage }) => {
+      page.value = updatedPage
+    }
 
-    watchEffect(() => {
-      if (!curRouteParams.value.sub || curRouteParams.value.sub !== 'album') {
-        type.value = 'list'
-      } else {
-        type.value = 'album'
-      }
-    })
+    watch(
+      params,
+      () => {
+        states.title = params.value.title
+        states.subject = params.value?.subject
+        states.category = 'All'
+        states.categories = getters['menu/getCategories']({ title: states.title, subject: states.subject })
+        updatePage({ updatedPage: 1 })
+      },
+      { immediate: true }
+    )
 
-    return { curRouteParams, posts, Pagenation2, type, updatedToolbar }
+    watchEffect(
+      async () => {
+        const subjects = getters['menu/getMenuIds']({ title: states.title, subject: states.subject })
+        const response = await dispatch('post/getPosts', { subjects, page: page.value, limit: limit.value })
+        response.success ? (maxPage.value = response.data.maxPage || 1) : alert(response.message)
+      },
+      { flush: 'post' }
+    )
+
+    return { page, limit, maxPage, states, params, user, posts, updatedToolbar, updatePage }
   },
 }
 </script>

@@ -2,14 +2,11 @@ import store from '../store'
 
 class TokenService {
   getAccessToken() {
-    return store.state.auth.user.accessToken || sessionStorage.getItem('accessToken')
+    return store.state.auth.token
   }
 
   isTokenAlive(exp) {
-    if (Date.now() >= exp * 1000) {
-      return false
-    }
-    return true
+    return Date.now() >= exp * 1000 ? false : true
   }
 
   getUser() {

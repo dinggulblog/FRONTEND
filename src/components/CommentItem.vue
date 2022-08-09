@@ -4,17 +4,18 @@
       <div class="info">
         <div class="author">
           <div class="profileImg"></div>
-          <span>{{ comment.author }}</span>
+          <span>{{ comment.commenter.nickname }}</span>
         </div>
         <span class="createdAt">{{ dayjs(comment.createdAt).format('YYYY년 M월 D일') }}</span>
         <span></span>
-        <span class="length">댓글 {{ comment.children.length }}개</span>
+        <span class="length">답글 {{ comment.children?.length ?? 0 }}개</span>
+        <span></span>
+        <span>답글 작성</span>
         <div class="option">
-          <button @click="optionToggle = !optionToggle"><i class="material-icons">more_horiz</i></button>
-          <ul v-if="!optionToggle">
-            <li v-if="comment.author === user">수정</li>
-            <li v-if="comment.author === user">삭제</li>
-            <li>답글 작성</li>
+          <button @click="toggleOptionBtn()"><i class="material-icons">more_horiz</i></button>
+          <ul v-if="!isToggleHide">
+            <li v-if="comment.commenter.nickname === user.nickname">댓글 수정</li>
+            <li v-if="comment.commenter.nickname === user.nickname">댓글 삭제</li>
           </ul>
         </div>
       </div>
@@ -39,14 +40,17 @@ export default {
       required: true,
     },
   },
-  setup() {
+  setup(props) {
     const store = useStore()
-    const user = computed(() => store.state.auth.user.name)
+    const user = computed(() => store.state.auth.user)
 
-    const optionToggle = ref(false)
-    optionToggle.value = !optionToggle.value
+    const isToggleHide = ref(true)
 
-    return { dayjs, optionToggle, user }
+    const toggleOptionBtn = () => {
+      isToggleHide.value = !isToggleHide.value
+    }
+
+    return { dayjs, user, isToggleHide, toggleOptionBtn }
   },
 }
 </script>
@@ -63,7 +67,7 @@ ul {
 
     .info {
       display: grid;
-      grid-template-columns: auto auto auto auto 1fr auto;
+      grid-template-columns: auto auto auto auto auto auto 1fr auto;
       align-items: center;
       font-size: 1.2rem;
       gap: 0 1.4rem;
@@ -108,8 +112,19 @@ ul {
         grid-column: 4 / 5;
       }
 
-      div.option {
+      span:nth-child(5) {
+        grid-column: 5 / 6;
+        border-left: 0.1rem solid var(--line);
+        height: 1.2rem;
+      }
+
+      span:nth-child(6) {
         grid-column: 6 / 7;
+        color: var(--point);
+      }
+
+      div.option {
+        grid-column: 8 / 9;
         margin-left: 0.2rem;
         position: relative;
 
@@ -118,6 +133,7 @@ ul {
           place-content: center;
           i {
             margin: 0;
+            color: var(--primary);
           }
         }
 
@@ -147,7 +163,7 @@ ul {
           }
 
           li:nth-child(2) {
-            margin: 1.6rem 0;
+            margin: 1.6rem 0 0;
           }
         }
       }

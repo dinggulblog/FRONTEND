@@ -1,115 +1,108 @@
-import jwt from 'jsonwebtoken'
+import jwtDecode from 'jwt-decode'
 import axios from '../../services/axios'
 
-const dummy = {
-  _id: jwt.decode(sessionStorage.getItem('accessToken'))?._id,
-  nickname: jwt.decode(sessionStorage.getItem('accessToken'))?.nickname,
-  accessToken: sessionStorage.getItem('accessToken'),
-}
-
 const state = () => ({
-  user: jwt.decode(sessionStorage.getItem('accessToken')) || {},
+  user: {},
+  token: ''
 })
 
 const getters = {}
 
 const actions = {
-  // @param: Object (email, password)
+  // params: none
+  async refresh({ commit }) {
+    try {
+      const { data } = await axios.post(process.env.VUE_APP_API_URL + 'auth/refresh')
+      commit('SET_USER', data.data.accessToken)
+      return data
+    } catch (err) {
+      return err.response.data
+    }
+  },
+
+  // param: Object (email, password)
   async login({ commit }, payload) {
     try {
-      const { status, data } = await axios.post(process.env.VUE_APP_API_URL + 'auth', payload)
-      commit('setUserToken', data.data.accessToken)
-      return status
+      const { data } = await axios.post(process.env.VUE_APP_API_URL + 'auth', payload)
+      commit('SET_USER', data.data.accessToken)
+      return data
     } catch (err) {
-      return false
+      return err.response.data
     }
   },
 
   // params: none
-  logout({ commit }) {
-    commit('unsetUser')
+  async logout({ commit }) {
+    try {
+      const { data } = await axios.delete(process.env.VUE_APP_API_URL + 'auth/me')
+      return data
+    } catch (err) {
+      return err.response.data
+    } finally {
+      commit('UNSET_USER')
+    }
   },
 
-  /* params: Object (userId, password, name, email)
-   * return: call actions.login
-   *         none (when failed)
-   */
+  // params: Object
   async signUp({ commit }, payload) {
     try {
-      const { status } = await axios.post(process.env.VUE_APP_API_URL + 'users', payload)
-      if (status === 200) return await actions.login({ commit }, { email: payload.email, password: payload.password })
+      await axios.post(process.env.VUE_APP_API_URL + 'users', payload)
+      return await actions.login({ commit }, { email: payload.email, password: payload.password })
     } catch (err) {
-      console.error('Sign-up', err)
+      return err.response.data
     }
   },
 
-  async getUserInfo({ commit }, payload) {
+  // params: none
+  async getUserInfo({ commit }) {
     try {
-      const {
-        data: { data },
-      } = await axios.get(process.env.VUE_APP_API_URL + 'users/' + payload)
-
-      if (!data) {
-        throw new Error('Cannot get user information')
-      }
-
-      commit('setUser', data)
+      const { data } = await axios.get(process.env.VUE_APP_API_URL + 'users/me')
+      commit('SET_USER_INFO', data.data.user)
+      return data
     } catch (err) {
-      console.log('Get user', err)
+      return err.response.data
     }
   },
 
-  /* params: Object (userId, password, name, email)
-   * return: call action.logout
-   *       : none
-   */
+  // params: Object
   async editAccount({ commit }, payload) {
     try {
-      return await axios.put(process.env.VUE_APP_API_URL + 'users/' + sessionStorage.getItem('nickname'), payload)
+      await axios.put(process.env.VUE_APP_API_URL + 'users/me', payload)
+      return await actions.logout({ commit })
     } catch (err) {
-      console.log('Edit user', err)
+      return err.response.data
     }
   },
 
-  /* params: String (userId)
-   * return: call action.logout
-   *       : none
-   */
-  async deleteAccount({ commit }, payload) {
+  // params: none
+  async deleteAccount({ commit }) {
     try {
-      return await axios.delete(process.env.VUE_APP_API_URL + 'users/' + sessionStorage.getItem('nickname'))
+      await axios.delete(process.env.VUE_APP_API_URL + 'users/me')
+      return await actions.logout({ commit })
     } catch (err) {
-      console.log(err.message)
+      return err.response.data
     }
   },
 }
 
 const mutations = {
-  // Add access token property in User state
-  setUserToken(state, token) {
-    state.user = jwt.decode(token)
-    state.user.accessToken = token
-
-    sessionStorage.setItem('accessToken', token)
+  // params: Access token
+  SET_USER(state, token) {
+    const decoded = jwtDecode(token)
+    state.token = token
+    state.user = { id: decoded.sub, nickname: decoded.data.nickname, roles: decoded.data.roles }
+    localStorage.setItem('user', JSON.stringify(state.user))
   },
 
-  /* Set new user data in state
-   * @param: Object (email, nickname, ...etc)
-   */
-  setUser(state, data) {
-    state.user = {
-      email: data.email,
-      nickname: data.nickname,
-      roles: data.roles,
-      isActive: data.isActive,
-      createdAt: data.createdAt,
-    }
+  SET_USER_INFO(state, user) {
+    state.user = user
   },
 
   /* Reset user state */
-  unsetUser(state) {
+  UNSET_USER(state) {
     state.user = {}
-    sessionStorage.clear()
+    state.token = ''
+    localStorage.clear()
   },
 }
 

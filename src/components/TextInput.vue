@@ -57,7 +57,7 @@ export default {
       handleChange,
       meta,
     } = useField(props.name, undefined, {
-      initialValue: inputValue,
+      initialValue: props.value,
     })
 
     return {

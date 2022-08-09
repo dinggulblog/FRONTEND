@@ -1,48 +1,44 @@
 <template>
-  <div class="container">
+  <div class="post-container">
+    <!-- Post body -->
     <div class="post">
-      <!-- v-for로 들어갈 예정(이미지 여러 개일 경우)
-      <div class="images" v-if="post.imageURL"
-        :style="{ backgroundImage: 'url(' + require(`@/assets/${post.imageURL}`) + ')'}"></div>
-      -->
-
+      <!-- Post contents -->
       <div class="contents">
         <h2>{{ post.title }} - {{ post.postNum }}</h2>
-        <p>{{ post.content }}</p>
+        <markdown class="markdown" :source="post.content" :plugins="plugins" :breaks="true" :xhtmlOut="true" :typographer="true" />
       </div>
 
+      <!-- Post infomations -->
       <div class="info">
         <span v-text="dayjs(post.createdAt).format('YYYY년 M월 D일')"></span>
         <span></span>
-        <span
-          ><i class="material-icons" :style="[post.likeActive ? { color: 'var(--likeActive)' } : { color: 'var(--like)' }]">favorite</i
-          >{{ post.like }}</span
-        >
+        <span>
+          <i class="material-icons" :style="[isLike ? { color: 'var(--likeActive)' } : { color: 'var(--like)' }]" @click="onUpdateDebounce">favorite</i>
+          {{ post.likeCount }}
+        </span>
         <div class="option">
-          <button @click="optionToggle = !optionToggle"><i class="material-icons">more_horiz</i></button>
-          <ul v-if="!optionToggle">
-            <li v-if="post.author === user"><router-link :to="{ name: 'editor', params: { postNum: post.postNum } }">수정</router-link></li>
-            <li v-if="post.author === user" @click="onDelete">삭제</li>
-            <li @click="clipboard">링크 복사</li>
+          <button @click.prevent="toggleOptionBtn"><i class="material-icons">more_horiz</i></button>
+          <ul v-if="!isHide">
+            <li v-if="post.author.nickname === user.nickname"><router-link :to="{ name: 'editor', params: { postNum: post.postNum } }">수정</router-link></li>
+            <li v-if="post.author.nickname === user.nickname" @click="onDelete">삭제</li>
+            <li @click="onCopyLink">링크 복사</li>
           </ul>
         </div>
       </div>
 
-      <div class="tags">
-        <ul v-for="tag in post.tag" :key="tag">
-          <li>{{ tag }}</li>
-        </ul>
-      </div>
-
+      <!-- Pagenation
       <div class="page">
         <Pagenation />
       </div>
+       -->
     </div>
 
+    <!-- Comments body -->
     <div class="comment">
-      <CommentEditor />
+      <CommentEditor :curRouteParams="params" :pid="post._id" />
 
-      <div class="items">
+      <!-- Comment contents -->
+      <div class="comments" v-if="comments.length">
         <h2>댓글 {{ comments.length }}개</h2>
         <ul v-for="comment in comments" :key="comment._id">
           <CommentItem :comment="comment" />
@@ -50,101 +46,92 @@
       </div>
     </div>
   </div>
-
   <Dialog ref="Dialog"></Dialog>
 </template>
 
 <script>
-import { ref, computed, onBeforeMount, onUpdated, watchEffect } from 'vue'
+import { defineComponent, ref, computed, onBeforeMount, onUpdated, onBeforeUpdate } from 'vue'
 import { useRouter } from 'vue-router'
-import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
+import { debounce } from '../../common/util'
 import dayjs from 'dayjs'
-import CommentEditor from './CommentEditor.vue'
+import CommentEditor from '../../components/CommentEditor.vue'
 import CommentItem from '../../components/CommentItem.vue'
-import Pagenation from '../../components/Pagenation.vue'
 import Dialog from '../../components/Dialog.vue'
-import Author from '../../components/Author.vue'
+import Markdown from 'vue3-markdown-it'
+import MarkdownEmoji from 'markdown-it-emoji'
 
-export default {
+export default defineComponent({
   name: 'post',
   components: {
+    Dialog,
+    Markdown,
     CommentEditor,
     CommentItem,
-    Dialog,
-    Pagenation,
   },
   setup() {
-    const router = useRouter()
-    const route = useRoute()
-    const store = useStore()
-    const user = computed(() => store.state.auth.user.name)
-    const CommentEditor = ref(null)
+    const { state, getters, dispatch } = useStore()
+    const { currentRoute, push, go } = useRouter()
+    const { value: { params } } = currentRoute
+
     const Dialog = ref(null)
+    const plugins = ref([{ plugin: MarkdownEmoji }])
 
-    const comments = computed(() => store.state.comment.comments)
+    const isHide = ref(true) // Toggle display the options when clicking
+    const isLike = ref(false)
 
-    const postNum = ref(router.currentRoute.value.params.postNum)
-    const maxPostNum = ref(store.state.post.posts.length - 1)
+    const user = computed(() => state.auth.user)
+    const post = computed(() => state.post.post)
+    const comments = computed(() => state.comment.comments)
 
-    //const post = computed({
-    //get: () => store.state.post.posts[postNum.value] || {},
-    //set: (val) => store.commit('post/SET_POST', val),
-    //})
+    const toggleOptionBtn = () => {
+      isHide.value = !isHide.value
+    }
 
-    const post = ref({})
-    post.value = store.dispatch('post/getPost', store.state.posts[router.currentRoute.value.params.postNum]._id)
+    const onUpdateLike = async () => {
+      if (!user.value.id) return alert('로그인 후 이용 가능합니다.')
 
-    onBeforeMount(async () => {
-      document.title = post.value.title
-      router.currentRoute.value.meta.title = post.value.title
-    })
+      const response = isLike.value ? await dispatch('post/deleteLike', post.value._id) : await dispatch('post/updateLike', post.value._id)
+      isLike.value = response.success ? !isLike.value : isLike.value
+    }
 
-    onUpdated(() => {
-      document.title = post.value.title
-      router.currentRoute.value.meta.title = post.value.title
-    })
-
-    window.scrollTo(0, 0)
+    const onUpdateDebounce = debounce(onUpdateLike, 200)
 
     const onDelete = async () => {
-      try {
-        const ok = await Dialog.value.show({
-          title: 'Delete this Post',
-          message: 'Are you sure you want to delele this post?',
-        })
-        if (ok) {
-          const response = await store.dispatch('post/deletePost', post.value._id)
-          response === 200
-            ? router.push({ name: 'posts', params: { menu: router.currentRoute.value.params.menu } })
-            : alert(`Cannot delete post (Server error ${response})`)
-        }
-      } catch (err) {
-        console.log(err)
+      const ok = await Dialog.value.show({ title: '게시물 삭제', message: '게시물을 삭제하시겠습니까?\n한번 삭제된 게시물은 되돌릴 수 없습니다.' })
+      if (ok) {
+        const response = await dispatch('post/deletePost', post.value._id)
+        response.success ? push({ name: 'posts', params: { title: params.title, subject: params.subject ? params.subject : undefined } }) : alert(`Cannot delete post (Server error ${response})`)
       }
     }
 
-    const optionToggle = ref(false)
-    optionToggle.value = !optionToggle.value
-
-    const clipboard = async () => {
-      const url = ref(null)
-      url.value = window.location.href
+    const onCopyLink = async () => {
       try {
-        await navigator.clipboard.writeText(url.value)
+        await navigator.clipboard.writeText(window.location.href)
         alert('클립보드에 복사되었습니다')
       } catch (err) {
-        alert('처리에 실패하였습니다.')
+        alert('링크 복사에 실패하였습니다.')
       }
     }
 
-    return { dayjs, user, CommentEditor, comments, onDelete, optionToggle, clipboard, Pagenation, post, postNum, maxPostNum }
+    onBeforeMount(async () => {
+      const id = getters['post/getPostWithNum'](params.postNum)?._id
+      const response = await dispatch('post/getPost', id ? { id } : { postNum: params.postNum })
+      response.success ? window.scrollTo(0, 0) : go(-1)
+    })
+
+    onBeforeUpdate(() => {
+      isLike.value = [...post.value.likes].includes(user.value.id)
+      document.title = post.value.title
+    })
+
+    return { dayjs, params, Dialog, plugins, isHide, isLike, user, post, comments, toggleOptionBtn, onUpdateDebounce, onDelete, onCopyLink }
   },
-}
+})
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-.container {
+.post-container {
   display: grid;
   grid-template-rows: repeat(2, auto);
 
@@ -161,8 +148,7 @@ export default {
         letter-spacing: normal;
       }
 
-      p {
-        font-size: 1.4rem;
+      .markdown {
         margin: 4.8rem 0;
         line-height: 2.8rem;
         color: var(--secondary);
@@ -198,6 +184,8 @@ export default {
 
         i {
           margin-right: 0.8rem !important;
+          cursor: pointer;
+          transition: 0.5s all ease;
           color: var(--like);
           font-size: 1.6rem;
         }
@@ -303,7 +291,7 @@ export default {
     display: grid;
     grid-template-rows: repeat(2, auto);
 
-    .items {
+    .comments {
       color: var(--primary);
 
       h2 {

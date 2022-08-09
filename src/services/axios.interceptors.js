@@ -1,16 +1,15 @@
+import router from '../router'
 import axiosInstance from './axios'
 import TokenService from './token.service'
 
 const setup = (store) => {
   axiosInstance.interceptors.request.use(
-    (config) => {
+    async (config) => {
       const token = TokenService.getAccessToken()
 
-      if (token) {
-        config.headers['Authorization'] = 'Bearer ' + token
-      } else {
-        config.headers['Authorization'] = process.env.VUE_APP_SECRET_KEY.trim()
-      }
+      config.headers['Authorization'] = token
+        ? !String(config.url).endsWith('refresh') ? 'Bearer ' + token : null
+        : String(config.url).endsWith('users') ? process.env.VUE_APP_SECRET_KEY?.trim() : null
 
       return config
     },
@@ -24,31 +23,26 @@ const setup = (store) => {
       return response
     },
     async (error) => {
-      console.log(error)
       const originalConfig = error.config
+      console.log('Error response: ', error.response.status, '\nError Data: ', error.response.data, '\nRequested URL: ', error.response.request.responseURL, '\n')
 
-      if (originalConfig.url !== '/app/auth/login' && error.response) {
-        // Access token was expired
-        if (error.response.status === 401 && !originalConfig._retry) {
-          // alert('Access token expired, please login again.')
+      if (!originalConfig.url.endsWith('auth') && error.response) {
+        // Refresh token was expired -> Logout
+        if (error.response.status === 419) {
           originalConfig._retry = true
 
-          try {
-            store.dispatch('auth/logout')
-            /*
-            const rs = await axiosInstance.post(`${process.env.VUE_APP_API_URL}`, {
-              refreshToken: TokenService.getRefreshToken(),
-            })
-            const { accessToken } = rs.data
-            
-            store.dispatch('refreshToken', accessToken)
-            TokenService.setAccessToken(accessToken)
-            */
+          alert(error.response.data.message)
+          await store.dispatch('auth/logout')
+          router.push({ name: 'login' })
+          return axiosInstance(originalConfig)
+        }
 
-            return axiosInstance(originalConfig)
-          } catch (err) {
-            return Promise.reject(err)
-          }
+        // Access token was not provided OR was expired
+        if (error.response.status === 401 && !originalConfig._retry) {
+          originalConfig._retry = true
+
+          const res = await store.dispatch('auth/refresh')
+          return res.success ? axiosInstance(originalConfig) : Promise.reject(error)
         }
       }
       return Promise.reject(error)

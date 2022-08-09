@@ -17,11 +17,9 @@ import PopupModal from './PopupModal.vue'
 
 export default {
   name: 'Dialog',
-
   components: {
     PopupModal,
   },
-
   data: () => ({
     title: undefined,
     message: undefined,

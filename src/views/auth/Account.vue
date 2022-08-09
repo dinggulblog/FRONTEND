@@ -8,38 +8,22 @@
         label="E-mail"
         :disabled="!isNew"
         :placeholder="user.email ? user.email : 'Email'"
+        spellcheck="false"
         :success-message="user.email ? '이메일은 변경할 수 없습니다.' : '올바른 이메일 주소입니다.'"
       />
       <TextInput v-show="!isNew" name="currentPassword" type="password" label="Current Password" placeholder="Current Password" />
-      <TextInput
-        name="password"
-        type="password"
-        :label="user.isActive ? 'New Password' : 'Password'"
-        :placeholder="user ? 'New Password' : 'Password'"
-      />
-      <TextInput
-        name="passwordConfirmation"
-        type="password"
-        label="Confirm Password"
-        placeholder="Type password again"
-        success-message="비밀번호가 정상적으로 입력되었습니다."
-      />
-      <TextInput
-        name="nickname"
-        type="text"
-        label="Nickname"
-        :placeholder="user.nickname ? user.nickname : 'Nickname'"
-        success-message="사용할 수 있는 닉네임입니다."
-      />
+      <TextInput name="password" type="password" :label="isNew ? 'New Password' : 'Password'" :placeholder="isNew ? 'New Password' : 'Password'" />
+      <TextInput name="passwordConfirmation" type="password" label="Confirm Password" placeholder="Type password again" success-message="비밀번호가 정상적으로 입력되었습니다." />
+      <TextInput name="nickname" type="text" label="Nickname" :placeholder="user.nickname ? user.nickname : 'Nickname'" spellcheck="false" success-message="사용할 수 있는 닉네임입니다." />
       <button class="submit-btn" type="submit">Submit</button>
     </Form>
-    <Dialog ref="Dialog"></Dialog>
+    <Dialog ref="Dialog" v-if="!isNew"></Dialog>
   </div>
 </template>
 
 <script>
-import { ref, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onBeforeMount } from 'vue'
+import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { Form } from 'vee-validate'
 import * as Yup from 'yup'
@@ -55,25 +39,30 @@ export default {
   },
   setup() {
     const store = useStore()
-    const route = useRoute()
     const router = useRouter()
-    const user = computed(() => store.state.auth.user)
-    const isNew = computed(() => !route.meta.requiredAuth)
     const Dialog = ref(null)
+
+    onBeforeMount(async () => {
+      if (store.state.auth.user.nickname && !store.state.auth.user.email) {
+        const response = await store.dispatch('auth/getUserInfo')
+        if (!response.success) router.go(-1)
+      }
+    })
+
+    const user = computed(() => store.state.auth.user)
+    const isNew = computed(() => !router.currentRoute.value.meta.requiredAuth)
 
     const schema = Yup.object().shape({
       email: Yup.string()
-        .required('닉네임을 정해주세요.')
+        .required('이메일을 입력해 주세요.')
         .default(user.value ? user.value.email : '')
         .email(),
+      currentPassword: Yup.string(),
       password: Yup.string()
-        .required('비밀번호를 입력해주세요')
         .min(4, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.')
         .max(30, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.')
         .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
-      passwordConfirmation: Yup.string()
-        .required('비밀번호를 재입력 해주세요')
-        .oneOf([Yup.ref('password'), null], '비밀번호가 일치하지 않습니다.'),
+      passwordConfirmation: Yup.string().oneOf([Yup.ref('password'), null], '비밀번호가 일치하지 않습니다.'),
       nickname: Yup.string()
         .required('닉네임을 정해주세요.')
         .default(user.value ? user.value.nickname : '')
@@ -81,57 +70,30 @@ export default {
     })
 
     async function onSubmit(values) {
-      try {
-        if (isNew.value) {
-          delete values.currentPassword
-          const data = await store.dispatch('auth/signUp', values)
+      Object.keys(values).forEach((key) => {
+        if (!values[key]) delete values[key]
+      })
+      values.email = values.email ? values.email : user.value.email
+      values.nickname = values.nickname ? values.nickname : user.value.nickname
 
-          if (!data) {
-            throw new Error('Create account failed.')
-          }
-        } else {
-          values.email = values.email ? values.email : user.value.email
-          values.nickname = values.nickname ? values.nickname : user.value.nickname
-
-          if (values.password) {
-            values.newPassword = values.password
-            delete values.password
-            delete values.passwordConfirmation
-          }
-
-          const { status } = await store.dispatch('auth/editAccount', values)
-
-          if (status === 200) {
-            store.dispatch('auth/logout')
-          } else {
-            throw new Error('Edit account failed.')
-          }
-        }
-        router.push({ name: 'home' })
-      } catch (err) {
-        alert(err.message)
+      if (!isNew.value && values.password) {
+        values.newPassword = values.password
+        delete values.password
       }
+
+      const response = await store.dispatch(`${isNew.value ? 'auth/signUp' : 'auth/editAccount'}`, values)
+      response.success ? router.push({ name: `${isNew.value ? 'home' : 'login'}` }) : alert(response.message)
     }
 
     const accountDelete = async () => {
-      try {
-        const ok = await Dialog.value.show({
-          title: 'Delete Account',
-          message: 'Are you sure you want to delete your account?',
-          okButton: 'Delete',
-        })
-        if (ok) {
-          const { status } = await store.dispatch('delAccount', sessionStorage.getItem('nickname'))
-
-          if (status === 200) {
-            store.dispatch('auth/logout')
-            router.push({ name: 'login' })
-          } else {
-            throw new Error('Cannot delete account(Server error)')
-          }
-        }
-      } catch (err) {
-        alert(err.message)
+      const ok = await Dialog.value.show({
+        title: 'Delete Account',
+        message: 'Are you sure you want to delete your account?',
+        okButton: 'Delete',
+      })
+      if (ok) {
+        const response = await store.dispatch('auth/deleteAccount', sessionStorage.getItem('nickname'))
+        response.success ? router.push({ name: 'login' }) : alert(response.message)
       }
     }
 

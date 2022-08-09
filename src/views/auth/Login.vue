@@ -1,14 +1,24 @@
 <template>
   <div class="login">
     <div class="loginWrap">
+
+      <!-- Login form header -->
       <div>
         <h2>You need to <span>sign in</span> to use our service</h2>
       </div>
 
+      <!-- Login form body -->
       <form v-on:submit.prevent="submitForm">
         <div class="form">
-          <input type="email" id="email" placeholder="ID" onfocus="this.placeholder=''" onblur="this.placeholder='User ID (Email)'" v-model="email" />
-
+          <input
+            type="email"
+            id="email"
+            placeholder="User ID (Email)"
+            spellcheck="false"
+            onfocus="this.placeholder=''"
+            onblur="this.placeholder='User ID (Email)'"
+            v-model="email"
+          />
           <input
             type="password"
             id="password"
@@ -18,14 +28,15 @@
             v-model="password"
             @keydown.enter="onLogin()"
           />
-
           <button type="submit" @click="onLogin()">Sign In</button>
         </div>
       </form>
 
+      <!-- Sign-up link -->
       <router-link :to="{ name: 'signUp' }">
         <button class="signUp" type="submit">Sign Up</button>
       </router-link>
+
     </div>
   </div>
 </template>
@@ -44,17 +55,8 @@ export default {
     const password = ref('')
 
     const onLogin = async () => {
-      try {
-        const status = await store.dispatch('auth/login', { email: email.value, password: password.value })
-
-        if (status !== 200) {
-          throw new Error()
-        }
-
-        router.push({ name: 'home' })
-      } catch (err) {
-        alert('아이디가 존재하지 않거나, 아이디와 비밀번호가 일치하지 않습니다.')
-      }
+      const response = await store.dispatch('auth/login', { email: email.value, password: password.value })
+      response.success ? router.push({ name: 'home' }) : alert(response.message)
     }
 
     return { email, password, onLogin }
