@@ -10,6 +10,10 @@
 
       <!-- Post infomations -->
       <div class="info">
+        <span
+          ><div class="profile"></div>
+          <router-link :to="{ name: 'profile', params: { nickname: post.author.nickname } }">{{ post.author.nickname }}</router-link></span
+        >
         <span v-text="dayjs(post.createdAt).format('YYYY년 M월 D일')"></span>
         <span></span>
         <span>
@@ -50,7 +54,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onBeforeMount, onUpdated, onBeforeUpdate } from 'vue'
+import { defineComponent, ref, computed, onBeforeMount, onBeforeUpdate } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { debounce } from '../../common/util'
@@ -72,7 +76,9 @@ export default defineComponent({
   setup() {
     const { state, getters, dispatch } = useStore()
     const { currentRoute, push, go } = useRouter()
-    const { value: { params } } = currentRoute
+    const {
+      value: { params },
+    } = currentRoute
 
     const Dialog = ref(null)
     const plugins = ref([{ plugin: MarkdownEmoji }])
@@ -101,7 +107,9 @@ export default defineComponent({
       const ok = await Dialog.value.show({ title: '게시물 삭제', message: '게시물을 삭제하시겠습니까?\n한번 삭제된 게시물은 되돌릴 수 없습니다.' })
       if (ok) {
         const response = await dispatch('post/deletePost', post.value._id)
-        response.success ? push({ name: 'posts', params: { title: params.title, subject: params.subject ? params.subject : undefined } }) : alert(`Cannot delete post (Server error ${response})`)
+        response.success
+          ? push({ name: 'posts', params: { title: params.title, subject: params.subject ? params.subject : undefined } })
+          : alert(`Cannot delete post (Server error ${response.message})`)
       }
     }
 
@@ -159,7 +167,7 @@ export default defineComponent({
     .info {
       grid-row: 2 / 3;
       display: grid;
-      grid-template-columns: auto auto auto 1fr;
+      grid-template-columns: auto auto auto auto auto 1fr;
       align-items: center;
       gap: 0 1.6rem;
       color: var(--sub);
@@ -167,6 +175,21 @@ export default defineComponent({
       span:nth-child(1) {
         grid-column: 1 / 2;
         font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        font-weight: 700;
+
+        .profile {
+          background: #fff;
+          border-radius: 50%;
+          width: 3.2rem;
+          height: 3.2rem;
+          margin-right: 1.4rem;
+          background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU');
+          background-repeat: no-repeat;
+          background-size: cover;
+          background-position: center;
+        }
       }
 
       span:nth-child(2) {
@@ -177,6 +200,17 @@ export default defineComponent({
 
       span:nth-child(3) {
         grid-column: 3 / 4;
+        font-size: 1.2rem;
+      }
+
+      span:nth-child(4) {
+        grid-column: 4 / 5;
+        border-left: 0.1rem solid var(--line);
+        height: 1.2rem;
+      }
+
+      span:nth-child(5) {
+        grid-column: 5 / 6;
         display: grid;
         grid-template-columns: repeat(2, auto);
         align-items: center;
@@ -192,7 +226,7 @@ export default defineComponent({
       }
 
       div.option {
-        grid-column: 4 / 5;
+        grid-column: 6 / 7;
         justify-self: end;
         position: relative;
 
@@ -290,6 +324,7 @@ export default defineComponent({
   .comment {
     display: grid;
     grid-template-rows: repeat(2, auto);
+    margin-bottom: 8rem;
 
     .comments {
       color: var(--primary);

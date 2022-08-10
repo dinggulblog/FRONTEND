@@ -44,7 +44,7 @@ export default {
 
     onBeforeMount(async () => {
       if (store.state.auth.user.nickname && !store.state.auth.user.email) {
-        const response = await store.dispatch('auth/getUserInfo')
+        const response = await store.dispatch('auth/getAccount')
         if (!response.success) router.go(-1)
       }
     })
@@ -81,7 +81,7 @@ export default {
         delete values.password
       }
 
-      const response = await store.dispatch(`${isNew.value ? 'auth/signUp' : 'auth/editAccount'}`, values)
+      const response = await store.dispatch(`${isNew.value ? 'auth/createAccount' : 'auth/updateAccount'}`, values)
       response.success ? router.push({ name: `${isNew.value ? 'home' : 'login'}` }) : alert(response.message)
     }
 

@@ -5,10 +5,17 @@
   </div>
 
   <!-- Global Body wrapper -->
-  <div class="bodyWrap" :style="[!currentRoute.startsWith('/auth') ? { background: '#fff' } : { background: 'var(--point)' }]">
-    <div class="body" :style="[!currentRoute.startsWith('/auth') && !currentRoute.startsWith('/posts/editor') ? { gridTemplateColumns: 'minmax(auto, 30.6rem) 1fr' } : { gridTemplateColumns: '1fr' }]">
+  <div class="bodyWrap" :style="[!currentRoute.startsWith('/auth') || currentRoute.startsWith('/auth/profile') ? { background: '#fff' } : { background: 'var(--point)' }]">
+    <div
+      class="body"
+      :style="[
+        (!currentRoute.startsWith('/auth') && !currentRoute.startsWith('/posts/editor')) || currentRoute.startsWith('/auth/profile')
+          ? { gridTemplateColumns: 'minmax(auto, 30.6rem) 1fr' }
+          : { gridTemplateColumns: '1fr' },
+      ]"
+    >
       <!-- Global Navigation -->
-      <div class="navigation" v-if="!currentRoute.startsWith('/auth') && !currentRoute.startsWith('/posts/editor')">
+      <div class="navigation" v-if="(!currentRoute.startsWith('/auth') && !currentRoute.startsWith('/posts/editor')) || currentRoute.startsWith('/auth/profile')">
         <Navigation />
       </div>
 
@@ -21,12 +28,12 @@
 </template>
 
 <script>
-import { computed, onBeforeMount } from 'vue'
+import { defineComponent, computed, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 import MyHeader from './components/MyHeader.vue'
 import Navigation from './components/Navigation.vue'
 
-export default {
+export default defineComponent({
   name: 'app',
   components: {
     MyHeader,
@@ -45,9 +52,9 @@ export default {
       document.hidden ? (document.title = 'DINGGUL') : (document.title = currentTitle.value)
     }
 
-    return { currentRoute, changeTitle }
+    return { currentRoute }
   },
-}
+})
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
@@ -58,7 +65,7 @@ export default {
   --primary: #999999;
   --secondary: #b0b0b0;
   --sub: #b9b9b9;
-  --line: #e5e5e5;
+  --line: #e8e8e8;
   --point: #686aaf;
   --likeActive: #ff9c9c;
   --like: #ddd;

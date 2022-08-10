@@ -1,13 +1,13 @@
 <template>
   <div class="posts">
     <!-- Toolbar -->
-    <Toolbar :type="states.type" :category="states.category" :categories="states.categories" @updatedToolbar="updatedToolbar" />
+    <Toolbar :type="states.type" :category="states.category" :categories="states.categories" :title="states.title" :subject="states.subject" @updatedToolbar="updatedToolbar" />
 
     <!-- List contents -->
     <div v-if="posts.length">
       <ul :class="states.type">
         <template v-for="post in posts" :key="post._id">
-          <List :type="states.type" :title="states.title" :subject="states.subject" :post="post" :isLike="post.likes?.includes(user.id) ?? false" />
+          <List :type="states.type" :title="states.title" :subject="states.subject" :post="post" :isLike="[...post.likes].includes(user.id)" />
         </template>
       </ul>
     </div>

@@ -1,6 +1,5 @@
 <template>
   <div class="editor">
-
     <!-- Menu toolbar -->
     <div class="toolbar">
       <div class="menu">
@@ -25,24 +24,14 @@
       </div>
 
       <div class="toggle">
-        <button
-          class="material-icons"
-          :style="[states.isPublic ? { color: '#E6E6E6' } : { color: 'var(--point)' }]"
-          @click="togglePublic()"
-        >{{ states.isPublic ? 'toggle_off' : 'toggle_on' }}</button>
+        <button class="material-icons" :style="[states.isPublic ? { color: '#E6E6E6' } : { color: 'var(--point)' }]" @click="togglePublic()">{{ states.isPublic ? 'toggle_off' : 'toggle_on' }}</button>
         <span :style="[states.isPublic ? { color: '#BABABA' } : { color: 'var(--point)' }]">{{ states.isPublic ? 'Public' : 'Secret' }}</span>
       </div>
     </div>
 
     <!-- Post body -->
     <div class="title">
-      <input
-        type="text"
-        v-model="title"
-        placeholder="제목을 입력하세요."
-        onfocus="this.placeholder=''"
-        onblur="this.placeholder='제목을 입력하세요.'"
-      />
+      <input type="text" v-model="title" placeholder="제목을 입력하세요." onfocus="this.placeholder=''" onblur="this.placeholder='제목을 입력하세요.'" />
     </div>
 
     <div class="content">
@@ -90,18 +79,14 @@ export default defineComponent({
   setup(props, { emit }) {
     const { push, currentRoute } = useRouter()
     const { state, getters, dispatch } = useStore()
-    const { value: { params } } = currentRoute
+    const {
+      value: { params },
+    } = currentRoute
 
     const Dialog = ref(null)
     const plugins = ref([{ plugin: MarkdownEmoji }])
     const options = {
-      toolbarOptions: [
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ size: ['small', false, 'large', 'huge'] }],
-        [{ color: [] }, { background: [] }],
-        ['link', 'image'],
-        ['clean']
-      ]
+      toolbarOptions: [['bold', 'italic', 'underline', 'strike'], [{ size: ['small', false, 'large', 'huge'] }], [{ color: [] }, { background: [] }], ['link', 'image'], ['clean']],
     }
 
     const states = reactive({
@@ -128,15 +113,11 @@ export default defineComponent({
         category: states.category ? states.category : undefined,
         isPublic: states.isPublic,
         title: title.value,
-        content: content.value
+        content: content.value,
       }
-      const response = params.postNum
-        ? await dispatch('post/updatePost', post)
-        : await dispatch('post/createPost', post)
+      const response = params.postNum ? await dispatch('post/updatePost', post) : await dispatch('post/createPost', post)
 
-      response.success
-        ? push({ name: 'post', params: { title: states.title, subject: states.subject, postNum: response.data.post.postNum } })
-        : alert(response.message)
+      response.success ? push({ name: 'post', params: { title: states.title, subject: states.subject, postNum: response.data.post.postNum } }) : alert(response.message)
     }
 
     const togglePublic = () => {
@@ -155,9 +136,13 @@ export default defineComponent({
       }
     }
 
-    const stop = watch([title, content], () => {
-      toggleCanLeavePage(false)
-    }, { flush: 'post' })
+    const stop = watch(
+      [title, content],
+      () => {
+        toggleCanLeavePage(false)
+      },
+      { flush: 'post' }
+    )
 
     setTimeout(() => {
       if (!states.canLeavePage) stop()
@@ -305,6 +290,7 @@ export default defineComponent({
       color: var(--primary);
       font-size: 1.6rem;
       line-height: 1.5;
+      resize: vertical;
     }
 
     textarea::placeholder {

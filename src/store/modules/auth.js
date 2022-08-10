@@ -3,7 +3,7 @@ import axios from '../../services/axios'
 
 const state = () => ({
   user: {},
-  token: ''
+  token: '',
 })
 
 const getters = {}
@@ -44,7 +44,7 @@ const actions = {
   },
 
   // params: Object
-  async signUp({ commit }, payload) {
+  async createAccount({ commit }, payload) {
     try {
       await axios.post(process.env.VUE_APP_API_URL + 'users', payload)
       return await actions.login({ commit }, { email: payload.email, password: payload.password })
@@ -54,7 +54,7 @@ const actions = {
   },
 
   // params: none
-  async getUserInfo({ commit }) {
+  async getAccount({ commit }) {
     try {
       const { data } = await axios.get(process.env.VUE_APP_API_URL + 'users/me')
       commit('SET_USER_INFO', data.data.user)
@@ -65,7 +65,7 @@ const actions = {
   },
 
   // params: Object
-  async editAccount({ commit }, payload) {
+  async updateAccount({ commit }, payload) {
     try {
       await axios.put(process.env.VUE_APP_API_URL + 'users/me', payload)
       return await actions.logout({ commit })
@@ -79,6 +79,25 @@ const actions = {
     try {
       await axios.delete(process.env.VUE_APP_API_URL + 'users/me')
       return await actions.logout({ commit })
+    } catch (err) {
+      return err.response.data
+    }
+  },
+
+  // params: Object
+  async getProfile({ commit }, payload) {
+    try {
+      const { data } = await axios.get(`${process.env.VUE_APP_API_URL}users/${payload}`)
+      return { success: data.success, nickname: data.data.user.nickname, info: data.data.user.info, greetings: data.data.user.greetings }
+    } catch (err) {
+      return err.response.data
+    }
+  },
+
+  async updateProfile({ commit }, payload) {
+    try {
+      const { data } = await axios.put(process.env.VUE_APP_API_URL + 'users/me', payload)
+      return data
     } catch (err) {
       return err.response.data
     }

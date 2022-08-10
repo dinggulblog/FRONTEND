@@ -10,7 +10,7 @@ const state = () => ({
 const getters = {
   getPostWithNum: (state) => (postNum) => {
     return state.posts.find((post) => String(post.postNum) === String(postNum)) ?? {}
-  }
+  },
 }
 
 const actions = {
@@ -25,7 +25,7 @@ const actions = {
       return err.response.data
     }
   },
-  
+
   // params: Object (subjects & pagenation options)
   async getPosts({ commit }, payload) {
     try {
@@ -80,7 +80,7 @@ const actions = {
     }
   },
 
-   // params: String (post ID)
+  // params: String (post ID)
   async deleteLike({ commit }, payload) {
     try {
       const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}posts/like/${payload}`)
@@ -89,7 +89,7 @@ const actions = {
     } catch (err) {
       return err.response.data
     }
-  }
+  },
 }
 
 const mutations = {
@@ -104,7 +104,7 @@ const mutations = {
   SET_POST_LIKE(state, post) {
     state.post.likes = post.likes
     state.post.likeCount = post.likeCount
-  }
+  },
 }
 
 export default {

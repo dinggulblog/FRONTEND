@@ -1,5 +1,20 @@
 <template>
   <div class="toolbar">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <ul>
+        <li>
+          <router-link :to="{ name: 'home' }"><i class="material-icons">home</i></router-link>
+        </li>
+        <li>
+          <router-link :to="{ name: 'posts', params: { title } }">{{ title }}</router-link>
+        </li>
+        <li v-if="subject">
+          <router-link :to="{ name: 'posts', params: { title, subject } }">{{ subject }}</router-link>
+        </li>
+      </ul>
+    </div>
+
     <!-- Sort type change field -->
     <!--
     <div class="sort select" :value="state.selectedSortedBy">
@@ -63,6 +78,12 @@ export default {
     categories: {
       type: Array,
     },
+    title: {
+      type: String,
+    },
+    subject: {
+      type: String,
+    },
   },
   emits: ['updatedToolbar'],
   setup(props, { emit }) {
@@ -97,6 +118,46 @@ export default {
   display: grid;
   grid-template-columns: auto 1fr auto auto;
   align-items: center;
+  font-size: 1.4rem;
+
+  .breadcrumb {
+    ul {
+      display: flex;
+      list-style: none;
+      align-items: center;
+
+      li {
+        margin-right: 1rem;
+        display: inherit;
+        align-items: center;
+        font-weight: 500;
+        text-transform: uppercase;
+
+        a {
+          color: var(--sub);
+        }
+      }
+
+      li:first-child {
+        i {
+          margin-right: 0;
+          margin-top: 0.3rem;
+        }
+      }
+
+      li:not(:first-child)::before {
+        font-family: 'Material Icons';
+        content: '\e5cc';
+        width: 3.2rem;
+        font-size: 2rem;
+        color: var(--sub);
+      }
+
+      li:last-child a {
+        color: var(--point);
+      }
+    }
+  }
 
   .type-btn {
     grid-column: 3 / 4;
