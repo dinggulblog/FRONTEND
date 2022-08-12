@@ -15,7 +15,7 @@ const routes = [
   { path: '/auth/login', name: 'login', component: Login, meta: { title: 'Login' } },
   { path: '/auth/sign-up', name: 'signUp', component: Account, meta: { title: 'Sign-up', requiredAuth: false } },
   { path: '/auth/account', name: 'account', component: Account, meta: { title: 'Account', requiredAuth: true } },
-  { path: '/auth/profile/:nickname', name: 'profile', component: Profile, meta: { title: 'Profile', requiredAuth: true } },
+  { path: '/auth/profile/:nickname', name: 'profile', component: Profile, meta: { title: 'Profile', requiredAuth: false } },
   { path: '/posts/:title/:subject?', name: 'posts', component: Posts, meta: { title: 'Posts' } },
   { path: '/posts/:title/:subject?/:postNum(\\d+)', name: 'post', component: Post, meta: { title: 'Post' } },
   { path: '/posts/editor/:postNum?', name: 'editor', component: Editor, meta: { title: 'Editor', requiredAuth: true } },
@@ -30,8 +30,8 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   document.title = to.meta.title
 
-  if (!store.state.auth.user.nickname && localStorage.getItem('user')) {
-    store.commit('auth/SET_USER_INFO', JSON.parse(localStorage.getItem('user')))
+  if (!store.state.auth.user.id && localStorage.getItem('id')) {
+    store.commit('auth/SET_USER_LOCAL')
   }
 
   if (!store.state.menu.menus.length) {

@@ -2,95 +2,151 @@
   <div class="profile">
     <form v-on:submit.prevent="submitForm">
       <div class="author">
-        <div class="avatar"></div>
+        <div class="avatar">
+          <img :src="profileState.avatar" alt="avatar" />
+          <span v-if="displayState.display === 'edit'">
+            <label for="input-file"><i class="material-symbols-outlined"> add_circle </i></label>
+            <input type="file" id="input-file" @change="fileUpload" />
+          </span>
+        </div>
         <div class="info">
           <h2>{{ profileState.nickname }}님</h2>
-          <p v-if="profileDisplay === 'view'">{{ profileState.info }}</p>
-          <input v-else v-model="infoInput" :placeholder="profileState.info ? profileState.info : ''" />
+          <p v-if="displayState.display === 'view'">{{ profileState.greetings ? profileState.greetings : 'EDIT 버튼을 눌러 인사말을 추가할 수 있어요.' }}</p>
+          <input v-else ref="greetingsInputEl" v-model="greetingsInput" />
         </div>
         <div class="edit-btn" v-if="user.nickname === profileState.nickname">
-          <button @click="profileDisplay === 'view' ? profileDisplayChange() : onSubmit()">{{ profileDisplay === 'view' ? 'Edit' : 'Confirm' }}</button>
+          <button @click="displayState.display === 'view' ? onChangeDisplay() : onSubmit()">{{ displayState.display === 'view' ? 'Edit' : 'OK' }}</button>
         </div>
-      </div>
-
-      <div class="greetings">
-        <p v-if="profileDisplay === 'view'">{{ profileState.greetings }}</p>
-        <textarea v-else v-model="greetingsInput" :placeholder="profileState.greetings ? profileState.greetings : ''"></textarea>
       </div>
     </form>
 
     <ul class="tab">
-      <li @click="tapDisplayChange('info')" :style="[tapDisplay === 'info' ? { borderColor: 'var(--point)', color: 'var(--point)' } : '']">INFO</li>
-      <li @click="tapDisplayChange('likedPost')" :style="[tapDisplay === 'likedPost' ? { borderColor: 'var(--point)', color: 'var(--point)' } : '']">LIKED POSTS</li>
-      <li @click="tapDisplayChange('commentedPost')" :style="[tapDisplay === 'commentedPost' ? { borderColor: 'var(--point)', color: 'var(--point)' } : '']">COMMENTED POSTS</li>
+      <li @click="onChangeTab('introduce')" :style="[displayState.tab === 'introduce' ? { borderColor: 'var(--point)', color: 'var(--point)' } : '']">INTRODUCE</li>
+      <li @click="onChangeTab('like')" :style="[displayState.tab === 'like' ? { borderColor: 'var(--point)', color: 'var(--point)' } : '']">LIKED POSTS</li>
+      <li @click="onChangeTab('comment')" :style="[displayState.tab === 'comment' ? { borderColor: 'var(--point)', color: 'var(--point)' } : '']">COMMENTED POSTS</li>
     </ul>
 
-    <Info v-if="tapDisplay === 'info'" />
-    <PostCollection v-if="tapDisplay === 'likedPost' || tapDisplay === 'commentedPost'" />
+    <Introduce v-if="displayState.tab === 'introduce'" :introduce="profileState.introduce" />
+
+    <div class="posts" v-if="displayState.tab === 'like' || displayState.tab === 'comment'">
+      <ul v-if="posts.length">
+        <template v-for="post in posts" :key="post._id">
+          <List :type="'profile'" :title="getters['menu/getTitle'](post.subject)" :subject="getters['menu/getSubject'](post.subject)" :post="post" :isLike="[...post.likes].includes(user.id)" />
+        </template>
+      </ul>
+      <div v-else class="empty"><span>There is no posts.</span></div>
+
+      <Pagenation2 :page="pageState.page" :limit="pageState.limit" :maxPage="pageState.maxPage" @updatePage="updatePage" />
+    </div>
   </div>
 </template>
 
 <script>
-import { onBeforeMount, computed, ref, reactive } from 'vue'
+import { onBeforeMount, computed, ref, reactive, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import Info from '../../components/Info.vue'
-import PostCollection from '../../components/PostCollection.vue'
+import Introduce from '../../components/Introduce.vue'
+import List from '../../components/List.vue'
+import Pagenation2 from '../../components/Pagenation2.vue'
 
 export default {
   name: 'profile',
   components: {
-    Info,
-    PostCollection
+    Introduce,
+    List,
+    Pagenation2,
   },
   setup() {
-    const { push, currentRoute } = useRouter()
-    const { state, dispatch } = useStore()
+    const { currentRoute } = useRouter()
+    const { state, getters, dispatch } = useStore()
 
     const user = computed(() => state.auth.user)
+    const posts = computed(() => state.post.posts)
 
     const profileState = reactive({
       nickname: currentRoute.value.params.nickname,
-      info: '간단한 소개',
-      greetings: '인사말을 적어보세요',
+      avatar: '',
+      greetings: '',
+      introduce: '',
     })
 
-    const profileDisplay = ref('view')
-    const infoInput = ref('')
-    const greetingsInput = ref('')
+    const displayState = reactive({
+      display: 'view',
+      tab: 'introduce',
+    })
 
-    const tapDisplay = ref('info')
+    const pageState = reactive({
+      page: 1,
+      limit: 5,
+      maxPage: 1,
+    })
+
+    const greetingsInput = ref(profileState.greetings)
+    const greetingsInputEl = ref(null)
+    let avatarFlie = ''
 
     onBeforeMount(async () => {
       if (profileState.nickname) {
         const response = await dispatch('auth/getProfile', profileState.nickname)
-        // profileState.info = response.info
-        // profileState.greetings = response.greetings
-        // const postResponse = await dispatch('post/getPosts', { nickname: findUser.value })
+        const user = response.data.user
+
+        if (user) {
+          profileState.greetings = user.greetings
+          profileState.introduce = user.introduce
+          profileState.avatar = user.avatar
+        }
       }
     })
 
-    const profileDisplayChange = () => {
-      profileDisplay.value = 'edit'
+    const onChangeDisplay = () => {
+      displayState.display = 'edit'
+      nextTick(() => {
+        greetingsInput.value = profileState.greetings
+        greetingsInputEl.value.focus()
+      })
+    }
+
+    const fileUpload = async (event) => {
+      avatarFlie = event.target.files[0]
+      const reader = new FileReader()
+      reader.readAsDataURL(event.target.files[0])
+      reader.onload = () => (profileState.avatar = reader.result)
+      greetingsInputEl.value.focus()
     }
 
     const onSubmit = async () => {
-      const profile = {
-        nickname: user.value.nickname,
-        info: infoInput.value,
-        greetings: greetingsInput.value,
+      const formData = new FormData()
+      formData.append('avatar', avatarFlie)
+      formData.append('greetings', greetingsInput.value)
+      formData.append('introduce', profileState.introduce)
+      const response = await dispatch('auth/updateProfile', formData)
+      if (response.success) {
+        console.log(response.data.user)
+        profileState.avatar = response.data.user.avatar
+        profileState.greetings = response.data.user.greetings
+        profileState.introduce = response.data.user.introduce
+        displayState.display = 'view'
       }
-      console.log('변경할 프로필 내용 : ', profile)
-      const response = await dispatch('auth/updateProfile', profile)
-      response.success ? push({ name: 'profile', params: { nickname: user.value.nickname } }) : alert(response.message)
     }
 
-    const tapDisplayChange = (selected) => {
-      tapDisplay.value = selected
-      console.log('현재 선택한 tap : ', tapDisplay.value)
+    const findUserPosts = async (filter) => {
+      const response = await dispatch('post/getPosts', { filter, nickname: profileState.nickname, page: pageState.page, limit: pageState.limit })
+      response.success ? (pageState.maxPage = response.data.maxPage || 1) : alert(response.message)
     }
 
-    return { user, profileState, profileDisplay, infoInput, greetingsInput, tapDisplay, profileDisplayChange, onSubmit, tapDisplayChange }
+    const onChangeTab = (tab) => {
+      displayState.tab = tab
+      if (tab === 'like' || tab === 'comment') {
+        findUserPosts(tab)
+      }
+      console.log('현재 선택한 tab : ', displayState.tab)
+    }
+
+    const updatePage = ({ updatedPage }) => {
+      pageState.page = updatedPage
+    }
+
+    return { getters, user, posts, profileState, displayState, pageState, greetingsInput, greetingsInputEl, onChangeDisplay, fileUpload, onSubmit, onChangeTab, updatePage }
   },
 }
 </script>
@@ -99,27 +155,45 @@ export default {
 .profile {
   display: grid;
   grid-template-rows: auto auto;
-  gap: 2.4rem 0;
   letter-spacing: normal;
   font-size: 1.4rem;
 
   .author {
     grid-row: 1 / 2;
     display: grid;
-    grid-template-columns: auto auto 1fr;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 0 1.6rem;
 
     .avatar {
       grid-column: 1 / 2;
-      width: 6rem;
-      height: 6rem;
-      border-radius: 50%;
-      background: #e6e6e6;
-      background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU');
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-position: center;
+      position: relative;
+
+      img {
+        width: 6rem;
+        height: 6rem;
+        border-radius: 50%;
+        background-color: var(--line);
+      }
+
+      #input-file {
+        display: none;
+      }
+
+      i {
+        position: absolute;
+        right: -0.7rem;
+        bottom: 0;
+        margin: 0;
+        color: var(--point);
+        cursor: pointer;
+        border-radius: 50%;
+        background: #fff;
+      }
+
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+      }
     }
 
     .info {
@@ -137,13 +211,21 @@ export default {
 
       p {
         grid-row: 2 / 3;
-        color: var(--sub);
-        font-weight: 300;
+        color: var(--primary);
+        font-weight: 400;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        word-wrap: break-word;
       }
 
       input {
-        border: 1px solid var(--sub);
-        border-radius: 0.5rem;
+        border-radius: 1rem;
+        padding: 0.8rem 1.6rem;
+        width: 100%;
+        background-color: #eee;
       }
     }
 
@@ -162,23 +244,10 @@ export default {
     }
   }
 
-  .greetings {
-    grid-row: 2 / 3;
-    color: var(--secondary);
-    line-height: 2.8rem;
-
-    textarea {
-      border: 1px solid var(--sub);
-      border-radius: 0.5rem;
-      width: 100%;
-      min-height: 10rem;
-    }
-  }
-
   .tab {
-    margin-top: 2rem;
     display: flex;
     justify-content: center;
+    margin: 4.8rem 0;
     li {
       list-style: none;
       padding: 2rem 0;
@@ -191,6 +260,12 @@ export default {
       font-weight: 700;
       color: var(--sub);
       user-select: none;
+    }
+  }
+
+  .posts {
+    .empty {
+      color: var(--primary);
     }
   }
 }

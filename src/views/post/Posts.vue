@@ -11,7 +11,7 @@
         </template>
       </ul>
     </div>
-    <div v-else><span>There is no posts.</span></div>
+    <div v-else class="empty"><span>There is no posts.</span></div>
 
     <!-- Pagenation -->
     <Pagenation2 :page="page" :limit="limit" :maxPage="maxPage" @updatePage="updatePage" />
@@ -78,8 +78,9 @@ export default {
 
     watchEffect(
       async () => {
+        window.scrollTo({ left: 0, top: 0, behavior: 'smooth' })
         const subjects = getters['menu/getMenuIds']({ title: states.title, subject: states.subject })
-        const response = await dispatch('post/getPosts', { subjects, page: page.value, limit: limit.value })
+        const response = await dispatch('post/getPosts', { subjects, category: states.category === 'All' ? undefined : states.category, page: page.value, limit: limit.value })
         response.success ? (maxPage.value = response.data.maxPage || 1) : alert(response.message)
       },
       { flush: 'post' }
@@ -94,6 +95,10 @@ export default {
 .posts {
   display: grid;
   grid-template-rows: repeat(2, auto);
+
+  .empty {
+    color: var(--primary);
+  }
 }
 
 .list {

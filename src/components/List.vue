@@ -1,7 +1,11 @@
 <template>
   <li :class="type">
-    <div>
-      <div class="thumbnail" v-if="type === 'album' && post.imageURL" :style="{ backgroundImage: 'url(' + require(`@/assets/${post.imageURL}`) + ')' }"></div>
+    <div class="thumbnail-wrap">
+      <router-link :to="{ name: 'post', params: { title, subject, postNum: post.postNum } }">
+        <div class="thumbnail" :style="[post.imageURL ? { backgroundImage: 'url(' + require(`@/assets/${post.imageURL}`) + ')' } : { backgroundImage: 'url(' + require(`@/assets/1.jpg`) + ')' }]"></div>
+      </router-link>
+    </div>
+    <div class="post-wrap">
       <h2>
         <router-link :to="{ name: 'post', params: { title, subject, postNum: post.postNum } }">{{ post.postNum }} - {{ post.title }}</router-link>
       </h2>
@@ -17,13 +21,14 @@
       </div>
     </div>
 
-    <div v-if="type === 'list'">
-      <span>{{ post.commentCount }}</span>
+    <div class="comment-wrap" v-if="type === 'list' || type === 'profile'">
+      <span @click="quickMoveComments">{{ post.commentCount }}</span>
     </div>
   </li>
 </template>
 
 <script>
+import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import markdownText from 'markdown-to-text'
 
@@ -50,21 +55,42 @@ export default {
       default: false,
     },
   },
-  setup() {
-    return { dayjs, markdownText }
+  setup(props) {
+    const { push } = useRouter()
+
+    const quickMoveComments = () => {
+      //console.log('코멘트창으로 이동')
+      push({ name: 'post', params: { title: props.title, subject: props.subject, postNum: props.post.postNum, quickMoveComments } })
+    }
+    return { dayjs, markdownText, quickMoveComments }
   },
 }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-li.list {
+li.list,
+li.profile {
   margin: 0 0 4.8rem 0;
   border-bottom: 1px solid var(--line);
   display: grid;
-  grid-template-columns: minmax(28rem, auto) minmax(8rem, 12.8rem);
+  grid-template-columns: minmax(0, 12rem) auto minmax(8rem, 12.8rem);
+  gap: 3rem;
 
-  div:nth-child(1) {
+  .thumbnail-wrap {
     grid-column: 1 / 2;
+
+    .thumbnail {
+      width: 100%;
+      height: 12rem;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+      border-radius: 15%;
+    }
+  }
+
+  .post-wrap {
+    grid-column: 2 / 3;
     display: grid;
     grid-template-rows: repeat(3, auto);
 
@@ -130,8 +156,8 @@ li.list {
     }
   }
 
-  div:nth-child(2) {
-    grid-column: 2 / 3;
+  .comment-wrap {
+    grid-column: 3 / 4;
     display: grid;
     justify-content: end;
     align-items: center;
@@ -149,6 +175,7 @@ li.list {
       place-content: center;
       padding-top: 0.2rem;
       margin-top: -0.5rem;
+      cursor: pointer;
     }
   }
 }
@@ -194,7 +221,7 @@ li.album {
       letter-spacing: normal;
     }
 
-    .postInfo {
+    .post-info {
       grid-row: 4 / 5;
       font-size: 1.2rem;
       color: var(--sub);

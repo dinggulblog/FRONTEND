@@ -16,9 +16,21 @@ const getters = {
       .map((filtered) => filtered._id)
   },
 
+  getTitle: (state) => (id) => {
+    return Array.from(state.menus)
+      .find(menu => menu._id === id)
+      ?.title
+  },
+
   getTitles: (state) => {
     return Array.from(new Set(state.menus.map((menu) => menu.title)))
       .sort((a, b) => a.toLowerCase() < b.toLowerCase() ? 1 : -1)
+  },
+
+  getSubject: (state) => (id) => {
+    return Array.from(state.menus)
+      .find(menu => menu._id === id)
+      ?.subject 
   },
 
   getSubjects: (state) => (title) => {

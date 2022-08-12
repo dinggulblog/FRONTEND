@@ -10,10 +10,11 @@
 
       <!-- Post infomations -->
       <div class="info">
-        <span
-          ><div class="profile"></div>
-          <router-link :to="{ name: 'profile', params: { nickname: post.author.nickname } }">{{ post.author.nickname }}</router-link></span
-        >
+        <span v-if="post.author">
+          <div class="profile"></div>
+          <router-link :to="{ name: 'profile', params: { nickname: post.author.nickname } }">{{ post.author.nickname }}</router-link>
+        </span>
+        <span></span>
         <span v-text="dayjs(post.createdAt).format('YYYY년 M월 D일')"></span>
         <span></span>
         <span>
@@ -21,7 +22,7 @@
           {{ post.likeCount }}
         </span>
         <div class="option">
-          <button @click.prevent="toggleOptionBtn"><i class="material-icons">more_horiz</i></button>
+          <button @click="toggleOptionBtn"><i class="material-icons">more_horiz</i></button>
           <ul v-if="!isHide">
             <li v-if="post.author.nickname === user.nickname"><router-link :to="{ name: 'editor', params: { postNum: post.postNum } }">수정</router-link></li>
             <li v-if="post.author.nickname === user.nickname" @click="onDelete">삭제</li>
@@ -42,7 +43,7 @@
       <CommentEditor :curRouteParams="params" :pid="post._id" />
 
       <!-- Comment contents -->
-      <div class="comments" v-if="comments.length">
+      <div class="comments" v-if="comments.length" ref="commentsEl">
         <h2>댓글 {{ comments.length }}개</h2>
         <ul v-for="comment in comments" :key="comment._id">
           <CommentItem :comment="comment" />
@@ -90,15 +91,20 @@ export default defineComponent({
     const post = computed(() => state.post.post)
     const comments = computed(() => state.comment.comments)
 
+    const commentsEl = ref(null)
+
     const toggleOptionBtn = () => {
       isHide.value = !isHide.value
     }
 
+    const closeOptionBtn = () => {
+      isHide.value = true
+    }
+
     const onUpdateLike = async () => {
       if (!user.value.id) return alert('로그인 후 이용 가능합니다.')
-
-      const response = isLike.value ? await dispatch('post/deleteLike', post.value._id) : await dispatch('post/updateLike', post.value._id)
-      isLike.value = response.success ? !isLike.value : isLike.value
+      isLike.value = !isLike.value
+      isLike.value ? await dispatch('post/updateLike', post.value._id) : await dispatch('post/deleteLike', post.value._id)
     }
 
     const onUpdateDebounce = debounce(onUpdateLike, 200)
@@ -107,9 +113,7 @@ export default defineComponent({
       const ok = await Dialog.value.show({ title: '게시물 삭제', message: '게시물을 삭제하시겠습니까?\n한번 삭제된 게시물은 되돌릴 수 없습니다.' })
       if (ok) {
         const response = await dispatch('post/deletePost', post.value._id)
-        response.success
-          ? push({ name: 'posts', params: { title: params.title, subject: params.subject ? params.subject : undefined } })
-          : alert(`Cannot delete post (Server error ${response.message})`)
+        response.success ? push({ name: 'posts', params: { title: params.title, subject: params.subject ? params.subject : undefined } }) : alert(`Cannot delete post (Server error ${response.message})`)
       }
     }
 
@@ -125,7 +129,11 @@ export default defineComponent({
     onBeforeMount(async () => {
       const id = getters['post/getPostWithNum'](params.postNum)?._id
       const response = await dispatch('post/getPost', id ? { id } : { postNum: params.postNum })
-      response.success ? window.scrollTo(0, 0) : go(-1)
+
+      if (params.quickMoveComments) {
+        let y = commentsEl.value.offsetTop - document.querySelector('.headerWrap').offsetHeight - 33
+        window.scrollTo({ top: y, behavior: 'smooth' })
+      } else response.success ? window.scrollTo({ left: 0, top: 0, behavior: 'smooth' }) : go(-1)
     })
 
     onBeforeUpdate(() => {
@@ -133,7 +141,23 @@ export default defineComponent({
       document.title = post.value.title
     })
 
-    return { dayjs, params, Dialog, plugins, isHide, isLike, user, post, comments, toggleOptionBtn, onUpdateDebounce, onDelete, onCopyLink }
+    return {
+      dayjs,
+      params,
+      Dialog,
+      plugins,
+      isHide,
+      isLike,
+      user,
+      post,
+      comments,
+      commentsEl,
+      toggleOptionBtn,
+      closeOptionBtn,
+      onUpdateDebounce,
+      onDelete,
+      onCopyLink,
+    }
   },
 })
 </script>
@@ -174,10 +198,14 @@ export default defineComponent({
 
       span:nth-child(1) {
         grid-column: 1 / 2;
-        font-size: 1.2rem;
+        font-size: 1.4rem;
         display: flex;
         align-items: center;
         font-weight: 700;
+
+        a {
+          color: var(--sub);
+        }
 
         .profile {
           background: #fff;
@@ -200,7 +228,7 @@ export default defineComponent({
 
       span:nth-child(3) {
         grid-column: 3 / 4;
-        font-size: 1.2rem;
+        font-size: 1.4rem;
       }
 
       span:nth-child(4) {
@@ -214,14 +242,14 @@ export default defineComponent({
         display: grid;
         grid-template-columns: repeat(2, auto);
         align-items: center;
-        font-size: 1.2rem;
+        font-size: 1.4rem;
 
         i {
           margin-right: 0.8rem !important;
           cursor: pointer;
           transition: 0.5s all ease;
           color: var(--like);
-          font-size: 1.6rem;
+          font-size: 1.8rem;
         }
       }
 
@@ -328,10 +356,10 @@ export default defineComponent({
 
     .comments {
       color: var(--primary);
+      margin: 6.4rem 0 0;
 
       h2 {
         font-size: 1.6rem;
-        margin: 6.4rem 0 0;
         padding: 0 0 4rem;
         font-weight: 500;
       }

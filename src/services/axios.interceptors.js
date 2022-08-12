@@ -7,9 +7,7 @@ const setup = (store) => {
     async (config) => {
       const token = TokenService.getAccessToken()
 
-      config.headers['Authorization'] = token
-        ? !String(config.url).endsWith('refresh') ? 'Bearer ' + token : null
-        : String(config.url).endsWith('users') ? process.env.VUE_APP_SECRET_KEY?.trim() : null
+      config.headers['Authorization'] = token ? (!String(config.url).endsWith('refresh') ? 'Bearer ' + token : null) : String(config.url).endsWith('users') ? process.env.VUE_APP_SECRET_KEY?.trim() : null
 
       return config
     },
@@ -24,7 +22,7 @@ const setup = (store) => {
     },
     async (error) => {
       const originalConfig = error.config
-      console.log('Error response: ', error.response.status, '\nError Data: ', error.response.data, '\nRequested URL: ', error.response.request.responseURL, '\n')
+      console.log('Error response: ', error.response.status, '\nError Data: ', error.response.data, '\nRequested URL: ', error.response.request.responseURL, error.response.config.method, '\n')
 
       if (!originalConfig.url.endsWith('auth') && error.response) {
         // Refresh token was expired -> Logout

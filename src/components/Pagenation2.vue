@@ -1,7 +1,7 @@
 <template>
   <div class="page" :style="{ gridTemplateColumns: `auto 800px auto` }">
     <!-- Prev page button -->
-    <button class="prev-btn" @click="onPrevPage">
+    <button class="prev-btn" @click="onPrevPage" :style="page - skip < 1 ? { color: 'var(--sub)' } : { color: 'var(--point)' }">
       <i class="material-icons">arrow_back_ios_new</i>
       <span>PREV</span>
     </button>
@@ -20,7 +20,7 @@
     </div>
 
     <!-- Next page button -->
-    <button class="next-btn" @click="onNextPage">
+    <button class="next-btn" @click="onNextPage" :style="maxPage < (pageStart + 1) * skip + 1 ? { color: 'var(--sub)' } : { color: 'var(--point)' }">
       <span>NEXT</span>
       <i class="material-icons">arrow_forward_ios</i>
     </button>
@@ -46,8 +46,8 @@ export default {
     },
   },
   setup(props, { emit }) {
-    let pageStart = 0
-    const skip = 5 // Next or Prev button 눌렀을 때 넘어가는 페이지 단위
+    const pageStart = ref(0)
+    const skip = ref(5) // Next or Prev button 눌렀을 때 넘어가는 페이지 단위
     const pages = ref(new Set([]))
 
     const onUpdatePage = (updatedPage) => {
@@ -55,31 +55,33 @@ export default {
     }
 
     const onPrevPage = () => {
-      if (props.page - skip < 1) return
-      changePage(--pageStart, props.maxPage)
-      emit('updatePage', { updatedPage: pageStart * skip + 1 })
+      if (props.page - skip.value < 1) return
+      changePage(--pageStart.value, props.maxPage)
+      emit('updatePage', { updatedPage: pageStart.value * skip.value + 1 })
     }
 
     const onNextPage = () => {
-      if (props.maxPage < (pageStart + 1) * skip + 1) return
-      changePage(++pageStart, props.maxPage)
-      emit('updatePage', { updatedPage: pageStart * skip + 1 })
+      if (props.maxPage < (pageStart.value + 1) * skip.value + 1) return
+      changePage(++pageStart.value, props.maxPage)
+      emit('updatePage', { updatedPage: pageStart.value * skip.value + 1 })
     }
 
     const changePage = (start, max) => {
-      const lastPage = max < skip * (start + 1) ? max : skip * (start + 1)
+      const lastPage = max < skip.value * (start + 1) ? max : skip.value * (start + 1)
 
       pages.value.clear()
-      for (let i = skip * start; i < lastPage; i++) pages.value.add(i + 1)
+      for (let i = skip.value * start; i < lastPage; i++) pages.value.add(i + 1)
     }
 
-    watchEffect(() => changePage((pageStart = 0), props.maxPage))
+    watchEffect(() => changePage((pageStart.value = 0), props.maxPage))
 
     return {
+      pageStart,
+      skip,
       pages,
       onUpdatePage,
       onPrevPage,
-      onNextPage
+      onNextPage,
     }
   },
 }

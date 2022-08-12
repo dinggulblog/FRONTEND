@@ -46,12 +46,12 @@
     </div>
 
     <!-- Category select box -->
-    <div class="category select" ref="categoryEl" tabindex="0" @blur="closeCatBox">
+    <div class="category select" tabindex="-1" @blur="closeCatBox">
       <div class="selector">
-        <div class="label" @click="isVisible = !isVisible">
+        <div class="label" @click="openCatBox">
           <span>{{ category }}</span>
         </div>
-        <i class="material-icons arrow" :class="{ expanded: isVisible }" @click="isVisible = !isVisible">expand_more</i>
+        <i class="material-icons arrow" :class="{ expanded: isVisible }" @click="openCatBox">expand_more</i>
         <div :hidden="!isVisible">
           <ul>
             <li @click="changeCategory('All')">전체보기</li>
@@ -88,10 +88,9 @@ export default {
   emits: ['updatedToolbar'],
   setup(props, { emit }) {
     const isVisible = ref(false)
-    const categoryEl = ref(null)
 
     const openCatBox = () => {
-      isVisible.value = true
+      isVisible.value = !isVisible.value
     }
 
     const closeCatBox = () => {
@@ -107,7 +106,7 @@ export default {
       closeCatBox()
     }
 
-    return { isVisible, categoryEl, openCatBox, closeCatBox, changeType, changeCategory }
+    return { isVisible, openCatBox, closeCatBox, changeType, changeCategory }
   },
 }
 </script>

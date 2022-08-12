@@ -1,4 +1,3 @@
-import jwtDecode from 'jwt-decode'
 import axios from '../../services/axios'
 
 const state = () => ({
@@ -25,7 +24,7 @@ const actions = {
     try {
       const { data } = await axios.post(process.env.VUE_APP_API_URL + 'auth', payload)
       commit('SET_USER', data.data.accessToken)
-      return data
+      return await actions.getAccount({ commit })
     } catch (err) {
       return err.response.data
     }
@@ -34,7 +33,7 @@ const actions = {
   // params: none
   async logout({ commit }) {
     try {
-      const { data } = await axios.delete(process.env.VUE_APP_API_URL + 'auth/me')
+      const { data } = await axios.delete(process.env.VUE_APP_API_URL + 'auth')
       return data
     } catch (err) {
       return err.response.data
@@ -46,7 +45,7 @@ const actions = {
   // params: Object
   async createAccount({ commit }, payload) {
     try {
-      await axios.post(process.env.VUE_APP_API_URL + 'users', payload)
+      await axios.post(process.env.VUE_APP_API_URL + 'users/account', payload)
       return await actions.login({ commit }, { email: payload.email, password: payload.password })
     } catch (err) {
       return err.response.data
@@ -56,7 +55,7 @@ const actions = {
   // params: none
   async getAccount({ commit }) {
     try {
-      const { data } = await axios.get(process.env.VUE_APP_API_URL + 'users/me')
+      const { data } = await axios.get(process.env.VUE_APP_API_URL + 'users/account')
       commit('SET_USER_INFO', data.data.user)
       return data
     } catch (err) {
@@ -67,7 +66,7 @@ const actions = {
   // params: Object
   async updateAccount({ commit }, payload) {
     try {
-      await axios.put(process.env.VUE_APP_API_URL + 'users/me', payload)
+      await axios.put(process.env.VUE_APP_API_URL + 'users/account', payload)
       return await actions.logout({ commit })
     } catch (err) {
       return err.response.data
@@ -77,7 +76,7 @@ const actions = {
   // params: none
   async deleteAccount({ commit }) {
     try {
-      await axios.delete(process.env.VUE_APP_API_URL + 'users/me')
+      await axios.delete(process.env.VUE_APP_API_URL + 'users/account')
       return await actions.logout({ commit })
     } catch (err) {
       return err.response.data
@@ -87,8 +86,8 @@ const actions = {
   // params: Object
   async getProfile({ commit }, payload) {
     try {
-      const { data } = await axios.get(`${process.env.VUE_APP_API_URL}users/${payload}`)
-      return { success: data.success, nickname: data.data.user.nickname, info: data.data.user.info, greetings: data.data.user.greetings }
+      const { data } = await axios.get(`${process.env.VUE_APP_API_URL}users/profile/${payload}`)
+      return data
     } catch (err) {
       return err.response.data
     }
@@ -96,7 +95,7 @@ const actions = {
 
   async updateProfile({ commit }, payload) {
     try {
-      const { data } = await axios.put(process.env.VUE_APP_API_URL + 'users/me', payload)
+      const { data } = await axios.put(process.env.VUE_APP_API_URL + 'users/profile', payload)
       return data
     } catch (err) {
       return err.response.data
@@ -107,14 +106,22 @@ const actions = {
 const mutations = {
   // params: Access token
   SET_USER(state, token) {
-    const decoded = jwtDecode(token)
     state.token = token
-    state.user = { id: decoded.sub, nickname: decoded.data.nickname, roles: decoded.data.roles }
-    localStorage.setItem('user', JSON.stringify(state.user))
   },
 
   SET_USER_INFO(state, user) {
     state.user = user
+    localStorage.setItem('id', state.user.id)
+    localStorage.setItem('nickname', state.user.nickname)
+    localStorage.setItem('avatar', state.user.avatar)
+  },
+
+  SET_USER_LOCAL(state) {
+    state.user = {
+      id: localStorage.getItem('id'),
+      nickname: localStorage.getItem('nickname'),
+      avatar: localStorage.getItem('avatar'),
+    }
   },
 
   /* Reset user state */
