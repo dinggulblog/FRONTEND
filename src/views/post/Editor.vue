@@ -35,10 +35,12 @@
     </div>
 
     <div class="content">
-      <textarea v-model="content" placeholder="당신의 이야기를 적어보세요..."> </textarea>
+      <textarea v-model="content" placeholder="당신의 이야기를 적어보세요..." ref="contentEl" id="contentEl"> </textarea>
       <markdown class="markdown" :source="content" :plugins="plugins" :breaks="true" :xhtmlOut="true" :typographer="true" />
       <!--<QuillEditor theme="snow" contentType="html" v-model:content="content" :toolbar="options.toolbarOptions" />-->
     </div>
+
+    <button @click="onAddFile()">해당 포커스에 파일 첨부하기</button>
 
     <button class="submit" @click="onSubmit()">Submit</button>
 
@@ -99,6 +101,19 @@ export default defineComponent({
 
     const title = ref('')
     const content = ref('')
+    const contentEl = ref(null)
+
+    const onAddFile = () => {
+      let textarea = contentEl.value
+      let start = textarea.value.substring(0, textarea.selectionStart)
+      let end = textarea.value.substring(textarea.selectionEnd, textarea.value.length)
+
+      const addText = '![고양이애옹](https://cdn.pixabay.com/photo/2019/03/13/08/29/cat-4052454_1280.jpg)\n'
+      textarea.value = start + addText + end
+      textarea.selectionStart = textarea.selectionStart + addText.length
+      textarea.selectionEnd = textarea.selectionStart
+      textarea.focus()
+    }
 
     const onSubmit = async () => {
       if (!states.title || !states.subject) {
@@ -190,7 +205,7 @@ export default defineComponent({
     }
     */
 
-    return { getters, Dialog, plugins, options, states, title, content, onSubmit, togglePublic }
+    return { getters, Dialog, plugins, options, states, title, content, contentEl, onAddFile, onSubmit, togglePublic }
   },
 })
 </script>
