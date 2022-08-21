@@ -24,14 +24,13 @@ export default {
     }
 
     return { isVisible, open, close }
-  }
+  },
 }
 </script>
 
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s;
 }
 .fade-enter,
 .fade-leave-to {

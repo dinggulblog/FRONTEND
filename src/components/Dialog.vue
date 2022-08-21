@@ -35,6 +35,7 @@ export default {
       this.title = opts.title
       this.message = opts.message
       if (opts.cancelButton) {
+        this.okButton = opts.okButton
         this.cancelButton = opts.cancelButton
       }
       this.$refs.popup.open()

@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from '../../services/axios.js'
 
 const state = () => ({
   menus: [],
@@ -9,6 +9,14 @@ const getters = {
     return Array.from(state.menus)
       .find((menu) => String(menu._id) === String(id))
   },
+
+  
+  getMenuId: (state) => ({ title, subject }) => {
+    return Array.from(state.menus)
+    .find((menu) => menu.title === title && menu.subject === subject)
+    ?._id
+  },
+
 
   getMenuIds: (state) => ({ title, subject }) => {
     return Array.from(state.menus)

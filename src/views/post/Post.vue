@@ -127,17 +127,22 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
-      const id = getters['post/getPostWithNum'](params.postNum)?._id
-      const response = await dispatch('post/getPost', id ? { id } : { postNum: params.postNum })
+      const response = await dispatch('post/getPost', params.id)
 
-      if (params.quickMoveComments) {
-        let y = commentsEl.value.offsetTop - document.querySelector('.headerWrap').offsetHeight - 33
-        window.scrollTo({ top: y, behavior: 'smooth' })
-      } else response.success ? window.scrollTo({ left: 0, top: 0, behavior: 'smooth' }) : go(-1)
+      if (response.success) {
+        if (params.quickMoveComments) {
+          let y = commentsEl.value.offsetTop - document.querySelector('.headerWrap').offsetHeight - 33
+          window.scrollTo({ top: y, behavior: 'smooth' })
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+        isLike.value = [...post.value.likes].includes(user.value.id)
+      } else {
+        go(-1)
+      }
     })
 
     onBeforeUpdate(() => {
-      isLike.value = [...post.value.likes].includes(user.value.id)
       document.title = post.value.title
     })
 

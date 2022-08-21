@@ -2,22 +2,17 @@ import { stringify } from 'querystring'
 import axios from '../../services/axios'
 
 const state = () => ({
-  temp: {},
   post: {},
   posts: [],
 })
 
-const getters = {
-  getPostWithNum: (state) => (postNum) => {
-    return state.posts.find((post) => String(post.postNum) === String(postNum)) ?? {}
-  },
-}
+const getters = {}
 
 const actions = {
   // params: String (post ID)
   async getPost({ commit }, payload) {
     try {
-      const { data } = await axios.get(`${process.env.VUE_APP_API_URL}posts/post`, { params: payload })
+      const { data } = await axios.get(`${process.env.VUE_APP_API_URL}posts/${payload}`)
       commit('SET_POST', data.data.post)
       commit('comment/SET_COMMENTS', data.data.comments, { root: true })
       return data
@@ -42,6 +37,7 @@ const actions = {
     try {
       const { data } = await axios.post(`${process.env.VUE_APP_API_URL}posts`, payload)
       commit('SET_POST', data.data.post)
+      console.log(data)
       return data
     } catch (err) {
       return err.response.data
@@ -62,7 +58,7 @@ const actions = {
   // params: String (post ID)
   async updateLike({ commit }, payload) {
     try {
-      const { data } = await axios.put(`${process.env.VUE_APP_API_URL}posts/like/${payload}`)
+      const { data } = await axios.put(`${process.env.VUE_APP_API_URL}posts/${payload}/like`)
       commit('SET_POST_LIKE', data.data.post)
       return data
     } catch (err) {
@@ -80,10 +76,19 @@ const actions = {
     }
   },
 
+  async deleteFile({ commit }, { postId, imageId }) {
+    try {
+      const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}posts/${postId}/file`, { data: imageId })
+      return data
+    } catch (err) {
+      return err.response.data
+    }
+  },
+
   // params: String (post ID)
   async deleteLike({ commit }, payload) {
     try {
-      const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}posts/like/${payload}`)
+      const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}posts/${payload}/like`)
       commit('SET_POST_LIKE', data.data.post)
       return data
     } catch (err) {

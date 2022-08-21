@@ -7,7 +7,7 @@ const setup = (store) => {
     async (config) => {
       const token = TokenService.getAccessToken()
 
-      config.headers['Authorization'] = token ? (!String(config.url).endsWith('refresh') ? 'Bearer ' + token : null) : String(config.url).endsWith('users') ? process.env.VUE_APP_SECRET_KEY?.trim() : null
+      config.headers['Authorization'] = token ? (!String(config.url).endsWith('refresh') ? 'Bearer ' + token : null) : String(config.url).endsWith('account') ? process.env.VUE_APP_SECRET_KEY?.trim() : null
 
       return config
     },

@@ -2,20 +2,14 @@
   <div class="accountEditor">
     <Form @submit="onSubmit" :validation-schema="schema">
       <h2 v-text="isNew ? 'Create Account' : 'Modify Account'"></h2>
-      <TextInput
-        name="email"
-        type="email"
-        label="E-mail"
-        :disabled="!isNew"
-        :placeholder="user.email ? user.email : 'Email'"
-        spellcheck="false"
-        :success-message="user.email ? '이메일은 변경할 수 없습니다.' : '올바른 이메일 주소입니다.'"
-      />
+      <TextInput name="email" type="email" label="E-mail" :disabled="!isNew" :placeholder="user.email ? user.email : 'Email'" spellcheck="false" :success-message="user.email ? '이메일은 변경할 수 없습니다.' : '올바른 이메일 주소입니다.'" />
       <TextInput v-show="!isNew" name="currentPassword" type="password" label="Current Password" placeholder="Current Password" />
       <TextInput name="password" type="password" :label="isNew ? 'New Password' : 'Password'" :placeholder="isNew ? 'New Password' : 'Password'" />
-      <TextInput name="passwordConfirmation" type="password" label="Confirm Password" placeholder="Type password again" success-message="비밀번호가 정상적으로 입력되었습니다." />
-      <TextInput name="nickname" type="text" label="Nickname" :placeholder="user.nickname ? user.nickname : 'Nickname'" spellcheck="false" success-message="사용할 수 있는 닉네임입니다." />
+      <TextInput name="passwordConfirmation" type="password" label="Confirm Password" placeholder="Type password again" :success-message="'비밀번호가 정상적으로 입력되었습니다'" />
+      <TextInput name="nickname" type="text" label="Nickname" :placeholder="user.nickname ? user.nickname : 'Nickname'" spellcheck="false" :success-message="'사용할 수 있는 닉네임입니다.'" />
       <button class="submit-btn" type="submit">Submit</button>
+
+      <button v-if="!isNew" @click="accountDelete()" class="sign-out-btn">Sign Out</button>
     </Form>
     <Dialog ref="Dialog" v-if="!isNew"></Dialog>
   </div>
@@ -62,7 +56,9 @@ export default {
         .min(4, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.')
         .max(30, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.')
         .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
-      passwordConfirmation: Yup.string().oneOf([Yup.ref('password'), null], '비밀번호가 일치하지 않습니다.'),
+      passwordConfirmation: Yup.string()
+        .required('')
+        .oneOf([Yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
       nickname: Yup.string()
         .required('닉네임을 정해주세요.')
         .default(user.value ? user.value.nickname : '')
@@ -92,8 +88,13 @@ export default {
         okButton: 'Delete',
       })
       if (ok) {
-        const response = await store.dispatch('auth/deleteAccount', sessionStorage.getItem('nickname'))
-        response.success ? router.push({ name: 'login' }) : alert(response.message)
+        const response = await store.dispatch('auth/deleteAccount')
+        if (response.success) {
+          alert('회원탈퇴가 완료되었습니다.')
+          router.push({ name: 'login' })
+        } else {
+          alert(response.message)
+        }
       }
     }
 
@@ -145,9 +146,19 @@ form {
   height: 93px;
   background: var(--point);
   color: #fff;
-  font-size: 16px;
+  font-size: 1.6rem;
   text-transform: uppercase;
   border: 0;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.sign-out-btn {
+  width: 100%;
+  color: #fff;
+  text-transform: uppercase;
+  padding: 2rem 0;
+  font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: 0.2em;
 }

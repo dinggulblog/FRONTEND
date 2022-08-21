@@ -17,7 +17,7 @@ const routes = [
   { path: '/auth/account', name: 'account', component: Account, meta: { title: 'Account', requiredAuth: true } },
   { path: '/auth/profile/:nickname', name: 'profile', component: Profile, meta: { title: 'Profile', requiredAuth: false } },
   { path: '/posts/:title/:subject?', name: 'posts', component: Posts, meta: { title: 'Posts' } },
-  { path: '/posts/:title/:subject?/:postNum(\\d+)', name: 'post', component: Post, meta: { title: 'Post' } },
+  { path: '/posts/:title/:subject?/:id', name: 'post', component: Post, meta: { title: 'Post' } },
   { path: '/posts/editor/:postNum?', name: 'editor', component: Editor, meta: { title: 'Editor', requiredAuth: true } },
   { path: '/:catchAll(.*)+', component: NotFound, meta: { title: 'NotFoundError 404!' } },
 ]

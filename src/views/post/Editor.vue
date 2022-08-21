@@ -40,29 +40,33 @@
       <!--<QuillEditor theme="snow" contentType="html" v-model:content="content" :toolbar="options.toolbarOptions" />-->
     </div>
 
-    <button @click="onAddFile()">해당 포커스에 파일 첨부하기</button>
-
-    <button class="submit" @click="onSubmit()">Submit</button>
-
-    <!--
-    <div class="tags">
-      <transition-group name="list" tag="div" class="tagView">
-        <ul v-for="(item, index) in tags" :key="item" v-show="tags">
-          <li>
-            <span>{{ item }}</span
-            ><button @click="delTag(index)"><i class="material-icons">clear</i></button>
-          </li>
-        </ul>
-      </transition-group>
-      <input type="text" v-model.trim="tag" placeholder="태그는 쉼표(,)로 구분" onfocus="this.placeholder=''" onblur="this.placeholder='태그는 쉼표(,)로 구분'" @keyup="addTag($event)" />
+    <div class="submit-btns">
+      <span></span>
+      <button class="submit" @click="onSubmit()">Submit</button>
     </div>
-    -->
+
+    <div class="files" v-if="files?.length">
+      <ul style="display: flex; list-style: none">
+        <li v-for="(flie, index) in files" :key="flie.index" style="margin-right: 2rem; position: relative">
+          <img :src="flie.url" style="width: 10rem; height: 10rem; border-radius: 20%" :class="fileStates.isActive === index ? 'selectedThumbnail' : ''" @click="onSelectImg(flie, index)" />
+          <p style="font-size: 1.2rem; margin-top: 2rem; width: 10rem; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; word-wrap: break-word; letter-spacing: normal">{{ flie.serverFileName }}</p>
+          <span style="position: absolute; right: -1rem; bottom: 2rem; color: var(--point); cursor: pointer; border-radius: 50%; background: #fff" @click="onDeleteImg(flie, index)"><i class="material-symbols-outlined" style="margin: 0"> do_not_disturb_on </i></span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="files-btns">
+      <label for="input-file" class="input-file-btn">Upload</label>
+      <input type="file" id="input-file" @change="fileUpload" multiple />
+
+      <button @click="onAddFile()" class="input-file-btn" :style="[files?.length ? { background: 'var(--point)' } : { background: 'var(--sub)', cursor: 'Default' }]">Insert</button>
+    </div>
   </div>
   <Dialog ref="Dialog"></Dialog>
 </template>
 
 <script>
-import { defineComponent, ref, reactive, watch, onBeforeMount, onMounted, onBeforeUnmount } from 'vue'
+import { defineComponent, ref, reactive, computed, watch, onBeforeMount, onMounted, onBeforeUnmount, onUnmounted } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
 import { QuillEditor } from '@vueup/vue-quill'
@@ -80,7 +84,7 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const { push, currentRoute } = useRouter()
-    const { state, getters, dispatch } = useStore()
+    const { state, getters, commit, dispatch } = useStore()
     const {
       value: { params },
     } = currentRoute
@@ -103,16 +107,61 @@ export default defineComponent({
     const content = ref('')
     const contentEl = ref(null)
 
+    const files = computed(() => state.draft.draft?.images)
+
+    const fileStates = reactive({
+      fileName: '',
+      fileUrl: '',
+      isActive: 0,
+    })
+
+    let draftUpdateStop = ''
+
+    const fileUpload = async (event) => {
+      const formData = new FormData()
+      const targetFiles = Object.values(event.target.files)
+      targetFiles.forEach((file) => formData.append('images', file))
+      const response = await dispatch('draft/updateDraft', { id: state.draft.draft._id, payload: formData })
+      if (response.success) {
+        fileStates.fileName = files.value[0].serverFileName
+        fileStates.fileUrl = `https://dinggul.me/uploads/` + `${files.value[0].serverFileName}`
+      }
+    }
+
+    const onSelectImg = (file, index) => {
+      fileStates.fileName = file.serverFileName
+      fileStates.fileUrl = `https://dinggul.me/uploads/` + `${file.serverFileName}`
+      fileStates.isActive = index
+    }
+
     const onAddFile = () => {
       let textarea = contentEl.value
       let start = textarea.value.substring(0, textarea.selectionStart)
       let end = textarea.value.substring(textarea.selectionEnd, textarea.value.length)
 
-      const addText = '![고양이애옹](https://cdn.pixabay.com/photo/2019/03/13/08/29/cat-4052454_1280.jpg)\n'
-      textarea.value = start + addText + end
-      textarea.selectionStart = textarea.selectionStart + addText.length
-      textarea.selectionEnd = textarea.selectionStart
+      const addText = `!` + `[` + `${fileStates.fileName}` + `]` + `(` + `${fileStates.fileUrl}` + `)\n`
+      content.value = start + addText + end
       textarea.focus()
+    }
+
+    const onDeleteImg = async (file) => {
+      const response = await dispatch('draft/deleteFile', { draftId: state.draft.draft._id, imageId: file._id })
+      if (!response.success) alert(response.message)
+    }
+
+    const draftAutoUpdate = async () => {
+      console.log('자동저장 시작!')
+      const draft = {
+        subject: states.title && states.subject ? getters['menu/getMenuId']({ title: states.title, subject: states.subject }) : undefined,
+        category: states.category ? states.category : undefined,
+        title: title.value,
+        content: content.value,
+        isPublic: states.isPublic,
+      }
+      const response = await dispatch('draft/updateDraft', { id: state.draft.draft._id, payload: draft })
+      if (response.success) {
+        console.log('자동저장 완료: ', state.draft.draft)
+      }
     }
 
     const onSubmit = async () => {
@@ -124,15 +173,16 @@ export default defineComponent({
 
       const post = {
         _id: state.post.post._id || undefined,
-        subject: getters['menu/getMenuIds']({ title: states.title, subject: states.subject }),
-        category: states.category ? states.category : undefined,
-        isPublic: states.isPublic,
+        subject: states.title && states.subject ? getters['menu/getMenuId']({ title: states.title, subject: states.subject }) : undefined,
         title: title.value,
         content: content.value,
+        category: states.category ? states.category : undefined,
+        images: files.value ? files.value.map((file) => file._id) : undefined,
+        isPublic: states.isPublic,
       }
-      const response = params.postNum ? await dispatch('post/updatePost', post) : await dispatch('post/createPost', post)
 
-      response.success ? push({ name: 'post', params: { title: states.title, subject: states.subject, postNum: response.data.post.postNum } }) : alert(response.message)
+      const response = params.id ? await dispatch('post/updatePost', post) : await dispatch('post/createPost', post)
+      response.success ? push({ name: 'post', params: { title: states.title, subject: states.subject, id: response.data.post._id } }) : alert(response.message)
     }
 
     const togglePublic = () => {
@@ -151,7 +201,7 @@ export default defineComponent({
       }
     }
 
-    const stop = watch(
+    watch(
       [title, content],
       () => {
         toggleCanLeavePage(false)
@@ -159,27 +209,61 @@ export default defineComponent({
       { flush: 'post' }
     )
 
-    setTimeout(() => {
-      if (!states.canLeavePage) stop()
-    }, 1000 * 60)
+    const draftUpdateSet = () => {
+      draftUpdateStop = setInterval(draftAutoUpdate, 60000)
+    }
 
-    onBeforeMount(() => {
-      if (params.postNum) {
+    onBeforeMount(async () => {
+      if (params.id) {
         const menu = getters['menu/getMenu'](state.post.post.subject)
         states.title = menu.title
         states.subject = menu.subject
         title.value = state.post.post.title
         content.value = state.post.post.content
         states.category = state.post.post.category
+      } else {
+        const response = await dispatch('draft/getDraft')
+        if (response.success) {
+          if (state.draft.draft !== null) {
+            if (state.draft.draft._id) {
+              const choiceLoad = await Dialog.value.show({ title: '작성 중인 글이 있습니다.', message: '이어서 작성하시겠습니까?', okButton: '불러오기', cancelButton: '새로 작성하기' })
+              if (choiceLoad) {
+                states.title = state.draft.draft.title ? state.draft.draft.title : ''
+                states.subject = state.draft.draft.subject ? state.draft.draft.subject : ''
+                title.value = state.draft.draft.title ? state.draft.draft.title : ''
+                content.value = state.draft.draft.content ? state.draft.draft.content : ''
+                states.category = state.draft.draft.category ? state.draft.draft.category : ''
+                if (state.draft.draft.images.length) {
+                  fileStates.fileName = state.draft.draft.images[0].serverFileName
+                  fileStates.fileUrl = `https://dinggul.me/uploads/` + `${state.draft.draft.images[0].serverFileName}`
+                }
+                console.log('draft있어서 기존꺼 불러옴')
+              } else {
+                await dispatch('draft/createDraft')
+                console.log('draft있지만 원치않아서 새로 생성')
+              }
+            }
+          } else {
+            await dispatch('draft/createDraft')
+            console.log('draft없어서 새로 생성')
+          }
+        }
       }
     })
 
     onMounted(() => {
       window.addEventListener('beforeunload', unLoadEvent)
+      draftUpdateSet()
     })
 
-    onBeforeUnmount(() => {
+    onBeforeUnmount(async () => {
+      clearInterval(draftUpdateStop)
+      console.log('stop!')
+    })
+
+    onUnmounted(async () => {
       window.removeEventListener('beforeunload', unLoadEvent)
+      commit('draft/SET_DRAFT', {})
     })
 
     onBeforeRouteLeave(async (to, from, next) => {
@@ -205,7 +289,7 @@ export default defineComponent({
     }
     */
 
-    return { getters, Dialog, plugins, options, states, title, content, contentEl, onAddFile, onSubmit, togglePublic }
+    return { getters, Dialog, plugins, options, states, title, content, contentEl, fileStates, files, fileUpload, onSelectImg, onAddFile, onDeleteImg, onSubmit, togglePublic }
   },
 })
 </script>
@@ -318,6 +402,7 @@ export default defineComponent({
     }
   }
 
+  /*
   .tags {
     grid-row: 4 / 5;
     z-index: 1;
@@ -352,17 +437,46 @@ export default defineComponent({
       }
     }
   }
-
-  button.submit {
-    grid-row: 5 / 6;
-    width: 10.8rem;
-    height: 4rem;
+*/
+  .submit-btns {
+    grid-row: 4 / 5;
     justify-self: end;
-    background: var(--point);
-    color: #fff;
-    font-weight: 500;
-    font-size: 1.2rem;
-    border-radius: 2rem;
+    button.submit {
+      width: 10.8rem;
+      height: 4rem;
+      background: var(--point);
+      color: #fff;
+      font-weight: 500;
+      font-size: 1.2rem;
+      border-radius: 2rem;
+    }
+  }
+
+  .selectedThumbnail {
+    border: 2px solid var(--point);
+  }
+
+  .files-btns {
+    display: flex;
+    align-items: center;
+
+    #input-file {
+      display: none;
+    }
+
+    .input-file-btn {
+      display: inherit;
+      justify-content: center;
+      align-items: center;
+      width: 10.8rem;
+      height: 4rem;
+      background: var(--point);
+      color: #fff;
+      font-weight: 500;
+      font-size: 1.2rem;
+      margin-right: 2rem;
+      cursor: pointer;
+    }
   }
 }
 </style>

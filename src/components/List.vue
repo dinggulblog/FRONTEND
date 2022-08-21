@@ -1,13 +1,13 @@
 <template>
   <li :class="type">
     <div class="thumbnail-wrap">
-      <router-link :to="{ name: 'post', params: { title, subject, postNum: post.postNum } }">
+      <router-link :to="{ name: 'post', params: { title, subject, id: post._id } }">
         <div class="thumbnail" :style="[post.imageURL ? { backgroundImage: 'url(' + require(`@/assets/${post.imageURL}`) + ')' } : { backgroundImage: 'url(' + require(`@/assets/1.jpg`) + ')' }]"></div>
       </router-link>
     </div>
     <div class="post-wrap">
       <h2>
-        <router-link :to="{ name: 'post', params: { title, subject, postNum: post.postNum } }">{{ post.postNum }} - {{ post.title }}</router-link>
+        <router-link :to="{ name: 'post', params: { title, subject, id: post._id } }">{{ post.postNum }} - {{ post.title }}</router-link>
       </h2>
       <p>
         {{ markdownText(post.content) }}
@@ -60,7 +60,7 @@ export default {
 
     const quickMoveComments = () => {
       //console.log('코멘트창으로 이동')
-      push({ name: 'post', params: { title: props.title, subject: props.subject, postNum: props.post.postNum, quickMoveComments } })
+      push({ name: 'post', params: { title: props.title, subject: props.subject, id: props.post._id, quickMoveComments } })
     }
     return { dayjs, markdownText, quickMoveComments }
   },
