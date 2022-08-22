@@ -10,7 +10,7 @@ const actions = {
   // params: String (post ID)
   async getComments({ commit }, payload) {
     try {
-      const { data } = await axios.post(`${process.env.VUE_APP_API_URL}comments/${payload.pid}`)
+      const { data } = await axios.post(`${process.env.VUE_APP_API_URL}comments/${payload.postId}`)
       commit('SET_COMMENTS', data.data.comments)
       return data
     } catch (err) {
@@ -21,7 +21,8 @@ const actions = {
   // params: Object
   async createComment({ commit }, payload) {
     try {
-      const { data } = await axios.post(`${process.env.VUE_APP_API_URL}comments/${payload.pid}`, payload)
+      console.log('일반 코멘트 쓰기예욤', payload.parentId)
+      const { data } = await axios.post(`${process.env.VUE_APP_API_URL}comments/${payload.postId}/${payload.parentId}`, payload)
       commit('SET_COMMENTS', data.data.comments)
       return data
     } catch (err) {
@@ -32,7 +33,7 @@ const actions = {
   // params: Object
   async updateComment({ commit }, payload) {
     try {
-      const { data } = await axios.put(`${process.env.VUE_APP_API_URL}comments/${payload.pid}/${payload._id}`, payload)
+      const { data } = await axios.put(`${process.env.VUE_APP_API_URL}comments/${payload.postId}/${payload.id}`, payload)
       commit('SET_COMMENTS', data.data.comments)
       return data
     } catch (err) {
@@ -43,7 +44,7 @@ const actions = {
   // params: Object (post ID, comment ID)
   async deleteComment({ commit }, payload) {
     try {
-      const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}comments/${payload.pid}/${payload._id}`)
+      const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}comments/${payload.postId}/${payload.id}`)
       commit('SET_COMMENTS', data.data.comments)
       return data
     } catch (err) {

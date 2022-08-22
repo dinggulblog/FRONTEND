@@ -9,21 +9,24 @@
         <span class="createdAt">{{ dayjs(comment.createdAt).format('YYYY년 M월 D일') }}</span>
         <span></span>
         <span class="length">답글 {{ comment.children?.length ?? 0 }}개</span>
-        <span></span>
-        <span>답글 작성</span>
-        <div class="option">
+        <span v-if="comment.isActive"></span>
+        <span @click="onCommentEditor('reply')" v-if="comment.isActive">답글 작성</span>
+        <div class="option" v-if="comment.commenter.nickname === user.nickname && comment.isActive">
           <button @click="toggleOptionBtn()"><i class="material-icons">more_horiz</i></button>
           <ul v-if="!isToggleHide">
-            <li v-if="comment.commenter.nickname === user.nickname">댓글 수정</li>
-            <li v-if="comment.commenter.nickname === user.nickname">댓글 삭제</li>
+            <li @click="onCommentEditor('edit')">댓글 수정</li>
+            <li @click="onCommentDelete()">댓글 삭제</li>
           </ul>
         </div>
       </div>
-      <p>{{ comment.content }}</p>
+      <p v-if="commentState === 'view' || commentState === 'reply'">{{ comment.isActive ? comment.content : '해당 댓글은 삭제된 댓글입니다.' }}</p>
+      <div class="comment-editor" v-if="commentState === 'edit' || commentState === 'reply'" :style="[commentState === 'reply' ? { marginLeft: '4rem' } : '']">
+        <CommentEditor :comment="comment" :pid="comment.post" :curRouteParams="curRouteParams" :commentState="commentState" @updatedComment="updatedComment" />
+      </div>
     </div>
 
     <ul>
-      <comment-item v-for="child in comment.children" :key="child._id" :comment="child" />
+      <comment-item v-for="child in comment.childComments" :key="child._id" :comment="child" :pid="pid" />
     </ul>
   </li>
 </template>
@@ -32,25 +35,54 @@
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import dayjs from 'dayjs'
+import CommentEditor from '../components/CommentEditor.vue'
 
 export default {
+  components: {
+    CommentEditor,
+  },
   props: {
     comment: {
       type: Object,
       required: true,
     },
+    curRouteParams: {
+      type: Object,
+    },
+    pid: {
+      type: String,
+    },
   },
   setup(props) {
-    const store = useStore()
-    const user = computed(() => store.state.auth.user)
+    const { dispatch, state } = useStore()
+    const user = computed(() => state.auth.user)
 
     const isToggleHide = ref(true)
+    const commentState = ref('view')
 
     const toggleOptionBtn = () => {
       isToggleHide.value = !isToggleHide.value
     }
 
-    return { dayjs, user, isToggleHide, toggleOptionBtn }
+    const onCommentEditor = (state) => {
+      commentState.value = state
+    }
+
+    const updatedComment = (state) => {
+      commentState.value = state
+    }
+
+    const onCommentDelete = async () => {
+      const response = await dispatch('comment/deleteComment', {
+        id: props.comment._id,
+        postId: props.pid,
+      })
+      if (!response.success) alert(response.message)
+    }
+
+    console.log('코멘트', props.comment)
+
+    return { dayjs, user, isToggleHide, commentState, toggleOptionBtn, onCommentEditor, updatedComment, onCommentDelete }
   },
 }
 </script>
@@ -71,6 +103,7 @@ ul {
       align-items: center;
       font-size: 1.2rem;
       gap: 0 1.4rem;
+      margin: 0 0 2.4rem;
 
       div.author {
         grid-column: 1 / 2;
@@ -157,9 +190,7 @@ ul {
             font-weight: 500;
             display: grid;
             justify-content: center;
-
-            a {
-            }
+            cursor: pointer;
           }
 
           li:nth-child(2) {
@@ -170,11 +201,11 @@ ul {
     }
 
     p {
-      margin: 2.4rem 0 0;
       font-size: 1.4rem;
       line-height: 2.8rem;
       letter-spacing: normal;
       color: var(--secondary);
+      margin: 0 0 2.4rem;
     }
   }
 }

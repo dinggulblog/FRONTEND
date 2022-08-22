@@ -1,17 +1,11 @@
 <template>
   <div class="editor">
-    <textarea
-      v-model="content"
-      :placeholder="[curRouteParams.menu === 'guest' ? '방명록을 작성해보세요' : '코멘트를 작성해보세요']"
-      @focus="placeholder = ''"
-      @blur="placeholder = [curRouteParams.menu === 'guest' ? '방명록을 작성해보세요' : '코멘트를 작성해보세요']"
-      :style="[curRouteParams.menu === 'guest' ? { minHeight: '18rem' } : { minHeight: '10.6rem' }]"
-    ></textarea>
+    <textarea v-model="content" ref="contentEl" :placeholder="[curRouteParams.menu === 'guest' ? '방명록을 작성해보세요' : placeholderText]" @focus="placeholder = ''" @blur="placeholder = [curRouteParams.menu === 'guest' ? '방명록을 작성해보세요' : placeholderText]" :style="[curRouteParams.menu === 'guest' ? { minHeight: '18rem' } : { minHeight: '10.6rem' }]"></textarea>
 
     <div class="btns">
       <div class="toggle">
-        <button class="material-icons" v-text="isPrivate ? 'toggle_on' : 'toggle_off'" :style="[isPrivate ? { color: 'var(--point)' } : { color: '#E5E5E5' }]" @click="isPrivate = !isPrivate"></button>
-        <span v-text="isPrivate ? 'Secret' : 'Public'" :style="[isPrivate ? { color: 'var(--point)' } : { color: '#B5B5B5' }]"></span>
+        <button class="material-icons" v-text="isPublic ? 'toggle_on' : 'toggle_off'" :style="[isPublic ? { color: 'var(--point)' } : { color: '#E5E5E5' }]" @click="isPublic = !isPublic"></button>
+        <span v-text="isPublic ? 'Secret' : 'Public'" :style="[isPublic ? { color: 'var(--point)' } : { color: '#B5B5B5' }]"></span>
       </div>
       <button class="submit" @click="onSubmit()">Comment</button>
     </div>
@@ -19,7 +13,7 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onBeforeMount, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
@@ -31,19 +25,48 @@ export default {
     pid: {
       type: String,
     },
+    comment: {
+      type: Object,
+      required: true,
+    },
+    commentState: {
+      type: String,
+    },
   },
-  setup(props) {
+  emits: ['updatedComment'],
+  setup(props, { emit }) {
     const { dispatch } = useStore()
     const content = ref('')
-    const isPrivate = ref(false)
+    const contentEl = ref()
+    const isPublic = ref(false)
+    const placeholderText = ref('코멘트를 작성해보세요')
 
     const onSubmit = async () => {
-      const response = await dispatch('comment/createComment', { pid: props.pid, content: content.value, isPublic: !isPrivate.value })
+      const response = await dispatch(props.comment && props.commentState == 'edit' ? 'comment/updateComment' : 'comment/createComment', {
+        id: props.comment && props.commentState == 'edit' ? props.comment._id : undefined,
+        postId: props.pid,
+        parentId: props.comment && props.commentState == 'reply' ? props.comment._id : undefined,
+        content: content.value,
+        isPublic: isPublic.value,
+      })
       content.value = ''
+      emit('updatedComment', 'view')
       if (!response.success) alert(response.message)
     }
 
-    return { content, isPrivate, onSubmit }
+    onBeforeMount(async () => {
+      if (props.comment && props.commentState == 'edit') {
+        content.value = props.comment.content
+      } else if (props.comment && props.commentState == 'reply') {
+        placeholderText.value = ''
+      }
+    })
+
+    onMounted(async () => {
+      props.comment ? contentEl.value.focus() : undefined
+    })
+
+    return { content, contentEl, isPublic, placeholderText, onSubmit }
   },
 }
 </script>
@@ -61,7 +84,7 @@ export default {
     border-radius: 1.8rem;
     padding: 2.4rem;
     resize: vertical;
-    margin: 4.8rem 0 2.4rem;
+    margin: 0 0 2.4rem;
 
     &::placeholder {
       color: var(--primary);

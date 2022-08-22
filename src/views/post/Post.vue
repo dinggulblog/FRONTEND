@@ -46,7 +46,7 @@
       <div class="comments" v-if="comments.length" ref="commentsEl">
         <h2>댓글 {{ comments.length }}개</h2>
         <ul v-for="comment in comments" :key="comment._id">
-          <CommentItem :comment="comment" />
+          <CommentItem :comment="comment" :curRouteParams="params" :pid="post._id" />
         </ul>
       </div>
     </div>
@@ -200,6 +200,7 @@ export default defineComponent({
       align-items: center;
       gap: 0 1.6rem;
       color: var(--sub);
+      margin-bottom: 4.8rem;
 
       span:nth-child(1) {
         grid-column: 1 / 2;
@@ -252,7 +253,7 @@ export default defineComponent({
         i {
           margin-right: 0.8rem !important;
           cursor: pointer;
-          transition: 0.5s all ease;
+          transition: color 0.5s linear;
           color: var(--like);
           font-size: 1.8rem;
         }

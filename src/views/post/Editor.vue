@@ -41,7 +41,9 @@
     </div>
 
     <div class="submit-btns">
-      <span></span>
+      <Transition name="draftState">
+        <span v-if="draftState === true"> <i class="material-symbols-outlined">hourglass_empty</i>Auto save..</span>
+      </Transition>
       <button class="submit" @click="onSubmit()">Submit</button>
     </div>
 
@@ -110,11 +112,13 @@ export default defineComponent({
     const files = computed(() => state.draft.draft?.images)
 
     const fileStates = reactive({
+      fileId: '',
       fileName: '',
       fileUrl: '',
       isActive: 0,
     })
 
+    const draftState = ref(false)
     let draftUpdateStop = ''
 
     const fileUpload = async (event) => {
@@ -123,12 +127,14 @@ export default defineComponent({
       targetFiles.forEach((file) => formData.append('images', file))
       const response = await dispatch('draft/updateDraft', { id: state.draft.draft._id, payload: formData })
       if (response.success) {
+        fileStates.fileId = files.value[0]._id
         fileStates.fileName = files.value[0].serverFileName
         fileStates.fileUrl = `https://dinggul.me/uploads/` + `${files.value[0].serverFileName}`
       }
     }
 
     const onSelectImg = (file, index) => {
+      fileStates.fileId = file._id
       fileStates.fileName = file.serverFileName
       fileStates.fileUrl = `https://dinggul.me/uploads/` + `${file.serverFileName}`
       fileStates.isActive = index
@@ -150,7 +156,7 @@ export default defineComponent({
     }
 
     const draftAutoUpdate = async () => {
-      console.log('자동저장 시작!')
+      console.log('자동 저장 시작!')
       const draft = {
         subject: states.title && states.subject ? getters['menu/getMenuId']({ title: states.title, subject: states.subject }) : undefined,
         category: states.category ? states.category : undefined,
@@ -158,10 +164,10 @@ export default defineComponent({
         content: content.value,
         isPublic: states.isPublic,
       }
+      draftState.value = true
       const response = await dispatch('draft/updateDraft', { id: state.draft.draft._id, payload: draft })
-      if (response.success) {
-        console.log('자동저장 완료: ', state.draft.draft)
-      }
+      setTimeout(() => (draftState.value = false), 5000)
+      if (!response.success) alert(response.message)
     }
 
     const onSubmit = async () => {
@@ -178,6 +184,7 @@ export default defineComponent({
         content: content.value,
         category: states.category ? states.category : undefined,
         images: files.value ? files.value.map((file) => file._id) : undefined,
+        //thumbnail: files.value ? fileStates.fileId : undefined,
         isPublic: states.isPublic,
       }
 
@@ -210,7 +217,7 @@ export default defineComponent({
     )
 
     const draftUpdateSet = () => {
-      draftUpdateStop = setInterval(draftAutoUpdate, 60000)
+      draftUpdateStop = setInterval(draftAutoUpdate, 10000)
     }
 
     onBeforeMount(async () => {
@@ -289,7 +296,7 @@ export default defineComponent({
     }
     */
 
-    return { getters, Dialog, plugins, options, states, title, content, contentEl, fileStates, files, fileUpload, onSelectImg, onAddFile, onDeleteImg, onSubmit, togglePublic }
+    return { getters, Dialog, plugins, options, states, title, content, contentEl, files, fileStates, draftState, fileUpload, onSelectImg, onAddFile, onDeleteImg, onSubmit, togglePublic }
   },
 })
 </script>
@@ -441,6 +448,32 @@ export default defineComponent({
   .submit-btns {
     grid-row: 4 / 5;
     justify-self: end;
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: end;
+
+    .draftState-enter-active,
+    .draftState-leave-active {
+      transition: opacity 0.8s ease;
+    }
+
+    .draftState-enter-from,
+    .draftState-leave-to {
+      opacity: 0;
+    }
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      color: var(--primary);
+      margin-right: 2rem;
+
+      i {
+        margin: 0;
+      }
+    }
+
     button.submit {
       width: 10.8rem;
       height: 4rem;
