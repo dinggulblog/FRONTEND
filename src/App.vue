@@ -1,29 +1,18 @@
 <template>
-  <!-- Global Header -->
-  <div class="fixedTop">
+  <div id="header">
     <MyHeader />
   </div>
 
-  <!-- Global Body wrapper -->
-  <div class="bodyWrap" :style="[!currentRoute.startsWith('/auth') || currentRoute.startsWith('/auth/profile') ? { background: '#fff' } : { background: 'var(--point)' }]">
-    <div
-      class="body"
-      :style="[
-        (!currentRoute.startsWith('/auth') && !currentRoute.startsWith('/posts/editor')) || currentRoute.startsWith('/auth/profile')
-          ? { gridTemplateColumns: 'minmax(auto, 30.6rem) 1fr' }
-          : { gridTemplateColumns: '1fr' },
-      ]"
-    >
-      <!-- Global Navigation -->
-      <div class="navigation" v-if="(!currentRoute.startsWith('/auth') && !currentRoute.startsWith('/posts/editor')) || currentRoute.startsWith('/auth/profile')">
-        <Navigation />
-      </div>
-
-      <!-- Body contents -->
-      <div class="view">
-        <router-view />
-      </div>
+  <div class="content-container">
+    <div id="content">
+      <router-view />
     </div>
+  </div>
+
+  <div id="footer">copyright SOL & MING all rights reserved</div>
+
+  <div class="m-createBtn">
+    <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
   </div>
 </template>
 
@@ -31,13 +20,11 @@
 import { defineComponent, computed, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 import MyHeader from './components/MyHeader.vue'
-import Navigation from './components/Navigation.vue'
 
 export default defineComponent({
   name: 'app',
   components: {
     MyHeader,
-    Navigation,
   },
   setup() {
     const route = useRoute()
@@ -63,15 +50,25 @@ export default defineComponent({
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
 :root {
-  --primary: #999999;
-  --secondary: #b0b0b0;
-  --sub: #b9b9b9;
-  --line: #e8e8e8;
-  --point: #686aaf;
-  --likeActive: #ff9c9c;
-  --like: #ddd;
-  --warn: #ffc861;
-  --formBg: #efefef;
+  --primary: #c3d3de;
+  --primary-dark: #aec4d4;
+  --secondary: #c5c3de;
+  --secondary-dark: #b4b1d5;
+  --likeActive: #f3c7c7;
+  --success: #4cd964;
+  --warning: #ffc861;
+  --error: #ff3b30;
+  --text-light: #a5a5a5;
+  --text-dark: #333;
+  --thumbnail: #e6e6e6;
+  --list_title: #aeaeae;
+  --list_summury: #bbbbbb;
+  --list_info: #d0d0d0;
+  --input_text: #bababa;
+  --btn_border: #e5e5e5;
+  --btn_text: #b7b7b7;
+  --border-light: #efefef;
+  --border-dark: #dddddd;
 }
 
 /********** CSS RESET **********/
@@ -79,9 +76,11 @@ export default defineComponent({
 * {
   margin: 0;
   padding: 0;
+  border: 0;
   outline: none;
   letter-spacing: 0.05em;
   -webkit-font-smoothing: antialiased;
+  list-style: none;
 }
 
 *,
@@ -98,11 +97,6 @@ export default defineComponent({
   overflow-wrap: break-word;
   -moz-tab-size: 4;
   tab-size: 4;
-}
-
-code.hljs {
-  line-height: 1 !important;
-  margin: 0.5em 0;
 }
 
 html {
@@ -124,6 +118,7 @@ svg {
   max-width: 100%;
 }
 
+a,
 button {
   background: none;
   border: 0;
@@ -148,46 +143,78 @@ input {
 
 #app,
 textarea,
-input {
+input,
+button {
   font-family: 'Roboto', 'Noto Sans KR', sans-serif !important;
 }
 
-i {
-  font-size: 2rem;
-  margin-right: 1.6rem;
-}
-
-.fixedTop {
+#header {
+  width: 100%;
   position: sticky;
   top: 0;
-  align-self: start;
-  width: 100%;
   z-index: 999;
+  margin: 0 0 4.8rem;
 }
 
-.bodyWrap {
-  display: grid;
+.content-container {
+  display: flex;
   justify-content: center;
-  padding-top: 10rem;
-  grid-template-columns: 1fr minmax(auto, 128rem) 1fr;
-  transition: 0.2s linear;
 
-  .body {
-    grid-column: 2 / 3;
-    display: grid;
-    height: 81.5vh;
+  #content {
+    width: 115.2rem;
+    margin: 0 2.4rem;
 
-    .navigation {
-      position: sticky;
-      top: 10rem;
-      align-self: start;
+    @include mobile {
+      width: calc(100% - 4rem);
+      margin: 0 2rem;
     }
 
-    .view {
-      font-size: 1.6rem;
+    @include tablet {
+      width: calc(100% - 6.4rem);
+      margin: 0 4.8rem;
+    }
+
+    @include tablet_landscape {
+      width: calc(100% - 6.4rem);
+      margin: 0 3.2rem;
     }
   }
 }
+
+#footer {
+  width: 100%;
+  height: 6.4rem;
+  display: flex;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--text-light);
+  margin: 4.8rem 0;
+}
+
+.m-createBtn {
+  display: none;
+
+  @include mobile_all {
+    position: fixed;
+    right: 2.4rem;
+    bottom: 3.2rem;
+    display: block;
+  }
+
+  .a_create {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 4.8rem;
+    height: 4.8rem;
+    color: #fff;
+    background-color: var(--secondary);
+    border-radius: 50%;
+    box-shadow: 0 0.8rem 1.6rem rgba(0, 0, 0, 0.12);
+  }
+}
+
+/*
 
 // Quill custom
 .ql-toolbar {
@@ -268,4 +295,6 @@ i {
     background: var(--formBg);
   }
 }
+
+*/
 </style>

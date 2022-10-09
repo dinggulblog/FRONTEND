@@ -9,6 +9,16 @@ module.exports = {
         target: 'http://localhost:3000',
         changeOrigin: true,
       },
-    }
+    },
+  },
+  css: {
+    loaderOptions: {
+      sass: {
+        additionalData: `
+          @import '@/scss/variables.scss';
+          @import '@/scss/mixin.scss';
+        `,
+      },
+    },
   },
 }

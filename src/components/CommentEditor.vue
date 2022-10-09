@@ -1,11 +1,11 @@
 <template>
   <div class="editor">
-    <textarea v-model="content" ref="contentEl" :placeholder="[curRouteParams.menu === 'guest' ? '방명록을 작성해보세요' : placeholderText]" @focus="placeholder = ''" @blur="placeholder = [curRouteParams.menu === 'guest' ? '방명록을 작성해보세요' : placeholderText]" :style="[curRouteParams.menu === 'guest' ? { minHeight: '18rem' } : { minHeight: '10.6rem' }]"></textarea>
+    <textarea v-model="content" ref="contentEl" :placeholder="[curRouteParams.title === 'guest' ? '방명록을 작성해보세요' : placeholderText]" @focus="placeholder = ''" @blur="placeholder = [curRouteParams.title === 'guest' ? '방명록을 작성해보세요' : placeholderText]" :style="[curRouteParams.title === 'guest' ? { minHeight: '18rem' } : { minHeight: '10.6rem' }]"></textarea>
 
     <div class="btns">
       <div class="toggle">
-        <button class="material-icons" v-text="isPublic ? 'toggle_on' : 'toggle_off'" :style="[isPublic ? { color: 'var(--point)' } : { color: '#E5E5E5' }]" @click="isPublic = !isPublic"></button>
-        <span v-text="isPublic ? 'Secret' : 'Public'" :style="[isPublic ? { color: 'var(--point)' } : { color: '#B5B5B5' }]"></span>
+        <button class="material-icons" v-text="isPublic ? 'toggle_off' : 'toggle_on'" :style="[isPublic ? { color: '#E5E5E5' } : { color: 'var(--point)' }]" @click="onIsPublic()"></button>
+        <span v-text="isPublic ? 'Public' : 'Secret'" :style="[isPublic ? { color: '#B5B5B5' } : { color: 'var(--point)' }]"></span>
       </div>
       <button class="submit" @click="onSubmit()">Comment</button>
     </div>
@@ -27,7 +27,6 @@ export default {
     },
     comment: {
       type: Object,
-      required: true,
     },
     commentState: {
       type: String,
@@ -38,8 +37,13 @@ export default {
     const { dispatch } = useStore()
     const content = ref('')
     const contentEl = ref()
-    const isPublic = ref(false)
+    const isPublic = ref(true)
     const placeholderText = ref('코멘트를 작성해보세요')
+
+    const onIsPublic = () => {
+      isPublic.value = !isPublic.value
+      console.log(isPublic.value)
+    }
 
     const onSubmit = async () => {
       const response = await dispatch(props.comment && props.commentState == 'edit' ? 'comment/updateComment' : 'comment/createComment', {
@@ -50,6 +54,7 @@ export default {
         isPublic: isPublic.value,
       })
       content.value = ''
+      isPublic.value = true
       emit('updatedComment', 'view')
       if (!response.success) alert(response.message)
     }
@@ -66,7 +71,7 @@ export default {
       props.comment ? contentEl.value.focus() : undefined
     })
 
-    return { content, contentEl, isPublic, placeholderText, onSubmit }
+    return { content, contentEl, isPublic, placeholderText, onIsPublic, onSubmit }
   },
 }
 </script>

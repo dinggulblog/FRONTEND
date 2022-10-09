@@ -21,10 +21,12 @@
           <i class="material-icons" :style="[isLike ? { color: 'var(--likeActive)' } : { color: 'var(--like)' }]" @click="onUpdateDebounce">favorite</i>
           {{ post.likeCount }}
         </span>
+        <span v-if="!post.isPublic"></span>
+        <span v-if="!post.isPublic"><i class="material-icons"> lock </i></span>
         <div class="option">
           <button @click="toggleOptionBtn"><i class="material-icons">more_horiz</i></button>
           <ul v-if="!isHide">
-            <li v-if="post.author.nickname === user.nickname"><router-link :to="{ name: 'editor', params: { postNum: post.postNum } }">수정</router-link></li>
+            <li v-if="post.author.nickname === user.nickname"><router-link :to="{ name: 'editor', params: { id: post._id } }">수정</router-link></li>
             <li v-if="post.author.nickname === user.nickname" @click="onDelete">삭제</li>
             <li @click="onCopyLink">링크 복사</li>
           </ul>
@@ -46,7 +48,7 @@
       <div class="comments" v-if="comments.length" ref="commentsEl">
         <h2>댓글 {{ comments.length }}개</h2>
         <ul v-for="comment in comments" :key="comment._id">
-          <CommentItem :comment="comment" :curRouteParams="params" :pid="post._id" />
+          <CommentItem :comment="comment" :curRouteParams="params" :pid="post._id" :postAuthor="post.author.nickname" />
         </ul>
       </div>
     </div>
@@ -196,7 +198,7 @@ export default defineComponent({
     .info {
       grid-row: 2 / 3;
       display: grid;
-      grid-template-columns: auto auto auto auto auto 1fr;
+      grid-template-columns: auto auto auto auto auto auto auto 1fr;
       align-items: center;
       gap: 0 1.6rem;
       color: var(--sub);
@@ -259,8 +261,25 @@ export default defineComponent({
         }
       }
 
-      div.option {
+      span:nth-child(6) {
         grid-column: 6 / 7;
+        border-left: 0.1rem solid var(--line);
+        height: 1.2rem;
+      }
+
+      span:nth-child(7) {
+        grid-column: 7 / 8;
+        display: grid;
+        align-items: center;
+
+        i {
+          font-size: 1.8rem;
+          color: var(--sub);
+        }
+      }
+
+      div.option {
+        grid-column: 8 / 9;
         justify-self: end;
         position: relative;
 

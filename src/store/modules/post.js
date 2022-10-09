@@ -9,7 +9,9 @@ const state = () => ({
 const getters = {}
 
 const actions = {
-  // params: String (post ID)
+  /**
+   * @param {String} payload
+   */
   async getPost({ commit }, payload) {
     try {
       const { data } = await axios.get(`${process.env.VUE_APP_API_URL}posts/${payload}`)
@@ -21,7 +23,10 @@ const actions = {
     }
   },
 
-  // params: Object (subjects & pagenation options)
+  /**
+   * subjects & pagenation options
+   * @param {Object} payload
+   */
   async getPosts({ commit }, payload) {
     try {
       const { data } = await axios.get(`${process.env.VUE_APP_API_URL}posts`, { params: payload, paramsSerializer: (params) => stringify(params) })
@@ -32,7 +37,10 @@ const actions = {
     }
   },
 
-  // params: Object (post)
+  /**
+   * post
+   * @param {Object} payload
+   */
   async createPost({ commit }, payload) {
     try {
       const { data } = await axios.post(`${process.env.VUE_APP_API_URL}posts`, payload)
@@ -44,9 +52,13 @@ const actions = {
     }
   },
 
-  // params: Object (post)
+  /**
+   * post
+   * @param {Object} payload
+   */
   async updatePost({ commit }, payload) {
     try {
+      console.log('페이로드', payload)
       const { data } = await axios.put(`${process.env.VUE_APP_API_URL}posts/${payload._id}`, payload)
       commit('SET_POST', data.data.post)
       return data
@@ -55,7 +67,11 @@ const actions = {
     }
   },
 
-  // params: String (post ID)
+  /**
+   * post ID
+   * @param {String} payload
+   */
+
   async updateLike({ commit }, payload) {
     try {
       const { data } = await axios.put(`${process.env.VUE_APP_API_URL}posts/${payload}/like`)
@@ -66,7 +82,10 @@ const actions = {
     }
   },
 
-  // params: String (post ID)
+  /**
+   * post ID
+   * @param {String} payload
+   */
   async deletePost({ commit }, payload) {
     try {
       const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}posts/${payload}`)
@@ -85,7 +104,10 @@ const actions = {
     }
   },
 
-  // params: String (post ID)
+  /**
+   * post ID
+   * @param {String} payload
+   */
   async deleteLike({ commit }, payload) {
     try {
       const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}posts/${payload}/like`)

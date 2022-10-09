@@ -111,6 +111,6 @@ export default {
   display: grid;
   justify-content: start;
   grid-template-columns: repeat(auto-fit, minmax(auto, 30.3rem));
-  gap: 5.6rem 3.2rem;
+  gap: 3.2rem 3.2rem;
 }
 </style>

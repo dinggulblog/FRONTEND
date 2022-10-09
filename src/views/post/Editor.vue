@@ -50,7 +50,7 @@
     <div class="files" v-if="files?.length">
       <ul style="display: flex; list-style: none">
         <li v-for="(flie, index) in files" :key="flie.index" style="margin-right: 2rem; position: relative">
-          <img :src="flie.url" style="width: 10rem; height: 10rem; border-radius: 20%" :class="fileStates.isActive === index ? 'selectedThumbnail' : ''" @click="onSelectImg(flie, index)" />
+          <img :src="`https://dinggul.me/` + `${flie.serverFileName}`" style="width: 10rem; height: 10rem; border-radius: 20%" :class="fileStates.isActive === index ? 'selectedThumbnail' : ''" @click="onSelectImg(flie, index)" />
           <p style="font-size: 1.2rem; margin-top: 2rem; width: 10rem; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; word-wrap: break-word; letter-spacing: normal">{{ flie.serverFileName }}</p>
           <span style="position: absolute; right: -1rem; bottom: 2rem; color: var(--point); cursor: pointer; border-radius: 50%; background: #fff" @click="onDeleteImg(flie, index)"><i class="material-symbols-outlined" style="margin: 0"> do_not_disturb_on </i></span>
         </li>
@@ -77,6 +77,8 @@ import MarkdownEmoji from 'markdown-it-emoji'
 import Dialog from '../../components/Dialog.vue'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import 'highlight.js/styles/atom-one-dark.css'
+import { file } from '@babel/types'
+import store from '../../store'
 
 export default defineComponent({
   name: 'editor',
@@ -109,7 +111,7 @@ export default defineComponent({
     const content = ref('')
     const contentEl = ref(null)
 
-    const files = computed(() => state.draft.draft?.images)
+    const files = ref('')
 
     const fileStates = reactive({
       fileId: '',
@@ -127,9 +129,10 @@ export default defineComponent({
       targetFiles.forEach((file) => formData.append('images', file))
       const response = await dispatch('draft/updateDraft', { id: state.draft.draft._id, payload: formData })
       if (response.success) {
-        fileStates.fileId = files.value[0]._id
-        fileStates.fileName = files.value[0].serverFileName
-        fileStates.fileUrl = `https://dinggul.me/uploads/` + `${files.value[0].serverFileName}`
+        files.value = state.draft.draft.images
+        fileStates.fileId = state.draft.draft.images[0]._id
+        fileStates.fileName = state.draft.draft.images[0].serverFileName
+        fileStates.fileUrl = `https://dinggul.me/uploads/` + `${state.draft.draft.images[0].serverFileName}`
       }
     }
 
@@ -176,7 +179,6 @@ export default defineComponent({
       }
 
       toggleCanLeavePage(true)
-
       const post = {
         _id: state.post.post._id || undefined,
         subject: states.title && states.subject ? getters['menu/getMenuId']({ title: states.title, subject: states.subject }) : undefined,
@@ -189,6 +191,7 @@ export default defineComponent({
       }
 
       const response = params.id ? await dispatch('post/updatePost', post) : await dispatch('post/createPost', post)
+      console.log('포스트', post)
       response.success ? push({ name: 'post', params: { title: states.title, subject: states.subject, id: response.data.post._id } }) : alert(response.message)
     }
 
@@ -222,12 +225,33 @@ export default defineComponent({
 
     onBeforeMount(async () => {
       if (params.id) {
-        const menu = getters['menu/getMenu'](state.post.post.subject)
-        states.title = menu.title
-        states.subject = menu.subject
-        title.value = state.post.post.title
-        content.value = state.post.post.content
-        states.category = state.post.post.category
+        if (state.post.post._id) {
+          const menu = getters['menu/getMenu'](state.post.post.subject)
+          states.title = menu.title
+          states.subject = menu.subject
+          title.value = state.post.post.title
+          content.value = state.post.post.content
+          states.category = state.post.post.category
+          if (state.post.post.images?.length) {
+            files.value = state.post.post.images
+            fileStates.fileName = state.post.post.images[0].serverFileName
+            fileStates.fileUrl = `https://dinggul.me/uploads/` + `${state.post.post.images[0].serverFileName}`
+          }
+          console.log(files.value)
+        } else {
+          const { data } = await dispatch('post/getPost', params.id)
+          const menu = getters['menu/getMenu'](data.post.subject)
+          states.title = menu.title
+          states.subject = menu.subject
+          title.value = data.post.title
+          content.value = data.post.content
+          states.category = data.post.category
+          if (data.post.images?.length) {
+            files.value = data.post.images
+            fileStates.fileName = data.post.images[0].serverFileName
+            fileStates.fileUrl = `https://dinggul.me/uploads/` + `${data.post.images[0].serverFileName}`
+          }
+        }
       } else {
         const response = await dispatch('draft/getDraft')
         if (response.success) {
@@ -241,10 +265,12 @@ export default defineComponent({
                 content.value = state.draft.draft.content ? state.draft.draft.content : ''
                 states.category = state.draft.draft.category ? state.draft.draft.category : ''
                 if (state.draft.draft.images.length) {
+                  files.value = state.draft.draft.images
                   fileStates.fileName = state.draft.draft.images[0].serverFileName
                   fileStates.fileUrl = `https://dinggul.me/uploads/` + `${state.draft.draft.images[0].serverFileName}`
                 }
                 console.log('draft있어서 기존꺼 불러옴')
+                console.log('드래프트 이미지는?', state.draft.draft.images)
               } else {
                 await dispatch('draft/createDraft')
                 console.log('draft있지만 원치않아서 새로 생성')
@@ -260,7 +286,7 @@ export default defineComponent({
 
     onMounted(() => {
       window.addEventListener('beforeunload', unLoadEvent)
-      draftUpdateSet()
+      if (!params.id) draftUpdateSet()
     })
 
     onBeforeUnmount(async () => {

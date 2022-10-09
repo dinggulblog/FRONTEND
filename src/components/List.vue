@@ -2,8 +2,9 @@
   <li :class="type">
     <div class="thumbnail-wrap">
       <router-link :to="{ name: 'post', params: { title, subject, id: post._id } }">
-        <div class="thumbnail" :style="[post.imageURL ? { backgroundImage: 'url(' + require(`@/assets/${post.imageURL}`) + ')' } : { backgroundImage: 'url(' + require(`@/assets/1.jpg`) + ')' }]"></div>
+        <img class="thumbnail" :src="[post.thumbnail ? `https://dinggul.me/` + post.thumbnail : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU']" :style="{ objectFit: 'cover' }" />
       </router-link>
+      <i v-if="!post.isPublic && type === 'album'" class="material-icons"> lock </i>
     </div>
     <div class="post-wrap">
       <h2>
@@ -18,6 +19,8 @@
         <span></span>
         <span v-if="type === 'album'">댓글 {{ post.commentCount }}</span>
         <span><i class="material-icons" :style="[isLike ? { color: 'var(--likeActive)' } : { color: 'var(--like)' }]">favorite</i>{{ post.likeCount }}</span>
+        <span v-if="!post.isPublic && type === 'list'"></span>
+        <span v-if="!post.isPublic && type === 'list'"><i class="material-icons"> lock </i></span>
       </div>
     </div>
 
@@ -31,6 +34,7 @@
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import markdownText from 'markdown-to-text'
+import post from '../store/modules/post'
 
 export default {
   props: {
@@ -57,7 +61,6 @@ export default {
   },
   setup(props) {
     const { push } = useRouter()
-
     const quickMoveComments = () => {
       //console.log('코멘트창으로 이동')
       push({ name: 'post', params: { title: props.title, subject: props.subject, id: props.post._id, quickMoveComments } })
@@ -126,7 +129,7 @@ li.profile {
       color: var(--sub);
       display: grid;
       align-items: center;
-      grid-template-columns: auto auto auto 1fr;
+      grid-template-columns: auto auto auto auto auto 1fr;
       justify-content: start;
 
       span:nth-child(1) {
@@ -150,6 +153,25 @@ li.profile {
         i {
           margin-right: 0.8rem;
           color: var(--like);
+          font-size: 1.6rem;
+        }
+      }
+
+      span:nth-child(4) {
+        grid-column: 4 / 5;
+        border-left: 0.1rem solid var(--line);
+        height: 1.2rem;
+        margin: 0.3rem 1.6rem 0;
+      }
+
+      span:nth-child(5) {
+        grid-column: 5 / 6;
+        display: grid;
+        align-items: center;
+
+        i {
+          margin-right: 0.8rem;
+          color: var(--sub);
           font-size: 1.6rem;
         }
       }
@@ -181,25 +203,37 @@ li.profile {
 }
 
 li.album {
-  div:nth-child(1) {
-    display: grid;
-    grid-template-rows: repeat(4, auto);
+  display: grid;
+  grid-template-rows: repeat(3, auto);
+
+  .thumbnail-wrap {
+    position: relative;
 
     .thumbnail {
+      grid-row: 1 / 2;
       width: 100%;
       height: 18.8rem;
-      grid-row: 1 / 2;
       background-repeat: no-repeat;
       background-size: cover;
       background-position: center;
     }
 
+    i {
+      font-size: 2.4rem;
+      position: absolute;
+      right: 1.6rem;
+      top: 1.6rem;
+      margin: 0;
+      color: var(--point);
+    }
+  }
+
+  .post-wrap {
     h2 {
       grid-row: 2 / 3;
       font-size: 1.6rem;
       color: var(--primary);
       font-weight: 500;
-      margin: 3.2rem 0 0;
       letter-spacing: normal;
 
       a {

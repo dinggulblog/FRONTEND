@@ -1,52 +1,83 @@
 <template>
-  <div class="header">
-    <div class="headerWrap">
-
-      <!-- Search div -->
-      <div class="search">
-        <i class="material-icons">search</i>
-        <input type="text" placeholder="Search for here" v-model="searchText" spellcheck="false"/>
+  <div class="top-bar-container">
+    <div class="top-bar">
+      <div class="top-bar__left">
+        <button :class="isMobile ? 'btn_m-toggle' : 'btn_search'">
+          <i class="material-icons" @click="onChangeDisplay(isMobile ? 'onMobileBar' : 'onSearchForm')">{{ isMobile ? 'menu' : displayState.display === 'onSearchForm' ? 'close' : 'search' }}</i>
+        </button>
       </div>
 
-      <!-- Header logo -->
-      <router-link class="logo" :to="{ name: 'home' }">DINGGUL</router-link>
+      <div class="top-bar__logo">
+        <router-link :to="{ name: 'home' }" class="a_logo">DINGGUL</router-link>
+      </div>
 
-      <!-- Header profile -->
-      <div class="user">
-
-        <!-- Quick menu -->
-        <router-link :to="{ name: 'editor' }"><i class="material-icons">create</i>New post </router-link>
-        <span></span>
-
-        <!-- Profile -->
-        <div class="drop" v-if="nickname">
-          <button class="btn">{{ nickname }}</button> <!-- Profile nickname -->
-          <div class="profile"></div>                 <!-- Profile image -->
-          <div class="menu">
-            <ul>
-              <li><router-link :to="{ name: 'account' }">Account</router-link></li>
-              <li @click="onLogout">Logout</li>
-            </ul>
+      <div class="top-bar__right">
+        <div class="top-bar__right__auth" v-if="!isMobile && user.email">
+          <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
+          <div class="auth auth--dropdown">
+            <span class="auth__nickname">{{ user.nickname }} 님</span>
+            <img class="auth__avatar auth--avatar" src="../assets/4.jpg" alt="auth-avatar" />
+            <div class="auth__dropdown-items">
+              <ul>
+                <li><router-link :to="{ name: 'account' }">Account</router-link></li>
+                <!--
+                <li><router-link :to="{ name: 'profile', params: { nickname: user.nickname } }">Profile</router-link></li>
+                -->
+                <li><button @click="onLogout">Logout</button></li>
+              </ul>
+            </div>
           </div>
         </div>
-        <router-link v-else :to="{ name: 'login' }"><i class="material-icons">person</i></router-link>
 
+        <router-link :to="{ name: 'login' }" class="a_login" v-if="!isMobile && !user.email"><i class="material-icons">person</i></router-link>
+
+        <button class="btn_search" v-if="isMobile" @click="onChangeDisplay('onSearchForm')">
+          <i class="material-icons">{{ displayState.display === 'onSearchForm' ? 'close' : 'search' }}</i>
+        </button>
       </div>
-
     </div>
+  </div>
+
+  <div class="gnb-container" v-if="!isMobile || displayState.display === 'onMobileBar'" :style="[displayState.display === 'onMobileBar' || displayState.display === 'view' ? { display: 'flex' } : { display: 'none' }]">
+    <div class="gnb">
+      <Navigation @onChangeDisplay="onChangeDisplay" />
+    </div>
+  </div>
+
+  <div class="searchForm-container" v-if="displayState.display === 'onSearchForm'" :style="[displayState.display === 'onSearchForm' ? { display: 'flex' } : { display: 'none' }]">
+    <SearchForm />
   </div>
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import Navigation from '../components/Navigation.vue'
+import SearchForm from '../components/SearchForm.vue'
 
 export default {
+  components: {
+    Navigation,
+    SearchForm,
+  },
   setup() {
     const store = useStore()
     const router = useRouter()
-    const nickname = computed(() => store.state.auth.user.nickname)
+
+    const mediaQuery = window.matchMedia('only screen and (max-width: 1023px')
+    const isMobile = ref(mediaQuery.matches)
+    const displayState = reactive({
+      display: 'view',
+    })
+
+    onMounted(() => {
+      mediaQuery.addEventListener('change', () => {
+        isMobile.value = mediaQuery.matches
+      })
+    })
+
+    const user = computed(() => store.state.auth.user)
     const searchText = ref('')
 
     const onLogout = async () => {
@@ -54,129 +85,219 @@ export default {
       response.success ? router.push({ name: 'home' }) : alert(response.message)
     }
 
-    return { nickname, searchText, onLogout }
+    const onChangeDisplay = async (state) => {
+      displayState.display !== state ? (displayState.display = state) : (displayState.display = 'view')
+      console.log('ㅋ', displayState.display)
+    }
+
+    return { isMobile, displayState, user, searchText, onLogout, onChangeDisplay }
   },
 }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-.header {
-  display: grid;
-  background: var(--point);
-  height: 6.4rem;
-  grid-template-columns: 1fr minmax(auto, 128rem) 1fr;
-}
-
-.headerWrap {
-  display: grid;
-  color: #fff;
-  font-size: 1.4rem;
-  grid-column: 2 / 3;
-  grid-template-columns: repeat(3, 1fr);
+.top-bar-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
   align-items: center;
+  background: var(--primary);
+  position: relative;
+  z-index: 5;
 
-  .search {
-    font-weight: 400;
-    display: grid;
-    grid-template-columns: auto 1fr;
+  .top-bar {
+    height: 6.4rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 1.4rem;
+    color: #fff;
+    width: calc(120rem - 4.8rem);
+    margin: 0 2.4rem;
 
-    input {
+    @include mobile_all {
+      font-size: 1.6rem;
+    }
+
+    @include mobile {
+      width: calc(100% - 4rem);
+      margin: 0 2rem;
+    }
+
+    @include tablet {
+      width: calc(100% - 6.4rem);
+      margin: 0 4.8rem;
+    }
+
+    @include tablet_landscape {
+      width: calc(100% - 6.4rem);
+      margin: 0 3.2rem;
+    }
+
+    i {
+      font-size: 2rem;
       color: #fff;
 
-      &::placeholder {
-        color: #fff;
+      @include mobile_all {
+        font-size: 2.4rem;
       }
     }
-  }
-
-  .logo {
-    display: grid;
-    justify-content: center;
-    color: #fff;
-    font-size: 2rem;
-    letter-spacing: 0.2em;
-    font-family: 'Roboto Condensed', sans-serif;
-    text-transform: uppercase;
-  }
-
-  .user {
-    display: grid;
-    justify-content: end;
-    grid-template-columns: repeat(3, auto);
 
     a {
-      z-index: 500;
       color: #fff;
-      display: grid;
-      grid-template-columns: repeat(2, auto);
-      place-items: center;
     }
 
-    span {
-      border-left: 1px solid #fff;
-      height: 1.6rem;
-      margin: 0.9rem 4rem 0;
+    &__logo {
+      display: flex;
+      flex-basis: 60%;
+      flex-shrink: 2;
+      justify-content: center;
+
+      .a_logo {
+        font-size: 2.4rem;
+      }
     }
 
-    .drop {
-      position: relative;
-      z-index: 300;
-      display: grid;
-      justify-content: end;
-      grid-template-columns: repeat(2, auto);
-      cursor: pointer;
+    &__left {
+      display: flex;
+      flex-basis: 20%;
+      flex-shrink: 1;
+    }
 
-      button {
-        color: #fff;
-      }
+    &__right {
+      display: flex;
+      flex-shrink: 1;
+      flex-basis: 20%;
+      justify-content: flex-end;
+      align-items: center;
 
-      .profile {
-        background: #fff;
-        border-radius: 50%;
-        width: 3.2rem;
-        height: 3.2rem;
-        margin-left: 1.4rem;
-        background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU');
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-      }
+      &__auth {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
 
-      .menu {
-        visibility: hidden;
-        opacity: 0;
-        transition-property: opacity, visibility;
-        transition-duration: 0.5s;
-        position: absolute;
-        padding-top: 5.2rem;
-        right: 0;
-      }
-
-      .menu ul {
-        display: inline;
-      }
-
-      .menu li {
-        display: grid;
-        place-items: center;
-        padding: 1.5rem 3rem;
-        margin-bottom: 0.1rem;
-        color: #fff;
-        font-size: 1.2rem;
-        border-radius: 3%;
-        background: var(--point);
-
-        a {
-          color: #fff;
+        .a_create {
+          @include mobile_all {
+            display: none;
+          }
         }
       }
     }
+  }
 
-    .drop:hover .menu {
-      visibility: visible;
-      opacity: 1;
+  .auth {
+    &[class$='--dropdown'] {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin: 0 0 0 4.8rem;
+      position: relative;
+
+      &:hover .auth__dropdown-items {
+        visibility: visible;
+        opacity: 1;
+        transition-duration: 0.5s;
+      }
+    }
+
+    &__nickname {
+      font-family: 'Noto Sans KR';
+    }
+
+    &__avatar {
+      width: 3.2rem;
+      height: 3.2rem;
+      margin-left: 1.6rem;
+      border-radius: 50%;
+    }
+
+    &__dropdown-items {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 4.8rem 0 0;
+      display: flex;
+      justify-content: center;
+      opacity: 0;
+      transition-property: opacity, visibility;
       transition-duration: 0.5s;
+
+      ul {
+        background-color: var(--border-light);
+        box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
+      }
+
+      li {
+        width: 10rem;
+        margin: 2.4rem 0;
+        text-align: center;
+
+        @include tablet_landscape {
+          width: 12rem;
+          margin: 3.2rem 0;
+        }
+      }
+
+      li a,
+      li button {
+        color: var(--text-light);
+        font-size: 1.2rem;
+        font-weight: 400;
+
+        @include tablet_landscape {
+          font-size: 1.6rem;
+        }
+      }
     }
   }
+}
+
+.gnb-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
+  position: relative;
+  z-index: 3;
+
+  @include mobile-tablet {
+    display: none;
+    box-shadow: 0 0;
+    justify-content: flex-start;
+  }
+
+  .gnb {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    width: calc(120rem - 4.8rem);
+    height: 4.8rem;
+
+    @include mobile {
+      width: calc(100% - 4rem);
+      margin: 0 2rem;
+    }
+
+    @include mobile-tablet {
+      width: auto;
+      margin: 0;
+    }
+
+    @include tablet_landscape {
+      width: calc(100% - 6.4rem);
+      margin: 0 3.2rem;
+    }
+  }
+}
+
+.searchForm-container {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 16rem;
+  margin: 6.4rem 0 0 0;
+  justify-content: center;
+  background: var(--primary);
+  z-index: 4;
 }
 </style>

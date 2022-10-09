@@ -21,7 +21,7 @@ const actions = {
   // params: Object
   async createComment({ commit }, payload) {
     try {
-      console.log('일반 코멘트 쓰기예욤', payload.parentId)
+      console.log('리스폰스', payload)
       const { data } = await axios.post(`${process.env.VUE_APP_API_URL}comments/${payload.postId}/${payload.parentId}`, payload)
       commit('SET_COMMENTS', data.data.comments)
       return data

@@ -18,7 +18,7 @@ const routes = [
   { path: '/auth/profile/:nickname', name: 'profile', component: Profile, meta: { title: 'Profile', requiredAuth: false } },
   { path: '/posts/:title/:subject?', name: 'posts', component: Posts, meta: { title: 'Posts' } },
   { path: '/posts/:title/:subject?/:id', name: 'post', component: Post, meta: { title: 'Post' } },
-  { path: '/posts/editor/:postNum?', name: 'editor', component: Editor, meta: { title: 'Editor', requiredAuth: true } },
+  { path: '/posts/editor/:id?', name: 'editor', component: Editor, meta: { title: 'Editor', requiredAuth: true } },
   { path: '/:catchAll(.*)+', component: NotFound, meta: { title: 'NotFoundError 404!' } },
 ]
 
@@ -30,8 +30,8 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   document.title = to.meta.title
 
-  if (!store.state.auth.user.id && localStorage.getItem('id')) {
-    store.commit('auth/SET_USER_LOCAL')
+  if (!store.state.auth.user.id && sessionStorage.getItem('loginState')) {
+    await store.dispatch('auth/getAccount')
   }
 
   if (!store.state.menu.menus.length) {

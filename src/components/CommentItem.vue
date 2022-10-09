@@ -1,32 +1,48 @@
 <template>
   <li>
-    <div :style="[comment.parentComment ? { marginLeft: '50px' } : { marginLeft: '0px' }]">
-      <div class="info">
-        <div class="author">
-          <div class="profileImg"></div>
-          <span>{{ comment.commenter.nickname }}</span>
+    <div>
+      <div class="isActive" v-if="comment.isActive">
+        <div class="info" ref="infoEl">
+          <div class="author">
+            <div class="profileImg"></div>
+            <span>
+              <router-link :to="{ name: 'profile', params: { nickname: comment.commenter.nickname } }">{{ comment.commenter.nickname }}</router-link>
+            </span>
+          </div>
+          <span></span>
+          <span class="createdAt">{{ dayjs(comment.createdAt).format('YYYY년 M월 D일') }}</span>
+          <span></span>
+          <span class="length">답글 {{ comment.childComments?.length ? comment.childComments?.length : 0 }}개</span>
+          <span v-if="comment.isActive"></span>
+          <span class="replyBtn" @click="onCommentState('reply')" v-if="comment.isActive">답글 작성</span>
+          <div class="option" v-if="comment.commenter.nickname === user.nickname && comment.isActive">
+            <button @click="toggleOptionBtn()"><i class="material-icons">more_horiz</i></button>
+            <ul v-if="!isToggleHide">
+              <li @click="onCommentState('edit')">댓글 수정</li>
+              <li @click="onCommentDelete()">댓글 삭제</li>
+            </ul>
+          </div>
         </div>
-        <span class="createdAt">{{ dayjs(comment.createdAt).format('YYYY년 M월 D일') }}</span>
-        <span></span>
-        <span class="length">답글 {{ comment.children?.length ?? 0 }}개</span>
-        <span v-if="comment.isActive"></span>
-        <span @click="onCommentEditor('reply')" v-if="comment.isActive">답글 작성</span>
-        <div class="option" v-if="comment.commenter.nickname === user.nickname && comment.isActive">
-          <button @click="toggleOptionBtn()"><i class="material-icons">more_horiz</i></button>
-          <ul v-if="!isToggleHide">
-            <li @click="onCommentEditor('edit')">댓글 수정</li>
-            <li @click="onCommentDelete()">댓글 삭제</li>
-          </ul>
+        <p v-if="commentState === 'view' || commentState === 'reply'" :style="[commentState !== 'view' ? { marginBottom: '2.4rem' } : '']">
+          <template v-if="notIsPublic">
+            <i class="material-icons"> lock </i>
+            해당 댓글은 작성자와 관리자만 볼 수 있습니다.
+          </template>
+
+          <template v-else>
+            {{ comment.content }}
+          </template>
+        </p>
+        <div class="comment-editor" ref="" v-if="commentState === 'edit' || commentState === 'reply'" :style="[commentState === 'reply' ? { marginLeft: '4rem' } : '']">
+          <CommentEditor :comment="comment" :pid="pid" :curRouteParams="curRouteParams" :commentState="commentState" @updatedComment="updatedComment" />
         </div>
       </div>
-      <p v-if="commentState === 'view' || commentState === 'reply'">{{ comment.isActive ? comment.content : '해당 댓글은 삭제된 댓글입니다.' }}</p>
-      <div class="comment-editor" v-if="commentState === 'edit' || commentState === 'reply'" :style="[commentState === 'reply' ? { marginLeft: '4rem' } : '']">
-        <CommentEditor :comment="comment" :pid="comment.post" :curRouteParams="curRouteParams" :commentState="commentState" @updatedComment="updatedComment" />
-      </div>
+
+      <div v-else class="notIsActive">해당 댓글은 삭제된 댓글입니다.</div>
     </div>
 
     <ul>
-      <comment-item v-for="child in comment.childComments" :key="child._id" :comment="child" :pid="pid" />
+      <comment-item v-for="child in comment.childComments" :key="child._id" :comment="child" :curRouteParams="curRouteParams" :pid="pid" :postAuthor="postAuthor" />
     </ul>
   </li>
 </template>
@@ -52,20 +68,41 @@ export default {
     pid: {
       type: String,
     },
+    postAuthor: {
+      type: String,
+    },
   },
   setup(props) {
     const { dispatch, state } = useStore()
     const user = computed(() => state.auth.user)
 
+    console.log('프롭스 코멘트', props.comment)
+
     const isToggleHide = ref(true)
     const commentState = ref('view')
+    const notIsPublic = ref(!props.comment.isPublic && props.comment.commenter.nickname !== user.value.nickname && props.postAuthor !== user.value.nickname)
+    const infoEl = ref(null)
+
+    document.addEventListener('click', function (e) {
+      if (commentState.value == 'reply') {
+        //슬라이드 메뉴가 열려 있을때
+        let tgEl = e.target
+        let header = tgEl.closest(infoEl.value) //조상중 #header를 찾음-버튼이 header안에 있을 경우//
+
+        if (!header) {
+          //hdader이 조상이 아니면 닫기//
+          infoEl.value.classList.remove('.replyBtn')
+          return commentState.value === 'view'
+        }
+      }
+    })
 
     const toggleOptionBtn = () => {
       isToggleHide.value = !isToggleHide.value
     }
 
-    const onCommentEditor = (state) => {
-      commentState.value = state
+    const onCommentState = (state) => {
+      user.value.nickname ? (commentState.value = state) : alert('로그인이 필요합니다.')
     }
 
     const updatedComment = (state) => {
@@ -80,9 +117,7 @@ export default {
       if (!response.success) alert(response.message)
     }
 
-    console.log('코멘트', props.comment)
-
-    return { dayjs, user, isToggleHide, commentState, toggleOptionBtn, onCommentEditor, updatedComment, onCommentDelete }
+    return { dayjs, user, isToggleHide, commentState, notIsPublic, toggleOptionBtn, onCommentState, updatedComment, onCommentDelete }
   },
 }
 </script>
@@ -125,34 +160,45 @@ ul {
         }
 
         span {
-          grid-column: 2 / 3;
-          font-weight: 500;
-          font-size: 1.4rem;
+          border: 0;
+
+          a {
+            color: var(--sub);
+            grid-column: 2 / 3;
+            font-weight: 500;
+            font-size: 1.4rem;
+          }
         }
       }
 
       span:nth-child(2) {
         grid-column: 2 / 3;
+        border-left: 0.1rem solid var(--line);
+        height: 1.2rem;
       }
 
       span:nth-child(3) {
         grid-column: 3 / 4;
-        border-left: 0.1rem solid var(--line);
-        height: 1.2rem;
       }
 
       span:nth-child(4) {
         grid-column: 4 / 5;
-      }
-
-      span:nth-child(5) {
-        grid-column: 5 / 6;
         border-left: 0.1rem solid var(--line);
         height: 1.2rem;
       }
 
+      span:nth-child(5) {
+        grid-column: 5 / 6;
+      }
+
       span:nth-child(6) {
         grid-column: 6 / 7;
+        border-left: 0.1rem solid var(--line);
+        height: 1.2rem;
+      }
+
+      span:nth-child(7) {
+        grid-column: 7 / 8;
         color: var(--point);
       }
 
@@ -205,7 +251,17 @@ ul {
       line-height: 2.8rem;
       letter-spacing: normal;
       color: var(--secondary);
-      margin: 0 0 2.4rem;
+      display: flex;
+      align-items: center;
+
+      i {
+        margin-right: 0.8rem;
+      }
+    }
+
+    .notIsActive {
+      font-size: 1.4rem;
+      color: var(--secondary);
     }
   }
 }
@@ -218,6 +274,7 @@ ul > li > ul {
   margin: 3.2rem 0 0;
   li {
     border-top: 1px solid var(--line);
+    margin-left: 4rem;
 
     p {
       span {

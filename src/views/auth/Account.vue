@@ -8,9 +8,8 @@
       <TextInput name="passwordConfirmation" type="password" label="Confirm Password" placeholder="Type password again" :success-message="'비밀번호가 정상적으로 입력되었습니다'" />
       <TextInput name="nickname" type="text" label="Nickname" :placeholder="user.nickname ? user.nickname : 'Nickname'" spellcheck="false" :success-message="'사용할 수 있는 닉네임입니다.'" />
       <button class="submit-btn" type="submit">Submit</button>
-
-      <button v-if="!isNew" @click="accountDelete()" class="sign-out-btn">Sign Out</button>
     </Form>
+    <button v-if="!isNew" @click="accountDelete()" class="sign-out-btn">Sign Out</button>
     <Dialog ref="Dialog" v-if="!isNew"></Dialog>
   </div>
 </template>

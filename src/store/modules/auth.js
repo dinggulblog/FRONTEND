@@ -3,6 +3,7 @@ import axios from '../../services/axios'
 const state = () => ({
   user: {},
   token: '',
+  isLogin: sessionStorage.getItem('loginState') ?? false,
 })
 
 const getters = {}
@@ -107,28 +108,20 @@ const mutations = {
   // params: Access token
   SET_USER(state, token) {
     state.token = token
+    state.isLogin = true
+    sessionStorage.setItem('loginState', true)
   },
 
+  // params: User account object
   SET_USER_INFO(state, user) {
     state.user = user
-    localStorage.setItem('id', state.user.id)
-    localStorage.setItem('nickname', state.user.nickname)
-    localStorage.setItem('avatar', state.user.avatar)
   },
 
-  SET_USER_LOCAL(state) {
-    state.user = {
-      id: localStorage.getItem('id'),
-      nickname: localStorage.getItem('nickname'),
-      avatar: localStorage.getItem('avatar'),
-    }
-  },
-
-  /* Reset user state */
+  // Reset user state
   UNSET_USER(state) {
     state.user = {}
     state.token = ''
-    localStorage.clear()
+    sessionStorage.clear()
   },
 }
 

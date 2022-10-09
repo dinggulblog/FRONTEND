@@ -9,13 +9,7 @@
     <!-- Page button lists -->
     <div class="pages">
       <div class="page-btns">
-        <button
-          v-for="p in pages"
-          v-text="p"
-          :key="p"
-          :style="p === page ? { color: 'var(--point)', fontWeight: 'bold', borderBottom: '2px solid', borderColor: 'var(--point)' } : { color: 'var(--sub)' }"
-          @click="onUpdatePage(p)"
-        ></button>
+        <button v-for="p in pages" v-text="p" :key="p" :style="p === page ? { color: 'var(--point)', fontWeight: 'bold', borderBottom: '2px solid', borderColor: 'var(--point)' } : { color: 'var(--sub)' }" @click="onUpdatePage(p)"></button>
       </div>
     </div>
 
@@ -90,7 +84,7 @@ export default {
 <style lang="scss" rel="stylesheet/scss" scoped>
 .page {
   display: grid;
-  margin: 4.8rem 0;
+  margin: 4.8rem 0 0;
   color: var(--primary);
   font-size: 1.4rem;
   font-weight: 500;
