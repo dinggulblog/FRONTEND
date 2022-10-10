@@ -234,7 +234,7 @@ export default {
         justify-content: flex-start;
         align-items: flex-start;
         width: auto;
-        margin: 3.2rem 0 0;
+        margin: 3.2rem 0 4.8rem;
 
         &::before {
           counter-increment: number 1;
