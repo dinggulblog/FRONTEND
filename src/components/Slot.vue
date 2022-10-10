@@ -7,7 +7,7 @@
       </template>
 
       <template #num>
-        <span>{{ post.postNum }}</span>
+        <div class="number">{{ post.postNum }}</div>
       </template>
 
       <template #title>
@@ -15,7 +15,7 @@
         <span class="info_ico"><i class="material-icons">lock</i></span>
       </template>
 
-      <template #summury>
+      <template #summary>
         <p>{{ markdownText(post.content) }}</p>
       </template>
 
@@ -50,7 +50,7 @@
         <span class="info_ico"><i class="material-icons">lock</i></span>
       </template>
 
-      <template #summury>
+      <template #summary>
         <p>{{ markdownText(post.content) }}</p>
       </template>
 

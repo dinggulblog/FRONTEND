@@ -13,8 +13,8 @@
       </div>
     </div>
 
-    <div class="summury">
-      <slot name="summury"></slot>
+    <div class="summary">
+      <slot name="summary"></slot>
     </div>
 
     <div class="wrap_info">

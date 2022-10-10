@@ -1,10 +1,25 @@
 #list {
+  margin: 0 0 8.4rem 0;
+
   .num {
+    display: flex;
     width: 100%;
-    span {
+    height: 3.2rem;
+    margin: 0 0 3.2rem;
+
+    .number {
+      display: flex;
+      flex-basis: 3rem;
       font-size: 2.4rem;
       font-weight: 700;
       color: var(--primary);
+    }
+
+    .num_border {
+      width: calc(100% - 5.4rem);
+      height: 0.1rem;
+      margin: 1.3rem 2.4rem;
+      border-top: 1px solid var(--border-dark);
     }
   }
   .wrap_contents {
@@ -14,57 +29,80 @@
     width: 100%;
 
     .wrap_left {
-      width: 70%;
       margin: 0 10% 0 0;
+      flex-basis: 60%;
+      height: 16rem;
+      position: relative;
 
-      .wrap_title_is-private > .title {
+      .wrap_title_is-private {
         display: flex;
         align-items: center;
-        margin: 3.2rem 0;
+        margin: 0 0 2.4rem;
 
-        strong {
-          font-size: 2rem;
-          color: var(--list_title);
+        .title {
+          strong {
+            font-size: 2rem;
+            color: var(--list_title);
+          }
+
+          .info_ico {
+            margin: 0 0 0 1.2rem;
+            i {
+              font-size: 2rem;
+              color: var(--list_info);
+            }
+          }
         }
+      }
 
-        .info_ico {
-          margin: 0 0 0 1.2rem;
+      .summary {
+        p {
+          font-size: 1.2rem;
+          color: var(--list_summary);
         }
       }
 
       .wrap_info {
         display: flex;
         align-items: center;
-      }
-    }
-
-    .summury {
-      p {
-        font-size: 1.2rem;
-        color: var(--list_summury);
-      }
-    }
-
-    .wrap_info {
-      div {
-        .info_ico {
-          font-size: 1.4rem;
-          margin: 0 0.8rem 0 0;
+        position: absolute;
+        bottom: 0;
+        div {
+          .info_ico {
+            margin: 0 0.8rem 0 0;
+            i {
+              font-size: 1.8rem;
+            }
+          }
+          span {
+            font-size: 1.2rem;
+            color: var(--list_info);
+          }
         }
-        span {
-          font-size: 1.2rem;
-          color: var(--list_info);
-        }
-      }
 
-      .commnet_count {
-        margin: 0 3.2rem 0 4.8rem;
+        .comment_count {
+          margin: 0 3.2rem 0 4.8rem;
+        }
+
+        .comment_count,
+        .like_count {
+          display: flex;
+          align-items: center;
+        }
       }
     }
 
     .wrap_right {
+      display: flex;
+      flex-basis: 30%;
       justify-content: flex-end;
-      width: 20%;
+      height: 16rem;
+
+      .thumbnail > img {
+        width: 27rem;
+        height: 16rem;
+        border-radius: 4.8rem 0;
+      }
     }
   }
 }

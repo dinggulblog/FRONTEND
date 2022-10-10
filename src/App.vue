@@ -62,7 +62,7 @@ export default defineComponent({
   --text-dark: #333;
   --thumbnail: #e6e6e6;
   --list_title: #aeaeae;
-  --list_summury: #bbbbbb;
+  --list_summary: #bbbbbb;
   --list_info: #d0d0d0;
   --input_text: #bababa;
   --btn_border: #e5e5e5;
@@ -140,6 +140,11 @@ input {
 }
 
 /********** CSS RESET END **********/
+
+i {
+  position: relative;
+  top: 0.25rem;
+}
 
 #app,
 textarea,

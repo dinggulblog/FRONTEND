@@ -93,8 +93,6 @@ export default {
 
 <style lang="scss" rel="stylesheet/scss" scoped>
 .posts {
-  display: grid;
-
   .empty {
     color: var(--primary);
   }

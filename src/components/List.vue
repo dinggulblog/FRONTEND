@@ -2,6 +2,7 @@
   <div id="list">
     <div class="num">
       <slot name="num"></slot>
+      <div class="num_border"></div>
     </div>
     <div class="wrap_contents">
       <div class="wrap_left">
@@ -10,8 +11,8 @@
             <slot name="title"></slot>
           </div>
         </div>
-        <div class="summury">
-          <slot name="summury"></slot>
+        <div class="summary">
+          <slot name="summary"></slot>
         </div>
         <div class="wrap_info">
           <div class="createdAt">
@@ -27,7 +28,7 @@
       </div>
 
       <div class="wrap_right">
-        <div class="thumnail">
+        <div class="thumbnail">
           <slot name="thumbnail"></slot>
         </div>
       </div>
