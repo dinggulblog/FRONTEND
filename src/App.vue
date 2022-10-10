@@ -78,7 +78,7 @@ export default defineComponent({
   padding: 0;
   border: 0;
   outline: none;
-  letter-spacing: 0.05em;
+  letter-spacing: -0.02em;
   -webkit-font-smoothing: antialiased;
   list-style: none;
 }

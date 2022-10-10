@@ -1,23 +1,23 @@
 <template>
-  <div class="top-bar-container">
-    <div class="top-bar">
-      <div class="top-bar__left">
+  <div class="container_bar">
+    <div class="bar">
+      <div class="wrap_left">
         <button :class="isMobile ? 'btn_m-toggle' : 'btn_search'">
           <i class="material-icons" @click="onChangeDisplay(isMobile ? 'onMobileBar' : 'onSearchForm')">{{ isMobile ? 'menu' : displayState.display === 'onSearchForm' ? 'close' : 'search' }}</i>
         </button>
       </div>
 
-      <div class="top-bar__logo">
+      <div class="logo">
         <router-link :to="{ name: 'home' }" class="a_logo">DINGGUL</router-link>
       </div>
 
-      <div class="top-bar__right">
-        <div class="top-bar__right__auth" v-if="!isMobile && user.email">
+      <div class="wrap_right">
+        <div class="wrap_auth" v-if="!isMobile && user.email">
           <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
-          <div class="auth auth--dropdown">
-            <span class="auth__nickname">{{ user.nickname }} 님</span>
-            <img class="auth__avatar auth--avatar" src="../assets/4.jpg" alt="auth-avatar" />
-            <div class="auth__dropdown-items">
+          <div class="auth dropdown">
+            <span class="nickname">{{ user.nickname }} 님</span>
+            <img class="avatar" src="../assets/4.jpg" alt="user_avatar" />
+            <div class="auth_items dropdown_items">
               <ul>
                 <li><router-link :to="{ name: 'account' }">Account</router-link></li>
                 <!--
@@ -38,13 +38,13 @@
     </div>
   </div>
 
-  <div class="gnb-container" v-if="!isMobile || displayState.display === 'onMobileBar'" :style="[displayState.display === 'onMobileBar' || displayState.display === 'view' ? { display: 'flex' } : { display: 'none' }]">
+  <div class="container_gnb" v-if="!isMobile || displayState.display === 'onMobileBar'" :style="[displayState.display === 'onMobileBar' || displayState.display === 'view' ? { display: 'flex' } : { display: 'none' }]">
     <div class="gnb">
       <Navigation @onChangeDisplay="onChangeDisplay" />
     </div>
   </div>
 
-  <div class="searchForm-container" v-if="displayState.display === 'onSearchForm'" :style="[displayState.display === 'onSearchForm' ? { display: 'flex' } : { display: 'none' }]">
+  <div class="container_searchForm" v-if="displayState.display === 'onSearchForm'" :style="[displayState.display === 'onSearchForm' ? { display: 'flex' } : { display: 'none' }]">
     <SearchForm />
   </div>
 </template>
@@ -96,7 +96,7 @@ export default {
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-.top-bar-container {
+.container_bar {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -105,7 +105,7 @@ export default {
   position: relative;
   z-index: 5;
 
-  .top-bar {
+  .bar {
     height: 6.4rem;
     display: flex;
     flex-direction: row;
@@ -147,112 +147,106 @@ export default {
       color: #fff;
     }
 
-    &__logo {
+    .logo {
       display: flex;
       flex-basis: 60%;
       flex-shrink: 2;
       justify-content: center;
-
       .a_logo {
         font-size: 2.4rem;
       }
     }
-
-    &__left {
+    .wrap_left {
       display: flex;
       flex-basis: 20%;
       flex-shrink: 1;
     }
-
-    &__right {
+    .wrap_right {
       display: flex;
       flex-shrink: 1;
       flex-basis: 20%;
       justify-content: flex-end;
       align-items: center;
-
-      &__auth {
+      .wrap_auth {
         display: flex;
         flex-direction: row;
         align-items: center;
-
         .a_create {
           @include mobile_all {
             display: none;
           }
         }
-      }
-    }
-  }
+        .auth {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          margin: 0 0 0 4.8rem;
+          .nickname {
+            font-family: 'Noto Sans KR';
+          }
+          .avatar {
+            width: 3.2rem !important;
+            height: 3.2rem !important;
+            margin-left: 1.6rem;
+            border-radius: 50%;
+          }
+          .auth_items {
+            padding: 4.8rem 0 0;
+            display: flex;
+            justify-content: center;
 
-  .auth {
-    &[class$='--dropdown'] {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      margin: 0 0 0 4.8rem;
-      position: relative;
+            ul {
+              background-color: var(--border-light);
+              box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
+            }
 
-      &:hover .auth__dropdown-items {
-        visibility: visible;
-        opacity: 1;
-        transition-duration: 0.5s;
-      }
-    }
+            li {
+              width: 10rem;
+              margin: 2.4rem 0;
+              text-align: center;
 
-    &__nickname {
-      font-family: 'Noto Sans KR';
-    }
+              @include tablet_landscape {
+                width: 12rem;
+                margin: 3.2rem 0;
+              }
 
-    &__avatar {
-      width: 3.2rem;
-      height: 3.2rem;
-      margin-left: 1.6rem;
-      border-radius: 50%;
-    }
+              a,
+              button {
+                color: var(--text-light);
+                font-size: 1.2rem;
+                font-weight: 400;
 
-    &__dropdown-items {
-      position: absolute;
-      top: 0;
-      right: 0;
-      padding: 4.8rem 0 0;
-      display: flex;
-      justify-content: center;
-      opacity: 0;
-      transition-property: opacity, visibility;
-      transition-duration: 0.5s;
-
-      ul {
-        background-color: var(--border-light);
-        box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
-      }
-
-      li {
-        width: 10rem;
-        margin: 2.4rem 0;
-        text-align: center;
-
-        @include tablet_landscape {
-          width: 12rem;
-          margin: 3.2rem 0;
+                @include tablet_landscape {
+                  font-size: 1.6rem;
+                }
+              }
+            }
+          }
         }
-      }
+        .dropdown {
+          position: relative;
+          cursor: pointer;
 
-      li a,
-      li button {
-        color: var(--text-light);
-        font-size: 1.2rem;
-        font-weight: 400;
-
-        @include tablet_landscape {
-          font-size: 1.6rem;
+          &:hover .dropdown_items {
+            visibility: visible;
+            opacity: 1;
+            transition-duration: 0.5s;
+          }
+        }
+        .dropdown_items {
+          position: absolute;
+          top: 0;
+          right: 0;
+          opacity: 0;
+          transition-property: opacity, visibility;
+          transition-duration: 0.5s;
         }
       }
     }
   }
 }
 
-.gnb-container {
+.container_gnb {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -290,7 +284,7 @@ export default {
   }
 }
 
-.searchForm-container {
+.container_searchForm {
   position: absolute;
   top: 0;
   width: 100%;
@@ -298,6 +292,6 @@ export default {
   margin: 6.4rem 0 0 0;
   justify-content: center;
   background: var(--primary);
-  z-index: 4;
+  z-index: 5;
 }
 </style>
