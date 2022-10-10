@@ -27,10 +27,10 @@
 
     <div class="wrap_nav_item">
       <router-link :to="{ name: 'home' }" class="nav_item">home</router-link>
-      <ul v-for="title in getters['menu/getTitles']" :key="title" class="nav_item">
+      <ul v-for="title in getters['menu/getTitles']" :key="title" class="nav_item dropdown">
         <li>
           <router-link :to="{ name: 'posts', params: { title } }">{{ title }} </router-link>
-          <div class="wrap_nav_item_child">
+          <div class="wrap_nav_item_child dropdown_items">
             <ul v-for="subject in getters['menu/getSubjects'](title)" :key="subject" class="nav_item_child">
               <li>
                 <router-link :to="{ name: 'posts', params: { title, subject } }">
@@ -74,19 +74,20 @@ export default {
 <style lang="scss" rel="stylesheet/scss" scoped>
 .nav {
   @include mobile-tablet {
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 32rem;
-    height: 100vh;
-    background-color: #efefef;
     position: fixed;
     top: 0;
+    width: 32rem;
+    height: 100vh;
     padding: 4.8rem 4.8rem 0;
-    counter-reset: number 0;
-    overflow-y: auto;
-    -ms-overflow-style: none;
     font-size: 1.6rem;
     color: var(--text-light);
+    background-color: #efefef;
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    counter-reset: number 0;
 
     a,
     button {
@@ -108,14 +109,14 @@ export default {
 
   a {
     font-size: 1.2rem;
-    color: var(--text-light);
-    text-transform: uppercase;
     letter-spacing: 0.2rem;
     font-weight: 500;
+    text-transform: uppercase;
+    color: var(--text-light);
 
     @include mobile_all {
-      font-size: 1.6rem;
       margin: 0rem 0;
+      font-size: 1.6rem;
     }
   }
 
@@ -127,9 +128,9 @@ export default {
     display: none;
 
     @include mobile-tablet {
-      width: 100%;
       display: flex;
       justify-content: flex-end;
+      width: 100%;
       margin: 4.8rem 0 0;
     }
 
@@ -153,8 +154,8 @@ export default {
       border-bottom: 1px solid var(--primary);
 
       a {
-        color: var(--primary);
         text-decoration: underline;
+        color: var(--primary);
       }
     }
   }
@@ -163,11 +164,11 @@ export default {
     display: none;
 
     @include mobile-tablet {
-      width: 100%;
-      padding: 4.8rem 0;
-      margin: 0 0 1.6rem;
       display: flex;
       flex-direction: column;
+      width: 100%;
+      margin: 0 0 1.6rem;
+      padding: 4.8rem 0;
       border-bottom: 1px solid var(--primary);
     }
 
@@ -178,14 +179,14 @@ export default {
       .avatar {
         width: 4.8rem;
         height: 4.8rem;
-        border-radius: 50%;
         margin: 0 1.6rem 0 0;
+        border-radius: 50%;
       }
 
       .nickname {
         font-size: 1.6rem;
-        color: var(--text-light);
         font-family: 'Noto Sans KR';
+        color: var(--text-light);
       }
     }
 
@@ -196,10 +197,10 @@ export default {
         a,
         button {
           font-size: 1.6rem;
-          color: var(--primary-dark);
-          text-transform: uppercase;
           font-weight: 500;
+          text-transform: uppercase;
           letter-spacing: 0.2rem;
+          color: var(--primary-dark);
         }
       }
     }
@@ -223,17 +224,16 @@ export default {
     }
 
     .nav_item {
-      width: calc(100% / 4);
       display: flex;
       justify-content: center;
       align-items: center;
-      position: relative;
+      width: calc(100% / 4);
 
       @include mobile-tablet {
         display: flex;
-        width: auto;
         justify-content: flex-start;
         align-items: flex-start;
+        width: auto;
         margin: 3.2rem 0 0;
 
         &::before {
@@ -241,15 +241,9 @@ export default {
           content: counter(number, decimal-leading-zero);
           margin: 0 3.2rem 0 0;
           font-size: 1.6rem;
-          color: var(--primary-dark);
           font-weight: 500;
+          color: var(--primary-dark);
         }
-      }
-
-      &:hover .wrap_nav_item_child {
-        visibility: visible;
-        opacity: 1;
-        transition-duration: 0.5s;
       }
 
       ul {
@@ -266,13 +260,13 @@ export default {
           padding: 2.4rem;
 
           @include mobile-tablet {
-            background-color: transparent;
-            padding: 0;
-            height: auto;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: flex-start;
+            height: auto;
+            padding: 0;
+            background-color: transparent;
           }
 
           a.router-link-active {
@@ -280,38 +274,31 @@ export default {
           }
         }
       }
-
       .wrap_nav_item_child {
-        width: 100%;
-        position: absolute;
-        top: 3rem;
-        left: 0;
-        z-index: 100;
-        flex-direction: column;
-        box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
         display: flex;
         justify-content: center;
         align-items: center;
-        opacity: 0;
-        transition-property: opacity, visibility;
-        transition-duration: 0.5s;
+        flex-direction: column;
+        width: 100%;
+        margin: 3.1rem 0 0;
         border-radius: 0 0 3.2rem 3.2rem;
+        box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
 
         @include mobile-tablet {
           opacity: 1;
-          box-shadow: 0 0;
           position: relative;
           top: 0;
           display: flex;
+          margin: 3.2rem 0 0 3.2rem;
           border-left: 1px solid var(--primary);
           border-radius: 0;
-          margin: 3.2rem 0 0 3.2rem;
+          box-shadow: 0 0;
         }
 
         ul {
-          width: 100%;
           display: flex;
           justify-content: center;
+          width: 100%;
           background-color: #fff;
 
           @include mobile-tablet {
@@ -333,10 +320,10 @@ export default {
           }
 
           li {
-            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
+            width: 100%;
             height: 6.4rem;
 
             @include mobile-tablet {

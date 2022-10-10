@@ -97,23 +97,23 @@ export default {
 
 <style lang="scss" rel="stylesheet/scss" scoped>
 .container_bar {
-  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: var(--primary);
   position: relative;
   z-index: 5;
+  width: 100%;
+  background: var(--primary);
 
   .bar {
-    height: 6.4rem;
     display: flex;
     flex-direction: row;
     align-items: center;
+    width: calc(120rem - 4.8rem);
+    height: 6.4rem;
+    margin: 0 2.4rem;
     font-size: 1.4rem;
     color: #fff;
-    width: calc(120rem - 4.8rem);
-    margin: 0 2.4rem;
 
     @include mobile_all {
       font-size: 1.6rem;
@@ -191,9 +191,9 @@ export default {
             border-radius: 50%;
           }
           .auth_items {
-            padding: 4.8rem 0 0;
             display: flex;
             justify-content: center;
+            padding: 4.8rem 0 0;
 
             ul {
               background-color: var(--border-light);
@@ -212,9 +212,9 @@ export default {
 
               a,
               button {
-                color: var(--text-light);
                 font-size: 1.2rem;
                 font-weight: 400;
+                color: var(--text-light);
 
                 @include tablet_landscape {
                   font-size: 1.6rem;
@@ -223,49 +223,31 @@ export default {
             }
           }
         }
-        .dropdown {
-          position: relative;
-          cursor: pointer;
-
-          &:hover .dropdown_items {
-            visibility: visible;
-            opacity: 1;
-            transition-duration: 0.5s;
-          }
-        }
-        .dropdown_items {
-          position: absolute;
-          top: 0;
-          right: 0;
-          opacity: 0;
-          transition-property: opacity, visibility;
-          transition-duration: 0.5s;
-        }
       }
     }
   }
 }
 
 .container_gnb {
-  width: 100%;
   display: flex;
   justify-content: center;
-  box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
   position: relative;
   z-index: 3;
+  width: 100%;
+  box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
 
   @include mobile-tablet {
     display: none;
-    box-shadow: 0 0;
     justify-content: flex-start;
+    box-shadow: 0 0;
   }
 
   .gnb {
     display: flex;
     align-items: center;
-    background-color: #fff;
     width: calc(120rem - 4.8rem);
     height: 4.8rem;
+    background-color: #fff;
 
     @include mobile {
       width: calc(100% - 4rem);
@@ -285,13 +267,13 @@ export default {
 }
 
 .container_searchForm {
+  justify-content: center;
   position: absolute;
   top: 0;
+  z-index: 5;
   width: 100%;
   height: 16rem;
   margin: 6.4rem 0 0 0;
-  justify-content: center;
   background: var(--primary);
-  z-index: 5;
 }
 </style>

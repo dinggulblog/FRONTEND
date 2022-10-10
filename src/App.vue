@@ -149,10 +149,10 @@ button {
 }
 
 #header {
-  width: 100%;
   position: sticky;
   top: 0;
   z-index: 999;
+  width: 100%;
   margin: 0 0 4.8rem;
 }
 
@@ -182,23 +182,23 @@ button {
 }
 
 #footer {
-  width: 100%;
-  height: 6.4rem;
   display: flex;
   justify-content: center;
+  width: 100%;
+  height: 6.4rem;
+  margin: 4.8rem 0;
   font-size: 1.2rem;
   color: var(--text-light);
-  margin: 4.8rem 0;
 }
 
 .m-createBtn {
   display: none;
 
   @include mobile_all {
+    display: block;
     position: fixed;
     right: 2.4rem;
     bottom: 3.2rem;
-    display: block;
   }
 
   .a_create {
@@ -212,6 +212,25 @@ button {
     border-radius: 50%;
     box-shadow: 0 0.8rem 1.6rem rgba(0, 0, 0, 0.12);
   }
+}
+
+.dropdown {
+  position: relative;
+  cursor: pointer;
+
+  &:hover .dropdown_items {
+    visibility: visible;
+    opacity: 1;
+    transition-duration: 0.5s;
+  }
+}
+.dropdown_items {
+  position: absolute;
+  top: 0;
+  right: 0;
+  opacity: 0;
+  transition-property: opacity, visibility;
+  transition-duration: 0.5s;
 }
 
 /*
