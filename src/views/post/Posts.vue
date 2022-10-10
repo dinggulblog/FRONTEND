@@ -7,7 +7,7 @@
     <div v-if="posts.length">
       <ul :class="states.type">
         <template v-for="post in posts" :key="post._id">
-          <List :type="states.type" :title="states.title" :subject="states.subject" :post="post" :isLike="[...post.likes].includes(user.id)" />
+          <hi :type="states.type" :title="states.title" :subject="states.subject" :post="post" :isLike="[...post.likes].includes(user.id)" />
         </template>
       </ul>
     </div>
@@ -23,14 +23,14 @@ import { ref, reactive, computed, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import Toolbar from '../../components/Toolbar.vue'
-import List from '../../components/List.vue'
+import hi from '../../components/Slot.vue'
 import Pagenation2 from '../../components/Pagenation2.vue'
 
 export default {
   name: 'posts',
   components: {
     Toolbar,
-    List,
+    hi,
     Pagenation2,
   },
   setup() {
@@ -94,7 +94,6 @@ export default {
 <style lang="scss" rel="stylesheet/scss" scoped>
 .posts {
   display: grid;
-  grid-template-rows: repeat(2, auto);
 
   .empty {
     color: var(--primary);

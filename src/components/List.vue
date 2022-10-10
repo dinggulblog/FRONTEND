@@ -1,297 +1,46 @@
 <template>
-  <li :class="type">
-    <div class="thumbnail-wrap">
-      <router-link :to="{ name: 'post', params: { title, subject, id: post._id } }">
-        <img class="thumbnail" :src="[post.thumbnail ? `https://dinggul.me/` + post.thumbnail : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU']" :style="{ objectFit: 'cover' }" />
-      </router-link>
-      <i v-if="!post.isPublic && type === 'album'" class="material-icons"> lock </i>
+  <div id="list">
+    <div class="num">
+      <slot name="num"></slot>
     </div>
-    <div class="post-wrap">
-      <h2>
-        <router-link :to="{ name: 'post', params: { title, subject, id: post._id } }">{{ post.postNum }} - {{ post.title }}</router-link>
-      </h2>
-      <p>
-        {{ markdownText(post.content) }}
-      </p>
+    <div class="wrap_contents">
+      <div class="wrap_left">
+        <div class="wrap_title_is-private">
+          <div class="title">
+            <slot name="title"></slot>
+          </div>
+        </div>
+        <div class="summury">
+          <slot name="summury"></slot>
+        </div>
+        <div class="wrap_info">
+          <div class="createdAt">
+            <slot name="createdAt"></slot>
+          </div>
+          <div class="comment_count">
+            <slot name="comment_count"></slot>
+          </div>
+          <div class="like_count">
+            <slot name="like_count"></slot>
+          </div>
+        </div>
+      </div>
 
-      <div class="post-info">
-        <span v-text="dayjs(post.createdAt).format('YYYY년 M월 D일')"></span>
-        <span></span>
-        <span v-if="type === 'album'">댓글 {{ post.commentCount }}</span>
-        <span><i class="material-icons" :style="[isLike ? { color: 'var(--likeActive)' } : { color: 'var(--like)' }]">favorite</i>{{ post.likeCount }}</span>
-        <span v-if="!post.isPublic && type === 'list'"></span>
-        <span v-if="!post.isPublic && type === 'list'"><i class="material-icons"> lock </i></span>
+      <div class="wrap_right">
+        <div class="thumnail">
+          <slot name="thumbnail"></slot>
+        </div>
       </div>
     </div>
-
-    <div class="comment-wrap" v-if="type === 'list' || type === 'profile'">
-      <span @click="quickMoveComments">{{ post.commentCount }}</span>
-    </div>
-  </li>
+  </div>
 </template>
 
 <script>
-import { useRouter } from 'vue-router'
-import dayjs from 'dayjs'
-import markdownText from 'markdown-to-text'
-import post from '../store/modules/post'
-
 export default {
-  props: {
-    type: {
-      type: String,
-      required: true,
-    },
-    title: {
-      type: String,
-      required: true,
-    },
-    subject: {
-      type: String,
-      default: undefined,
-    },
-    post: {
-      type: Object,
-      required: true,
-    },
-    isLike: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup(props) {
-    const { push } = useRouter()
-    const quickMoveComments = () => {
-      //console.log('코멘트창으로 이동')
-      push({ name: 'post', params: { title: props.title, subject: props.subject, id: props.post._id, quickMoveComments } })
-    }
-    return { dayjs, markdownText, quickMoveComments }
-  },
+  name: 'List_',
 }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-li.list,
-li.profile {
-  margin: 0 0 4.8rem 0;
-  border-bottom: 1px solid var(--line);
-  display: grid;
-  grid-template-columns: minmax(0, 12rem) auto minmax(8rem, 12.8rem);
-  gap: 3rem;
-
-  .thumbnail-wrap {
-    grid-column: 1 / 2;
-
-    .thumbnail {
-      width: 100%;
-      height: 12rem;
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-position: center;
-      border-radius: 15%;
-    }
-  }
-
-  .post-wrap {
-    grid-column: 2 / 3;
-    display: grid;
-    grid-template-rows: repeat(3, auto);
-
-    h2 {
-      grid-row: 1 / 2;
-      font-size: 1.8rem;
-      font-weight: 500;
-      letter-spacing: normal;
-
-      a {
-        color: var(--primary);
-      }
-    }
-
-    p {
-      grid-row: 2 / 3;
-      font-size: 1.4rem;
-      color: var(--sub);
-      margin: 2rem 0 2.8rem 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      word-wrap: break-word;
-      letter-spacing: normal;
-    }
-
-    .post-info {
-      grid-row: 3 / 4;
-      padding: 0 0 4.8rem 0;
-      font-size: 1.2rem;
-      color: var(--sub);
-      display: grid;
-      align-items: center;
-      grid-template-columns: auto auto auto auto auto 1fr;
-      justify-content: start;
-
-      span:nth-child(1) {
-        grid-column: 1 / 2;
-      }
-
-      span:nth-child(2) {
-        grid-column: 2 / 3;
-        border-left: 0.1rem solid var(--line);
-        height: 1.2rem;
-        margin: 0.3rem 1.6rem 0;
-      }
-
-      span:nth-child(3) {
-        grid-column: 3 / 4;
-        display: grid;
-        grid-template-columns: repeat(2, auto);
-        align-items: center;
-        margin-top: 0.3rem;
-
-        i {
-          margin-right: 0.8rem;
-          color: var(--like);
-          font-size: 1.6rem;
-        }
-      }
-
-      span:nth-child(4) {
-        grid-column: 4 / 5;
-        border-left: 0.1rem solid var(--line);
-        height: 1.2rem;
-        margin: 0.3rem 1.6rem 0;
-      }
-
-      span:nth-child(5) {
-        grid-column: 5 / 6;
-        display: grid;
-        align-items: center;
-
-        i {
-          margin-right: 0.8rem;
-          color: var(--sub);
-          font-size: 1.6rem;
-        }
-      }
-    }
-  }
-
-  .comment-wrap {
-    grid-column: 3 / 4;
-    display: grid;
-    justify-content: end;
-    align-items: center;
-    grid-template-rows: repeat(4, 1fr);
-
-    span {
-      grid-row: 2 / 3;
-      width: 4.8rem;
-      height: 3.6rem;
-      background: #eaeaea;
-      color: #aaaaaa;
-      font-size: 1.4rem;
-      border-radius: 40% 40% 0% 40%;
-      display: grid;
-      place-content: center;
-      padding-top: 0.2rem;
-      margin-top: -0.5rem;
-      cursor: pointer;
-    }
-  }
-}
-
-li.album {
-  display: grid;
-  grid-template-rows: repeat(3, auto);
-
-  .thumbnail-wrap {
-    position: relative;
-
-    .thumbnail {
-      grid-row: 1 / 2;
-      width: 100%;
-      height: 18.8rem;
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-position: center;
-    }
-
-    i {
-      font-size: 2.4rem;
-      position: absolute;
-      right: 1.6rem;
-      top: 1.6rem;
-      margin: 0;
-      color: var(--point);
-    }
-  }
-
-  .post-wrap {
-    h2 {
-      grid-row: 2 / 3;
-      font-size: 1.6rem;
-      color: var(--primary);
-      font-weight: 500;
-      letter-spacing: normal;
-
-      a {
-        color: var(--primary);
-      }
-    }
-
-    p {
-      grid-row: 3 / 4;
-      font-size: 1.4rem;
-      color: var(--sub);
-      margin: 1.6rem 0 4rem 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      word-wrap: break-word;
-      letter-spacing: normal;
-    }
-
-    .post-info {
-      grid-row: 4 / 5;
-      font-size: 1.2rem;
-      color: var(--sub);
-      display: grid;
-      align-items: center;
-      grid-template-columns: auto auto auto 1fr;
-      justify-content: start;
-
-      span:nth-child(1) {
-        grid-column: 1 / 2;
-      }
-
-      span:nth-child(2) {
-        border-left: 0.1rem solid var(--line);
-        height: 1.2rem;
-        margin: 0 1.6rem 0;
-        grid-column: 2 / 3;
-      }
-
-      span:nth-child(3) {
-        grid-column: 3 / 4;
-      }
-
-      span:nth-child(4) {
-        grid-column: 4 / 5;
-        display: grid;
-        grid-template-columns: repeat(2, auto);
-        align-items: center;
-        justify-content: end;
-
-        i {
-          margin-right: 0.8rem;
-          font-size: 1.6rem;
-        }
-      }
-    }
-  }
-}
+@import '../scss/list.scss';
 </style>
