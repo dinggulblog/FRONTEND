@@ -186,14 +186,14 @@ export default {
             font-family: 'Noto Sans KR';
           }
           .avatar {
-            width: 3.2rem !important;
-            height: 3.2rem !important;
+            width: 3.2rem;
+            height: 3.2rem;
             margin-left: 1.6rem;
             border-radius: 50%;
           }
           .auth_items {
             justify-content: center;
-            padding: 6rem 0 0;
+            padding: 5.6rem 0 0;
 
             ul {
               background-color: var(--border-light);

@@ -21,7 +21,9 @@
       <!-- View type buttons -->
       <div class="type">
         <button v-for="view in views" :key="view.name" class="btn_type">
-          <img :class="view.name" :src="view.url" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" :class="view.name">
+            <path :d="view.path" />
+          </svg>
         </button>
       </div>
     </div>
@@ -57,33 +59,36 @@ export default {
       type: String,
     },
   },
-  emits: ['updatedToolbar'],
   setup(props, { emit }) {
     const views = [
-      { name: 'list', url: require('../assets/icons/layout-column-line.svg') },
-      { name: 'card', url: require('../assets/icons/layout-grid-line.svg') },
+      { name: 'list', path: 'M19 11V5H5v6h14zm0 2H5v6h14v-6zM4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z' },
+      { name: 'card', path: 'M21,3c0.6,0,1,0.4,1,1v16c0,0.6-0.4,1-1,1H3c-0.6,0-1-0.4-1-1V4c0-0.6,0.4-1,1-1H21z M11,13H4v6h7V13zM20,13h-7v6h7V13zM11,5H4v6h7V5zM20,5h-7v6h7V5z' },
     ]
 
     const changeView = (event) => {
-      emit('updatedType', event.target?.classList[0])
+      emit('updatedType', event.currentTarget?.firstChild.classList[0] ?? 'list')
       document.querySelectorAll('.btn_type').forEach((elem) => elem.firstChild.classList.remove('on'))
       event.target?.classList.add('on')
     }
 
     const changeCategory = (event) => {
-      emit('updatedCategory', event.target.innerText)
+      emit('updatedCategory', event.currentTarget.innerText)
       document.querySelectorAll('.elem_category').forEach((elem) => elem.classList.remove('on'))
       event.target?.classList.add('on')
     }
 
     onMounted(() => {
-      document.querySelectorAll('.btn_type').forEach((elem) => (elem.firstChild.classList.value === props.type ? elem.firstChild.classList.add('on') : null))
+      document.querySelectorAll('.btn_type').forEach((elem) => {
+        if (elem.firstChild.classList.value === props.type) elem.firstChild.classList.add('on')
+      })
       document.querySelectorAll('.btn_type').forEach((elem) => elem.addEventListener('click', changeView))
       document.querySelectorAll('.elem_category').forEach((elem) => elem.addEventListener('click', changeCategory))
     })
 
     onUpdated(() => {
-      document.querySelectorAll('.btn_type').forEach((elem) => (elem.firstChild.classList.value === props.type ? elem.firstChild.classList.add('on') : null))
+      document.querySelectorAll('.btn_type').forEach((elem) => {
+        if (elem.firstChild.classList.value === props.type) elem.firstChild.classList.add('on')
+      })
       document.querySelectorAll('.btn_type').forEach((elem) => elem.addEventListener('click', changeView))
       document.querySelectorAll('.elem_category').forEach((elem) => elem.addEventListener('click', changeCategory))
     })
@@ -156,13 +161,14 @@ export default {
         transition: all 0.3s ease;
         margin: 0 0 0 0.8rem;
 
-        img {
+        svg {
           width: 2.4rem;
           height: 2.4rem;
+          fill: var(--text-light);
+        }
 
-          &.on {
-            background-color: red;
-          }
+        svg.on {
+          fill: var(--primary-dark);
         }
       }
     }

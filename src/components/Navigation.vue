@@ -167,7 +167,6 @@ export default {
       display: flex;
       flex-direction: column;
       width: 100%;
-      margin: 0 0 1.6rem;
       padding: 4.8rem 0;
       border-bottom: 1px solid var(--primary);
     }
@@ -335,7 +334,7 @@ export default {
             }
 
             a {
-              padding: 1.2rem 0;
+              padding: 1.2rem;
 
               @include mobile-tablet {
                 padding: 0;

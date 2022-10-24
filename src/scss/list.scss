@@ -60,7 +60,7 @@
       }
 
       .summary {
-        height: calc(1.9rem * 2);
+        height: calc(2rem * 2);
 
         p {
           width: 100%;
@@ -68,8 +68,8 @@
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 2;
           overflow: hidden;
-          line-height: 1.9rem;
-          font-size: 1.2rem;
+          line-height: 2rem;
+          font-size: 1.3rem;
           color: var(--list_summary);
 
           @include mobile_all {
@@ -81,7 +81,7 @@
       .wrap_info {
         display: flex;
         align-items: center;
-        margin: 4.8rem 0 0;
+        margin: 4.6rem 0 0;
 
         div {
           .info_ico {
