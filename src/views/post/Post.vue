@@ -133,10 +133,10 @@ export default defineComponent({
 
       if (response.success) {
         if (params.quickMoveComments) {
-          let y = commentsEl.value.offsetTop - document.querySelector('.headerWrap').offsetHeight - 33
-          window.scrollTo({ top: y, behavior: 'smooth' })
+          //let y = commentsEl.value.offsetTop - document.querySelector('.headerWrap').offsetHeight - 33
+          //window.scrollTo({ top: y, behavior: 'smooth' })
         } else {
-          window.scrollTo({ top: 0, behavior: 'smooth' })
+          //window.scrollTo({ top: 0, behavior: 'smooth' })
         }
         isLike.value = [...post.value.likes].includes(user.value.id)
       } else {

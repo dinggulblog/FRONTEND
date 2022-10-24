@@ -1,13 +1,13 @@
 <template>
   <div class="posts">
     <!-- Toolbar -->
-    <Toolbar :type="states.type" :category="states.category" :categories="states.categories" :title="states.title" :subject="states.subject" @updatedToolbar="updatedToolbar" />
+    <Toolbar :type="states.type" :category="states.category" :categories="states.categories" :title="states.title" :subject="states.subject" @updatedType="updatedType" @updatedCategory="updatedCategory" />
 
     <!-- List contents -->
     <div v-if="posts.length">
       <ul :class="states.type">
         <template v-for="post in posts" :key="post._id">
-          <hi :type="states.type" :title="states.title" :subject="states.subject" :post="post" :isLike="[...post.likes].includes(user.id)" />
+          <Slot :type="states.type" :title="states.title" :subject="states.subject" :post="post" :isLike="[...post.likes].includes(user.id)"></Slot>
         </template>
       </ul>
     </div>
@@ -23,14 +23,14 @@ import { ref, reactive, computed, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import Toolbar from '../../components/Toolbar.vue'
-import hi from '../../components/Slot.vue'
+import Slot from '../../components/Slot.vue'
 import Pagenation2 from '../../components/Pagenation2.vue'
 
 export default {
   name: 'posts',
   components: {
     Toolbar,
-    hi,
+    Slot,
     Pagenation2,
   },
   setup() {
@@ -38,7 +38,7 @@ export default {
     const route = useRoute()
 
     const page = ref(1)
-    const limit = ref(5)
+    const limit = ref(6)
     const maxPage = ref(1)
     const states = reactive({
       type: 'list',
@@ -52,12 +52,12 @@ export default {
     const user = computed(() => state.auth.user)
     const posts = computed(() => state.post.posts)
 
-    const updatedToolbar = ({ updatedType, updatedCategory }) => {
-      if (updatedType) {
-        states.type = updatedType
-      } else if (updatedCategory) {
-        states.category = updatedCategory
-      }
+    const updatedType = (type) => {
+      states.type = type
+    }
+
+    const updatedCategory = (category) => {
+      states.category = category
     }
 
     const updatePage = ({ updatedPage }) => {
@@ -86,28 +86,38 @@ export default {
       { flush: 'post' }
     )
 
-    return { page, limit, maxPage, states, params, user, posts, updatedToolbar, updatePage }
+    return { page, limit, maxPage, states, params, user, posts, updatedType, updatedCategory, updatePage }
   },
 }
 </script>
 
-<style lang="scss" rel="stylesheet/scss" scoped>
-.posts {
-  .empty {
-    color: var(--primary);
-  }
-}
-
+<style lang="scss" rel="stylesheet/scss">
 .list {
-  li:last-child {
-    margin-bottom: 0;
-  }
+  display: flex;
+  flex-direction: column;
 }
 
-.album {
-  display: grid;
-  justify-content: start;
-  grid-template-columns: repeat(auto-fit, minmax(auto, 30.3rem));
-  gap: 3.2rem 3.2rem;
+.card {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+
+  @include tablet_landscape {
+    & #card:nth-child(3n + 0) {
+      margin-right: 0;
+    }
+  }
+
+  @include desktop {
+    & #card:nth-child(3n + 0) {
+      margin-right: 0;
+    }
+  }
+
+  @include mobile_tablet {
+    & #card:nth-child(2n + 0) {
+      margin-right: 0;
+    }
+  }
 }
 </style>

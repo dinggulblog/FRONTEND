@@ -26,20 +26,20 @@
     </div>
 
     <div class="wrap_nav_item">
-      <router-link :to="{ name: 'home' }" class="nav_item">home</router-link>
+      <router-link :to="{ name: 'home' }" class="nav_item item_number">home</router-link>
       <ul v-for="title in getters['menu/getTitles']" :key="title" class="nav_item dropdown">
         <li>
-          <router-link :to="{ name: 'posts', params: { title } }">{{ title }} </router-link>
-          <div class="wrap_nav_item_child dropdown_items">
-            <ul v-for="subject in getters['menu/getSubjects'](title)" :key="subject" class="nav_item_child">
-              <li>
-                <router-link :to="{ name: 'posts', params: { title, subject } }">
-                  {{ subject }}
-                </router-link>
-              </li>
-            </ul>
-          </div>
+          <router-link :to="{ name: 'posts', params: { title } }" class="item_number">{{ title }} </router-link>
         </li>
+        <div class="wrap_nav_item_child dropdown_items">
+          <ul v-for="subject in getters['menu/getSubjects'](title)" :key="subject" class="nav_item_child">
+            <li>
+              <router-link :to="{ name: 'posts', params: { title, subject } }">
+                {{ subject }}
+              </router-link>
+            </li>
+          </ul>
+        </div>
       </ul>
     </div>
   </nav>
@@ -87,7 +87,6 @@ export default {
     background-color: #efefef;
     overflow-y: auto;
     -ms-overflow-style: none;
-    counter-reset: number 0;
 
     a,
     button {
@@ -149,6 +148,7 @@ export default {
 
     @include mobile-tablet {
       display: block;
+      width: 100%;
       margin: 0 0 1.6rem;
       padding: 4.8rem 0;
       border-bottom: 1px solid var(--primary);
@@ -210,17 +210,14 @@ export default {
     display: flex;
     flex-direction: row;
     width: calc(120rem - 4.8rem);
+    counter-reset: number 0;
+
+    @include mobile_all {
+      width: 100%;
+    }
 
     @include mobile-tablet {
       flex-direction: column;
-    }
-
-    @include tablet_landscape {
-      width: 100%;
-    }
-
-    @include mobile {
-      width: 100%;
     }
 
     .nav_item {
@@ -231,19 +228,12 @@ export default {
 
       @include mobile-tablet {
         display: flex;
+        flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
         width: auto;
-        margin: 3.2rem 0 4.8rem;
-
-        &::before {
-          counter-increment: number 1;
-          content: counter(number, decimal-leading-zero);
-          margin: 0 3.2rem 0 0;
-          font-size: 1.6rem;
-          font-weight: 500;
-          color: var(--primary-dark);
-        }
+        margin: 4.8rem 0 0;
+        background-color: transparent;
       }
 
       ul {
@@ -251,64 +241,66 @@ export default {
           display: flex;
           flex-direction: row;
         }
+      }
 
-        li {
+      li {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1.6rem 0;
+        position: relative;
+        z-index: 55;
+
+        @include mobile-tablet {
           display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 4.8rem;
-          padding: 2.4rem;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          height: auto;
+          padding: 0;
+          background-color: transparent;
+        }
 
-          @include mobile-tablet {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-start;
-            height: auto;
-            padding: 0;
-            background-color: transparent;
-          }
-
-          a.router-link-active {
-            color: var(--primary-dark);
-          }
+        a.router-link-active {
+          color: var(--primary-dark);
         }
       }
       .wrap_nav_item_child {
-        display: flex;
         justify-content: center;
         align-items: center;
         flex-direction: column;
         width: 100%;
-        margin: 3.1rem 0 0;
+        padding: 4.8rem 0 0;
         border-radius: 0 0 3.2rem 3.2rem;
-        box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
+
+        @include tablet_landscape {
+          padding: 5rem 0 0;
+        }
 
         @include mobile-tablet {
           opacity: 1;
           position: relative;
           top: 0;
           display: flex;
-          margin: 3.2rem 0 0 3.2rem;
+          margin: 3.2rem 0 0 3.6rem;
           border-left: 1px solid var(--primary);
           border-radius: 0;
           box-shadow: 0 0;
+          padding: 0;
         }
 
         ul {
           display: flex;
           justify-content: center;
-          width: 100%;
           background-color: #fff;
+          width: 100%;
+          box-shadow: 0 0.2rem 2rem rgba(0, 0, 0, 0.16);
 
           @include mobile-tablet {
             margin: 0 0 3.2rem;
             padding: 0 0 0 2.4rem;
             background-color: #efefef;
-          }
-
-          &:hover {
-            background-color: var(--border-light);
+            box-shadow: 0 0;
           }
 
           &:last-child {
@@ -316,6 +308,15 @@ export default {
 
             @include mobile-tablet {
               margin-bottom: 0;
+              border-radius: 0;
+            }
+          }
+
+          &:last-child > li {
+            border-radius: 0 0 3rem 3rem;
+
+            @include mobile-tablet {
+              border-radius: 0;
             }
           }
 
@@ -325,25 +326,31 @@ export default {
             align-items: center;
             width: 100%;
             height: 6.4rem;
+            background-color: #fff;
 
             @include mobile-tablet {
               display: block;
               height: auto;
+              background-color: transparent;
             }
 
             a {
-              padding: 1.2rem;
+              padding: 1.2rem 0;
 
               @include mobile-tablet {
                 padding: 0;
               }
+            }
+
+            &:hover {
+              background-color: #ededed;
             }
           }
         }
       }
     }
 
-    ul.nav_item > li {
+    ul.nav_item {
       &::before {
         content: '';
         position: absolute;
@@ -354,6 +361,22 @@ export default {
 
         @include mobile-tablet {
           display: none;
+        }
+      }
+    }
+
+    .item_number {
+      display: flex;
+      flex-direction: row;
+
+      &::before {
+        @include mobile-tablet {
+          counter-increment: number 1;
+          content: counter(number, decimal-leading-zero);
+          margin: 0 3.2rem 0 0;
+          font-size: 1.6rem;
+          font-weight: 500;
+          color: var(--primary-dark);
         }
       }
     }

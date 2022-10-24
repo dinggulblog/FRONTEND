@@ -109,7 +109,8 @@ export default {
     display: flex;
     flex-direction: row;
     align-items: center;
-    width: calc(120rem - 4.8rem);
+    min-width: calc(120rem - 4.8rem);
+    max-width: calc(120rem - 4.8rem);
     height: 6.4rem;
     margin: 0 2.4rem;
     font-size: 1.4rem;
@@ -120,17 +121,17 @@ export default {
     }
 
     @include mobile {
-      width: calc(100% - 4rem);
+      min-width: calc(100% - 4rem);
       margin: 0 2rem;
     }
 
     @include tablet {
-      width: calc(100% - 6.4rem);
+      min-width: calc(100% - 9.6rem);
       margin: 0 4.8rem;
     }
 
     @include tablet_landscape {
-      width: calc(100% - 6.4rem);
+      min-width: calc(100% - 6.4rem);
       margin: 0 3.2rem;
     }
 
@@ -191,13 +192,12 @@ export default {
             border-radius: 50%;
           }
           .auth_items {
-            display: flex;
             justify-content: center;
-            padding: 4.8rem 0 0;
+            padding: 6rem 0 0;
 
             ul {
               background-color: var(--border-light);
-              box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
+              box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.2);
             }
 
             li {

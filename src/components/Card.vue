@@ -1,6 +1,6 @@
 <template>
   <div id="card">
-    <div class="thumnail">
+    <div class="thumbnail">
       <slot name="thumbnail"></slot>
     </div>
 
@@ -26,9 +26,7 @@
 
       <div class="wrap_right">
         <div class="wrap_comment_like">
-          <slot name="comment_ico"></slot>
           <slot name="comment_count"></slot>
-          <slot name="like_ico"></slot>
           <slot name="like_count"></slot>
         </div>
       </div>
@@ -37,10 +35,26 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue'
+
 export default {
   name: 'Card',
   components: {},
-  setup() {},
+  props: {
+    postLength: {
+      type: Number,
+    },
+  },
+  setup() {
+    const mediaQuery = window.matchMedia('only screen and (max-width: 1023px')
+    const isMobile = ref(mediaQuery.matches)
+
+    onMounted(() => {
+      mediaQuery.addEventListener('change', () => {
+        isMobile.value = mediaQuery.matches
+      })
+    })
+  },
 }
 </script>
 

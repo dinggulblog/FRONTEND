@@ -1,70 +1,42 @@
 <template>
   <div class="toolbar">
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
+    <div class="wrap_breadcrumb_sort_type">
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+        <ul>
+          <li>
+            <router-link :to="{ name: 'home' }"><i class="material-icons">home</i></router-link>
+          </li>
+          <li>
+            <router-link :to="{ name: 'posts', params: { title } }">{{ title }}</router-link>
+          </li>
+          <li v-if="subject">
+            <router-link :to="{ name: 'posts', params: { title, subject } }">{{ subject }}</router-link>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Sort type change field -->
+
+      <!-- View type buttons -->
+      <div class="type">
+        <button v-for="view in views" :key="view.name" class="btn_type">
+          <img :class="view.name" :src="view.url" />
+        </button>
+      </div>
+    </div>
+
+    <div class="categories">
       <ul>
-        <li>
-          <router-link :to="{ name: 'home' }"><i class="material-icons">home</i></router-link>
-        </li>
-        <li>
-          <router-link :to="{ name: 'posts', params: { title } }">{{ title }}</router-link>
-        </li>
-        <li v-if="subject">
-          <router-link :to="{ name: 'posts', params: { title, subject } }">{{ subject }}</router-link>
-        </li>
+        <li v-for="category in categories" :key="category" class="elem_category">{{ category }}</li>
       </ul>
-    </div>
-
-    <!-- Sort type change field -->
-    <!--
-    <div class="sort select" :value="state.selectedSortedBy">
-      <h2>Sort By</h2>
-      <div class="selector" @click.prevent="onToggle('sortedBy')" ref="categoryEl">
-        <div class="label">
-          <span>{{ state.selectedSortedBy }}</span>
-        </div>
-        <i class="material-icons arrow" :class="{ expanded: state.sortedByVisible }">expand_more</i>
-        <div :class="{ hidden: !state.sortedByVisible }">
-          <ul>
-            <li :class="{ current: item.value === state.selectedSortedBy }" v-for="item in sortOptions" :key="item.key" @click="onSelect('sortedBy', item.value)">
-              {{ item.value }}
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    -->
-
-    <!-- View type buttons -->
-    <div class="type-btn">
-      <button @click="changeType('list')" :style="[type === 'list' ? { color: 'var(--point)' } : { color: 'var(--primary)' }]">
-        <i class="material-icons">format_list_bulleted</i>
-      </button>
-      <button @click="changeType('album')" :style="[type === 'album' ? { color: 'var(--point)' } : { color: 'var(--primary)' }]">
-        <i class="material-icons">grid_on</i>
-      </button>
-    </div>
-
-    <!-- Category select box -->
-    <div class="category select" tabindex="-1" @blur="closeCatBox">
-      <div class="selector">
-        <div class="label" @click="openCatBox">
-          <span>{{ category }}</span>
-        </div>
-        <i class="material-icons arrow" :class="{ expanded: isVisible }" @click="openCatBox">expand_more</i>
-        <div :hidden="!isVisible">
-          <ul>
-            <li @click="changeCategory('All')">전체보기</li>
-            <li v-for="item in categories" :key="item" @click="changeCategory(item)">{{ item }}</li>
-          </ul>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue'
+import { type } from 'os'
+import { onMounted, onUpdated, ref } from 'vue'
 
 export default {
   props: {
@@ -87,161 +59,150 @@ export default {
   },
   emits: ['updatedToolbar'],
   setup(props, { emit }) {
-    const isVisible = ref(false)
+    const views = [
+      { name: 'list', url: require('../assets/icons/layout-column-line.svg') },
+      { name: 'card', url: require('../assets/icons/layout-grid-line.svg') },
+    ]
 
-    const openCatBox = () => {
-      isVisible.value = !isVisible.value
+    const changeView = (event) => {
+      emit('updatedType', event.target?.classList[0])
+      document.querySelectorAll('.btn_type').forEach((elem) => elem.firstChild.classList.remove('on'))
+      event.target?.classList.add('on')
     }
 
-    const closeCatBox = () => {
-      isVisible.value = false
+    const changeCategory = (event) => {
+      emit('updatedCategory', event.target.innerText)
+      document.querySelectorAll('.elem_category').forEach((elem) => elem.classList.remove('on'))
+      event.target?.classList.add('on')
     }
 
-    const changeType = (updatedType) => {
-      emit('updatedToolbar', { updatedType })
-    }
+    onMounted(() => {
+      document.querySelectorAll('.btn_type').forEach((elem) => (elem.firstChild.classList.value === props.type ? elem.firstChild.classList.add('on') : null))
+      document.querySelectorAll('.btn_type').forEach((elem) => elem.addEventListener('click', changeView))
+      document.querySelectorAll('.elem_category').forEach((elem) => elem.addEventListener('click', changeCategory))
+    })
 
-    const changeCategory = (updatedCategory) => {
-      emit('updatedToolbar', { updatedCategory })
-      closeCatBox()
-    }
+    onUpdated(() => {
+      document.querySelectorAll('.btn_type').forEach((elem) => (elem.firstChild.classList.value === props.type ? elem.firstChild.classList.add('on') : null))
+      document.querySelectorAll('.btn_type').forEach((elem) => elem.addEventListener('click', changeView))
+      document.querySelectorAll('.elem_category').forEach((elem) => elem.addEventListener('click', changeCategory))
+    })
 
-    return { isVisible, openCatBox, closeCatBox, changeType, changeCategory }
+    return { views, changeView, changeCategory }
   },
 }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
 .toolbar {
-  margin: 0 0 4.8rem;
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  align-items: center;
-  font-size: 1.4rem;
-
-  .breadcrumb {
-    ul {
-      display: flex;
-      list-style: none;
-      align-items: center;
-
-      li {
-        margin-right: 1rem;
-        display: inherit;
-        align-items: center;
-        font-weight: 500;
-        text-transform: uppercase;
-
-        a {
-          color: var(--sub);
-        }
-      }
-
-      li:first-child {
-        i {
-          margin-right: 0;
-          margin-top: 0.3rem;
-        }
-      }
-
-      li:not(:first-child)::before {
-        font-family: 'Material Icons';
-        content: '\e5cc';
-        width: 3.2rem;
-        font-size: 2rem;
-        color: var(--sub);
-      }
-
-      li:last-child a {
-        color: var(--point);
-      }
-    }
-  }
-
-  .type-btn {
-    grid-column: 3 / 4;
-    display: grid;
-    grid-template-columns: auto auto;
-
-    button {
-      display: grid;
-      align-items: center;
-      transition: all 0.3s ease;
-    }
-  }
-
-  .category {
-    justify-self: end;
-    grid-column: 4 / 5;
-    padding: 0 0rem;
-    border: 2px solid var(--point);
-    border-radius: 2rem;
-
-    &.select {
-      padding: 0 0rem 0 0em;
-
-      ul {
-      }
-    }
-  }
-
-  .select {
-    font-size: 1.4rem;
-    display: grid;
+  .wrap_breadcrumb_sort_type {
+    display: flex;
     align-items: center;
+    font-size: 1.4rem;
+    margin: 0 0 4.8rem;
 
-    .selector {
-      position: relative;
-      z-index: 1;
-      cursor: pointer;
-      user-select: none;
+    .breadcrumb {
+      flex-basis: 50%;
+      ul {
+        display: flex;
+        list-style: none;
+        align-items: center;
 
-      .arrow {
-        position: absolute;
-        right: 1rem;
-        top: 0.8rem;
-        transform: rotateZ(0deg) translateY(0px);
-        transition: all 0.2s ease;
-        margin: 0;
-        color: var(--point);
+        li {
+          margin-right: 1rem;
+          display: flex;
+          align-items: center;
+
+          a {
+            color: var(--text-light);
+            letter-spacing: 0.04rem;
+            text-transform: uppercase;
+            font-weight: 500;
+          }
+        }
+
+        li:first-child {
+          i {
+            margin-right: 0;
+            margin-top: 0.3rem;
+          }
+        }
+
+        li:last-child {
+          a {
+            color: var(--primary-dark);
+          }
+        }
+
+        li:not(:first-child)::before {
+          font-family: 'Material Icons';
+          content: '\e5cc';
+          width: 3.2rem;
+          font-size: 2rem;
+          color: var(--text-light);
+        }
       }
+    }
 
-      .expanded {
-        transform: rotateZ(180deg) translateY(0px);
-      }
+    .type {
+      display: flex;
+      align-items: center;
+      flex-basis: 50%;
+      justify-content: flex-end;
 
-      .label {
-        display: block;
-        color: var(--point);
-        width: 12.8rem;
-        height: 4rem;
+      button {
         display: flex;
         align-items: center;
-        padding: 0 2rem;
-        text-transform: capitalize;
+        transition: all 0.3s ease;
+        margin: 0 0 0 0.8rem;
+
+        img {
+          width: 2.4rem;
+          height: 2.4rem;
+
+          &.on {
+            background-color: red;
+          }
+        }
       }
     }
+  }
+
+  .categories {
+    width: 100%;
+    margin: 4.8rem 0 3.2rem;
 
     ul {
-      width: 12.8rem;
-      list-style-type: none;
-      padding: 0;
-      position: absolute;
-      margin-top: 1.6rem;
-      right: 0rem;
-      z-index: 1;
-      background: #fff;
-      box-shadow: 0 0 2.4rem 0.3rem rgba(0, 0, 0, 0.15);
-    }
+      display: flex;
+      flex-wrap: wrap;
+      li {
+        flex: 0 0 auto;
+        margin: 0 1.6rem 1.2rem 0;
+        padding: 0 1.6rem;
+        height: 3.8rem;
+        line-height: 3.6rem;
+        font-family: 'Noto Sans KR';
+        font-size: 1.4rem;
+        color: var(--text-light);
+        border: 1px solid var(--border-dark);
+        border-radius: 2.4rem;
+        text-transform: capitalize;
+        cursor: pointer;
 
-    li {
-      padding: 1.2rem 2.4rem;
-      color: var(--primary);
-      text-transform: capitalize;
+        &:last-child {
+          margin-right: 0;
+        }
 
-      &:hover {
-        background: #eaeaea;
-        color: var(--point);
+        &.on {
+          color: var(--secondary-dark);
+          border: 1px solid var(--secondary-dark);
+        }
+      }
+
+      @include mobile_all {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
       }
     }
   }

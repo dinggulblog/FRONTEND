@@ -1,0 +1,17 @@
+#sldie {
+  .wrap_thumnail {
+    height: 20.8rem;
+    position: relative;
+
+    .thumbnail > img {
+      height: 20.8rem;
+    }
+
+    .wrap_hover {
+      display: none;
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}

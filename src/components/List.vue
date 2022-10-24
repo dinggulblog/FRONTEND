@@ -5,7 +5,7 @@
       <div class="num_border"></div>
     </div>
     <div class="wrap_contents">
-      <div class="wrap_left">
+      <div class="contents">
         <div class="wrap_title_is-private">
           <div class="title">
             <slot name="title"></slot>
@@ -27,10 +27,8 @@
         </div>
       </div>
 
-      <div class="wrap_right">
-        <div class="thumbnail">
-          <slot name="thumbnail"></slot>
-        </div>
+      <div class="thumbnail">
+        <slot name="thumbnail"></slot>
       </div>
     </div>
   </div>
@@ -42,6 +40,4 @@ export default {
 }
 </script>
 
-<style lang="scss" rel="stylesheet/scss" scoped>
-@import '../scss/list.scss';
-</style>
+<style lang="scss" rel="stylesheet/scss" scoped></style>

@@ -1,5 +1,5 @@
 #list {
-  margin: 0 0 8.4rem 0;
+  margin: 0 0 8.4rem;
 
   .num {
     display: flex;
@@ -9,16 +9,15 @@
 
     .number {
       display: flex;
-      flex-basis: 3rem;
       font-size: 2.4rem;
       font-weight: 700;
       color: var(--primary);
     }
 
     .num_border {
-      width: calc(100% - 5.4rem);
+      width: 100%;
       height: 0.1rem;
-      margin: 1.3rem 2.4rem;
+      margin: 1.4rem 0 0 2.4rem;
       border-top: 1px solid var(--border-dark);
     }
   }
@@ -28,11 +27,16 @@
     align-items: center;
     width: 100%;
 
-    .wrap_left {
-      margin: 0 10% 0 0;
-      flex-basis: 60%;
-      height: 16rem;
-      position: relative;
+    @include mobile {
+      flex-direction: column-reverse;
+    }
+
+    .contents {
+      flex-shrink: 1;
+      flex-grow: 0;
+      margin: 0 4.8rem 0 0;
+
+      width: calc(100% - 4.8rem);
 
       .wrap_title_is-private {
         display: flex;
@@ -40,7 +44,7 @@
         margin: 0 0 2.4rem;
 
         .title {
-          strong {
+          a {
             font-size: 2rem;
             color: var(--list_title);
           }
@@ -56,17 +60,29 @@
       }
 
       .summary {
+        height: calc(1.9rem * 2);
+
         p {
+          width: 100%;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          overflow: hidden;
+          line-height: 1.9rem;
           font-size: 1.2rem;
           color: var(--list_summary);
+
+          @include mobile_all {
+            font-size: 1.6rem;
+          }
         }
       }
 
       .wrap_info {
         display: flex;
         align-items: center;
-        position: absolute;
-        bottom: 0;
+        margin: 4.8rem 0 0;
+
         div {
           .info_ico {
             margin: 0 0.8rem 0 0;
@@ -77,11 +93,21 @@
           span {
             font-size: 1.2rem;
             color: var(--list_info);
+
+            &.is-like {
+              color: #f3c7c7;
+            }
           }
         }
 
         .comment_count {
           margin: 0 3.2rem 0 4.8rem;
+
+          .wrap_comment_count {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+          }
         }
 
         .comment_count,
@@ -92,16 +118,35 @@
       }
     }
 
-    .wrap_right {
+    .thumbnail {
+      flex-shrink: 1;
+      flex-grow: 1;
       display: flex;
-      flex-basis: 30%;
       justify-content: flex-end;
-      height: 16rem;
+      min-width: 27rem;
 
-      .thumbnail > img {
-        width: 27rem;
+      @include tablet_landscape {
+        min-width: 22.2rem;
+      }
+
+      @include tablet {
+        min-width: 16rem;
+      }
+
+      @include mobile {
+        min-width: 100%;
+        margin: 0 0 3.2rem;
+      }
+
+      img {
+        width: 100%;
         height: 16rem;
         border-radius: 4.8rem 0;
+        object-fit: cover;
+
+        @include mobile {
+          height: 18rem;
+        }
       }
     }
   }

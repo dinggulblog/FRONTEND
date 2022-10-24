@@ -81,13 +81,13 @@ export default defineComponent({
   letter-spacing: -0.02em;
   -webkit-font-smoothing: antialiased;
   list-style: none;
+  box-sizing: border-box;
 }
 
 *,
 :after,
 :before {
   box-sizing: border-box;
-  flex-shrink: 0;
 }
 
 :root {
@@ -101,7 +101,6 @@ export default defineComponent({
 
 html {
   font-size: 62.5%;
-  overflow-y: scroll;
 }
 
 html,
@@ -143,7 +142,7 @@ input {
 
 i {
   position: relative;
-  top: 0.25rem;
+  top: 0.1rem;
 }
 
 #app,
@@ -166,21 +165,25 @@ button {
   justify-content: center;
 
   #content {
-    width: 115.2rem;
+    max-width: calc(120rem - 4.8rem);
+    min-width: calc(120rem - 4.8rem);
     margin: 0 2.4rem;
 
     @include mobile {
-      width: calc(100% - 4rem);
+      min-width: calc(36rem - 4rem);
+      max-width: calc(76.8rem - 9.6rem);
       margin: 0 2rem;
     }
 
     @include tablet {
-      width: calc(100% - 6.4rem);
-      margin: 0 4.8rem;
+      min-width: calc(76.8rem - 9.6rem);
+      max-width: calc(102.4rem - 6.4rem);
+      margin: 0 6.4rem;
     }
 
     @include tablet_landscape {
-      width: calc(100% - 6.4rem);
+      min-width: calc(102.4rem - 6.4rem);
+      max-width: calc(120rem - 4.8rem);
       margin: 0 3.2rem;
     }
   }
@@ -224,18 +227,14 @@ button {
   cursor: pointer;
 
   &:hover .dropdown_items {
-    visibility: visible;
-    opacity: 1;
-    transition-duration: 0.5s;
+    display: flex;
   }
 }
 .dropdown_items {
   position: absolute;
   top: 0;
   right: 0;
-  opacity: 0;
-  transition-property: opacity, visibility;
-  transition-duration: 0.5s;
+  display: none;
 }
 
 /*
