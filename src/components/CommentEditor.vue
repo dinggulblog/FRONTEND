@@ -1,13 +1,15 @@
 <template>
-  <div class="editor">
-    <textarea v-model="content" ref="contentEl" :placeholder="[curRouteParams.title === 'guest' ? '방명록을 작성해보세요' : placeholderText]" @focus="placeholder = ''" @blur="placeholder = [curRouteParams.title === 'guest' ? '방명록을 작성해보세요' : placeholderText]" :style="[curRouteParams.title === 'guest' ? { minHeight: '18rem' } : { minHeight: '10.6rem' }]"></textarea>
+  <div class="commentEditor">
+    <textarea v-model="content" ref="contentEl" :placeholder="[curRouteParams.title === 'guest' ? '방명록을 작성해보세요' : placeholderText]" @focus="placeholder = ''" @blur="placeholder = [curRouteParams.title === 'guest' ? '방명록을 작성해보세요' : placeholderText]"></textarea>
 
-    <div class="btns">
+    <div class="wrap_btns">
       <div class="toggle">
-        <button class="material-icons" v-text="isPublic ? 'toggle_off' : 'toggle_on'" :style="[isPublic ? { color: '#E5E5E5' } : { color: 'var(--point)' }]" @click="onIsPublic()"></button>
+        <i class="material-icons" v-text="isPublic ? 'toggle_off' : 'toggle_on'" @click="onIsPublic()"></i>
         <span v-text="isPublic ? 'Public' : 'Secret'" :style="[isPublic ? { color: '#B5B5B5' } : { color: 'var(--point)' }]"></span>
       </div>
-      <button class="submit" @click="onSubmit()">Comment</button>
+      <div class="submit_btn">
+        <button class="btn_submit" @click="onSubmit()">Comment</button>
+      </div>
     </div>
   </div>
 </template>
@@ -77,59 +79,62 @@ export default {
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-.editor {
-  display: grid;
-  grid-template-rows: repeat(2, auto);
+.commentEditor {
+  display: flex;
+  flex-direction: column;
+  margin: 4.8rem 0 0 0;
 
   textarea {
-    background: var(--formBg);
-    color: var(--primary);
+    background: #ededed;
+    color: var(--input_text);
     font-size: 1.4rem;
     border: 0;
     border-radius: 1.8rem;
     padding: 2.4rem;
     resize: vertical;
     margin: 0 0 2.4rem;
+    min-height: 12.8rem;
 
     &::placeholder {
-      color: var(--primary);
+      color: var(--input_text);
     }
   }
 
-  .btns {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
+  .wrap_btns {
+    display: flex;
+    align-items: center;
 
     .toggle {
-      grid-column: 1 / 2;
-      display: grid;
-      grid-template-columns: repeat(2, auto);
+      flex-basis: 50%;
+      display: flex;
       align-items: center;
 
-      button {
-        grid-column: 1 / 2;
+      i {
         font-size: 4.8rem;
-        transition: all 300ms linear;
+        margin: 0 0.8rem 0 0;
       }
 
       span {
-        grid-column: 2 / 3;
         font-size: 1.2rem;
         font-weight: 500;
-        margin-left: 0.8rem;
+        letter-spacing: 0.1rem;
       }
     }
 
-    button.submit {
-      grid-column: 3 / 4;
-      width: 10.8rem;
-      height: 4rem;
-      place-content: center;
-      background: var(--point);
-      color: #fff;
-      font-weight: 500;
-      font-size: 1.2rem;
-      border-radius: 2rem;
+    .submit_btn {
+      display: flex;
+      flex-basis: 50%;
+      justify-content: flex-end;
+
+      .btn_submit {
+        width: 10.8rem;
+        height: 4rem;
+        background: var(--primary-dark);
+        border-radius: 2rem;
+        color: #fff;
+        font-weight: 500;
+        font-size: 1.2rem;
+      }
     }
   }
 }

@@ -64,6 +64,7 @@ export default defineComponent({
   --list_title: #aeaeae;
   --list_summary: #bbbbbb;
   --list_info: #d0d0d0;
+  --list_info-dark: #bbbbbb;
   --input_text: #bababa;
   --btn_border: #e5e5e5;
   --btn_text: #b7b7b7;

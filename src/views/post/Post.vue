@@ -1,51 +1,54 @@
 <template>
-  <div class="post-container">
-    <!-- Post body -->
+  <div class="wrap_post_comment">
     <div class="post">
-      <!-- Post contents -->
-      <div class="contents">
-        <h2>{{ post.title }} - {{ post.postNum }}</h2>
+      <div class="wrap_header">
+        <div class="wrap_left">
+          <div class="title">
+            <h2>{{ post.title }}</h2>
+            <span class="lock_ico"><i class="material-icons"> lock </i></span>
+          </div>
+
+          <div class="wrap_info">
+            <span class="nickname" v-if="post.author">{{ post.author.nickname }}</span>
+            <span class="createdAt" v-text="dayjs(post.createdAt).format('YYYY년 M월 D일')"></span>
+            <span class="category">{{ post.category }}</span>
+          </div>
+        </div>
+        <div class="wrap_right">
+          <div class="toggle">
+            <button class="btn_toggle"><i class="material-icons">more_horiz</i></button>
+            <ul class="toggle_items">
+              <li v-if="post.author.nickname === user.nickname"><router-link :to="{ name: 'editor', params: { id: post._id } }">수정</router-link></li>
+              <li v-if="post.author.nickname === user.nickname" @click="onDelete">삭제</li>
+              <li @click="onCopyLink">링크 복사</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
         <markdown class="markdown" :source="post.content" :plugins="plugins" :breaks="true" :xhtmlOut="true" :typographer="true" />
       </div>
 
-      <!-- Post infomations -->
-      <div class="info">
-        <span v-if="post.author">
-          <div class="profile"></div>
-          <router-link :to="{ name: 'profile', params: { nickname: post.author.nickname } }">{{ post.author.nickname }}</router-link>
-        </span>
-        <span></span>
-        <span v-text="dayjs(post.createdAt).format('YYYY년 M월 D일')"></span>
-        <span></span>
-        <span>
-          <i class="material-icons" :style="[isLike ? { color: 'var(--likeActive)' } : { color: 'var(--like)' }]" @click="onUpdateDebounce">favorite</i>
-          {{ post.likeCount }}
-        </span>
-        <span v-if="!post.isPublic"></span>
-        <span v-if="!post.isPublic"><i class="material-icons"> lock </i></span>
-        <div class="option">
-          <button @click="toggleOptionBtn"><i class="material-icons">more_horiz</i></button>
-          <ul v-if="!isHide">
-            <li v-if="post.author.nickname === user.nickname"><router-link :to="{ name: 'editor', params: { id: post._id } }">수정</router-link></li>
-            <li v-if="post.author.nickname === user.nickname" @click="onDelete">삭제</li>
-            <li @click="onCopyLink">링크 복사</li>
+      <div class="wrap_like">
+        <div class="liked_count">
+          <span class="like_ico"><i class="material-icons">favorite</i></span>
+          <span>{{ post.likeCount }}</span>
+        </div>
+        <div class="liked_user">
+          <ul>
+            <li v-for="like in post.likes" :key="like">{{ like }}</li>
           </ul>
         </div>
       </div>
 
-      <!-- Pagenation
-      <div class="page">
-        <Pagenation />
-      </div>
-       -->
+      <div class="wrap_author_profile"></div>
     </div>
 
-    <!-- Comments body -->
     <div class="comment">
       <CommentEditor :curRouteParams="params" :pid="post._id" />
 
-      <!-- Comment contents -->
-      <div class="comments" v-if="comments.length" ref="commentsEl">
+      <div class="comments" v-if="comments.length" ref="commentsEl" style="margin-top: 8.6rem">
         <h2>댓글 {{ comments.length }}개</h2>
         <ul v-for="comment in comments" :key="comment._id">
           <CommentItem :comment="comment" :curRouteParams="params" :pid="post._id" :postAuthor="post.author.nickname" />
@@ -57,7 +60,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onBeforeMount, onBeforeUpdate } from 'vue'
+import { defineComponent, ref, computed, onBeforeMount, onBeforeUpdate, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { debounce } from '../../common/util'
@@ -148,6 +151,10 @@ export default defineComponent({
       document.title = post.value.title
     })
 
+    onMounted(() => {
+      console.log(post.value)
+    })
+
     return {
       dayjs,
       params,
@@ -170,223 +177,119 @@ export default defineComponent({
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-.post-container {
-  display: grid;
-  grid-template-rows: repeat(2, auto);
-
+.wrap_post_comment {
   .post {
-    display: grid;
-    grid-template-rows: repeat(5, auto);
-    color: var(--primary);
-
-    .contents {
-      grid-row: 1 / 2;
-
-      h2 {
-        font-size: 2.4rem;
-        letter-spacing: normal;
-      }
-
-      .markdown {
-        margin: 4.8rem 0;
-        line-height: 2.8rem;
-        color: var(--secondary);
-        letter-spacing: normal;
-      }
-    }
-
-    .info {
-      grid-row: 2 / 3;
-      display: grid;
-      grid-template-columns: auto auto auto auto auto auto auto 1fr;
-      align-items: center;
-      gap: 0 1.6rem;
-      color: var(--sub);
-      margin-bottom: 4.8rem;
-
-      span:nth-child(1) {
-        grid-column: 1 / 2;
-        font-size: 1.4rem;
+    .wrap_header {
+      display: flex;
+      .wrap_left {
         display: flex;
-        align-items: center;
-        font-weight: 700;
+        flex-direction: column;
+        flex-basis: 80%;
+        padding: 0 0 0 2.4rem;
+        border-left: 1px solid var(--primary-dark);
 
-        a {
-          color: var(--sub);
-        }
+        .title {
+          display: flex;
+          flex-direction: row;
+          margin-bottom: 2.4rem;
+          align-items: center;
 
-        .profile {
-          background: #fff;
-          border-radius: 50%;
-          width: 3.2rem;
-          height: 3.2rem;
-          margin-right: 1.4rem;
-          background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU');
-          background-repeat: no-repeat;
-          background-size: cover;
-          background-position: center;
-        }
-      }
-
-      span:nth-child(2) {
-        grid-column: 2 / 3;
-        border-left: 0.1rem solid var(--line);
-        height: 1.2rem;
-      }
-
-      span:nth-child(3) {
-        grid-column: 3 / 4;
-        font-size: 1.4rem;
-      }
-
-      span:nth-child(4) {
-        grid-column: 4 / 5;
-        border-left: 0.1rem solid var(--line);
-        height: 1.2rem;
-      }
-
-      span:nth-child(5) {
-        grid-column: 5 / 6;
-        display: grid;
-        grid-template-columns: repeat(2, auto);
-        align-items: center;
-        font-size: 1.4rem;
-
-        i {
-          margin-right: 0.8rem !important;
-          cursor: pointer;
-          transition: color 0.5s linear;
-          color: var(--like);
-          font-size: 1.8rem;
-        }
-      }
-
-      span:nth-child(6) {
-        grid-column: 6 / 7;
-        border-left: 0.1rem solid var(--line);
-        height: 1.2rem;
-      }
-
-      span:nth-child(7) {
-        grid-column: 7 / 8;
-        display: grid;
-        align-items: center;
-
-        i {
-          font-size: 1.8rem;
-          color: var(--sub);
-        }
-      }
-
-      div.option {
-        grid-column: 8 / 9;
-        justify-self: end;
-        position: relative;
-
-        button {
-          display: grid;
-          place-content: center;
-          color: var(--primary);
-
-          i {
-            margin: 0;
+          h2 {
+            font-size: 2rem;
+            color: var(--list_title);
           }
-        }
 
-        ul {
-          position: absolute;
-          right: 0;
-          top: 3.2rem;
-          z-index: 10;
-          padding: 2.4rem;
-          background: #fff;
-          border: 0;
-          box-shadow: 0 0 2.4rem 0.3rem rgba(0, 0, 0, 0.15);
-          width: 10rem;
+          .lock_ico {
+            margin: 0 0 0 1.6rem;
 
-          li {
-            border: 0;
-            margin: 0;
-            color: var(--primary);
-            font-size: 1.2rem;
-            font-weight: 500;
-            display: grid;
-            justify-content: center;
-            cursor: pointer;
-
-            a {
-              color: var(--primary);
+            i {
+              font-size: 2.4rem;
+              color: var(--list_info);
             }
           }
+        }
 
-          li:nth-child(2) {
-            margin: 1.6rem 0;
+        .wrap_info {
+          display: flex;
+
+          span {
+            display: flex;
+            align-items: center;
+            position: relative;
+            font-size: 1.2rem;
+            color: var(--list_info-dark);
+            margin: 0 2.4rem 0 0;
+            padding: 0 0 0 2.4rem;
+
+            &::before {
+              content: '';
+              position: absolute;
+              left: 0;
+              width: 0.01rem;
+              height: 1.2rem;
+              background-color: var(--border-dark);
+            }
+
+            &:first-child {
+              padding: 0;
+
+              &::before {
+                display: none;
+              }
+            }
+          }
+        }
+      }
+
+      .wrap_right {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 20%;
+        align-items: flex-end;
+        justify-content: center;
+        .toggle {
+          .btn_toggle > i {
+            font-size: 2.4rem;
+            color: var(--list_info);
+          }
+
+          ul {
+            display: none;
           }
         }
       }
     }
 
-    .tags {
-      grid-row: 3 / 4;
-      margin-top: 2.4rem;
-
-      ul {
-        display: inline-grid;
-        margin-right: 0.8rem;
-        padding: 0.3rem 1.2rem 0.5rem;
-        border: 1px solid #dadada;
-        color: var(--point);
-        font-size: 1.2rem;
-        border-radius: 2.8rem;
-        list-style: none;
-      }
-    }
-
-    .page {
-      grid-row: 4 / 5;
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      border-top: 1px solid var(--line);
-      margin: 4.8rem 0;
-      padding: 4.8rem 0 0;
-      color: var(--primary);
+    .content {
+      margin: 6.4rem 0;
       font-size: 1.4rem;
-      font-weight: 500;
-
-      button {
-        display: grid;
-        grid-template-columns: repeat(2, auto);
-        align-items: center;
-      }
-
-      button:nth-child(1) {
-        grid-column: 1 / 2;
-      }
-
-      button:nth-child(2) {
-        grid-column: 2 / 3;
-        justify-self: end;
-
-        i {
-          margin: 0 0 0 1.6rem;
-        }
-      }
+      color: var(--input_text);
+      line-height: 2.2rem;
     }
-  }
 
-  .comment {
-    display: grid;
-    grid-template-rows: repeat(2, auto);
-    margin-bottom: 8rem;
+    .wrap_like {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
 
-    .comments {
-      color: var(--primary);
-      margin: 6.4rem 0 0;
+      .liked_count {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 0 2.4rem 0;
 
-      h2 {
-        font-size: 1.6rem;
-        padding: 0 0 4rem;
-        font-weight: 500;
+        span {
+          color: var(--list_info);
+          font-size: 2rem;
+        }
+
+        .like_ico {
+          margin-right: 0.8rem;
+
+          i {
+            font-size: 3.2rem;
+          }
+        }
       }
     }
   }

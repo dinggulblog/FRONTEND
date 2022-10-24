@@ -38,23 +38,21 @@
 
       width: calc(100% - 4.8rem);
 
-      .wrap_title_is-private {
+      .title {
         display: flex;
         align-items: center;
         margin: 0 0 2.4rem;
 
-        .title {
-          a {
-            font-size: 2rem;
-            color: var(--list_title);
-          }
+        a {
+          font-size: 2rem;
+          color: var(--list_title);
+        }
 
-          .info_ico {
-            margin: 0 0 0 1.2rem;
-            i {
-              font-size: 2rem;
-              color: var(--list_info);
-            }
+        .info_ico {
+          margin: 0 0 0 1.2rem;
+          i {
+            font-size: 2rem;
+            color: var(--list_info);
           }
         }
       }

@@ -6,10 +6,8 @@
     </div>
     <div class="wrap_contents">
       <div class="contents">
-        <div class="wrap_title_is-private">
-          <div class="title">
-            <slot name="title"></slot>
-          </div>
+        <div class="title">
+          <slot name="title"></slot>
         </div>
         <div class="summary">
           <slot name="summary"></slot>
