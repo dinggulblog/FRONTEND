@@ -1,7 +1,7 @@
 <template>
-  <template v-if="comment.isActive">
-    <Comment>
-      <template #is-active>
+  <Comment>
+    <template #item>
+      <li v-if="comment.isActive" class="comment_item">
         <div class="wrap_header">
           <div class="wrap_left">
             <InfoSlot :type="'comment'" :comment="comment"></InfoSlot>
@@ -16,29 +16,17 @@
         <div class="content">
           <p>{{ comment.content }}</p>
         </div>
-      </template>
-    </Comment>
-  </template>
+      </li>
 
-  <template v-else>
-    <Comment>
-      <template #not-is-active>
-        <div>
-          <p>해당 댓글은 삭제된 댓글입니다.</p>
-        </div>
-      </template>
-    </Comment>
-  </template>
+      <li v-else>
+        <p>해당 댓글은 삭제된 댓글입니다.</p>
+      </li>
 
-  <template v-if="comment.childComments">
-    <Comment>
-      <template #child>
-        <ul style="margin-left: 8rem">
-          <CommentSlot v-for="child in comment.childComments" :key="child._id" :comment="child" :curRouteParams="curRouteParams" :pid="pid" />
-        </ul>
-      </template>
-    </Comment>
-  </template>
+      <ul style="margin-left: 8rem" v-if="comment.childComments">
+        <CommentSlot v-for="child in comment.childComments" :key="child._id" :comment="child" :curRouteParams="curRouteParams" :pid="pid" />
+      </ul>
+    </template>
+  </Comment>
 </template>
 
 <script>
@@ -71,4 +59,8 @@ export default {
 }
 </script>
 
-<style lang="scss" rel="stylesheet/scss"></style>
+<style lang="scss" rel="stylesheet/scss">
+.comment_item {
+  margin-top: 4rem;
+}
+</style>
