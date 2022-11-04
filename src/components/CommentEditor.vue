@@ -3,12 +3,16 @@
     <textarea v-model="content" ref="contentEl" :placeholder="[curRouteParams.title === 'guest' ? '방명록을 작성해보세요' : placeholderText]" @focus="placeholder = ''" @blur="placeholder = [curRouteParams.title === 'guest' ? '방명록을 작성해보세요' : placeholderText]"></textarea>
 
     <div class="wrap_btns">
-      <div class="toggle">
-        <i class="material-icons" v-text="isPublic ? 'toggle_off' : 'toggle_on'" @click="onIsPublic()"></i>
-        <span v-text="isPublic ? 'Public' : 'Secret'" :style="[isPublic ? { color: '#B5B5B5' } : { color: 'var(--point)' }]"></span>
+      <div class="wrap_toggle">
+        <div class="toggle">
+          <i class="material-icons" v-text="isPublic ? 'toggle_off' : 'toggle_on'" :style="[isPublic ? { color: 'var(--list_info-light)' } : { color: 'var(--secondary)' }]" @click="onIsPublic()"></i>
+          <span v-text="isPublic ? 'Public' : 'Secret'" :style="[isPublic ? { color: 'var(--list_info-dark)' } : { color: 'var(--secondary)' }]"></span>
+        </div>
       </div>
-      <div class="submit_btn">
-        <button class="btn_submit" @click="onSubmit()">Comment</button>
+      <div class="wrap_submit">
+        <div class="submit">
+          <button class="btn_submit" @click="onSubmit()">Comment</button>
+        </div>
       </div>
     </div>
   </div>
@@ -85,12 +89,11 @@ export default {
   margin: 4.8rem 0 0 0;
 
   textarea {
-    background: #ededed;
     color: var(--input_text);
     font-size: 1.4rem;
-    border: 0;
-    border-radius: 1.8rem;
-    padding: 2.4rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.8rem;
+    padding: 2rem;
     resize: vertical;
     margin: 0 0 2.4rem;
     min-height: 12.8rem;
@@ -104,24 +107,29 @@ export default {
     display: flex;
     align-items: center;
 
-    .toggle {
+    .wrap_toggle {
       flex-basis: 50%;
-      display: flex;
-      align-items: center;
 
-      i {
-        font-size: 4.8rem;
-        margin: 0 0.8rem 0 0;
-      }
+      .toggle {
+        display: flex;
+        align-items: center;
+        user-select: none;
+        cursor: pointer;
 
-      span {
-        font-size: 1.2rem;
-        font-weight: 500;
-        letter-spacing: 0.1rem;
+        i {
+          font-size: 4.8rem;
+        }
+
+        span {
+          margin: 0 0 0 0.8rem;
+          font-size: 1.2rem;
+          font-weight: 500;
+          letter-spacing: 0.1rem;
+        }
       }
     }
 
-    .submit_btn {
+    .wrap_submit {
       display: flex;
       flex-basis: 50%;
       justify-content: flex-end;

@@ -12,7 +12,9 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-unused-vars': 0,
     'no-mixed-spaces-and-tabs': 0,
-    'vue/no-deprecated-slot-attribute': 'off',
+    'vetur.validation.template': false,
+    'vetur.validation.script': false,
+    'vetur.validation.style': false,
     /*
     indent: ['off'],
     semi: ['off'],

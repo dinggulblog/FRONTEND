@@ -1,6 +1,5 @@
 <template>
   <template v-if="type === 'list'">
-    <!-- LIST TYPE -->
     <List>
       <template #thumbnail>
         <img :src="[post.thumbnail ? `https://dinggul.me/` + post.thumbnail : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU']" />
@@ -106,7 +105,7 @@
 </template>
 
 <script>
-import { onMounted, ref, watch, watchEffect } from 'vue'
+import { onMounted, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import List from './List.vue'
 import Card from './Card.vue'
@@ -115,7 +114,7 @@ import markdownText from 'markdown-to-text'
 import dayjs from 'dayjs'
 
 export default {
-  name: 'Slot',
+  name: 'PostSlot',
   components: {
     List,
     Card,

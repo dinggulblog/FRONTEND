@@ -1,5 +1,5 @@
 <template>
-  <div id="slide">
+  <li class="slide_item">
     <div class="wrap_category_page-count">
       <div class="wrap_left">
         <div class="category">
@@ -53,7 +53,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </li>
 </template>
 
 <script>

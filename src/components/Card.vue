@@ -1,5 +1,5 @@
 <template>
-  <div id="card">
+  <li class="card_item">
     <div class="thumbnail">
       <slot name="thumbnail"></slot>
     </div>
@@ -31,7 +31,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </li>
 </template>
 
 <script>

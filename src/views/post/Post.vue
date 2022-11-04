@@ -3,13 +3,15 @@
     <div class="post">
       <div class="wrap_header">
         <div class="wrap_left">
-          <div class="title">
-            <h2>{{ post.title }}</h2>
-            <span class="lock_ico"><i class="material-icons"> lock </i></span>
+          <div class="wrap_title">
+            <div class="title">
+              <h2>{{ post.title }}</h2>
+              <span class="lock_ico"><i class="material-icons"> lock </i></span>
+            </div>
           </div>
 
           <div class="wrap_info">
-            <span class="nickname" v-if="post.author">{{ post.author.nickname }}</span>
+            <span class="nickname">{{ post.author?.nickname }}</span>
             <span class="createdAt" v-text="dayjs(post.createdAt).format('YYYY년 M월 D일')"></span>
             <span class="category">{{ post.category }}</span>
           </div>
@@ -18,8 +20,8 @@
           <div class="toggle">
             <button class="btn_toggle"><i class="material-icons">more_horiz</i></button>
             <ul class="toggle_items">
-              <li v-if="post.author.nickname === user.nickname"><router-link :to="{ name: 'editor', params: { id: post._id } }">수정</router-link></li>
-              <li v-if="post.author.nickname === user.nickname" @click="onDelete">삭제</li>
+              <li v-if="post.author?.nickname === user.nickname"><router-link :to="{ name: 'editor', params: { id: post._id } }">수정</router-link></li>
+              <li v-if="post.author?.nickname === user.nickname" @click="onDelete">삭제</li>
               <li @click="onCopyLink">링크 복사</li>
             </ul>
           </div>
@@ -42,16 +44,16 @@
         </div>
       </div>
 
-      <div class="wrap_author_profile"></div>
+      <div class="wrap_profile"></div>
     </div>
 
     <div class="comment">
       <CommentEditor :curRouteParams="params" :pid="post._id" />
 
-      <div class="comments" v-if="comments.length" ref="commentsEl" style="margin-top: 8.6rem">
+      <div class="comments" v-if="comments.length" ref="commentsEl">
         <h2>댓글 {{ comments.length }}개</h2>
-        <ul v-for="comment in comments" :key="comment._id">
-          <CommentItem :comment="comment" :curRouteParams="params" :pid="post._id" :postAuthor="post.author.nickname" />
+        <ul>
+          <CommentSlot v-for="comment in comments" :key="comment._id" :comment="comment" :curRouteParams="params" :pid="post._id" />
         </ul>
       </div>
     </div>
@@ -66,7 +68,7 @@ import { useStore } from 'vuex'
 import { debounce } from '../../common/util'
 import dayjs from 'dayjs'
 import CommentEditor from '../../components/CommentEditor.vue'
-import CommentItem from '../../components/CommentItem.vue'
+import CommentSlot from '../../components/CommentSlot.vue'
 import Dialog from '../../components/Dialog.vue'
 import Markdown from 'vue3-markdown-it'
 import MarkdownEmoji from 'markdown-it-emoji'
@@ -77,7 +79,7 @@ export default defineComponent({
     Dialog,
     Markdown,
     CommentEditor,
-    CommentItem,
+    CommentSlot,
   },
   setup() {
     const { state, getters, dispatch } = useStore()
@@ -148,11 +150,11 @@ export default defineComponent({
     })
 
     onBeforeUpdate(() => {
-      document.title = post.value.title
+      document.title = post.value.title ?? 'Post'
     })
 
     onMounted(() => {
-      console.log(post.value)
+      console.log(comments.value)
     })
 
     return {
@@ -188,23 +190,24 @@ export default defineComponent({
         padding: 0 0 0 2.4rem;
         border-left: 1px solid var(--primary-dark);
 
-        .title {
-          display: flex;
-          flex-direction: row;
+        .wrap_title {
           margin-bottom: 2.4rem;
-          align-items: center;
+          .title {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            h2 {
+              font-size: 2rem;
+              color: var(--list_title);
+            }
 
-          h2 {
-            font-size: 2rem;
-            color: var(--list_title);
-          }
+            .lock_ico {
+              margin: 0 0 0 1.6rem;
 
-          .lock_ico {
-            margin: 0 0 0 1.6rem;
-
-            i {
-              font-size: 2.4rem;
-              color: var(--list_info);
+              i {
+                font-size: 2.4rem;
+                color: var(--list_info);
+              }
             }
           }
         }
@@ -216,7 +219,7 @@ export default defineComponent({
             display: flex;
             align-items: center;
             position: relative;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: var(--list_info-dark);
             margin: 0 2.4rem 0 0;
             padding: 0 0 0 2.4rem;
@@ -280,16 +283,30 @@ export default defineComponent({
 
         span {
           color: var(--list_info);
-          font-size: 2rem;
+          font-size: 1.6rem;
         }
 
         .like_ico {
           margin-right: 0.8rem;
+          cursor: pointer;
 
           i {
-            font-size: 3.2rem;
+            font-size: 2.8rem;
+            color: var(--list_info-light);
           }
         }
+      }
+    }
+  }
+
+  .comment {
+    .comments {
+      margin: 8.6rem 0 0;
+
+      h2 {
+        color: var(--list_info-dark);
+        font-weight: 400;
+        font-size: 1.6rem;
       }
     }
   }

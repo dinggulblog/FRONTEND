@@ -1,5 +1,5 @@
 <template>
-  <div id="list">
+  <li class="list_item">
     <div class="num">
       <slot name="num"></slot>
       <div class="num_border"></div>
@@ -29,12 +29,12 @@
         <slot name="thumbnail"></slot>
       </div>
     </div>
-  </div>
+  </li>
 </template>
 
 <script>
 export default {
-  name: 'List_',
+  name: 'List',
 }
 </script>
 

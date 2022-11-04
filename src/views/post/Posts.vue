@@ -5,9 +5,9 @@
 
     <!-- List contents -->
     <div v-if="posts.length">
-      <ul :class="states.type">
+      <ul :id="states.type">
         <template v-for="post in posts" :key="post._id">
-          <Slot :type="states.type" :title="states.title" :subject="states.subject" :post="post" :isLike="[...post.likes].includes(user.id)"></Slot>
+          <PostSlot :type="states.type" :title="states.title" :subject="states.subject" :post="post" :isLike="[...post.likes].includes(user.id)"></PostSlot>
         </template>
       </ul>
     </div>
@@ -23,14 +23,14 @@ import { ref, reactive, computed, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import Toolbar from '../../components/Toolbar.vue'
-import Slot from '../../components/Slot.vue'
+import PostSlot from '../../components/PostSlot.vue'
 import Pagenation2 from '../../components/Pagenation2.vue'
 
 export default {
   name: 'posts',
   components: {
     Toolbar,
-    Slot,
+    PostSlot,
     Pagenation2,
   },
   setup() {
@@ -92,30 +92,30 @@ export default {
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-.list {
+#list {
   display: flex;
   flex-direction: column;
 }
 
-.card {
+#card {
   display: flex;
   width: 100%;
   flex-wrap: wrap;
 
   @include tablet_landscape {
-    & #card:nth-child(3n + 0) {
+    & .card_item:nth-child(3n + 0) {
       margin-right: 0;
     }
   }
 
   @include desktop {
-    & #card:nth-child(3n + 0) {
+    & .card_item:nth-child(3n + 0) {
       margin-right: 0;
     }
   }
 
   @include mobile_tablet {
-    & #card:nth-child(2n + 0) {
+    & .card_item:nth-child(2n + 0) {
       margin-right: 0;
     }
   }

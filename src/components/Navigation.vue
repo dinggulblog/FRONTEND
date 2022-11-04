@@ -246,7 +246,7 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 1.6rem 0;
+        padding: 0.8rem 0;
         position: relative;
         z-index: 55;
 
@@ -258,6 +258,10 @@ export default {
           height: auto;
           padding: 0;
           background-color: transparent;
+        }
+
+        a {
+          padding: 0.8rem;
         }
 
         a.router-link-active {
@@ -380,7 +384,5 @@ export default {
       }
     }
   }
-
-  /* only mobile menu - user */
 }
 </style>

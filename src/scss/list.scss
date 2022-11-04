@@ -1,4 +1,4 @@
-#list {
+.list_item {
   margin: 0 0 8.4rem;
 
   .num {
@@ -67,7 +67,7 @@
           -webkit-line-clamp: 2;
           overflow: hidden;
           line-height: 2rem;
-          font-size: 1.3rem;
+          font-size: 1.4rem;
           color: var(--list_summary);
 
           @include mobile_all {

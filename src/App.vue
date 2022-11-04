@@ -61,11 +61,12 @@ export default defineComponent({
   --text-light: #a5a5a5;
   --text-dark: #333;
   --thumbnail: #e6e6e6;
-  --list_title: #aeaeae;
-  --list_summary: #bbbbbb;
+  --list_title: #a9a9a9;
+  --list_summary: #bababa;
   --list_info: #d0d0d0;
+  --list_info-light: #e0e0e0;
   --list_info-dark: #bbbbbb;
-  --input_text: #bababa;
+  --input_text: #b0b0b0;
   --btn_border: #e5e5e5;
   --btn_text: #b7b7b7;
   --border-light: #efefef;
@@ -198,6 +199,7 @@ button {
   margin: 4.8rem 0;
   font-size: 1.2rem;
   color: var(--text-light);
+  letter-spacing: 0.1rem;
 }
 
 .m-createBtn {
