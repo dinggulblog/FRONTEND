@@ -57,6 +57,8 @@ export default {
     const menus = computed(() => state.menu.groupedMenus)
     const user = computed(() => state.auth.user)
 
+    console.log('메뉴', state.menu)
+
     const onLogout = async () => await dispatch('auth/logout')
 
     const onChangeDisply = (param) => {

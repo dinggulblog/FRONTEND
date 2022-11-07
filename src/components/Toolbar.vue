@@ -1,7 +1,6 @@
 <template>
   <div class="toolbar">
     <div class="wrap_breadcrumb_sort_type">
-
       <!-- Breadcrumb -->
       <div class="breadcrumb">
         <ul>
@@ -27,27 +26,25 @@
           </svg>
         </button>
       </div>
-
     </div>
 
     <div class="categories">
-      <ul>
-        <li class="elem_category">전체</li>
-        <li v-for="category in categories" :key="category" class="elem_category">{{ category }}</li>
+      <ul class="elem_category">
+        <li>전체</li>
+        <li v-for="category in categories" :key="category">{{ category }}</li>
       </ul>
     </div>
   </div>
 </template>
 
 <script>
-import { onMounted, onUpdated } from 'vue'
+import { onMounted, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 
 export default {
   props: {
     type: {
       type: String,
-      default: 'list',
     },
     categories: {
       type: Array,
@@ -61,32 +58,41 @@ export default {
     ]
 
     const changeView = (event) => {
-      emit('updateType', event.currentTarget?.firstChild.classList[0] || 'list')
+      emit('updateType', event.currentTarget.firstChild.classList[0])
       document.querySelectorAll('.btn_type').forEach((elem) => elem?.firstChild.classList.remove('on'))
       event.target?.classList.add('on')
     }
 
     const changeCategory = (event) => {
-      emit('updateCategory', event.currentTarget?.innerText)
-      document.querySelectorAll('.elem_category').forEach((elem) => elem?.classList.remove('on'))
+      emit('updateCategory', event.target.innerText)
+      for (const item of document.querySelector('.elem_category').children) {
+        item.classList.remove('on')
+      }
       event.target?.classList.add('on')
     }
 
-    onMounted(() => {
+    const addChangeEvent = () => {
+      console.log(props.type)
       document.querySelectorAll('.btn_type').forEach((elem) => {
-        if (elem.firstChild.classList.value === props.type) elem.firstChild.classList.add('on')
+        elem.firstChild.classList.value !== props.type ? elem?.firstChild.classList.remove('on') : elem.firstChild.classList.add('on')
+        elem.addEventListener('click', changeView)
       })
-      document.querySelectorAll('.btn_type').forEach((elem) => elem.addEventListener('click', changeView))
-      document.querySelectorAll('.elem_category').forEach((elem) => elem.addEventListener('click', changeCategory))
+      document.querySelectorAll('.elem_category').forEach((elem) => {
+        elem.classList.remove('on')
+        elem.firstChild.classList.add('on')
+        elem.addEventListener('click', changeCategory)
+      })
+    }
+
+    onMounted(() => {
+      addChangeEvent()
     })
 
-    onUpdated(() => {
-      document.querySelectorAll('.btn_type').forEach((elem) => {
-        if (elem.firstChild.classList.value === props.type) elem.firstChild.classList.add('on')
-      })
-      document.querySelectorAll('.btn_type').forEach((elem) => elem.addEventListener('click', changeView))
-      document.querySelectorAll('.elem_category').forEach((elem) => elem.addEventListener('click', changeCategory))
-    })
+    watch(
+      () => route.params,
+      () => addChangeEvent(),
+      { immediate: true }
+    )
 
     return { route, views }
   },

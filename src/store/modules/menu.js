@@ -4,12 +4,11 @@ const state = () => ({
   menus: [],
   groupedMenus: {},
   currentMenus: [],
-  currentCategories: []
+  currentCategories: [],
+  currentType: '',
 })
 
-const getters = {
-
-}
+const getters = {}
 
 const actions = {
   async getMenus({ commit }) {
@@ -38,17 +37,25 @@ const mutations = {
     }, {})
   },
 
-  SET_CURRENT_MENUS(state, { main, sub }) {
-    state.currentMenus = !main
-      ? state.menus
-      : sub
-      ? state.groupedMenus[main].filter(subMenus => subMenus.sub === sub)
-      : state.groupedMenus[main]
+  SET_TYPE(state, type) {
+    state.currentType = type
   },
-  
+
+  SET_CURRENT_MENUS(state, { main, sub }) {
+    state.currentMenus = !main ? state.menus : sub ? state.groupedMenus[main].filter((subMenus) => subMenus.sub === sub) : state.groupedMenus[main]
+  },
+
   SET_CURRENT_CATEGORIES(state) {
     state.currentCategories = [...new Set(state.currentMenus.map((menu) => menu?.categories).flat())]
-  }
+  },
+
+  SET_CURRENT_TYPE(state) {
+    if (state.currentMenus.length === 1) {
+      state.currentType = [...state.currentMenus].shift()?.type
+    } else {
+      state.currentType = 'list'
+    }
+  },
 }
 
 export default {

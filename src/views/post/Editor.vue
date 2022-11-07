@@ -487,7 +487,6 @@ export default defineComponent({
       width: 10.8rem;
       height: 4rem;
       background: var(--point);
-      color: #fff;
       font-weight: 500;
       font-size: 1.2rem;
       border-radius: 2rem;
@@ -513,7 +512,6 @@ export default defineComponent({
       width: 10.8rem;
       height: 4rem;
       background: var(--point);
-      color: #fff;
       font-weight: 500;
       font-size: 1.2rem;
       margin-right: 2rem;

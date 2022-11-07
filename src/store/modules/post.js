@@ -8,7 +8,6 @@ const state = () => ({
   posts: [],
   likes: [],
   likeCount: 0,
-  type: 'list',
   category: '전체',
   page: 1,
   limit: 6,
@@ -29,7 +28,7 @@ const actions = {
       commit('SET_POST', post)
       commit('SET_POST_LIKES', { likes, likeCount })
       commit('comment/SET_COMMENTS', comments, { root: true })
-      
+
       return post
     } catch (err) {
       alert(err.response.data?.message)
@@ -93,7 +92,7 @@ const actions = {
       const { likes, likeCount } = data.data
       commit('SET_POST_LIKES', { likes, likeCount })
     } catch (err) {
-      alert(err.response.data?.message) 
+      alert(err.response.data?.message)
     }
   },
 
@@ -112,8 +111,8 @@ const actions = {
 
   /**
    * Delete a file from the post
-   * @param {String} postId 
-   * @param {String} imageId 
+   * @param {String} postId
+   * @param {String} imageId
    */
   async deleteFile({ commit }, { postId, imageId }) {
     try {
@@ -152,17 +151,13 @@ const mutations = {
     state.likeCount = likeCount
   },
 
-  SET_TYPE(state, type) {
-    state.type = type
-  },
-
   SET_PAGE(state, page) {
     state.page = page
   },
 
   SET_CATEGORY(state, category) {
     state.category = category
-  }
+  },
 }
 
 export default {

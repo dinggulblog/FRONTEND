@@ -1,38 +1,25 @@
 <template>
   <div class="posts">
     <!-- Toolbar -->
-    <Toolbar
-      :type="type"
-      :categories="categories"
-      @updateType="onUpdateType"
-      @updateCategory="onUpdateCategory"
-    />
+    <Toolbar :type="type" :categories="categories" @updateType="onUpdateType" @updateCategory="onUpdateCategory" />
 
     <!-- Slot contents -->
     <div v-if="posts.length">
       <ul :id="type">
         <template v-for="post in posts" :key="post._id">
-          <PostSlot
-            :type="type"
-            :post="post"
-            :isLike="post.likes?.includes(user._id) ?? false">
-          </PostSlot>
+          <PostSlot :type="type" :post="post" :isLike="post.likes?.includes(user._id) ?? false"> </PostSlot>
         </template>
       </ul>
     </div>
     <div v-else class="empty"><span>There is no posts.</span></div>
 
     <!-- Pagenation -->
-    <Pagenation2
-      :page="page"
-      :maxPage="maxPage"
-      @updatePage="onUpdatePage"
-    />
+    <Pagenation2 :page="page" :maxPage="maxPage" @updatePage="onUpdatePage" />
   </div>
 </template>
 
 <script>
-import { computed, watchEffect } from 'vue'
+import { computed, onBeforeMount, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { mapState } from '../../common/vuex-helper.js'
@@ -51,36 +38,41 @@ export default {
     const route = useRoute()
 
     const { state, dispatch, commit } = useStore()
-    const { posts, type, category, page, limit, maxPage } = mapState('post')
+    const { posts, category, page, limit, maxPage } = mapState('post')
     const user = computed(() => state.auth.user)
     const menus = computed(() => state.menu.currentMenus)
     const categories = computed(() => state.menu.currentCategories)
-    
-    const onUpdateType = (type) => commit('post/SET_TYPE', type)
+    const type = computed(() => state.menu.currentType)
 
+    const onUpdateType = (type) => commit('menu/SET_TYPE', type)
     const onUpdatePage = (page) => commit('post/SET_PAGE', page)
-    
     const onUpdateCategory = (ctg) => commit('post/SET_CATEGORY', ctg)
 
-    watchEffect(
-      async () => {
-        window.scrollTo({ left: 0, top: 0, behavior: 'smooth' })
-        commit('menu/SET_CURRENT_MENUS', { main: route.params.main, sub: route.params.sub })
-        commit('menu/SET_CURRENT_CATEGORIES')
+    onBeforeMount(() => {
+      commit('menu/SET_CURRENT_MENUS', { main: route.params.main, sub: route.params.sub })
+      commit('menu/SET_CURRENT_CATEGORIES')
+      commit('menu/SET_CURRENT_TYPE')
+    })
 
-        const query = { 
-          page: page.value,
-          limit: limit.value,
-          menu: menus.value.map(menu => menu._id),
-          category: category.value === '전체' ? null : category.value
-        }
-        
-        await dispatch('post/getPosts', query)
-      },
-      { flush: 'post' }
-    )
+    watchEffect(async () => {
+      window.scrollTo({ left: 0, top: 0, behavior: 'smooth' })
+      commit('menu/SET_CURRENT_MENUS', { main: route.params.main, sub: route.params.sub })
+      commit('menu/SET_CURRENT_CATEGORIES')
+      commit('menu/SET_CURRENT_TYPE')
 
-    return { posts, type, page, maxPage, user, categories, onUpdateType, onUpdatePage, onUpdateCategory }
+      console.log('여기선잘되', type.value)
+
+      const query = {
+        page: page.value,
+        limit: limit.value,
+        menu: menus.value.map((menu) => menu._id),
+        category: category.value === '전체' ? null : category.value,
+      }
+
+      await dispatch('post/getPosts', query)
+    })
+
+    return { menus, posts, page, maxPage, user, categories, type, onUpdateType, onUpdatePage, onUpdateCategory }
   },
 }
 </script>
