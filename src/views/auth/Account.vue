@@ -3,7 +3,7 @@
     <Form @submit="onSubmit" :validation-schema="schema">
       <h2 v-text="isNew ? 'Create Account' : 'Modify Account'"></h2>
       <TextInput name="email" type="email" label="E-mail" :disabled="!isNew" :placeholder="user.email ? user.email : 'Email'" spellcheck="false" :success-message="user.email ? '이메일은 변경할 수 없습니다.' : '올바른 이메일 주소입니다.'" />
-      <TextInput v-show="!isNew" name="currentPassword" type="password" label="Current Password" placeholder="Current Password" />
+      <TextInput name="currentPassword" type="password" label="Current Password" placeholder="Current Password" v-show="!isNew" />
       <TextInput name="password" type="password" :label="isNew ? 'New Password' : 'Password'" :placeholder="isNew ? 'New Password' : 'Password'" />
       <TextInput name="passwordConfirmation" type="password" label="Confirm Password" placeholder="Type password again" :success-message="'비밀번호가 정상적으로 입력되었습니다'" />
       <TextInput name="nickname" type="text" label="Nickname" :placeholder="user.nickname ? user.nickname : 'Nickname'" spellcheck="false" :success-message="'사용할 수 있는 닉네임입니다.'" />
@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { ref, computed, onBeforeMount } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { Form } from 'vee-validate'
@@ -35,20 +35,13 @@ export default {
     const router = useRouter()
     const Dialog = ref(null)
 
-    onBeforeMount(async () => {
-      if (store.state.auth.user.nickname && !store.state.auth.user.email) {
-        const response = await store.dispatch('auth/getAccount')
-        if (!response.success) router.go(-1)
-      }
-    })
-
     const user = computed(() => store.state.auth.user)
     const isNew = computed(() => !router.currentRoute.value.meta.requiredAuth)
 
     const schema = Yup.object().shape({
       email: Yup.string()
         .required('이메일을 입력해 주세요.')
-        .default(user.value ? user.value.email : '')
+        .default(user.value?.email ?? '')
         .email(),
       currentPassword: Yup.string(),
       password: Yup.string()
@@ -60,11 +53,11 @@ export default {
         .oneOf([Yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
       nickname: Yup.string()
         .required('닉네임을 정해주세요.')
-        .default(user.value ? user.value.nickname : '')
+        .default(user.value?.nickname ?? '')
         .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
     })
 
-    async function onSubmit(values) {
+    const onSubmit = async (values) => {
       Object.keys(values).forEach((key) => {
         if (!values[key]) delete values[key]
       })
@@ -76,8 +69,7 @@ export default {
         delete values.password
       }
 
-      const response = await store.dispatch(`${isNew.value ? 'auth/createAccount' : 'auth/updateAccount'}`, values)
-      response.success ? router.push({ name: `${isNew.value ? 'home' : 'login'}` }) : alert(response.message)
+      await store.dispatch(`${isNew.value ? 'auth/createAccount' : 'auth/updateAccount'}`, values)
     }
 
     const accountDelete = async () => {
@@ -87,13 +79,7 @@ export default {
         okButton: 'Delete',
       })
       if (ok) {
-        const response = await store.dispatch('auth/deleteAccount')
-        if (response.success) {
-          alert('회원탈퇴가 완료되었습니다.')
-          router.push({ name: 'login' })
-        } else {
-          alert(response.message)
-        }
+        await store.dispatch('auth/deleteAccount')
       }
     }
 

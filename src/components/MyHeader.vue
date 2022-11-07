@@ -3,7 +3,9 @@
     <div class="bar">
       <div class="wrap_left">
         <button :class="isMobile ? 'btn_m-toggle' : 'btn_search'">
-          <i class="material-icons" @click="onChangeDisplay(isMobile ? 'onMobileBar' : 'onSearchForm')">{{ isMobile ? 'menu' : displayState.display === 'onSearchForm' ? 'close' : 'search' }}</i>
+          <i v-if="isMobile" class="material-icons" @click="onChangeDisply('gnb')">menu</i>
+          <i v-else-if="!isMobile && searchState" class="material-icons" @click="onChangeDisply('search')">close</i>
+          <i v-else class="material-icons" @click="onChangeDisply('search')">search</i>
         </button>
       </div>
 
@@ -12,7 +14,7 @@
       </div>
 
       <div class="wrap_right">
-        <div class="wrap_auth" v-if="!isMobile && user.email">
+        <div class="wrap_auth" v-if="!isMobile && user.nickname">
           <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
           <div class="auth dropdown">
             <span class="nickname">{{ user.nickname }} 님</span>
@@ -20,38 +22,36 @@
             <div class="auth_items dropdown_items">
               <ul>
                 <li><router-link :to="{ name: 'account' }">Account</router-link></li>
-                <!--
                 <li><router-link :to="{ name: 'profile', params: { nickname: user.nickname } }">Profile</router-link></li>
-                -->
                 <li><button @click="onLogout">Logout</button></li>
               </ul>
             </div>
           </div>
         </div>
 
-        <router-link :to="{ name: 'login' }" class="a_login" v-if="!isMobile && !user.email"><i class="material-icons">person</i></router-link>
+        <router-link :to="{ name: 'login' }" class="a_login" v-else-if="!isMobile && !isLogin"><i class="material-icons">person</i></router-link>
 
-        <button class="btn_search" v-if="isMobile" @click="onChangeDisplay('onSearchForm')">
-          <i class="material-icons">{{ displayState.display === 'onSearchForm' ? 'close' : 'search' }}</i>
+        <button class="btn_search" v-else @click="onChangeDisply('search')">
+          <i class="material-icons" v-if="searchState">close</i>
+          <i class="material-icons" v-else>search</i>
         </button>
       </div>
     </div>
   </div>
 
-  <div class="container_gnb" v-if="!isMobile || displayState.display === 'onMobileBar'" :style="[displayState.display === 'onMobileBar' || displayState.display === 'view' ? { display: 'flex' } : { display: 'none' }]">
+  <div class="container_gnb">
     <div class="gnb">
-      <Navigation @onChangeDisplay="onChangeDisplay" />
+      <Navigation @onChangeDisply="onChangeDisply" />
     </div>
   </div>
 
-  <div class="container_searchForm" v-if="displayState.display === 'onSearchForm'" :style="[displayState.display === 'onSearchForm' ? { display: 'flex' } : { display: 'none' }]">
+  <div class="container_searchForm">
     <SearchForm />
   </div>
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onBeforeMount, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import Navigation from '../components/Navigation.vue'
 import SearchForm from '../components/SearchForm.vue'
@@ -62,35 +62,63 @@ export default {
     SearchForm,
   },
   setup() {
-    const store = useStore()
-    const router = useRouter()
+    const { state, dispatch } = useStore()
+    const gnb = ref(null)
+    const searchForm = ref(null)
 
     const mediaQuery = window.matchMedia('only screen and (max-width: 1023px')
     const isMobile = ref(mediaQuery.matches)
-    const displayState = reactive({
-      display: 'view',
-    })
+    const gnbState = ref(false)
+    const searchState = ref(false)
 
-    onMounted(() => {
+    const isLogin = computed(() => state.auth.isLogin)
+    const user = computed(() => state.auth.user)
+
+    const onLogout = async () => await dispatch('auth/logout')
+
+    const onChangeDisply = (param) => {
+      if (param === 'gnb') {
+        if (searchState.value) {
+          searchState.value = !searchState.value
+          searchForm.value.style.display = searchState.value ? 'flex' : 'none'
+          gnbState.value = !gnbState.value
+          gnb.value.style.display = gnbState.value ? 'flex' : 'none'
+        } else {
+          gnbState.value = !gnbState.value
+          gnb.value.style.display = gnbState.value ? 'flex' : 'none'
+        }
+      } else {
+        if (gnbState.value) {
+          gnbState.value = !gnbState.value
+          gnb.value.style.display = gnbState.value ? 'flex' : 'none'
+          searchState.value = !searchState.value
+          searchForm.value.style.display = searchState.value ? 'flex' : 'none'
+        } else {
+          searchState.value = !searchState.value
+          searchForm.value.style.display = searchState.value ? 'flex' : 'none'
+        }
+      }
+    }
+
+    onBeforeMount(() => {
       mediaQuery.addEventListener('change', () => {
         isMobile.value = mediaQuery.matches
+        if (!isMobile.value) {
+          gnb.value.style.display = 'flex'
+        } else if (isMobile.value && gnbState.value) {
+          gnb.value.style.display = 'flex'
+        } else {
+          gnb.value.style.display = 'none'
+        }
       })
     })
 
-    const user = computed(() => store.state.auth.user)
-    const searchText = ref('')
+    onMounted(() => {
+      gnb.value = document.querySelector('.container_gnb')
+      searchForm.value = document.querySelector('.container_searchForm')
+    })
 
-    const onLogout = async () => {
-      const response = await store.dispatch('auth/logout')
-      response.success ? router.push({ name: 'home' }) : alert(response.message)
-    }
-
-    const onChangeDisplay = async (state) => {
-      displayState.display !== state ? (displayState.display = state) : (displayState.display = 'view')
-      console.log('ㅋ', displayState.display)
-    }
-
-    return { isMobile, displayState, user, searchText, onLogout, onChangeDisplay }
+    return { isMobile, searchState, isLogin, user, onLogout, onChangeDisply }
   },
 }
 </script>
@@ -267,6 +295,7 @@ export default {
 }
 
 .container_searchForm {
+  display: none;
   justify-content: center;
   position: absolute;
   top: 0;

@@ -1,4 +1,5 @@
 import axios from '../../services/axios'
+import router from '../../router'
 
 const state = () => ({
   user: {},
@@ -9,23 +10,23 @@ const state = () => ({
 const getters = {}
 
 const actions = {
-  // params: none
-  async refresh({ commit }) {
-    try {
-      const { data } = await axios.post(process.env.VUE_APP_API_URL + 'auth/refresh')
-      commit('SET_USER', data.data.accessToken)
-      return data
-    } catch (err) {
-      return err.response.data
-    }
-  },
-
   // param: Object (email, password)
   async login({ commit }, payload) {
     try {
-      const { data } = await axios.post(process.env.VUE_APP_API_URL + 'auth', payload)
-      commit('SET_USER', data.data.accessToken)
-      return await actions.getAccount({ commit })
+      const { data } = await axios.post('v1/auth', payload)
+      commit('SET_TOKEN', data.data.accessToken)
+      router.push({ name: 'home' })
+    } catch (err) {
+      alert(err.response.data?.message || '로그인에 실패하였습니다.')
+    }
+  },
+
+
+  // params: none
+  async refresh({ commit }) {
+    try {
+      const { data } = await axios.put('v1/auth')
+      commit('SET_TOKEN', data.data.accessToken)
     } catch (err) {
       return err.response.data
     }
@@ -34,31 +35,31 @@ const actions = {
   // params: none
   async logout({ commit }) {
     try {
-      const { data } = await axios.delete(process.env.VUE_APP_API_URL + 'auth')
-      return data
+      await axios.delete('v1/auth')
     } catch (err) {
       return err.response.data
     } finally {
       commit('UNSET_USER')
+      router.currentRoute.value.meta.requiredAuth ? router.push({ name: 'login' }) : router.go(0)
     }
   },
 
   // params: Object
   async createAccount({ commit }, payload) {
     try {
-      await axios.post(process.env.VUE_APP_API_URL + 'users/account', payload)
-      return await actions.login({ commit }, { email: payload.email, password: payload.password })
+      await axios.post('v1/users/account', payload)
+      await actions.login({ commit }, { email: payload.email, password: payload.password })
+      router.push({ name: 'home' })
     } catch (err) {
-      return err.response.data
+      alert(err.response.data?.message || '계정 생성에 실패하였습니다.') 
     }
   },
 
   // params: none
   async getAccount({ commit }) {
     try {
-      const { data } = await axios.get(process.env.VUE_APP_API_URL + 'users/account')
-      commit('SET_USER_INFO', data.data.user)
-      return data
+      const { data } = await axios.get('v1/users/account')
+      commit('SET_USER', data.data.user)
     } catch (err) {
       return err.response.data
     }
@@ -67,27 +68,27 @@ const actions = {
   // params: Object
   async updateAccount({ commit }, payload) {
     try {
-      await axios.put(process.env.VUE_APP_API_URL + 'users/account', payload)
-      return await actions.logout({ commit })
+      await axios.put('v1/users/account', payload)
+      await actions.logout({ commit })
     } catch (err) {
-      return err.response.data
+      alert(err.response.data?.message || '계정 업데이트에 실패하였습니다.')
     }
   },
 
   // params: none
   async deleteAccount({ commit }) {
     try {
-      await axios.delete(process.env.VUE_APP_API_URL + 'users/account')
-      return await actions.logout({ commit })
+      await axios.delete('v1' + '/users/account')
+      await actions.logout({ commit })
     } catch (err) {
-      return err.response.data
+      alert(err.response.data?.message || '계정 삭제에 실패하였습니다.')
     }
   },
 
   // params: Object
   async getProfile({ commit }, payload) {
     try {
-      const { data } = await axios.get(`${process.env.VUE_APP_API_URL}users/profile/${payload}`)
+      const { data } = await axios.get(`v1/users/profile/${payload}`)
       return data
     } catch (err) {
       return err.response.data
@@ -96,7 +97,7 @@ const actions = {
 
   async updateProfile({ commit }, payload) {
     try {
-      const { data } = await axios.put(process.env.VUE_APP_API_URL + 'users/profile', payload)
+      const { data } = await axios.put('v1/users/profile', payload)
       return data
     } catch (err) {
       return err.response.data
@@ -106,14 +107,14 @@ const actions = {
 
 const mutations = {
   // params: Access token
-  SET_USER(state, token) {
+  SET_TOKEN(state, token) {
     state.token = token
     state.isLogin = true
     sessionStorage.setItem('loginState', true)
   },
 
   // params: User account object
-  SET_USER_INFO(state, user) {
+  SET_USER(state, user) {
     state.user = user
   },
 

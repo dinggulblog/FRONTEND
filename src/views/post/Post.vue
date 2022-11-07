@@ -1,6 +1,6 @@
 <template>
   <div class="wrap_post_comment">
-    <div class="post">
+    <div class="post" v-if="post._id">
       <div class="wrap_header">
         <div class="wrap_left">
           <div class="wrap_title">
@@ -21,7 +21,7 @@
             <button class="btn_toggle"><i class="material-icons">more_horiz</i></button>
             <ul class="toggle_items">
               <li v-if="post.author?.nickname === user.nickname"><router-link :to="{ name: 'editor', params: { id: post._id } }">수정</router-link></li>
-              <li v-if="post.author?.nickname === user.nickname" @click="onDelete">삭제</li>
+              <li v-if="post.author?.nickname === user.nickname" @click="onDeletePost">삭제</li>
               <li @click="onCopyLink">링크 복사</li>
             </ul>
           </div>
@@ -34,12 +34,12 @@
 
       <div class="wrap_like">
         <div class="liked_count">
-          <span class="like_ico"><i class="material-icons">favorite</i></span>
-          <span>{{ post.likeCount }}</span>
+          <span class="like_ico"><i class="material-icons" @click="!isLike ? onUpdateLike : onDeleteLike">favorite</i></span>
+          <span>{{ likeCount }}</span>
         </div>
         <div class="liked_user">
           <ul>
-            <li v-for="like in post.likes" :key="like">{{ like }}</li>
+            <li v-for="likedUser in likes" :key="likedUser._id">{{ likedUser.nickname }}</li>
           </ul>
         </div>
       </div>
@@ -48,12 +48,12 @@
     </div>
 
     <div class="comment">
-      <CommentEditor :curRouteParams="params" :pid="post._id" />
+      <CommentEditor :curRouteParams="route.params" :pid="post._id" />
 
       <div class="comments" v-if="comments.length" ref="commentsEl">
         <h2>댓글 {{ comments.length }}개</h2>
         <ul>
-          <CommentSlot v-for="comment in comments" :key="comment._id" :comment="comment" :curRouteParams="params" :pid="post._id" />
+          <CommentSlot v-for="comment in comments" :key="comment._id" :comment="comment" :curRouteParams="route.params" :pid="post._id" />
         </ul>
       </div>
     </div>
@@ -63,7 +63,7 @@
 
 <script>
 import { defineComponent, ref, computed, onBeforeMount, onBeforeUpdate, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { debounce } from '../../common/util'
 import dayjs from 'dayjs'
@@ -82,46 +82,53 @@ export default defineComponent({
     CommentSlot,
   },
   setup() {
-    const { state, getters, dispatch } = useStore()
-    const { currentRoute, push, go } = useRouter()
-    const {
-      value: { params },
-    } = currentRoute
-
+    const route = useRoute()
+    const { state, dispatch } = useStore()
+    
     const Dialog = ref(null)
     const plugins = ref([{ plugin: MarkdownEmoji }])
 
-    const isHide = ref(true) // Toggle display the options when clicking
+    const isOpen = ref(true) // Toggle display of the options when clicking
     const isLike = ref(false)
 
     const user = computed(() => state.auth.user)
     const post = computed(() => state.post.post)
+    const likes = computed(() => state.post.likes)
+    const likeCount = computed(() => state.post.likeCount)
     const comments = computed(() => state.comment.comments)
 
     const commentsEl = ref(null)
 
-    const toggleOptionBtn = () => {
-      isHide.value = !isHide.value
+    const openOptionBtn = () => {
+      isOpen.value = false
     }
 
     const closeOptionBtn = () => {
-      isHide.value = true
+      isOpen.value = true
     }
 
-    const onUpdateLike = async () => {
-      if (!user.value.id) return alert('로그인 후 이용 가능합니다.')
-      isLike.value = !isLike.value
-      isLike.value ? await dispatch('post/updateLike', post.value._id) : await dispatch('post/deleteLike', post.value._id)
-    }
-
-    const onUpdateDebounce = debounce(onUpdateLike, 200)
-
-    const onDelete = async () => {
-      const ok = await Dialog.value.show({ title: '게시물 삭제', message: '게시물을 삭제하시겠습니까?\n한번 삭제된 게시물은 되돌릴 수 없습니다.' })
-      if (ok) {
-        const response = await dispatch('post/deletePost', post.value._id)
-        response.success ? push({ name: 'posts', params: { title: params.title, subject: params.subject ? params.subject : undefined } }) : alert(`Cannot delete post (Server error ${response.message})`)
+    const updateLike = async () => {
+      if (!user.value?._id) return alert('로그인 후 이용 가능합니다.')
+      else {
+        isLike.value = true
+        await dispatch('post/updateLike', post.value._id)
       }
+    }
+
+    const deleteLike = async () => {
+      if (!user.value?._id) return alert('로그인 후 이용 가능합니다.')
+      else {
+        isLike.value = false
+        await dispatch('post/deleteLike', post.value._id)
+      }
+    }
+
+    const onUpdateLike = debounce(updateLike, 200)
+    const onDeleteLike = debounce(deleteLike, 200)
+
+    const onDeletePost = async () => {
+      const ok = await Dialog.value.show({ title: '게시물 삭제', message: '게시물을 삭제하시겠습니까?\n한번 삭제된 게시물은 되돌릴 수 없습니다.' })
+      if (ok) await dispatch('post/deletePost', post.value._id)
     }
 
     const onCopyLink = async () => {
@@ -134,44 +141,42 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
-      const response = await dispatch('post/getPost', params.id)
+      await dispatch('post/getPost', route.params.id)
 
-      if (response.success) {
-        if (params.quickMoveComments) {
-          //let y = commentsEl.value.offsetTop - document.querySelector('.headerWrap').offsetHeight - 33
-          //window.scrollTo({ top: y, behavior: 'smooth' })
-        } else {
-          //window.scrollTo({ top: 0, behavior: 'smooth' })
-        }
-        isLike.value = [...post.value.likes].includes(user.value.id)
+      if (route.params.quickMove) {
+        const y = commentsEl.value.offsetTop - document.querySelector('.headerWrap').offsetHeight - 33
+        window.scrollTo({ top: y, behavior: 'smooth' })
       } else {
-        go(-1)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       }
     })
 
-    onBeforeUpdate(() => {
-      document.title = post.value.title ?? 'Post'
+    onMounted(() => {
+      isLike.value = likes.value.includes(user.value._id)
     })
 
-    onMounted(() => {
-      console.log(comments.value)
+    onBeforeUpdate(() => {
+      document.title = post.value?.title ?? 'Post'
     })
 
     return {
       dayjs,
-      params,
+      route,
       Dialog,
       plugins,
-      isHide,
+      isOpen,
       isLike,
       user,
       post,
+      likes,
+      likeCount,
       comments,
       commentsEl,
-      toggleOptionBtn,
+      openOptionBtn,
       closeOptionBtn,
-      onUpdateDebounce,
-      onDelete,
+      onUpdateLike,
+      onDeleteLike,
+      onDeletePost,
       onCopyLink,
     }
   },

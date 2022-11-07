@@ -1,12 +1,12 @@
 const state = () => ({
   isLoading: false,
-  loadingMessage: '',
+  message: '',
 })
 
 const mutations = {
-  SET_LOADING(state, loading, message) {
-    state.isLoading = loading
-    state.isLoading = message
+  SET_LOADING(state, { isLoading, message }) {
+    state.isLoading = isLoading
+    state.message = message
   },
 }
 

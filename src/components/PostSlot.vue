@@ -10,7 +10,7 @@
       </template>
 
       <template #title>
-        <router-link :to="{ name: 'post', params: { title, subject, id: post._id } }">{{ post.title }}</router-link>
+        <router-link :to="{ name: 'post', params: { main: route.params.main, sub: route.params?.sub, id: post._id } }">{{ post.title }}</router-link>
         <span class="info_ico"><i class="material-icons">lock</i></span>
       </template>
 
@@ -23,9 +23,11 @@
       </template>
 
       <template #comment_count>
-        <div class="wrap_comment_count" @click="quickMoveComments">
-          <span class="info_ico"><i class="material-icons">comment</i></span>
-          <span>{{ post.commentCount }}</span>
+        <div class="wrap_comment_count">
+          <router-link :to="{ name: 'post', params: { main: route.params.main, sub: route.params?.sub, id: post._id, quickMove: true } }">
+            <span class="info_ico"><i class="material-icons">comment</i></span>
+            <span>{{ post.commentCount }}</span>
+          </router-link>
         </div>
       </template>
 
@@ -47,7 +49,7 @@
       </template>
 
       <template #title>
-        <router-link :to="{ name: 'post', params: { title, subject, id: post._id } }">{{ post.title }}</router-link>
+        <router-link :to="{ name: 'post', params: { main: route.params.main, sub: route.params?.sub, id: post._id } }">{{ post.title }}</router-link>
         <span class="info_ico"><i class="material-icons">lock</i></span>
       </template>
 
@@ -60,9 +62,11 @@
       </template>
 
       <template #comment_count>
-        <div class="wrap_comment_count" @click="quickMoveComments">
-          <span class="info_ico"><i class="material-icons">comment</i></span>
-          <span>{{ post.commentCount }}</span>
+        <div class="wrap_comment_count">
+          <router-link :to="{ name: 'post', params: { main: route.params.main, sub: route.params?.sub, id: post._id, quickMove: true } }">
+            <span class="info_ico"><i class="material-icons">comment</i></span>
+            <span>{{ post.commentCount }}</span>
+          </router-link>
         </div>
       </template>
 
@@ -105,8 +109,8 @@
 </template>
 
 <script>
-import { onMounted, ref, watchEffect } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
 import List from './List.vue'
 import Card from './Card.vue'
 import Slide from './Slide.vue'
@@ -123,15 +127,7 @@ export default {
   props: {
     type: {
       type: String,
-      required: true,
-    },
-    title: {
-      type: String,
-      required: true,
-    },
-    subject: {
-      type: String,
-      default: undefined,
+      default: 'list'
     },
     post: {
       type: Object,
@@ -143,24 +139,16 @@ export default {
     },
   },
   setup(props) {
-    const { push } = useRouter()
-    const quickMoveComments = () => {
-      console.log('코멘트창으로 이동')
-      push({ name: 'post', params: { title: props.title, subject: props.subject, id: props.post._id, quickMoveComments } })
-    }
+    const route = useRoute()
 
     const isLikeEl = ref(null)
-    const isLike = (like) => {
+    const addLikeClass = (like) => {
       if (like && isLikeEl.value) isLikeEl.value.classList.add('is-like')
     }
 
-    onMounted(() => {
-      isLike()
-    })
+    watchEffect(() => addLikeClass(props.isLike))
 
-    watchEffect(() => isLike(props.isLike))
-
-    return { markdownText, dayjs, quickMoveComments, isLikeEl }
+    return { markdownText, dayjs, route, isLikeEl }
   },
 }
 </script>

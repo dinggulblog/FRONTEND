@@ -2,66 +2,22 @@ import axios from '../../services/axios.js'
 
 const state = () => ({
   menus: [],
+  groupedMenus: {},
+  currentMenus: [],
+  currentCategories: []
 })
 
 const getters = {
-  getMenu: (state) => (id) => {
-    return Array.from(state.menus)
-      .find((menu) => String(menu._id) === String(id))
-  },
 
-  
-  getMenuId: (state) => ({ title, subject }) => {
-    return Array.from(state.menus)
-    .find((menu) => menu.title === title && menu.subject === subject)
-    ?._id
-  },
-
-
-  getMenuIds: (state) => ({ title, subject }) => {
-    return Array.from(state.menus)
-      .filter((menu) => subject ? (menu.title === title && menu.subject === subject) : (menu.title === title))
-      .map((filtered) => filtered._id)
-  },
-
-  getTitle: (state) => (id) => {
-    return Array.from(state.menus)
-      .find(menu => menu._id === id)
-      ?.title
-  },
-
-  getTitles: (state) => {
-    return Array.from(new Set(state.menus.map((menu) => menu.title)))
-      .sort((a, b) => a.toLowerCase() < b.toLowerCase() ? 1 : -1)
-  },
-
-  getSubject: (state) => (id) => {
-    return Array.from(state.menus)
-      .find(menu => menu._id === id)
-      ?.subject 
-  },
-
-  getSubjects: (state) => (title) => {
-    return Array.from(state.menus)
-      .filter((menu) => menu.title === title)
-      .map((filtered) => filtered.subject)
-      .sort()
-  },
-
-  getCategories: (state) => ({ title, subject }) => {
-    return Array.from(state.menus)
-      .filter((menu) => subject ? (menu.title === title && menu.subject === subject) : (menu.title === title))
-      .map((filtered) => filtered.categories)
-      .flat()
-  },
 }
 
 const actions = {
   async getMenus({ commit }) {
     try {
-      const { data } = await axios.get(process.env.VUE_APP_API_URL + 'menus')
-      commit('SET_MENUS', data.data.menus)
-      return data
+      const { data } = await axios.get('v1/menus')
+      const { menus } = data.data
+      commit('SET_MENUS', menus)
+      commit('SET_GROUP_MENUS', menus)
     } catch (err) {
       return err.response.data
     }
@@ -69,9 +25,30 @@ const actions = {
 }
 
 const mutations = {
-  SET_MENUS(state, menus) {
-    state.menus = [...menus]
+  SET_MENUS(state, menus = []) {
+    state.menus = menus
   },
+
+  SET_GROUP_MENUS(state, menus = []) {
+    state.groupedMenus = menus.reduce((acc, menu) => {
+      const { main } = menu
+      if (!acc[main]) acc[main] = []
+      acc[main].push(menu)
+      return acc
+    }, {})
+  },
+
+  SET_CURRENT_MENUS(state, { main, sub }) {
+    state.currentMenus = !main
+      ? state.menus
+      : sub
+      ? state.groupedMenus[main].filter(subMenus => subMenus.sub === sub)
+      : state.groupedMenus[main]
+  },
+  
+  SET_CURRENT_CATEGORIES(state) {
+    state.currentCategories = [...new Set(state.currentMenus.map((menu) => menu?.categories).flat())]
+  }
 }
 
 export default {

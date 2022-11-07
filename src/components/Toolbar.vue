@@ -1,6 +1,7 @@
 <template>
   <div class="toolbar">
     <div class="wrap_breadcrumb_sort_type">
+
       <!-- Breadcrumb -->
       <div class="breadcrumb">
         <ul>
@@ -8,17 +9,17 @@
             <router-link :to="{ name: 'home' }"><i class="material-icons">home</i></router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'posts', params: { title } }">{{ title }}</router-link>
+            <router-link :to="{ name: 'posts', params: { main: route.params.main } }">{{ route.params.main }}</router-link>
           </li>
-          <li v-if="subject">
-            <router-link :to="{ name: 'posts', params: { title, subject } }">{{ subject }}</router-link>
+          <li v-if="route.params.sub">
+            <router-link :to="{ name: 'posts', params: { main: route.params.main, sub: route.params.sub } }">{{ route.params.sub }}</router-link>
           </li>
         </ul>
       </div>
 
-      <!-- Sort type change field -->
+      <!-- fields to change Sort type -->
 
-      <!-- View type buttons -->
+      <!-- Buttons to change View type -->
       <div class="type">
         <button v-for="view in views" :key="view.name" class="btn_type">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" :class="view.name">
@@ -26,10 +27,12 @@
           </svg>
         </button>
       </div>
+
     </div>
 
     <div class="categories">
       <ul>
+        <li class="elem_category">전체</li>
         <li v-for="category in categories" :key="category" class="elem_category">{{ category }}</li>
       </ul>
     </div>
@@ -37,8 +40,8 @@
 </template>
 
 <script>
-import { type } from 'os'
-import { onMounted, onUpdated, ref } from 'vue'
+import { onMounted, onUpdated } from 'vue'
+import { useRoute } from 'vue-router'
 
 export default {
   props: {
@@ -46,34 +49,26 @@ export default {
       type: String,
       default: 'list',
     },
-    category: {
-      type: String,
-    },
     categories: {
       type: Array,
     },
-    title: {
-      type: String,
-    },
-    subject: {
-      type: String,
-    },
   },
   setup(props, { emit }) {
+    const route = useRoute()
     const views = [
       { name: 'list', path: 'M19 11V5H5v6h14zm0 2H5v6h14v-6zM4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z' },
       { name: 'card', path: 'M21,3c0.6,0,1,0.4,1,1v16c0,0.6-0.4,1-1,1H3c-0.6,0-1-0.4-1-1V4c0-0.6,0.4-1,1-1H21z M11,13H4v6h7V13zM20,13h-7v6h7V13zM11,5H4v6h7V5zM20,5h-7v6h7V5z' },
     ]
 
     const changeView = (event) => {
-      emit('updatedType', event.currentTarget?.firstChild.classList[0] ?? 'list')
-      document.querySelectorAll('.btn_type').forEach((elem) => elem.firstChild.classList.remove('on'))
+      emit('updateType', event.currentTarget?.firstChild.classList[0] || 'list')
+      document.querySelectorAll('.btn_type').forEach((elem) => elem?.firstChild.classList.remove('on'))
       event.target?.classList.add('on')
     }
 
     const changeCategory = (event) => {
-      emit('updatedCategory', event.currentTarget.innerText)
-      document.querySelectorAll('.elem_category').forEach((elem) => elem.classList.remove('on'))
+      emit('updateCategory', event.currentTarget?.innerText)
+      document.querySelectorAll('.elem_category').forEach((elem) => elem?.classList.remove('on'))
       event.target?.classList.add('on')
     }
 
@@ -93,7 +88,7 @@ export default {
       document.querySelectorAll('.elem_category').forEach((elem) => elem.addEventListener('click', changeCategory))
     })
 
-    return { views, changeView, changeCategory }
+    return { route, views }
   },
 }
 </script>

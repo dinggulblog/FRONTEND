@@ -10,7 +10,7 @@ const actions = {
   // params: X
   async getDraft({ commit }) {
     try {
-      const { data } = await axios.get(`v1/drafts`)
+      const { data } = await axios.get('v1/drafts')
       commit('SET_DRAFT', data.data.draft)
       return data
     } catch (err) {
@@ -21,7 +21,7 @@ const actions = {
   // params: X
   async createDraft({ commit }) {
     try {
-      const { data } = await axios.post(`v1/drafts`)
+      const { data } = await axios.post('v1/drafts')
       commit('SET_DRAFT', data.data.draft)
       return data
     } catch (err) {
@@ -30,13 +30,16 @@ const actions = {
   },
 
   // params: Object (draft)
-  async updateDraft({ commit }, { id, payload }) {
+  async updateDraft({ commit }, { draftId, payload }) {
     try {
-      const { data } = await axios.put(`v1/drafts/${id}`, payload)
+      commit('loading/SET_LOADING', true, { root: true })
+      const { data } = await axios.put(`v1/drafts/${draftId}`, payload)
       commit('SET_DRAFT', data.data.draft)
       return data
     } catch (err) {
       return err.response.data
+    } finally {
+      commit('loading/SET_LOADING', false, { root: true })
     }
   },
 
@@ -69,7 +72,7 @@ const mutations = {
   },
 
   DELETE_DRAFT_FILE(state, imageId) {
-    const index = Array.from(state.draft.images).findIndex((image) => image._id === imageId)
+    const index = [...state.draft.images].findIndex((image) => image._id === imageId)
     if (index !== -1) {
       state.draft.images.splice(index, 1)
     }

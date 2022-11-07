@@ -1,118 +1,136 @@
 import { stringify } from 'querystring'
 import axios from '../../services/axios'
+import router from '../../router'
 
 const state = () => ({
+  draft: {},
   post: {},
   posts: [],
+  likes: [],
+  likeCount: 0,
+  type: 'list',
+  category: '전체',
+  page: 1,
+  limit: 6,
+  maxPage: 1,
 })
 
 const getters = {}
 
 const actions = {
   /**
-   * @param {String} payload
+   * Get post with Post ID
+   * @param {String} payload Post ID
    */
   async getPost({ commit }, payload) {
     try {
-      const { data } = await axios.get(`${process.env.VUE_APP_API_URL}posts/${payload}`)
-      commit('SET_POST', data.data.post)
-      commit('comment/SET_COMMENTS', data.data.comments, { root: true })
-      return data
+      const { data } = await axios.get(`v1/posts/${payload}`)
+      const { post, likes, likeCount, comments } = data.data
+      commit('SET_POST', post)
+      commit('SET_POST_LIKES', { likes, likeCount })
+      commit('comment/SET_COMMENTS', comments, { root: true })
+      
+      return post
     } catch (err) {
-      return err.response.data
+      alert(err.response.data?.message)
+      router.push({ name: 'posts', params: { main: router.currentRoute.value.params.main, sub: router.currentRoute.value.params?.sub } })
     }
   },
 
   /**
-   * subjects & pagenation options
-   * @param {Object} payload
+   * Get posts with pagenation query object
+   * @param {Object} payload { menu, page, limit, ... }
    */
   async getPosts({ commit }, payload) {
     try {
-      const { data } = await axios.get(`${process.env.VUE_APP_API_URL}posts`, { params: payload, paramsSerializer: (params) => stringify(params) })
-      commit('SET_POSTS', data.data.posts)
-      return data
+      const { data } = await axios.get('v1/posts', { params: payload, paramsSerializer: (params) => stringify(params) })
+      const { posts, maxPage } = data.data
+      commit('SET_POSTS', { posts, maxPage })
     } catch (err) {
-      return err.response.data
+      alert(err.response.data.message)
+      router.push({ name: 'home' })
     }
   },
 
   /**
-   * post
-   * @param {Object} payload
+   * Create a post with post object
+   * @param {Object} Post { title, content, menu, ... }
    */
   async createPost({ commit }, payload) {
     try {
-      const { data } = await axios.post(`${process.env.VUE_APP_API_URL}posts`, payload)
-      commit('SET_POST', data.data.post)
-      console.log(data)
-      return data
+      const { data } = await axios.post('v1/posts', payload)
+      const { post } = data.data
+      commit('SET_POST', post)
+      router.push({ name: 'post', params: { main: post.menu.main, sub: post.menu.sub, id: post._id } })
     } catch (err) {
-      return err.response.data
+      alert(err.response.data?.message)
     }
   },
 
   /**
-   * post
-   * @param {Object} payload
+   * Update a post with post object
+   * @param {Object} Post { _id, title, content, menu, ... }
    */
-  async updatePost({ commit }, payload) {
+  async updatePost({ commit }, { postId, payload }) {
     try {
-      console.log('페이로드', payload)
-      const { data } = await axios.put(`${process.env.VUE_APP_API_URL}posts/${payload._id}`, payload)
-      commit('SET_POST', data.data.post)
-      return data
+      const { data } = await axios.put(`v1/posts/${postId}`, payload)
+      const { post } = data.data
+      commit('SET_POST', post)
+      router.push({ name: 'post', params: { main: post.menu.main, sub: post.menu.sub, id: post._id } })
     } catch (err) {
-      return err.response.data
+      alert(err.response.data?.message)
     }
   },
 
   /**
-   * post ID
-   * @param {String} payload
+   * Add my ID from the like field of a post
+   * @param {String} payload Post ID
    */
 
   async updateLike({ commit }, payload) {
     try {
-      const { data } = await axios.put(`${process.env.VUE_APP_API_URL}posts/${payload}/like`)
-      commit('SET_POST_LIKE', data.data.post)
-      return data
+      const { data } = await axios.put(`v1/posts/${payload}/like`)
+      const { likes, likeCount } = data.data
+      commit('SET_POST_LIKES', { likes, likeCount })
     } catch (err) {
-      return err.response.data
+      alert(err.response.data?.message) 
     }
   },
 
   /**
-   * post ID
-   * @param {String} payload
+   * Delete a post with post ID
+   * @param {String} payload Post ID
    */
   async deletePost({ commit }, payload) {
     try {
-      const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}posts/${payload}`)
-      return data
+      await axios.delete(`v1/posts/${payload}`)
+      router.push({ name: 'posts', params: { main: router.currentRoute.value.params.main, sub: router.currentRoute.value.params?.sub } })
     } catch (err) {
-      return err.response.data
-    }
-  },
-
-  async deleteFile({ commit }, { postId, imageId }) {
-    try {
-      const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}posts/${postId}/file`, { data: imageId })
-      return data
-    } catch (err) {
-      return err.response.data
+      alert(err.response.data?.message)
     }
   },
 
   /**
-   * post ID
+   * Delete a file from the post
+   * @param {String} postId 
+   * @param {String} imageId 
+   */
+  async deleteFile({ commit }, { postId, imageId }) {
+    try {
+      const { data } = await axios.delete(`v1/posts/${postId}/file`, { data: imageId })
+      return data
+    } catch (err) {
+      alert(err.response.data?.message)
+    }
+  },
+
+  /**
+   * Remove my ID from the like field of a post
    * @param {String} payload
    */
   async deleteLike({ commit }, payload) {
     try {
-      const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}posts/${payload}/like`)
-      commit('SET_POST_LIKE', data.data.post)
-      return data
+      await axios.delete(`v1/posts/${payload}/like`)
     } catch (err) {
       return err.response.data
     }
@@ -124,14 +142,27 @@ const mutations = {
     state.post = post
   },
 
-  SET_POSTS(state, posts) {
+  SET_POSTS(state, { posts, maxPage }) {
     state.posts = posts
+    state.maxPage = maxPage
   },
 
-  SET_POST_LIKE(state, post) {
-    state.post.likes = post.likes
-    state.post.likeCount = post.likeCount
+  SET_POST_LIKES(state, { likes, likeCount }) {
+    state.likes = likes
+    state.likeCount = likeCount
   },
+
+  SET_TYPE(state, type) {
+    state.type = type
+  },
+
+  SET_PAGE(state, page) {
+    state.page = page
+  },
+
+  SET_CATEGORY(state, category) {
+    state.category = category
+  }
 }
 
 export default {

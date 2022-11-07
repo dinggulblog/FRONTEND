@@ -1,13 +1,16 @@
 <template>
   <nav class="nav">
+    <!-- Close button -->
     <div class="m_menu_close">
-      <button class="btn_close" @click="onChangeDisplay('view')">
+      <button class="btn_close" @click="onChangeDisply('gnb')">
         <i class="material-icons">close</i>
       </button>
     </div>
 
-    <div class="m_menu_login" v-if="!user.email"><router-link :to="{ name: 'login' }" class="a_login" @click="onChangeDisplay('view')">로그인</router-link>이 필요합니다.</div>
+    <!-- Login rink -->
+    <div class="m_menu_login" v-if="!user._id"><router-link :to="{ name: 'login' }" class="a_login" @click="onChangeDisplay('view')">로그인</router-link>이 필요합니다.</div>
 
+    <!-- Account info -->
     <div class="wrap_auth" v-else>
       <div class="auth">
         <img class="avatar" src="../assets/4.jpg" alt="user_avatar" />
@@ -17,29 +20,26 @@
       <div class="auth_items">
         <ul>
           <li><router-link :to="{ name: 'account' }">Account</router-link></li>
-          <!--
-                <li><router-link :to="{ name: 'profile', params: { nickname: user.nickname } }">Profile</router-link></li>
-                -->
+          <li><router-link :to="{ name: 'profile', params: { nickname: user.nickname } }">Profile</router-link></li>
           <li><button @click="onLogout">Logout</button></li>
         </ul>
       </div>
     </div>
 
+    <!-- Menu links -->
     <div class="wrap_nav_item">
-      <router-link :to="{ name: 'home' }" class="nav_item item_number">home</router-link>
-      <ul v-for="title in getters['menu/getTitles']" :key="title" class="nav_item dropdown">
-        <li>
-          <router-link :to="{ name: 'posts', params: { title } }" class="item_number">{{ title }} </router-link>
+      <ul>
+        <li class="nav_item"><router-link :to="{ name: 'home' }" class="item_number">home</router-link></li>
+        <li v-for="(subMenus, main) in menus" :key="main" class="nav_item dropdown">
+          <router-link :to="{ name: 'posts', params: { main } }" class="item_number">{{ main }}</router-link>
+          <div class="wrap_nav_item_child dropdown_items">
+            <ul class="nav_item_child">
+              <li v-for="{ _id, sub } in subMenus" :key="_id">
+                <router-link :to="{ name: 'posts', params: { main, sub } }">{{ sub }}</router-link>
+              </li>
+            </ul>
+          </div>
         </li>
-        <div class="wrap_nav_item_child dropdown_items">
-          <ul v-for="subject in getters['menu/getSubjects'](title)" :key="subject" class="nav_item_child">
-            <li>
-              <router-link :to="{ name: 'posts', params: { title, subject } }">
-                {{ subject }}
-              </router-link>
-            </li>
-          </ul>
-        </div>
       </ul>
     </div>
   </nav>
@@ -48,25 +48,22 @@
 <script>
 import { computed } from 'vue'
 import { useStore } from 'vuex'
-import { useRoute } from 'vue-router'
-import { useRouter } from 'vue-router'
 
 export default {
   name: 'navigation',
-  emits: ['onChangeDisplay'],
   setup(props, { emit }) {
-    const store = useStore()
-    const { getters } = useStore()
-    const route = useRoute()
-    const path = computed(() => route.path)
-    const param = computed(() => route.currentRoute)
-    const user = computed(() => store.state.auth.user)
+    const { state, dispatch } = useStore()
 
-    const onChangeDisplay = (state) => {
-      emit('onChangeDisplay', { state })
+    const menus = computed(() => state.menu.groupedMenus)
+    const user = computed(() => state.auth.user)
+
+    const onLogout = async () => await dispatch('auth/logout')
+
+    const onChangeDisply = (param) => {
+      emit('onChangeDisply', param)
     }
 
-    return { getters, path, param, user, onChangeDisplay }
+    return { menus, user, onLogout, onChangeDisply }
   },
 }
 </script>
@@ -191,7 +188,7 @@ export default {
 
     .auth_items {
       ul > li {
-        margin: 2.4rem 0 0 0;
+        margin: 3.2rem 0 0 0;
 
         a,
         button {
@@ -206,17 +203,19 @@ export default {
   }
 
   .wrap_nav_item {
-    display: flex;
-    flex-direction: row;
-    width: calc(120rem - 4.8rem);
-    counter-reset: number 0;
+    ul {
+      display: flex;
+      flex-direction: row;
+      width: calc(120rem - 4.8rem);
+      counter-reset: number 0;
 
-    @include mobile_all {
-      width: 100%;
-    }
+      @include mobile_all {
+        width: 100%;
+      }
 
-    @include mobile-tablet {
-      flex-direction: column;
+      @include mobile-tablet {
+        flex-direction: column;
+      }
     }
 
     .nav_item {
@@ -235,49 +234,23 @@ export default {
         background-color: transparent;
       }
 
-      ul {
-        @include mobile-tablet {
-          display: flex;
-          flex-direction: row;
-        }
-      }
-
-      li {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0.8rem 0;
+      a {
         position: relative;
-        z-index: 55;
+        z-index: 3;
+        padding: 0.8rem;
 
         @include mobile-tablet {
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-start;
-          align-items: flex-start;
-          height: auto;
           padding: 0;
-          background-color: transparent;
-        }
-
-        a {
-          padding: 0.8rem;
-        }
-
-        a.router-link-active {
-          color: var(--primary-dark);
         }
       }
+
       .wrap_nav_item_child {
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
         width: 100%;
-        padding: 4.8rem 0 0;
+        padding: calc(3.2rem + 0.8rem) 0 0;
         border-radius: 0 0 3.2rem 3.2rem;
 
         @include tablet_landscape {
-          padding: 5rem 0 0;
+          padding: calc(3.4rem + 0.8rem) 0 0;
         }
 
         @include mobile-tablet {
@@ -294,33 +267,18 @@ export default {
 
         ul {
           display: flex;
+          flex-direction: column;
           justify-content: center;
           background-color: #fff;
           width: 100%;
           box-shadow: 0 0.2rem 2rem rgba(0, 0, 0, 0.16);
+          border-radius: 0 0 3.2rem 3.2rem;
 
           @include mobile-tablet {
-            margin: 0 0 3.2rem;
-            padding: 0 0 0 2.4rem;
-            background-color: #efefef;
+            padding: 0 0 0 3.2rem;
+            background-color: transparent;
             box-shadow: 0 0;
-          }
-
-          &:last-child {
-            border-radius: 0 0 3.2rem 3.2rem;
-
-            @include mobile-tablet {
-              margin-bottom: 0;
-              border-radius: 0;
-            }
-          }
-
-          &:last-child > li {
-            border-radius: 0 0 3rem 3rem;
-
-            @include mobile-tablet {
-              border-radius: 0;
-            }
+            border-radius: 0 0;
           }
 
           li {
@@ -329,12 +287,11 @@ export default {
             align-items: center;
             width: 100%;
             height: 6.4rem;
-            background-color: #fff;
 
             @include mobile-tablet {
               display: block;
               height: auto;
-              background-color: transparent;
+              margin: 0 0 3.2rem 0;
             }
 
             a {
@@ -347,13 +304,25 @@ export default {
 
             &:hover {
               background-color: #ededed;
+              @include mobile-tablet {
+                background-color: transparent;
+              }
+            }
+
+            &:last-child {
+              border-radius: 0 0 3.2rem 3.2rem;
+
+              @include mobile-tablet {
+                margin-bottom: 0;
+                border-radius: 0;
+              }
             }
           }
         }
       }
     }
 
-    ul.nav_item {
+    li.nav_item {
       &::before {
         content: '';
         position: absolute;

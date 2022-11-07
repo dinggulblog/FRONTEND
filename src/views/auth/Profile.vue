@@ -31,7 +31,7 @@
     <div class="posts" v-if="displayState.tab === 'like' || displayState.tab === 'comment'">
       <ul v-if="posts.length">
         <template v-for="post in posts" :key="post._id">
-          <List :type="'profile'" :title="getters['menu/getTitle'](post.subject)" :subject="getters['menu/getSubject'](post.subject)" :post="post" :isLike="[...post.likes].includes(user.id)" />
+          <List :type="'profile'" :title="getters['menu/getTitle'](post.subject)" :subject="getters['menu/getSubject'](post.subject)" :post="post" :isLike="[...post.likes].includes(user._id)" />
         </template>
       </ul>
       <div v-else class="empty"><span>There is no posts.</span></div>

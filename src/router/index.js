@@ -16,8 +16,8 @@ const routes = [
   { path: '/auth/sign-up', name: 'signUp', component: Account, meta: { title: 'Sign-up', requiredAuth: false } },
   { path: '/auth/account', name: 'account', component: Account, meta: { title: 'Account', requiredAuth: true } },
   { path: '/auth/profile/:nickname', name: 'profile', component: Profile, meta: { title: 'Profile', requiredAuth: false } },
-  { path: '/posts/:title/:subject?', name: 'posts', component: Posts, meta: { title: 'Posts' } },
-  { path: '/posts/:title/:subject?/:id', name: 'post', component: Post, meta: { title: 'Post' } },
+  { path: '/posts/:main/:sub?', name: 'posts', component: Posts, meta: { title: 'Posts' } },
+  { path: '/posts/:main/:sub/:id', name: 'post', component: Post, meta: { title: 'Post' } },
   { path: '/posts/editor/:id?', name: 'editor', component: Editor, meta: { title: 'Editor', requiredAuth: true } },
   { path: '/:catchAll(.*)+', component: NotFound, meta: { title: 'NotFoundError 404!' } },
 ]
@@ -28,9 +28,9 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  document.title = to.meta.title
+  document.title = to.meta?.title ?? 'DINGGUL'
 
-  if (!store.state.auth.user.id && sessionStorage.getItem('loginState')) {
+  if (!store.state.auth.user._id && sessionStorage.getItem('loginState')) {
     await store.dispatch('auth/getAccount')
   }
 
@@ -38,11 +38,9 @@ router.beforeEach(async (to, from, next) => {
     await store.dispatch('menu/getMenus')
   }
 
-  // console.log('auth: ', store.state.auth.user, '\ntoken: ', store.state.auth.token, '\nmenu: ', store.state.menu.menus)
-
-  if (store.state.auth.user.nickname && (to.name === 'login' || to.path === '/auth/sign-up')) {
+  if ((to.name === 'login' || to.path === '/auth/sign-up') && store.state.auth.user._id) {
     next({ name: 'home' })
-  } else if (!store.state.auth.user.nickname && to.meta.requiredAuth) {
+  } else if (to.meta.requiredAuth && !store.state.auth.user.nickname) {
     next({ name: 'login' })
   } else {
     next()

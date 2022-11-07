@@ -17,31 +17,16 @@
 </template>
 
 <script>
-import { defineComponent, computed, onBeforeMount } from 'vue'
-import { useRoute } from 'vue-router'
 import MyHeader from './components/MyHeader.vue'
 
-export default defineComponent({
+export default {
   name: 'app',
   components: {
     MyHeader,
   },
   setup() {
-    const route = useRoute()
-    const currentRoute = computed(() => route.path)
-    const currentTitle = computed(() => route.meta.title)
-
-    onBeforeMount(() => {
-      document.addEventListener('visibilitychange', changeTitle, false)
-    })
-
-    const changeTitle = () => {
-      document.hidden ? (document.title = 'DINGGUL') : (document.title = currentTitle.value)
-    }
-
-    return { currentRoute }
   },
-})
+}
 </script>
 
 <style lang="scss" rel="stylesheet/scss">

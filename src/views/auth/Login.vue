@@ -26,9 +26,8 @@
             onfocus="this.placeholder=''"
             onblur="this.placeholder='Password'"
             v-model="password"
-            @keydown.enter="onLogin()"
           />
-          <button type="submit" @click="onLogin()">Sign In</button>
+          <button type="submit" @click="onLogin">Sign In</button>
         </div>
       </form>
 
@@ -43,22 +42,18 @@
 
 <script>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
 export default {
   name: 'login',
   setup() {
-    const router = useRouter()
-    const store = useStore()
+    const { dispatch } = useStore()
+
     const email = ref('')
     const password = ref('')
 
-    const onLogin = async () => {
-      const response = await store.dispatch('auth/login', { email: email.value, password: password.value })
-      response.success ? router.push({ name: 'home' }) : alert(response.message)
-    }
-
+    const onLogin = async () => await dispatch('auth/login', { email: email.value, password: password.value })
+    
     return { email, password, onLogin }
   },
 }

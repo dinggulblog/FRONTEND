@@ -1,4 +1,3 @@
-import router from '../router'
 import axiosInstance from './axios'
 import TokenService from './token.service'
 
@@ -7,7 +6,9 @@ const setup = (store) => {
     async (config) => {
       const token = TokenService.getAccessToken()
 
-      config.headers['Authorization'] = token ? (!String(config.url).endsWith('refresh') ? 'Bearer ' + token : null) : String(config.url).endsWith('account') ? process.env.VUE_APP_SECRET_KEY?.trim() : null
+      config.headers['Authorization'] = token
+        ? 'Bearer ' + token
+        : config.url.endsWith('account') && config.method.toLowerCase() === 'post' ? process.env.VUE_APP_SECRET_KEY?.trim() : null
 
       return config
     },
@@ -22,27 +23,25 @@ const setup = (store) => {
     },
     async (error) => {
       const originalConfig = error.config
-      console.log('Error response: ', error.response.status, '\nError Data: ', error.response.data, '\nRequested URL: ', error.response.request.responseURL, error.response.config.method, '\n')
-
+      console.log('Error response: ', error.response.status, error.response.data, '\nRequested URL: ', error.response.request.responseURL, '\n')
+      
       if (!originalConfig.url.endsWith('auth') && error.response) {
-        // Refresh token was expired -> Logout
+        // 419 Error response => Refresh token was expired OR not exist => Logout
         if (error.response.status === 419) {
           originalConfig._retry = true
-
-          alert(error.response.data.message)
+          alert(error.response.data?.message)
           await store.dispatch('auth/logout')
-          router.push({ name: 'login' })
           return axiosInstance(originalConfig)
         }
 
         // Access token was not provided OR was expired
         if (error.response.status === 401 && !originalConfig._retry) {
           originalConfig._retry = true
-
-          const res = await store.dispatch('auth/refresh')
-          return res.success ? axiosInstance(originalConfig) : Promise.reject(error)
+          await store.dispatch('auth/refresh')
+          return axiosInstance(originalConfig)
         }
       }
+
       return Promise.reject(error)
     }
   )

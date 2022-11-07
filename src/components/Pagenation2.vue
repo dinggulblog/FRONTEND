@@ -1,5 +1,6 @@
 <template>
   <div class="page" :style="{ gridTemplateColumns: `auto 800px auto` }">
+
     <!-- Prev page button -->
     <button class="prev-btn" @click="onPrevPage" :style="page - skip < 1 ? { color: 'var(--sub)' } : { color: 'var(--point)' }">
       <i class="material-icons">arrow_back_ios_new</i>
@@ -9,7 +10,13 @@
     <!-- Page button lists -->
     <div class="pages">
       <div class="page-btns">
-        <button v-for="p in pages" v-text="p" :key="p" :style="p === page ? { color: 'var(--point)', fontWeight: 'bold', borderBottom: '2px solid', borderColor: 'var(--point)' } : { color: 'var(--sub)' }" @click="onUpdatePage(p)"></button>
+        <button
+          v-for="p in pages"
+          v-text="p"
+          :key="p"
+          :style="p === page ? { color: 'var(--point)', fontWeight: 'bold', borderBottom: '2px solid', borderColor: 'var(--point)' } : { color: 'var(--sub)' }"
+          @click="onUpdatePage(p)"
+        ></button>
       </div>
     </div>
 
@@ -18,6 +25,7 @@
       <span>NEXT</span>
       <i class="material-icons">arrow_forward_ios</i>
     </button>
+
   </div>
 </template>
 
@@ -30,10 +38,6 @@ export default {
       type: Number, // 현재 보고 있는 페이지
       default: 1,
     },
-    limit: {
-      type: Number, // 한 페이지에 뜨는 게시글 수
-      default: 10,
-    },
     maxPage: {
       type: Number, // Maht.ceil(총 게시물 갯수 / limit)
       default: 1,
@@ -44,30 +48,34 @@ export default {
     const skip = ref(5) // Next or Prev button 눌렀을 때 넘어가는 페이지 단위
     const pages = ref(new Set([]))
 
-    const onUpdatePage = (updatedPage) => {
-      emit('updatePage', { updatedPage })
+    const onUpdatePage = (page) => {
+      emit('updatePage', page)
     }
 
     const onPrevPage = () => {
-      if (props.page - skip.value < 1) return
-      changePage(--pageStart.value, props.maxPage)
-      emit('updatePage', { updatedPage: pageStart.value * skip.value + 1 })
+      if (props.page < skip.value + 1) return
+      resetPages(--pageStart.value, props.maxPage)
+      onUpdatePage(pageStart.value * skip.value + 1)
     }
 
     const onNextPage = () => {
       if (props.maxPage < (pageStart.value + 1) * skip.value + 1) return
-      changePage(++pageStart.value, props.maxPage)
-      emit('updatePage', { updatedPage: pageStart.value * skip.value + 1 })
+      resetPages(++pageStart.value, props.maxPage)
+      onUpdatePage(pageStart.value * skip.value + 1)
     }
 
-    const changePage = (start, max) => {
-      const lastPage = max < skip.value * (start + 1) ? max : skip.value * (start + 1)
+    const resetPages = (start, max) => {
+      const offset = Math.min(max, skip.value * (start + 1))
 
       pages.value.clear()
-      for (let i = skip.value * start; i < lastPage; i++) pages.value.add(i + 1)
+      for (let i = skip.value * start; i < offset; i++) pages.value.add(i + 1)
     }
 
-    watchEffect(() => changePage((pageStart.value = 0), props.maxPage))
+    // maxPage가 바뀌면 실행(route가 변경된 경우)
+    watchEffect(() => {
+      onUpdatePage(1)
+      resetPages((pageStart.value = 0), props.maxPage)
+    })
 
     return {
       pageStart,
