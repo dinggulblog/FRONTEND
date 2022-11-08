@@ -434,6 +434,7 @@ export default defineComponent({
 
     textarea {
       margin: 0 2.4rem 0 0;
+      resize: vertical;
     }
 
     textarea::placeholder {

@@ -56,10 +56,10 @@ export default {
   margin: 0 auto;
   width: 40rem;
   height: 24rem;
-  color: var(--primary);
   font-weight: 400;
   letter-spacing: 0.05rem;
   box-shadow: 0 0 2.4rem 0.3rem rgba(0, 0, 0, 0.05);
   background: #fff;
+  border-radius: 3.2rem;
 }
 </style>

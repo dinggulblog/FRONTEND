@@ -64,15 +64,17 @@ export default {
   padding: 0 4.8rem;
 
   h2 {
-    margin-top: 0.8rem;
     font-weight: 500;
     font-size: 2rem;
     text-align: center;
+    color: var(--secondary-dark);
   }
 
   p {
     margin-top: 2.4rem;
     text-align: left;
+    font-size: 1.4rem;
+    color: var(--text-light);
   }
 }
 
@@ -86,21 +88,23 @@ export default {
   button {
     width: 9.8rem;
     height: 4rem;
-    border-radius: 2rem;
     display: grid;
     place-content: center;
     border: 0;
     font-weight: 500;
     font-size: 1.2rem;
+    border-radius: 3.2rem;
   }
 
   button:nth-child(1) {
-    color: var(--primary);
+    color: var(--secondary-dark);
+    border: 2px solid var(--secondary);
+    margin: 0 1.2rem 0 0;
   }
 
   button:nth-child(2) {
     color: #fff;
-    background: var(--point);
+    background-color: var(--secondary-dark);
   }
 }
 </style>
