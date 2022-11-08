@@ -24,8 +24,7 @@ export default {
   components: {
     MyHeader,
   },
-  setup() {
-  },
+  setup() {},
 }
 </script>
 
@@ -136,7 +135,7 @@ i {
 textarea,
 input,
 button {
-  font-family: 'Roboto', 'Noto Sans KR', sans-serif !important;
+  font-family: 'Roboto', 'Noto Sans KR', sans-serif;
 }
 
 #header {
