@@ -48,8 +48,8 @@
     <div class="files" v-if="files?.length">
       <ul>
         <li v-for="(flie, index) in files" :key="flie.serverFileName">
-          <div class="wrap_img">
-            <img src="https://news.nateimg.co.kr/orgImg/cc/2021/07/23/4159_10727_3352.png" />
+          <div class="wrap_thumbnail">
+            <img src="https://news.nateimg.co.kr/orgImg/cc/2021/07/23/4159_10727_3352.png" :class="fileState.fileIndex === index ? 'selected_thumbnail' : ''" @click="onSelectFile(flie, index)" />
             <!--
           <img :src="`${fileState.fileUrl}${flie.serverFileName}`" :class="fileState.fileIndex === index ? 'selectedThumbnail' : ''" @click="onSelectFile(flie, index)" />
           -->
@@ -224,7 +224,7 @@ export default defineComponent({
 
     watchEffect(() => {
       commit('menu/SET_CURRENT_MENUS', { main: main.value, sub: sub.value })
-      commit('menu/SET_CURRENT_CATEGORIES')
+      commit('menu/SET_CURRENT_CATEGORIES', menus.value)
     })
 
     onBeforeMount(async () => {
@@ -460,15 +460,19 @@ export default defineComponent({
           margin: 1.2rem 0;
         }
 
-        .wrap_img {
+        .wrap_thumbnail {
           position: relative;
           img {
             width: 100%;
             height: 7.4rem;
             border-radius: 2.4rem;
-            border: 2px solid var(--primary-dark);
+            border: 2px solid #ddd;
             object-fit: cover;
             padding: 0.2rem;
+
+            &.selected_thumbnail {
+              border: 2px solid var(--primary-dark);
+            }
           }
           .file_del_btn {
             position: absolute;

@@ -2,7 +2,7 @@
   <div id="info">
     <ul>
       <slot name="author"></slot>
-      <slot name="data"></slot>
+      <slot name="createdAt"></slot>
       <slot name="category"></slot>
       <slot name="reply_count"></slot>
     </ul>

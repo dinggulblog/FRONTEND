@@ -64,46 +64,45 @@ export default {
 
 <style scoped>
 .TextInput {
-  position: relative;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   width: 100%;
+  margin: 3.2rem 0 3.2rem;
+  position: relative;
 }
 
 label {
-  display: block;
-  margin-top: 38px;
   white-space: nowrap;
-  font-weight: 500;
+  color: var(--primary-dark);
+  font-family: 'Noto Sans KR';
 }
 
 input {
-  padding: 0 0 1.8rem;
-  margin: 3.2rem 0;
+  padding: 0 0 1.6rem;
+  margin: 1.6rem 0 0;
   outline: none;
   font-weight: 400;
   background: transparent;
+  border-bottom: 0.1rem solid #e0e0e0;
   width: 100%;
+  color: #999;
 }
 
 input::placeholder {
-  font-size: 1, 4rem;
-  color: var(--sub);
-  font-weight: 400;
+  color: #bbb;
 }
 
 .help-message {
-  position: absolute;
-  bottom: 0;
   margin: 0;
   font-size: 1.2rem;
-  font-weight: 400;
+  position: absolute;
+  top: 7.7rem;
 }
 
 .TextInput.has-error .help-message {
-  color: #f23648;
+  color: var(--error);
 }
 
 .TextInput.success .help-message {
-  color: var(--warn);
+  color: var(--warning);
 }
 </style>

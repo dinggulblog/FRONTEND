@@ -44,9 +44,6 @@ import { useStore } from 'vuex'
 
 export default {
   props: {
-    type: {
-      type: String,
-    },
     categories: {
       type: Array,
     },

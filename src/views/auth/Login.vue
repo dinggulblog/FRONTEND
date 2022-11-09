@@ -1,41 +1,23 @@
 <template>
-  <div class="login">
-    <div class="loginWrap">
-
-      <!-- Login form header -->
-      <div>
-        <h2>You need to <span>sign in</span> to use our service</h2>
-      </div>
-
-      <!-- Login form body -->
+  <div class="wrap_login">
+    <div class="login">
+      <h2>member login</h2>
       <form v-on:submit.prevent="submitForm">
-        <div class="form">
-          <input
-            type="email"
-            id="email"
-            placeholder="User ID (Email)"
-            spellcheck="false"
-            onfocus="this.placeholder=''"
-            onblur="this.placeholder='User ID (Email)'"
-            v-model="email"
-          />
-          <input
-            type="password"
-            id="password"
-            placeholder="Password"
-            onfocus="this.placeholder=''"
-            onblur="this.placeholder='Password'"
-            v-model="password"
-          />
-          <button type="submit" @click="onLogin">Sign In</button>
-        </div>
+        <label>이메일</label>
+        <input type="email" id="email" placeholder="User ID (Email)" spellcheck="false" onfocus="this.placeholder=''" onblur="this.placeholder='User ID (Email)'" v-model="email" />
+        <label>비밀번호</label>
+        <input type="password" id="password" placeholder="Password" onfocus="this.placeholder=''" onblur="this.placeholder='Password'" v-model="password" />
+        <button type="submit" class="btn_submit" @click="onLogin">로그인</button>
       </form>
 
-      <!-- Sign-up link -->
-      <router-link :to="{ name: 'signUp' }">
-        <button class="signUp" type="submit">Sign Up</button>
-      </router-link>
+      <div class="wrap_find_account">
+        <p>이메일 또는 비밀번호를 잊으셨나요?</p>
+        <a class="btn_find-account">계정 찾기</a>
+      </div>
 
+      <div class="wrap_sign-up">
+        <router-link :to="{ name: 'signUp' }">회원가입</router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -53,119 +35,111 @@ export default {
     const password = ref('')
 
     const onLogin = async () => await dispatch('auth/login', { email: email.value, password: password.value })
-    
+
     return { email, password, onLogin }
   },
 }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-.login {
+.wrap_login {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100vh;
 }
 
-.loginWrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  width: 540px;
-  height: 420px;
-  border-top: 8px solid;
-  border-color: var(--point);
+.login {
+  width: calc(30.4rem + 6.4rem + 0.2rem);
+  border-radius: 3.2rem;
+  border: 1px solid #ddd;
+  padding: 6.4rem 3.2rem;
+
+  button {
+    font-family: 'Noto Sans KR';
+    font-weight: 500;
+    font-size: 1.3rem;
+  }
 
   h2 {
-    font-style: italic;
-    font-size: 20px;
-    color: #b3b3b3;
-    font-weight: 500;
-    margin-bottom: 47px;
-
-    span {
-      color: var(--point);
-      font-weight: 500;
-      font-style: normal;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.4rem;
+    color: var(--primary-dark);
+    margin: 0 0 3.2rem;
+    font-weight: 400;
+    letter-spacing: 0.1rem;
+    text-transform: capitalize;
   }
 
-  .form {
-    display: grid;
-    gap: 5px;
-    grid-template-columns: 207px 140px;
-    grid-template-rows: repeat(2, 45px);
+  form {
+    display: flex;
+    flex-direction: column;
+    font-size: 1.3rem;
+    font-family: 'Noto Sans KR';
+
+    label {
+      color: var(--primary-dark);
+      margin: 1.6rem 0 0;
+    }
 
     input {
-      padding: 12px 10px 10px;
-      border: 1px solid #d8d8d8;
-      font-size: 14px;
-      color: #959595;
-      font-weight: 500;
+      padding: 0 0 1.6rem;
+      margin: 1.6rem 0;
+      outline: none;
+      font-weight: 400;
+      background: transparent;
+      border-bottom: 0.1rem solid #e0e0e0;
+      width: 100%;
+      color: #999;
+
+      &::placeholder {
+        color: #bbb;
+      }
     }
 
-    input:nth-child(1) {
-      grid-row: 1 / 2;
-      grid-column: 1 / 2;
-    }
-
-    input:nth-child(2) {
-      grid-row: 2 / 3;
-      grid-column: 1 / 2;
-    }
-
-    button {
-      grid-row: 1 / 3;
-      grid-column: 2 / 4;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      background: var(--point);
-      border: 0;
+    .btn_submit {
+      margin: 1.6rem 0 0;
+      width: 100%;
+      height: 4rem;
+      border-radius: 3.2rem;
+      background-color: var(--primary-dark);
       color: #fff;
-      font-size: 16px;
-      font-weight: 700;
     }
   }
 
-  .signUp {
-    margin-top: 47px;
-    border: 0;
-    text-transform: uppercase;
-    text-decoration: underline;
-    font-size: 18px;
-    color: var(--point);
-    font-weight: 700;
-    letter-spacing: 0.1em;
+  .wrap_find_account {
+    margin: 4.8rem 0 3.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    p {
+      font-size: 1.2rem;
+      color: #aaa;
+      margin: 0 0 1.6rem;
+    }
+
+    a {
+      font-size: 1.4rem;
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
   }
 
-  input::placeholder {
-    font-size: 14px;
-    color: #cbcbcb;
-    font-weight: 500;
-  }
-}
+  .wrap_sign-up {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border-top: 0.1rem solid #ddd;
+    padding: 3.2rem 0 0;
 
-.back {
-  color: var(--primary);
-  font-size: 14px;
-  font-weight: 900;
-  text-transform: uppercase;
-  text-decoration: none;
-  letter-spacing: 0.2em;
-  margin-top: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  i {
-    font-weight: bold;
-    margin-right: 10px;
-    position: relative;
-    top: -0.7px;
+    a {
+      font-size: 1.4rem;
+      color: var(--primary-dark);
+    }
   }
 }
 </style>
