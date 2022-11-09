@@ -165,17 +165,27 @@
           align-items: center;
           margin: 0 3.2rem 0 0;
           cursor: pointer;
+
+          a {
+            display: flex;
+            align-items: center;
+          }
         }
 
         .info_ico {
           i {
             font-size: 1.8rem;
             margin: 0 0.8rem 0 0;
+            color: var(--list_info);
 
             @include mobile_all {
               font-size: 2.4rem;
             }
           }
+        }
+
+        span {
+          color: var(--list_info);
         }
       }
     }
