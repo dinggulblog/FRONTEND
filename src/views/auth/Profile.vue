@@ -47,7 +47,7 @@ import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Introduce from '../../components/Introduce.vue'
 import List from '../../components/List.vue'
-import Pagenation2 from '../../components/Pagenation2.vue'
+import Pagenation2 from '../../components/Pagenation.vue'
 
 export default {
   name: 'profile',

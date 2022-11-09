@@ -1,22 +1,36 @@
 <template>
   <div class="accountEditor">
-    <Form @submit="onSubmit" :validation-schema="schema">
-      <h2 v-text="isNew ? 'Create Account' : 'Modify Account'"></h2>
-      <TextInput name="email" type="email" label="E-mail" :disabled="!isNew" :placeholder="user.email ? user.email : 'Email'" spellcheck="false" :success-message="user.email ? '이메일은 변경할 수 없습니다.' : '올바른 이메일 주소입니다.'" />
-      <TextInput name="currentPassword" type="password" label="Current Password" placeholder="Current Password" v-show="!isNew" />
-      <TextInput name="password" type="password" :label="isNew ? 'New Password' : 'Password'" :placeholder="isNew ? 'New Password' : 'Password'" />
-      <TextInput name="passwordConfirmation" type="password" label="Confirm Password" placeholder="Type password again" :success-message="'비밀번호가 정상적으로 입력되었습니다'" />
-      <TextInput name="nickname" type="text" label="Nickname" :placeholder="user.nickname ? user.nickname : 'Nickname'" spellcheck="false" :success-message="'사용할 수 있는 닉네임입니다.'" />
-      <button class="submit-btn" type="submit">Submit</button>
+    <Form v-if="isNew" as="div" v-slot="{ handleSubmit }" :validation-schema="createAccountSchema" >
+      <h2 v-text="'Create Account'"></h2>
+      <form @submit="handleSubmit($event, onCreateAccount)">
+        <TextInput name="email" type="email" label="E-mail" placeholder="Email" spellcheck="false" success-message="올바른 이메일 주소입니다." />
+        <TextInput name="password" type="password" label="Password" placeholder="Password" />
+        <TextInput name="passwordConfirmation" type="password" label="Confirm Password" placeholder="Type password again" success-message="비밀번호가 정상적으로 입력되었습니다." />
+        <TextInput name="nickname" type="text" label="Nickname" placeholder="Nickname" spellcheck="false" success-message="사용할 수 있는 닉네임입니다." />
+        <button type="submit" class="submit-btn">Submit</button>
+      </form>
     </Form>
-    <button v-if="!isNew" @click="accountDelete()" class="sign-out-btn">Sign Out</button>
-    <Dialog ref="Dialog" v-if="!isNew"></Dialog>
+
+    <Form v-else as="div" v-slot="{ handleSubmit }" :validation-schema="updateAccountSchema">
+      <h2 v-text="'Modify Account'"></h2>
+      <form @submit="handleSubmit($event, onUpdateAccount)">
+        <TextInput name="email" type="email" label="E-mail" :disabled="true" :placeholder="user?.email" spellcheck="false" success-message="이메일은 변경할 수 없습니다." />
+        <TextInput name="currentPassword" type="password" label="Current Password" placeholder="Current Password" />
+        <TextInput name="password" type="password" label="New Password" placeholder="New Password" />
+        <TextInput name="passwordConfirmation" type="password" label="Confirm Password" placeholder="Type password again" success-message="비밀번호가 정상적으로 입력되었습니다." />
+        <TextInput name="nickname" type="text" label="Nickname" :placeholder="user?.nickname" spellcheck="false" success-message="사용할 수 있는 닉네임입니다." />
+        <button type="submit" class="submit-btn">Submit</button>
+      </form>
+    </Form>
+
+    <button v-if="!isNew" @click="onDeleteAccount" class="sign-out-btn">Sign Out</button>
+    <Dialog ref="Dialog"></Dialog>
   </div>
 </template>
 
 <script>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { Form } from 'vee-validate'
 import * as Yup from 'yup'
@@ -31,65 +45,69 @@ export default {
     Dialog,
   },
   setup() {
-    const store = useStore()
-    const router = useRouter()
     const Dialog = ref(null)
+    const route = useRoute()
+    const { state, dispatch } = useStore()
 
-    const user = computed(() => store.state.auth.user)
-    const isNew = computed(() => !router.currentRoute.value.meta.requiredAuth)
+    const user = computed(() => state.auth.user)
+    const isNew = computed(() => !route.meta.requiredAuth)
 
-    const schema = Yup.object().shape({
+    const createAccountSchema = Yup.object().shape({
       email: Yup.string()
         .required('이메일을 입력해 주세요.')
-        .default(user.value?.email ?? '')
         .email(),
-      currentPassword: Yup.string(),
       password: Yup.string()
-        .min(4, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.')
-        .max(30, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.')
+        .required()
         .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
       passwordConfirmation: Yup.string()
-        .required('')
         .oneOf([Yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
       nickname: Yup.string()
         .required('닉네임을 정해주세요.')
+        .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
+    })
+
+    const updateAccountSchema = Yup.object().shape({
+      email: Yup.string()
+        .default(user.value?.email ?? '')
+        .email(),
+      currentPassword: Yup.string()
+        .required(),
+      newPassword: Yup.string()
+        .nullable(true)
+        .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
+      passwordConfirmation: Yup.string()
+        .oneOf([Yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
+      nickname: Yup.string()
         .default(user.value?.nickname ?? '')
         .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
     })
 
-    const onSubmit = async (values) => {
-      Object.keys(values).forEach((key) => {
-        if (!values[key]) delete values[key]
-      })
-      values.email = values.email ? values.email : user.value.email
-      values.nickname = values.nickname ? values.nickname : user.value.nickname
+    const onCreateAccount = async (values) => await dispatch('auth/createAccount', values)
 
-      if (!isNew.value && values.password) {
-        values.newPassword = values.password
-        delete values.password
-      }
-
-      await store.dispatch(`${isNew.value ? 'auth/createAccount' : 'auth/updateAccount'}`, values)
+    const onUpdateAccount = async (event, values) => {
+      await dispatch('auth/updateAccount', values)
     }
 
-    const accountDelete = async () => {
+    const onDeleteAccount = async () => {
       const ok = await Dialog.value.show({
         title: 'Delete Account',
         message: 'Are you sure you want to delete your account?',
         okButton: 'Delete',
       })
       if (ok) {
-        await store.dispatch('auth/deleteAccount')
+        await dispatch('auth/deleteAccount')
       }
     }
 
     return {
+      Dialog,
       user,
       isNew,
-      Dialog,
-      schema,
-      onSubmit,
-      accountDelete,
+      createAccountSchema,
+      updateAccountSchema,
+      onCreateAccount,
+      onUpdateAccount,
+      onDeleteAccount
     }
   },
 }
@@ -130,7 +148,7 @@ form {
   width: 100%;
   height: 93px;
   background: var(--point);
-  color: #fff;
+  color: rgb(255, 0, 0);
   font-size: 1.6rem;
   text-transform: uppercase;
   border: 0;

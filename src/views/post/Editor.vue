@@ -67,7 +67,7 @@
       <div class="wrap_right">
         <div class="wrap_isLoading">
           <Transition name="isLoading">
-            <span v-if="isLoading"> <i class="material-symbols-outlined">hourglass_empty</i>Auto save..</span>
+            <span class="isLoading" v-if="isLoading"> <i class="material-symbols-outlined">hourglass_empty</i>Auto save..</span>
           </Transition>
         </div>
         <button class="submit_btn" @click="onPostUpload">submit</button>
@@ -375,10 +375,11 @@ export default defineComponent({
     padding: 0 2.4rem;
 
     .title {
-      width: 80%;
+      width: 85%;
       input {
         color: var(--text-light);
         font-size: 1.4rem;
+        width: 100%;
       }
 
       input::placeholder {
@@ -388,7 +389,7 @@ export default defineComponent({
     }
 
     .file_add_btn {
-      width: 20%;
+      width: 15%;
       display: flex;
       justify-content: flex-end;
 
@@ -530,7 +531,7 @@ export default defineComponent({
 
         .isLoading-enter-active,
         .isLoading-leave-active {
-          transition: opacity 0.8s ease;
+          transition: opacity 2s ease;
         }
 
         .isLoading-enter-from,

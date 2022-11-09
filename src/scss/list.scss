@@ -101,10 +101,9 @@
         .comment_count {
           margin: 0 3.2rem 0 4.8rem;
 
-          .wrap_comment_count {
+          a {
             display: flex;
             align-items: center;
-            cursor: pointer;
           }
         }
 

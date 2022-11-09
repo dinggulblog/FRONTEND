@@ -38,8 +38,9 @@
 </template>
 
 <script>
-import { onMounted, watch, watchEffect } from 'vue'
+import { computed, onMounted, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 
 export default {
   props: {
@@ -51,11 +52,14 @@ export default {
     },
   },
   setup(props, { emit }) {
+    const { state } = useStore()
     const route = useRoute()
     const views = [
       { name: 'list', path: 'M19 11V5H5v6h14zm0 2H5v6h14v-6zM4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z' },
       { name: 'card', path: 'M21,3c0.6,0,1,0.4,1,1v16c0,0.6-0.4,1-1,1H3c-0.6,0-1-0.4-1-1V4c0-0.6,0.4-1,1-1H21z M11,13H4v6h7V13zM20,13h-7v6h7V13zM11,5H4v6h7V5zM20,5h-7v6h7V5z' },
     ]
+
+    const type = computed(() => state.menu.currentType)
 
     const changeView = (event) => {
       emit('updateType', event.currentTarget.firstChild.classList[0])
@@ -64,35 +68,33 @@ export default {
     }
 
     const changeCategory = (event) => {
-      emit('updateCategory', event.target.innerText)
       for (const item of document.querySelector('.elem_category').children) {
         item.classList.remove('on')
       }
-      event.target?.classList.add('on')
+
+      if (event.target.tagName === 'LI') {
+        emit('updateCategory', event.target.innerText)
+        event.target.classList.add('on')
+      }
     }
 
-    const addChangeEvent = () => {
-      console.log(props.type)
+    const remountClass = (type) => {
       document.querySelectorAll('.btn_type').forEach((elem) => {
-        elem.firstChild.classList.value !== props.type ? elem?.firstChild.classList.remove('on') : elem.firstChild.classList.add('on')
-        elem.addEventListener('click', changeView)
+        elem.firstChild.classList.remove('on')
+      })
+      document.querySelectorAll('.btn_type').forEach((elem) => {
+        if (elem.firstChild.classList.value === type) elem.firstChild.classList.add('on')
       })
       document.querySelectorAll('.elem_category').forEach((elem) => {
         elem.classList.remove('on')
-        elem.firstChild.classList.add('on')
-        elem.addEventListener('click', changeCategory)
       })
+      document.querySelector('.elem_category').firstChild.classList.add('on')
     }
 
     onMounted(() => {
-      addChangeEvent()
+      document.querySelectorAll('.btn_type').forEach((button) => {  button.addEventListener('click', changeView) })
+      document.querySelector('.elem_category').addEventListener('click', changeCategory)
     })
-
-    watch(
-      () => route.params,
-      () => addChangeEvent(),
-      { immediate: true }
-    )
 
     return { route, views }
   },

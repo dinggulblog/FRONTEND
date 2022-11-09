@@ -15,8 +15,11 @@ const actions = {
     try {
       const { data } = await axios.get('v1/menus')
       const { menus } = data.data
-      commit('SET_MENUS', menus)
-      commit('SET_GROUP_MENUS', menus)
+
+      if (menus) {
+        commit('SET_MENUS', menus)
+        commit('SET_GROUP_MENUS', menus)
+      }
     } catch (err) {
       return err.response.data
     }
@@ -42,16 +45,22 @@ const mutations = {
   },
 
   SET_CURRENT_MENUS(state, { main, sub }) {
-    state.currentMenus = !main ? state.menus : sub ? state.groupedMenus[main].filter((subMenus) => subMenus.sub === sub) : state.groupedMenus[main]
+    if (!sub && main) {
+      state.currentMenus = state.groupedMenus[main]
+    } else if (sub && main) {
+      state.currentMenus = state.groupedMenus[main]?.filter((subMenus) => subMenus.sub === sub)
+    } else {
+      state.currentMenus = state.menus ?? []
+    }
   },
 
-  SET_CURRENT_CATEGORIES(state) {
-    state.currentCategories = [...new Set(state.currentMenus.map((menu) => menu?.categories).flat())]
+  SET_CURRENT_CATEGORIES(state, menus = []) {
+    state.currentCategories = [...new Set(menus.flatMap((menu) => menu.categories))]
   },
 
-  SET_CURRENT_TYPE(state) {
-    if (state.currentMenus.length === 1) {
-      state.currentType = [...state.currentMenus].shift()?.type
+  SET_CURRENT_TYPE(state, menus = []) {
+    if (menus.length === 1) {
+      state.currentType = [...menus].shift()?.type
     } else {
       state.currentType = 'list'
     }

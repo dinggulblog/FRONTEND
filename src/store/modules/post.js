@@ -25,9 +25,10 @@ const actions = {
     try {
       const { data } = await axios.get(`v1/posts/${payload}`)
       const { post, likes, likeCount, comments } = data.data
-      commit('SET_POST', post)
-      commit('SET_POST_LIKES', { likes, likeCount })
-      commit('comment/SET_COMMENTS', comments, { root: true })
+
+      if (post) commit('SET_POST', post)
+      if (likes) commit('SET_POST_LIKES', { likes, likeCount })
+      if (comments) commit('comment/SET_COMMENTS', comments, { root: true })
 
       return post
     } catch (err) {

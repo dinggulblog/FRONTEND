@@ -1,5 +1,5 @@
 <template>
-  <div id="toggle">
+  <div class="toggle">
     <slot name="toggle_btn"></slot>
     <div class="wrap_toggle_items">
       <ul>

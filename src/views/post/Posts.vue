@@ -14,7 +14,7 @@
     <div v-else class="empty"><span>There is no posts.</span></div>
 
     <!-- Pagenation -->
-    <Pagenation2 :page="page" :maxPage="maxPage" @updatePage="onUpdatePage" />
+    <Pagenation :page="page" :maxPage="maxPage" @updatePage="onUpdatePage" />
   </div>
 </template>
 
@@ -25,14 +25,14 @@ import { useStore } from 'vuex'
 import { mapState } from '../../common/vuex-helper.js'
 import Toolbar from '../../components/Toolbar.vue'
 import PostSlot from '../../components/PostSlot.vue'
-import Pagenation2 from '../../components/Pagenation2.vue'
+import Pagenation from '../../components/Pagenation.vue'
 
 export default {
   name: 'posts',
   components: {
     Toolbar,
     PostSlot,
-    Pagenation2,
+    Pagenation,
   },
   setup(props) {
     const route = useRoute()
@@ -50,22 +50,20 @@ export default {
 
     onBeforeMount(() => {
       commit('menu/SET_CURRENT_MENUS', { main: route.params.main, sub: route.params.sub })
-      commit('menu/SET_CURRENT_CATEGORIES')
-      commit('menu/SET_CURRENT_TYPE')
+      commit('menu/SET_CURRENT_CATEGORIES', menus.value)
+      commit('menu/SET_CURRENT_TYPE', menus.value)
     })
 
     watchEffect(async () => {
       window.scrollTo({ left: 0, top: 0, behavior: 'smooth' })
       commit('menu/SET_CURRENT_MENUS', { main: route.params.main, sub: route.params.sub })
-      commit('menu/SET_CURRENT_CATEGORIES')
-      commit('menu/SET_CURRENT_TYPE')
-
-      console.log('여기선잘되', type.value)
+      commit('menu/SET_CURRENT_CATEGORIES', menus.value)
+      commit('menu/SET_CURRENT_TYPE', menus.value)
 
       const query = {
         page: page.value,
         limit: limit.value,
-        menu: menus.value.map((menu) => menu._id),
+        menu: menus.value?.map((menu) => menu._id),
         category: category.value === '전체' ? null : category.value,
       }
 

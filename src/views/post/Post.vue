@@ -11,20 +11,11 @@
           </div>
 
           <div class="wrap_info">
-            <span class="nickname">{{ post.author?.nickname }}</span>
-            <span class="createdAt" v-text="dayjs(post.createdAt).format('YYYY년 M월 D일')"></span>
-            <span class="category">{{ post.category }}</span>
+            <PostInfoSlot :type="'post'" />
           </div>
         </div>
         <div class="wrap_right">
-          <div class="toggle">
-            <button class="btn_toggle"><i class="material-icons">more_horiz</i></button>
-            <ul class="toggle_items">
-              <li v-if="post.author?.nickname === user.nickname"><router-link :to="{ name: 'editor', params: { id: post._id } }">수정</router-link></li>
-              <li v-if="post.author?.nickname === user.nickname" @click="onDeletePost">삭제</li>
-              <li @click="onCopyLink">링크 복사</li>
-            </ul>
-          </div>
+          <ToggleSlot :type="'post'" />
         </div>
       </div>
 
@@ -68,10 +59,12 @@ import { useStore } from 'vuex'
 import { debounce } from '../../common/util'
 import dayjs from 'dayjs'
 import CommentEditor from '../../components/CommentEditor.vue'
-import CommentSlot from '../../components/CommentSlot.vue'
+import CommentSlot from '../../components/slots/CommentSlot.vue'
 import Dialog from '../../components/Dialog.vue'
 import Markdown from 'vue3-markdown-it'
 import MarkdownEmoji from 'markdown-it-emoji'
+import PostInfoSlot from '../../components/slots/PostInfoSlot.vue'
+import ToggleSlot from '../../components/slots/ToggleSlot.vue'
 
 export default defineComponent({
   name: 'post',
@@ -80,11 +73,13 @@ export default defineComponent({
     Markdown,
     CommentEditor,
     CommentSlot,
+    PostInfoSlot,
+    ToggleSlot,
   },
   setup() {
     const route = useRoute()
     const { state, dispatch } = useStore()
-    
+
     const Dialog = ref(null)
     const plugins = ref([{ plugin: MarkdownEmoji }])
 
@@ -141,9 +136,11 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
-      await dispatch('post/getPost', route.params.id)
+      await dispatch('post/getPost', route.query.id)
+    })
 
-      if (route.params.quickMove) {
+    onMounted(() => {
+      if (route.query.quickMove) {
         const y = commentsEl.value.offsetTop - document.querySelector('.headerWrap').offsetHeight - 33
         window.scrollTo({ top: y, behavior: 'smooth' })
       } else {
@@ -151,11 +148,8 @@ export default defineComponent({
       }
     })
 
-    onMounted(() => {
-      isLike.value = likes.value.includes(user.value._id)
-    })
-
     onBeforeUpdate(() => {
+      isLike.value = likes.value.includes(user.value._id)
       document.title = post.value?.title ?? 'Post'
     })
 

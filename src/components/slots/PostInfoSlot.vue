@@ -1,0 +1,41 @@
+<template>
+  <Info>
+    <template #author>
+      <li>
+        <span class="nickname">{{ post.author.nickname }}</span>
+      </li>
+    </template>
+    <template #createdAt>
+      <li>
+        <span class="createdAt">{{ dayjs(post.createdAt).format('YYYY. M. D') }}</span>
+      </li>
+    </template>
+
+    <template #category>
+      <li>
+        <span class="category">{{ post.category }}</span>
+      </li>
+    </template>
+  </Info>
+</template>
+
+<script>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+import Info from '../Info.vue'
+import dayjs from 'dayjs'
+
+export default {
+  name: 'InfoSlot',
+  components: {
+    Info,
+  },
+  setup() {
+    const { state } = useStore()
+
+    const post = computed(() => state.post.post)
+
+    return { dayjs, post }
+  },
+}
+</script>

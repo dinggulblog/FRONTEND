@@ -1,5 +1,5 @@
 <template>
-  <template v-if="type === 'content'">
+  <template v-if="type === 'post'">
     <Toggle>
       <template #toggle_btn>
         <button><i class="material-icons">more_horiz</i></button>
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import Toggle from './Toggle.vue'
+import Toggle from '../Toggle.vue'
 
 export default {
   name: 'ToggleSlot',

@@ -1,82 +1,151 @@
 <template>
-  <button @click="prevPage" :disabled="idx <= 0">
-    <i class="material-icons" :style="[idx > 0 ? { color: 'var(--point)', cursor: 'pointer' } : { color: '#ddd', cursor: 'default' }]">arrow_back_ios_new</i>
-    <span>이전글</span>
-  </button>
-  <button @click="nextPage" :disabled="idx >= maxPostNum">
-    <span>다음글</span>
-    <i class="material-icons" :style="[idx < maxPostNum ? { color: 'var(--point)', cursor: 'pointer' } : { color: '#ddd', cursor: 'default' }]">arrow_forward_ios</i>
-  </button>
+  <div class="page" :style="{ gridTemplateColumns: `auto 800px auto` }">
+
+    <!-- Prev page button -->
+    <button class="prev-btn" @click="onPrevPage" :style="page - skip < 1 ? { color: 'var(--sub)' } : { color: 'var(--point)' }">
+      <i class="material-icons">arrow_back_ios_new</i>
+      <span>PREV</span>
+    </button>
+
+    <!-- Page button lists -->
+    <div class="pages">
+      <div class="page-btns">
+        <button
+          v-for="p in pages"
+          v-text="p"
+          :key="p"
+          :style="p === page ? { color: 'var(--point)', fontWeight: 'bold', borderBottom: '2px solid', borderColor: 'var(--point)' } : { color: 'var(--sub)' }"
+          @click="onUpdatePage(p)"
+        ></button>
+      </div>
+    </div>
+
+    <!-- Next page button -->
+    <button class="next-btn" @click="onNextPage" :style="maxPage < (pageStart + 1) * skip + 1 ? { color: 'var(--sub)' } : { color: 'var(--point)' }">
+      <span>NEXT</span>
+      <i class="material-icons">arrow_forward_ios</i>
+    </button>
+
+  </div>
 </template>
 
 <script>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+import { ref, watchEffect } from 'vue'
 
 export default {
-  name: 'post',
-  components: {},
-  setup() {
-    const router = useRouter()
-    const store = useStore()
+  props: {
+    page: {
+      type: Number, // 현재 보고 있는 페이지
+      default: 1,
+    },
+    maxPage: {
+      type: Number, // Maht.ceil(총 게시물 갯수 / limit)
+      default: 1,
+    },
+  },
+  setup(props, { emit }) {
+    const pageStart = ref(0)
+    const skip = ref(5) // Next or Prev button 눌렀을 때 넘어가는 페이지 단위
+    const pages = ref(new Set([]))
 
-    const postNum = ref(router.currentRoute.value.params.postNum)
-    const maxPostNum = ref(store.state.post.posts.length - 1)
+    const onUpdatePage = (page) => {
+      emit('updatePage', page)
+    }
 
-    const post = computed({
-      get: () => store.state.post.post || {},
-      set: (val) => store.commit('post/SET_POST', val),
+    const onPrevPage = () => {
+      if (props.page < skip.value + 1) return
+      resetPages(--pageStart.value, props.maxPage)
+      onUpdatePage(pageStart.value * skip.value + 1)
+    }
+
+    const onNextPage = () => {
+      if (props.maxPage < (pageStart.value + 1) * skip.value + 1) return
+      resetPages(++pageStart.value, props.maxPage)
+      onUpdatePage(pageStart.value * skip.value + 1)
+    }
+
+    const resetPages = (start, max) => {
+      const offset = Math.min(max, skip.value * (start + 1))
+
+      pages.value.clear()
+      for (let i = skip.value * start; i < offset; i++) pages.value.add(i + 1)
+    }
+
+    // maxPage가 바뀌면 실행(route가 변경된 경우)
+    watchEffect(() => {
+      onUpdatePage(1)
+      resetPages((pageStart.value = 0), props.maxPage)
     })
 
-    const idx = ref(store.state.post.posts.findIndex((posts) => posts._id === post.value._id))
-    console.log('검색한 idx', idx.value)
-
-    const prevPage = () => {
-      if (idx.value - 1 >= 0) idx.value--
-      router.push({ name: 'post', params: { menu: post.value.menu.owner, sub: post.value.menu.subject, postNum: idx.value } })
-      store.commit('post/SET_POST', post.value)
+    return {
+      pageStart,
+      skip,
+      pages,
+      onUpdatePage,
+      onPrevPage,
+      onNextPage,
     }
-
-    const nextPage = () => {
-      if (idx.value + 1 <= maxPostNum.value) idx.value++
-      router.push({ name: 'post', params: { menu: post.value.menu.owner, sub: post.value.menu.subject, postNum: idx.value } })
-      store.commit('post/SET_POST', post.value)
-    }
-
-    return { postNum, maxPostNum, post, prevPage, nextPage, idx }
   },
 }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
 .page {
-  grid-row: 4 / 5;
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  border-top: 1px solid var(--line);
-  margin: 4.8rem 0;
-  padding: 4.8rem 0 0;
+  margin: 4.8rem 0 0;
+  color: var(--primary);
   font-size: 1.4rem;
   font-weight: 500;
+  align-items: center;
 
-  button {
+  button.prev-btn {
     display: grid;
+    grid-column: 1 / 2;
     grid-template-columns: repeat(2, auto);
     align-items: center;
-    color: var(--primary);
+    color: var(--point);
+    cursor: pointer;
+    justify-content: end;
   }
 
-  button:nth-child(1) {
-    grid-column: 1 / 2;
-  }
-
-  button:nth-child(2) {
-    grid-column: 2 / 3;
-    justify-self: end;
+  button.next-btn {
+    display: grid;
+    grid-column: 3 / 4;
+    grid-template-columns: repeat(2, auto);
+    align-items: center;
+    color: var(--point);
+    cursor: pointer;
+    justify-content: start;
 
     i {
-      margin: 0 0 0 1.6rem;
+      margin-left: 1.5rem;
+      margin-right: 0;
+    }
+  }
+
+  div.pages {
+    grid-column: 2 / 3;
+    display: grid;
+    align-items: center;
+    padding: 2rem 0;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    .page-btns {
+      overflow: hidden;
+      button {
+        margin: 0 1.6rem;
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+
+      button:hover {
+        transform: translateY(-0.5rem);
+        transition: all 0.3s ease;
+      }
     }
   }
 }

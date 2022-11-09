@@ -1,16 +1,7 @@
 <template>
   <div class="TextInput" :class="{ 'has-error': !!errorMessage, success: meta.valid }">
     <label :for="name">{{ label }}</label>
-    <input
-      :name="name"
-      :id="name"
-      :type="type"
-      :value="inputValue"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      @input="handleChange"
-      @blur="handleBlur"
-    />
+    <input :name="name" :id="name" :type="type" :value="inputValue" :placeholder="placeholder" :disabled="disabled" @input="handleChange" @blur="handleBlur" />
     <p class="help-message" v-show="errorMessage || meta.valid">{{ errorMessage || successMessage }}</p>
   </div>
 </template>
@@ -75,7 +66,6 @@ export default {
 .TextInput {
   position: relative;
   font-size: 1.4rem;
-  color: #fff;
   width: 100%;
 }
 
@@ -87,7 +77,6 @@ label {
 }
 
 input {
-  border-bottom: 1px solid #fff;
   padding: 0 0 1.8rem;
   margin: 3.2rem 0;
   outline: none;

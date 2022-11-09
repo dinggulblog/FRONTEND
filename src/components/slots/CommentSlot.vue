@@ -4,13 +4,13 @@
       <li v-if="comment.isActive" class="comment_item">
         <div class="wrap_header">
           <div class="wrap_left">
-            <InfoSlot :type="'comment'" :comment="comment"></InfoSlot>
+            <CommentInfoSlot />
             <div class="wrap_reply_btn">
               <button class="btn_reply">답글 작성</button>
             </div>
           </div>
           <div class="wrap_right">
-            <ToggleSlot :type="'comment'"></ToggleSlot>
+            <ToggleSlot :type="'comment'" />
           </div>
         </div>
         <div class="content">
@@ -30,16 +30,16 @@
 </template>
 
 <script>
-import Comment from './Comment.vue'
+import Comment from '../Comment.vue'
 import ToggleSlot from './ToggleSlot.vue'
-import InfoSlot from './InfoSlot.vue'
+import CommentInfoSlot from './CommentInfoSlot.vue'
 
 export default {
   name: 'CommentSlot',
   components: {
     Comment,
     ToggleSlot,
-    InfoSlot,
+    CommentInfoSlot,
   },
   props: {
     comment: {

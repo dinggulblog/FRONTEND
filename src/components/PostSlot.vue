@@ -23,12 +23,10 @@
       </template>
 
       <template #comment_count>
-        <div class="wrap_comment_count">
-          <router-link :to="{ name: 'post', params: { id: post._id, quickMove: true } }">
-            <span class="info_ico"><i class="material-icons">comment</i></span>
-            <span>{{ post.commentCount }}</span>
-          </router-link>
-        </div>
+        <router-link :to="{ name: 'post', params: { id: post._id, quickMove: true } }">
+          <span class="info_ico"><i class="material-icons">comment</i></span>
+          <span>{{ post.commentCount }}</span>
+        </router-link>
       </template>
 
       <template #like_count>
