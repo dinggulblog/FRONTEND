@@ -10,7 +10,7 @@
       </template>
 
       <template #title>
-        <router-link :to="{ name: 'post', params: { id: post._id } }">{{ post.title }}</router-link>
+        <router-link :to="{ name: 'post', query: { id: post._id } }">{{ post.title }}</router-link>
         <span class="info_ico"><i class="material-icons">lock</i></span>
       </template>
 
@@ -23,7 +23,7 @@
       </template>
 
       <template #comment_count>
-        <router-link :to="{ name: 'post', params: { id: post._id, quickMove: true } }">
+        <router-link :to="{ name: 'post', query: { id: post._id, quickMove: true } }">
           <span class="info_ico"><i class="material-icons">comment</i></span>
           <span>{{ post.commentCount }}</span>
         </router-link>
@@ -47,7 +47,7 @@
       </template>
 
       <template #title>
-        <router-link :to="{ name: 'post', params: { id: post._id } }">{{ post.title }}</router-link>
+        <router-link :to="{ name: 'post', query: { id: post._id } }">{{ post.title }}</router-link>
         <span class="info_ico"><i class="material-icons">lock</i></span>
       </template>
 
@@ -61,7 +61,7 @@
 
       <template #comment_count>
         <div class="wrap_comment_count">
-          <router-link :to="{ name: 'post', params: { id: post._id, quickMove: true } }">
+          <router-link :to="{ name: 'post', query: { id: post._id, quickMove: true } }">
             <span class="info_ico"><i class="material-icons">comment</i></span>
             <span>{{ post.commentCount }}</span>
           </router-link>
