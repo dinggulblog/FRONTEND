@@ -31,7 +31,7 @@
 
         <router-link :to="{ name: 'login' }" class="a_login" v-else-if="!isMobile && !isLogin"><i class="material-icons">person</i></router-link>
 
-        <button class="btn_search" v-else @click="onChangeDisply('search')">
+        <button class="btn_search" v-else-if="isMobile" @click="onChangeDisply('search')">
           <i class="material-icons" v-if="searchState">close</i>
           <i class="material-icons" v-else>search</i>
         </button>

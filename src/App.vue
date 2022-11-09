@@ -32,6 +32,7 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Roboto+Condensed:wght@700&family=Roboto:wght@300;400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+@import url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff');
 
 :root {
   --primary: #c3d3de;
@@ -223,88 +224,4 @@ button {
   right: 0;
   display: none;
 }
-
-/*
-
-// Quill custom
-.ql-toolbar {
-  font-family: 'Roboto' !important;
-  padding: 1.3rem 0.8rem !important;
-  border: 0 !important;
-  background: var(--formBg);
-
-  button,
-  span:hover {
-    background: transparent !important;
-  }
-
-  .ql-picker {
-    color: var(--primary) !important;
-    border: 0 !important;
-  }
-
-  .ql-stroke {
-    stroke: var(--primary) !important;
-  }
-
-  .ql-fill {
-    fill: var(--primary) !important;
-  }
-
-  .ql-active {
-    background: transparent !important;
-    color: var(--point) !important;
-  }
-
-  .ql-active .ql-stroke {
-    stroke: var(--point) !important;
-  }
-
-  .ql-active .ql-fill {
-    fill: var(--point) !important;
-  }
-
-  .ql-selected {
-    background: transparent !important;
-    color: var(--point) !important;
-  }
-}
-
-.ql-container {
-  border: 0 !important;
-  font-size: 1.4rem !important;
-
-  .ql-editor {
-    height: auto;
-    min-height: 48rem;
-    font-size: 1.4rem !important;
-    letter-spacing: 0.05em;
-    line-height: 1.5;
-    font-family: 'Roboto' !important;
-    color: #555;
-    background: var(--formBg);
-
-    .ql-size-small {
-      font-size: 1.2rem !important;
-    }
-
-    .ql-size-normal {
-      font-size: 1.4rem !important;
-    }
-
-    .ql-size-large {
-      font-size: 2.4rem !important;
-    }
-
-    .ql-size-huge {
-      font-size: 3.2rem !important;
-    }
-  }
-
-  .ql-blank {
-    background: var(--formBg);
-  }
-}
-
-*/
 </style>

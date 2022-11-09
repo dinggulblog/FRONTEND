@@ -73,7 +73,6 @@ export default {
 label {
   white-space: nowrap;
   color: var(--primary-dark);
-  font-family: 'Noto Sans KR';
 }
 
 input {

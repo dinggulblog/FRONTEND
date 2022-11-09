@@ -6,12 +6,12 @@
       <div class="wrap_toggle">
         <div class="toggle">
           <i class="material-icons" v-text="isPublic ? 'toggle_off' : 'toggle_on'" :style="[isPublic ? { color: 'var(--list_info-light)' } : { color: 'var(--secondary)' }]" @click="onIsPublic()"></i>
-          <span v-text="isPublic ? 'Public' : 'Secret'" :style="[isPublic ? { color: 'var(--list_info-dark)' } : { color: 'var(--secondary)' }]"></span>
+          <span v-text="isPublic ? '공개' : '비밀'" :style="[isPublic ? { color: 'var(--list_info-dark)' } : { color: 'var(--secondary)' }]"></span>
         </div>
       </div>
       <div class="wrap_submit">
         <div class="submit">
-          <button class="btn_submit" @click="onSubmit()">Comment</button>
+          <button class="btn_submit" @click="onSubmit()">댓글 작성</button>
         </div>
       </div>
     </div>

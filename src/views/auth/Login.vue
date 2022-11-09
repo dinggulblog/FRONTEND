@@ -56,7 +56,6 @@ export default {
   padding: 6.4rem 3.2rem;
 
   button {
-    font-family: 'Noto Sans KR';
     font-weight: 500;
     font-size: 1.3rem;
   }
@@ -77,7 +76,6 @@ export default {
     display: flex;
     flex-direction: column;
     font-size: 1.3rem;
-    font-family: 'Noto Sans KR';
 
     label {
       color: var(--primary-dark);

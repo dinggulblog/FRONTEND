@@ -25,7 +25,7 @@
       </div>
 
       <div class="toggle">
-        <span :style="[isPublic ? { color: '#BABABA' } : { color: 'var(--secondary)' }]">{{ isPublic ? 'Public' : 'Secret' }}</span>
+        <span :style="[isPublic ? { color: '#BABABA' } : { color: 'var(--secondary)' }]">{{ isPublic ? '공개' : '비밀' }}</span>
         <i class="material-icons" :style="isPublic ? { color: '#E6E6E6' } : { color: 'var(--secondary)' }" @click="onTogglePublic">{{ isPublic ? 'toggle_off' : 'toggle_on' }}</i>
       </div>
     </div>
@@ -35,7 +35,7 @@
         <input type="text" v-model="title" placeholder="제목을 입력하세요." onfocus="this.placeholder=''" onblur="this.placeholder='제목을 입력하세요.'" />
       </div>
       <div class="file_add_btn">
-        <label for="upload_input" class="upload_label">Add Image</label>
+        <label for="upload_input" class="upload_label">사진 불러오기</label>
         <input type="file" id="upload_input" @change="onFileUpload" multiple />
       </div>
     </div>
@@ -62,15 +62,16 @@
 
     <div class="wrap_btns">
       <div class="wrap_left">
-        <button @click="onAddFile" v-show="files?.length" class="file_insert_btn">insert image</button>
+        <button @click="onAddFile" v-show="files?.length" class="file_insert_btn">사진 첨부</button>
+        <button @click="onClearFile" v-show="files?.length" class="file_clear_btn">사진 모두 제거</button>
       </div>
       <div class="wrap_right">
         <div class="wrap_isLoading">
           <Transition name="isLoading">
-            <span class="isLoading" v-if="isLoading"> <i class="material-symbols-outlined">hourglass_empty</i>Auto save..</span>
+            <span class="isLoading" v-if="isLoading"> <i class="material-symbols-outlined">hourglass_empty</i>자동 저장중..</span>
           </Transition>
         </div>
-        <button class="submit_btn" @click="onPostUpload">submit</button>
+        <button class="submit_btn" @click="onPostUpload">글 등록</button>
       </div>
     </div>
   </div>
@@ -81,7 +82,6 @@
 import { defineComponent, ref, reactive, computed, watch, watchEffect, onBeforeMount, onMounted, onUnmounted } from 'vue'
 import { useRoute, onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
-import { QuillEditor } from '@vueup/vue-quill'
 import Markdown from 'vue3-markdown-it'
 import MarkdownEmoji from 'markdown-it-emoji'
 import Dialog from '../../components/Dialog.vue'
@@ -101,9 +101,6 @@ export default defineComponent({
     const Dialog = ref(null)
     const contentEl = ref(null)
     const plugins = ref([{ plugin: MarkdownEmoji }])
-    const options = {
-      toolbarOptions: [['bold', 'italic', 'underline', 'strike'], [{ size: ['small', false, 'large', 'huge'] }], [{ color: [] }, { background: [] }], ['link', 'image'], ['clean']],
-    }
 
     let canLeavePage = true
     let stopDraftUpdate = false
@@ -196,6 +193,10 @@ export default defineComponent({
       fileState.fileIndex = index
     }
 
+    const onClearFile = () => {
+      files.value = []
+    }
+
     const onTogglePublic = () => {
       isPublic.value = !isPublic.value
     }
@@ -279,7 +280,6 @@ export default defineComponent({
       Dialog,
       contentEl,
       plugins,
-      options,
       menus,
       mainMenus,
       subMenus,
@@ -296,6 +296,7 @@ export default defineComponent({
       onPostUpload,
       onFileUpload,
       onAddFile,
+      onClearFile,
       onDeleteFile,
       onSelectFile,
       onTogglePublic,
@@ -395,6 +396,7 @@ export default defineComponent({
 
       label.upload_label {
         font-size: 1.2rem;
+        line-height: 1.8rem;
         cursor: pointer;
         text-transform: uppercase;
         letter-spacing: 0.1rem;
@@ -407,7 +409,7 @@ export default defineComponent({
           position: absolute;
           left: 0;
           width: 0.01rem;
-          height: 1.2rem;
+          height: 1.6rem;
           background-color: var(--border-dark);
         }
       }
@@ -424,7 +426,7 @@ export default defineComponent({
 
     textarea,
     .markdown {
-      width: 100%;
+      width: 50%;
       min-height: 48rem;
       border-radius: 3.2rem;
       border: 1px solid #ddd;
@@ -466,7 +468,7 @@ export default defineComponent({
             width: 100%;
             height: 7.4rem;
             border-radius: 2.4rem;
-            border: 2px solid #ddd;
+            border: 2px solid #d9d9d9;
             object-fit: cover;
             padding: 0.2rem;
 
@@ -513,15 +515,20 @@ export default defineComponent({
     .wrap_left {
       width: 50%;
 
-      .file_insert_btn {
+      .file_insert_btn,
+      .file_clear_btn {
         border: 2px solid var(--primary-dark);
         color: var(--primary-dark);
         border-radius: 3.2rem;
         padding: 1.2rem 2.4rem;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.1rem;
+      }
+
+      .file_clear_btn {
+        margin: 0 0 0 1.2rem;
       }
     }
 
@@ -552,7 +559,7 @@ export default defineComponent({
         color: #fff;
         border-radius: 3.2rem;
         padding: 1.2rem 2.4rem;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.1rem;

@@ -83,9 +83,7 @@ export default {
 
     const onCreateAccount = async (values) => await dispatch('auth/createAccount', values)
 
-    const onUpdateAccount = async (event, values) => {
-      await dispatch('auth/updateAccount', values)
-    }
+    const onUpdateAccount = async (values) => await dispatch('auth/updateAccount', values)
 
     const onDeleteAccount = async () => {
       const ok = await Dialog.value.show({
@@ -120,7 +118,6 @@ export default {
   justify-content: center;
 
   button {
-    font-family: 'Noto Sans KR';
     font-weight: 500;
     font-size: 1.3rem;
   }
