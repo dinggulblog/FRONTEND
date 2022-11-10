@@ -1,9 +1,6 @@
 <template>
   <div class="posts">
-    <!-- Toolbar -->
     <Toolbar :type="type" :categories="categories" @updateType="onUpdateType" @updateCategory="onUpdateCategory" />
-
-    <!-- Slot contents -->
     <div v-if="posts.length">
       <ul :id="type">
         <template v-for="post in posts" :key="post._id">
@@ -13,7 +10,6 @@
     </div>
     <div v-else class="empty"><span>There is no posts.</span></div>
 
-    <!-- Pagenation -->
     <Pagenation :page="page" :maxPage="maxPage" @updatePage="onUpdatePage" />
   </div>
 </template>
@@ -24,7 +20,7 @@ import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { mapState } from '../../common/vuex-helper.js'
 import Toolbar from '../../components/Toolbar.vue'
-import PostSlot from '../../components/PostSlot.vue'
+import PostSlot from '../../components/slots/PostSlot.vue'
 import Pagenation from '../../components/Pagenation.vue'
 
 export default {

@@ -1,7 +1,6 @@
 <template>
   <div class="toolbar">
     <div class="wrap_breadcrumb_sort_type">
-      <!-- Breadcrumb -->
       <div class="breadcrumb">
         <ul>
           <li>
@@ -16,9 +15,6 @@
         </ul>
       </div>
 
-      <!-- fields to change Sort type -->
-
-      <!-- Buttons to change View type -->
       <div class="type">
         <button v-for="view in views" :key="view.name" ref="typeBtnsEl">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" :class="view.name">
@@ -29,7 +25,7 @@
     </div>
 
     <div class="categories">
-      <ul ref="categoryItemsEl">
+      <ul ref="categoryEl">
         <li>전체</li>
         <li v-for="category in categories" :key="category">{{ category }}</li>
       </ul>
@@ -38,7 +34,7 @@
 </template>
 
 <script>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
@@ -58,58 +54,54 @@ export default {
 
     const type = computed(() => state.menu.currentType)
     const typeBtnsEl = ref(null)
-    const categoryItemsEl = ref(null)
+    const categoryEl = ref(null)
 
-    const firstAddClass = (type) => {
-      typeBtnsEl.value.forEach((elem) => {
-        if (elem.firstChild.classList.value === type) elem.firstChild.classList.add('on')
-      })
-      categoryItemsEl.value.firstChild.classList.add('on')
+    const addOnClass = (element) => {
+      element.classList.add('on')
     }
 
-    const addClass = (event) => {
-      event.target?.classList.add('on')
-    }
-
-    const removeClass = (elems) => {
-      if (elems === 'type') {
-        typeBtnsEl.value.forEach((elem) => elem?.firstChild.classList.remove('on'))
-      } else {
-        for (const item of categoryItemsEl.value.children) {
-          item.classList.remove('on')
+    const removeOnClass = (elements = []) => {
+      for (const elem of elements) {
+        if (elem.tagName === 'LI') {
+          elem.classList.remove('on')
+        } else if (elem.tagName === 'BUTTON') {
+          elem.firstChild.classList.remove('on')
         }
       }
     }
 
     const changeView = (event) => {
-      removeClass('type')
-      emit('updateType', event.currentTarget.firstChild.classList[0])
-      addClass(event)
+      if (event.currentTarget.firstChild.tagName === 'svg') {
+        removeOnClass(typeBtnsEl.value)
+        emit('updateType', event.currentTarget.firstChild.classList[0])
+        addOnClass(event.currentTarget.firstChild)
+      }
     }
 
     const changeCategory = (event) => {
       if (event.target.tagName === 'LI') {
-        removeClass('category')
+        removeOnClass(categoryEl.value?.children)
         emit('updateCategory', event.target.innerText)
-        addClass(event)
+        addOnClass(event.target)
       }
     }
 
     const remountClass = () => {
-      removeClass('type')
-      removeClass('category')
-      firstAddClass(type.value)
+      removeOnClass(typeBtnsEl.value)
+      removeOnClass(categoryEl.value?.children)
+      addOnClass(typeBtnsEl.value?.find((button) => button.firstChild.classList.value === type.value)?.firstChild)
+      addOnClass(categoryEl.value?.firstChild)
     }
 
+    watch(() => route.path, remountClass)
+
     onMounted(() => {
-      typeBtnsEl.value.forEach((button) => {
-        button.addEventListener('click', changeView)
-      })
-      categoryItemsEl.value.addEventListener('click', changeCategory)
-      firstAddClass(type.value)
+      typeBtnsEl.value.forEach((button) => button.addEventListener('click', changeView))
+      categoryEl.value.addEventListener('click', changeCategory)
+      remountClass()
     })
 
-    return { route, views, typeBtnsEl, categoryItemsEl }
+    return { route, views, typeBtnsEl, categoryEl }
   },
 }
 </script>

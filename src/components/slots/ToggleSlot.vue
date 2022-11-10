@@ -4,7 +4,7 @@
       <template #toggle_btn>
         <button><i class="material-icons">more_horiz</i></button>
       </template>
-      <template #modify><li>글 수정</li></template>
+      <template #modify><li  @click="onUpdatePost">글 수정</li></template>
       <template #delete><li>글 삭제</li></template>
       <template #copy><li>링크 복사</li></template>
     </Toggle>
@@ -35,8 +35,14 @@ export default {
       required: true,
     },
   },
-  setup(props) {
-    return {}
+  setup(props, { emit }) {
+    const onUpdatePost = () => {
+      emit('updatePost')
+    }
+
+    return {
+      onUpdatePost
+    }
   },
 }
 </script>

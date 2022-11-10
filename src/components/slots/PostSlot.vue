@@ -1,8 +1,10 @@
 <template>
   <template v-if="type === 'list'">
     <List>
-      <template #thumbnail>
-        <img :src="[post.thumbnail ? `https://dinggul.me/` + post.thumbnail : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU']" />
+      <template #thumbnail v-if="post?.thumbnail.length">
+        <div class="thumbnail">
+          <img :src="`https://dinggul.me/` + post.thumbnail" />
+        </div>
       </template>
 
       <template #num>
@@ -39,7 +41,7 @@
   <template v-if="type === 'card'">
     <Card>
       <template #thumbnail>
-        <img :src="[post.thumbnail ? `https://dinggul.me/` + post.thumbnail : 'https://photo.coolenjoy.co.kr/data/editor/2105/09198d36ef38aea9e4348cc363c80232f1cd5a92.jpg']" />
+        <img :src="[post?.thumbnail.length ? `https://dinggul.me/` + post.thumbnail : 'https://photo.coolenjoy.co.kr/data/editor/2105/09198d36ef38aea9e4348cc363c80232f1cd5a92.jpg']" />
       </template>
 
       <template #num>
@@ -109,9 +111,9 @@
 <script>
 import { ref, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
-import List from './List.vue'
-import Card from './Card.vue'
-import Slide from './Slide.vue'
+import List from '../List.vue'
+import Card from '../Card.vue'
+import Slide from '../Slide.vue'
 import markdownText from 'markdown-to-text'
 import dayjs from 'dayjs'
 
@@ -151,7 +153,7 @@ export default {
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-@import '../scss/list.scss';
-@import '../scss/card.scss';
-@import '../scss/slide.scss';
+@import '../../scss/list.scss';
+@import '../../scss/card.scss';
+@import '../../scss/slide.scss';
 </style>

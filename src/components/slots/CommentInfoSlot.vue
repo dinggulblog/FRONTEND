@@ -14,15 +14,13 @@
 
       <template #comment_count>
         <li>
-          <span class="child_count">답글 {{ comment.childComments?.length ? comment.childComments?.length : 0 }}개</span>
+          <span class="child_count">답글 {{ comment?.childComments?.length ?? 0 }}개</span>
         </li>
       </template>
     </Info>
 </template>
 
 <script>
-import { computed } from 'vue'
-import { useStore } from 'vuex'
 import Info from '../Info.vue'
 import dayjs from 'dayjs'
 
@@ -31,12 +29,14 @@ export default {
   components: {
     Info,
   },
+  props: {
+    comment: {
+      type: Object,
+      required: true
+    }
+  }, 
   setup() {
-    const { state } = useStore()
-
-    const comments = computed(() => state.comment.comments)
-
-    return { dayjs, comments }
+    return { dayjs }
   },
 }
 </script>

@@ -34,9 +34,7 @@
     .contents {
       flex-shrink: 1;
       flex-grow: 0;
-      margin: 0 4.8rem 0 0;
-
-      width: calc(100% - 4.8rem);
+      width: 100%;
 
       .title {
         display: flex;
@@ -121,6 +119,7 @@
       display: flex;
       justify-content: flex-end;
       min-width: 27rem;
+      margin: 0 0 0 4.8rem;
 
       @include tablet_landscape {
         min-width: 22.2rem;

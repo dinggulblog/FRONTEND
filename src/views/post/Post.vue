@@ -11,11 +11,11 @@
           </div>
 
           <div class="wrap_info">
-            <PostInfoSlot :type="'post'" />
+            <PostInfoSlot :post="post" />
           </div>
         </div>
         <div class="wrap_right">
-          <ToggleSlot :type="'post'" />
+          <ToggleSlot :type="'post'" @updatePost="onUpdatePost" />
         </div>
       </div>
 
@@ -39,12 +39,12 @@
     </div>
 
     <div class="comment">
-      <CommentEditor :curRouteParams="route.params" :pid="post._id" />
+      <CommentEditor :post="post" />
 
       <div class="comments" v-if="comments.length" ref="commentsEl">
         <h2>댓글 {{ comments.length }}개</h2>
         <ul>
-          <CommentSlot v-for="comment in comments" :key="comment._id" :comment="comment" :curRouteParams="route.params" :pid="post._id" />
+          <CommentSlot v-for="comment in comments" :key="comment._id" :comment="comment" :post="post" />
         </ul>
       </div>
     </div>
@@ -54,7 +54,7 @@
 
 <script>
 import { defineComponent, ref, computed, onBeforeMount, onBeforeUpdate, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { debounce } from '../../common/util'
 import dayjs from 'dayjs'
@@ -78,8 +78,9 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute()
+    const { push } = useRouter()
     const { state, dispatch } = useStore()
-
+    
     const Dialog = ref(null)
     const plugins = ref([{ plugin: MarkdownEmoji }])
 
@@ -121,6 +122,12 @@ export default defineComponent({
     const onUpdateLike = debounce(updateLike, 200)
     const onDeleteLike = debounce(deleteLike, 200)
 
+    const onUpdatePost = async () => {
+      if (post.value._id) {
+        push({ name: 'editor', params: post.value._id })
+      }
+    }
+
     const onDeletePost = async () => {
       const ok = await Dialog.value.show({ title: '게시물 삭제', message: '게시물을 삭제하시겠습니까?\n한번 삭제된 게시물은 되돌릴 수 없습니다.' })
       if (ok) await dispatch('post/deletePost', post.value._id)
@@ -136,7 +143,12 @@ export default defineComponent({
     }
 
     onBeforeMount(async () => {
-      await dispatch('post/getPost', route.query.id)
+      if (route.query.id) {
+        await dispatch('post/getPost', route.query.id)
+        await dispatch('comment/getComments', route.query.id)
+      } else {
+        push({ name: 'home' })
+      }
     })
 
     onMounted(() => {
@@ -170,6 +182,7 @@ export default defineComponent({
       closeOptionBtn,
       onUpdateLike,
       onDeleteLike,
+      onUpdatePost,
       onDeletePost,
       onCopyLink,
     }

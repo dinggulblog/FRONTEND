@@ -8,45 +8,47 @@ const getters = {}
 
 const actions = {
   // params: String (post ID)
-  async getComments({ commit }, payload) {
+  async getComments({ commit }, postId) {
     try {
-      const { data } = await axios.post(`${process.env.VUE_APP_API_URL}comments/${payload.postId}`)
+      const { data } = await axios.get(`v1/comments/${postId}`)
       commit('SET_COMMENTS', data.data.comments)
-      return data
     } catch (err) {
       return err.response.data
     }
   },
 
   // params: Object
-  async createComment({ commit }, payload) {
+  async createComment({ commit }, { postId, parentId, ...payload }) {
     try {
-      console.log('리스폰스', payload)
-      const { data } = await axios.post(`${process.env.VUE_APP_API_URL}comments/${payload.postId}/${payload.parentId}`, payload)
-      commit('SET_COMMENTS', data.data.comments)
-      return data
+      const { data } = await axios.post(`v1/comments/${postId}/${parentId}`, payload)
+      console.log(data)
+      if (data.success) {
+        await actions.getComments({ commit }, postId)
+      }
     } catch (err) {
       return err.response.data
     }
   },
 
   // params: Object
-  async updateComment({ commit }, payload) {
+  async updateComment({ commit }, { id, postId, ...payload }) {
     try {
-      const { data } = await axios.put(`${process.env.VUE_APP_API_URL}comments/${payload.postId}/${payload.id}`, payload)
-      commit('SET_COMMENTS', data.data.comments)
-      return data
+      const { data } = await axios.put(`v1/comments/${postId}/${id}`, payload)
+      if (data.success) {
+        await actions.getComments({ commit }, postId)
+      }
     } catch (err) {
       return err.response.data
     }
   },
 
   // params: Object (post ID, comment ID)
-  async deleteComment({ commit }, payload) {
+  async deleteComment({ commit }, { id, postId }) {
     try {
-      const { data } = await axios.delete(`${process.env.VUE_APP_API_URL}comments/${payload.postId}/${payload.id}`)
-      commit('SET_COMMENTS', data.data.comments)
-      return data
+      const { data } = await axios.delete(`v1/comments/${postId}/${id}`)
+      if (data.success) {
+        await actions.getComments({ commit }, postId)
+      }
     } catch (err) {
       return err.response.data
     }
@@ -54,7 +56,7 @@ const actions = {
 }
 
 const mutations = {
-  SET_COMMENTS(state, comments) {
+  SET_COMMENTS(state, comments = []) {
     state.comments = comments
   },
 }

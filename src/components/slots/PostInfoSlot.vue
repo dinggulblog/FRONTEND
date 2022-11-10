@@ -20,8 +20,6 @@
 </template>
 
 <script>
-import { computed } from 'vue'
-import { useStore } from 'vuex'
 import Info from '../Info.vue'
 import dayjs from 'dayjs'
 
@@ -30,12 +28,14 @@ export default {
   components: {
     Info,
   },
+  props: {
+    post: {
+      type: Object,
+      required: true
+    },
+  },
   setup() {
-    const { state } = useStore()
-
-    const post = computed(() => state.post.post)
-
-    return { dayjs, post }
+    return { dayjs }
   },
 }
 </script>

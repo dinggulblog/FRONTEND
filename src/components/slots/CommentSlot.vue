@@ -4,7 +4,7 @@
       <li v-if="comment.isActive" class="comment_item">
         <div class="wrap_header">
           <div class="wrap_left">
-            <CommentInfoSlot />
+            <CommentInfoSlot :comment="comment" />
             <div class="wrap_reply_btn">
               <button class="btn_reply">답글 작성</button>
             </div>
@@ -23,7 +23,7 @@
       </li>
 
       <ul style="margin-left: 8rem" v-if="comment.childComments">
-        <CommentSlot v-for="child in comment.childComments" :key="child._id" :comment="child" :curRouteParams="curRouteParams" :pid="pid" />
+        <CommentSlot v-for="child in comment.childComments" :key="child._id" :comment="child" :post="post" />
       </ul>
     </template>
   </Comment>
@@ -46,11 +46,9 @@ export default {
       type: Object,
       required: true,
     },
-    curRouteParams: {
+    post: {
       type: Object,
-    },
-    pid: {
-      type: String,
+      required: true
     },
   },
   setup(props) {

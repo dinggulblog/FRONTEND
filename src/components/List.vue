@@ -25,9 +25,7 @@
         </div>
       </div>
 
-      <div class="thumbnail">
-        <slot name="thumbnail"></slot>
-      </div>
+      <slot name="thumbnail"></slot>
     </div>
   </li>
 </template>

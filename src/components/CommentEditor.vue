@@ -1,6 +1,12 @@
 <template>
   <div class="commentEditor">
-    <textarea v-model="content" ref="contentEl" :placeholder="[curRouteParams.title === 'guest' ? '방명록을 작성해보세요' : placeholderText]" @focus="placeholder = ''" @blur="placeholder = [curRouteParams.title === 'guest' ? '방명록을 작성해보세요' : placeholderText]"></textarea>
+    <textarea 
+      v-model="content" 
+      ref="contentEl"
+      :placeholder="[route.params.main === 'guest' ? '방명록을 작성해보세요' : '코멘트를 작성해보세요']"
+      @focus="placeholder = ''"
+      @blur="placeholder = [route.params.main === 'guest' ? '방명록을 작성해보세요' : '코멘트를 작성해보세요']">
+    </textarea>
 
     <div class="wrap_btns">
       <div class="wrap_toggle">
@@ -11,7 +17,7 @@
       </div>
       <div class="wrap_submit">
         <div class="submit">
-          <button class="btn_submit" @click="onSubmit()">댓글 작성</button>
+          <button class="btn_submit" @click="!comment ? onCreateComment() : onUpdateComment()">{{ !comment ? '댓글 작성' : '댓글 수정' }}</button>
         </div>
       </div>
     </div>
@@ -19,65 +25,63 @@
 </template>
 
 <script>
-import { ref, onBeforeMount, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
 export default {
-  name: 'app',
   props: {
-    curRouteParams: {
+    post: {
       type: Object,
-    },
-    pid: {
-      type: String,
+      required: true
     },
     comment: {
-      type: Object,
+      type: Object
     },
-    commentState: {
-      type: String,
-    },
+    parentId: {
+      type: String
+    }
   },
-  emits: ['updatedComment'],
-  setup(props, { emit }) {
+  setup(props) {
+    const route = useRoute()
     const { dispatch } = useStore()
+    const contentEl = ref(null)
+
     const content = ref('')
-    const contentEl = ref()
     const isPublic = ref(true)
-    const placeholderText = ref('코멘트를 작성해보세요')
 
-    const onIsPublic = () => {
+    const onTogglePublic = () => {
       isPublic.value = !isPublic.value
-      console.log(isPublic.value)
     }
 
-    const onSubmit = async () => {
-      const response = await dispatch(props.comment && props.commentState == 'edit' ? 'comment/updateComment' : 'comment/createComment', {
-        id: props.comment && props.commentState == 'edit' ? props.comment._id : undefined,
-        postId: props.pid,
-        parentId: props.comment && props.commentState == 'reply' ? props.comment._id : undefined,
+    const onCreateComment = async () => {
+      await dispatch('comment/createComment', { 
+        postId: props.post._id,
+        parentId: props?.parentId ?? '',
         content: content.value,
-        isPublic: isPublic.value,
+        isPublic: isPublic.value
       })
-      content.value = ''
-      isPublic.value = true
-      emit('updatedComment', 'view')
-      if (!response.success) alert(response.message)
     }
 
-    onBeforeMount(async () => {
-      if (props.comment && props.commentState == 'edit') {
+    const onUpdateComment = async () => {
+      await dispatch('comment/updateComment', {
+        id: props.comment._id,
+        postId: props.post._id,
+        content: content.value,
+        isPublic: isPublic.value
+      })
+    }
+
+    onMounted(() => {
+      if (props.comment) {
         content.value = props.comment.content
-      } else if (props.comment && props.commentState == 'reply') {
-        placeholderText.value = ''
+      }
+      if (props.parentId) {
+        contentEl.value?.focus()
       }
     })
 
-    onMounted(async () => {
-      props.comment ? contentEl.value.focus() : undefined
-    })
-
-    return { content, contentEl, isPublic, placeholderText, onIsPublic, onSubmit }
+    return { route, content, contentEl, isPublic, onTogglePublic, onCreateComment, onUpdateComment }
   },
 }
 </script>

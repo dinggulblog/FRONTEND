@@ -271,7 +271,7 @@ export default defineComponent({
     onBeforeRouteLeave(async (to, from, next) => {
       if (canLeavePage) next()
       else {
-        const ok = await Dialog.value.show({ title: '현재 페이지에서 나가시겠습니까?', message: '작성된 내용은 떠나갈것입니다...' })
+        const ok = await Dialog.value.show({ title: '현재 페이지에서 나가시겠습니까?', message: '작성된 내용은 떠나갈것입니다...', okButton: '나가기', cancelButton: '취소' })
         ok ? next() : next(false)
       }
     })
@@ -468,7 +468,7 @@ export default defineComponent({
             width: 100%;
             height: 7.4rem;
             border-radius: 2.4rem;
-            border: 2px solid #d9d9d9;
+            border: 2px solid #ddd;
             object-fit: cover;
             padding: 0.2rem;
 
