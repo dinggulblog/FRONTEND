@@ -26,7 +26,7 @@
 
       <div class="toggle">
         <span :style="[isPublic ? { color: '#BABABA' } : { color: 'var(--secondary)' }]">{{ isPublic ? '공개' : '비밀' }}</span>
-        <i class="material-icons" :style="isPublic ? { color: '#E6E6E6' } : { color: 'var(--secondary)' }" @click="onTogglePublic">{{ isPublic ? 'toggle_off' : 'toggle_on' }}</i>
+        <i class="material-icons" :style="isPublic ? { color: '#E6E6E6' } : { color: 'var(--secondary)' }" @click="onToggle">{{ isPublic ? 'toggle_off' : 'toggle_on' }}</i>
       </div>
     </div>
 
@@ -34,9 +34,9 @@
       <div class="title">
         <input type="text" v-model="title" placeholder="제목을 입력하세요." onfocus="this.placeholder=''" onblur="this.placeholder='제목을 입력하세요.'" />
       </div>
-      <div class="file_add_btn">
+      <div class="images_add_btn">
         <label for="upload_input" class="upload_label">사진 불러오기</label>
-        <input type="file" id="upload_input" @change="onFileUpload" multiple />
+        <input type="file" id="upload_input" @change="onImagesUpload" multiple />
       </div>
     </div>
 
@@ -45,31 +45,34 @@
       <markdown class="markdown" :source="content" :plugins="plugins" :breaks="true" :xhtmlOut="true" :typographer="true" />
     </div>
 
-    <div class="files" v-if="files?.length">
+    <div class="images" v-if="draft.images?.length">
       <ul>
-        <li v-for="(flie, index) in files" :key="flie.serverFileName">
+        <li v-for="(image, index) in draft.images" :key="image.serverFileName">
           <div class="wrap_thumbnail">
-            <img src="https://news.nateimg.co.kr/orgImg/cc/2021/07/23/4159_10727_3352.png" :class="fileState.fileIndex === index ? 'selected_thumbnail' : ''" @click="onSelectFile(flie, index)" />
+            <img src="https://news.nateimg.co.kr/orgImg/cc/2021/07/23/4159_10727_3352.png" :class="fileState.fileIndex === index ? 'selected_thumbnail' : ''" @click="onSelectImage(image, index)" />
             <!--
-          <img :src="`${fileState.fileUrl}${flie.serverFileName}`" :class="fileState.fileIndex === index ? 'selectedThumbnail' : ''" @click="onSelectFile(flie, index)" />
+          <img :src="`${fileState.fileUrl}${image.serverFileName}`" :class="fileState.fileIndex === index ? 'selectedThumbnail' : ''" @click="onSelectImage(image, index)" />
           -->
-            <button class="file_del_btn" @click="onDeleteFile(flie, index)"><i class="material-symbols-outlined"> do_not_disturb_on </i></button>
+            <button class="image_del_btn" @click="onDeleteImage(image, index)"><i class="material-symbols-outlined"> do_not_disturb_on </i></button>
           </div>
-          <p class="file_name">{{ flie.serverFileName }}</p>
         </li>
       </ul>
     </div>
 
     <div class="wrap_btns">
       <div class="wrap_left">
-        <button @click="onAddFile" v-show="files?.length" class="file_insert_btn">사진 첨부</button>
-        <button @click="onClearFile" v-show="files?.length" class="file_clear_btn">사진 모두 제거</button>
+        <button @click="onInsertImage" v-show="draft.images?.length" class="image_insert_btn">사진 첨부</button>
+        <button @click="onClearImages" v-show="draft.images?.length" class="image_clear_btn">사진 모두 제거</button>
       </div>
       <div class="wrap_right">
         <div class="wrap_isLoading">
           <Transition name="isLoading">
             <span class="isLoading" v-if="isLoading"> <i class="material-symbols-outlined">hourglass_empty</i>자동 저장중..</span>
           </Transition>
+        </div>
+        <div class="wrap_auto-save">
+          <input type="checkbox" id="auto-save" />
+          <label for="auto-save">자동 저장 여부</label>
         </div>
         <button class="submit_btn" @click="onPostUpload">글 등록</button>
       </div>
@@ -117,13 +120,21 @@ export default defineComponent({
     const title = ref('')
     const content = ref('')
     const isPublic = ref(true)
-    const files = ref([])
     const fileState = reactive({
       fileId: '',
       fileName: '',
       fileUrl: 'http://localhost:3000/uploads/',
       fileIndex: 0,
     })
+
+    const onToggle = () => {
+      isPublic.value = !isPublic.value
+    }
+
+    const onResetMenu = () => {
+      sub.value = ''
+      category.value = ''
+    }
 
     const draftUpload = async () => {
       console.log('자동 저장 시작!')
@@ -133,7 +144,7 @@ export default defineComponent({
         content: content.value,
         category: category.value,
         isPublic: isPublic.value,
-        thumbnail: files.value.length ? fileState.fileId : null,
+        thumbnail: draft.value.images.length ? fileState.fileId : null,
       }
 
       if (draft.value?._id) {
@@ -153,57 +164,47 @@ export default defineComponent({
         content: content.value,
         category: category.value,
         isPublic: isPublic.value,
-        images: files.value?.map((file) => file._id) ?? null,
-        thumbnail: files.value.length ? fileState.fileId : null,
+        images: draft.value.images?.map((image) => image._id) ?? null,
+        thumbnail: draft.value.images.length ? fileState.fileId : null,
       }
 
       route.params.id && postId ? await dispatch('post/updatePost', { postId, payload }) : await dispatch('post/createPost', payload)
     }
 
-    const onFileUpload = async (event) => {
+    const onImagesUpload = async (event) => {
       const formData = new FormData()
       const targetFiles = Object.values(event.target.files)
       targetFiles.forEach((file) => formData.append('images', file))
 
       const response = await dispatch('draft/updateDraft', { draftId: draft.value._id, payload: formData })
       if (response.success) {
-        files.value = draft.value.images
-        onSelectFile([...draft.value.images].shift(), 0)
+        onSelectImage([...draft.value.images].shift(), 0)
       }
     }
 
-    const onDeleteFile = async (file) => {
-      await dispatch('draft/deleteFile', { draftId: draft.value._id, imageId: file._id })
-    }
-
-    const onAddFile = () => {
-      let textarea = contentEl.value
-      let start = textarea.value.substring(0, textarea.selectionStart)
-      let end = textarea.value.substring(textarea.selectionEnd, textarea.value.length)
-
-      const addText = `!` + `[` + `${fileState.fileName}` + `]` + `(` + `${fileState.fileUrl}` + `)\n`
-      content.value = start + addText + end
-      textarea.focus()
-    }
-
-    const onSelectFile = (file, index) => {
+    const onSelectImage = (file, index) => {
       fileState.fileId = file._id
       fileState.fileName = file.serverFileName
       fileState.fileUrl = fileState.fileUrl + fileState.fileName
       fileState.fileIndex = index
     }
 
-    const onClearFile = () => {
-      files.value = []
+    const onDeleteImage = async (file) => {
+      await dispatch('draft/deleteFile', { draftId: draft.value._id, imageId: file._id })
     }
 
-    const onTogglePublic = () => {
-      isPublic.value = !isPublic.value
+    const onInsertImage = () => {
+      let textarea = contentEl.value
+      let start = textarea.value.substring(0, textarea.selectionStart)
+      let end = textarea.value.substring(textarea.selectionEnd, textarea.value.length)
+
+      const innerText = `!` + `[` + `${fileState.fileName}` + `]` + `(` + `${fileState.fileUrl}` + `)\n`
+      content.value = start + innerText + end
+      textarea.focus()
     }
 
-    const onResetMenu = () => {
-      sub.value = ''
-      category.value = ''
+    const onClearImages = () => {
+      draft.value.images = []
     }
 
     const toggleCanLeavePage = (bool) => {
@@ -231,15 +232,13 @@ export default defineComponent({
     onBeforeMount(async () => {
       const setInitData = (post) => {
         const menu = state.menu.menus.find((menu) => menu._id === post.menu)
-        const images = [...post.images]
         main.value = menu?.main
         sub.value = menu?.sub
         title.value = post?.title
         content.value = post?.content
         isPublic.value = post?.isPublic
-        if (images.length) {
-          files.value = images
-          onSelectFile(images.shift(), 0)
+        if (post.images.length) {
+          onSelectImage([...post.images].shift(), 0)
         }
       }
 
@@ -290,16 +289,16 @@ export default defineComponent({
       title,
       content,
       isPublic,
-      files,
+      draft,
       fileState,
       isLoading,
       onPostUpload,
-      onFileUpload,
-      onAddFile,
-      onClearFile,
-      onDeleteFile,
-      onSelectFile,
-      onTogglePublic,
+      onImagesUpload,
+      onInsertImage,
+      onClearImages,
+      onDeleteImage,
+      onSelectImage,
+      onToggle,
       onResetMenu,
     }
   },
@@ -389,7 +388,7 @@ export default defineComponent({
       }
     }
 
-    .file_add_btn {
+    .images_add_btn {
       width: 15%;
       display: flex;
       justify-content: flex-end;
@@ -446,7 +445,7 @@ export default defineComponent({
     }
   }
 
-  .files {
+  .images {
     ul {
       display: flex;
       flex-direction: row;
@@ -476,7 +475,7 @@ export default defineComponent({
               border: 2px solid var(--primary-dark);
             }
           }
-          .file_del_btn {
+          .image_del_btn {
             position: absolute;
             bottom: -0.6rem;
             right: -0.6rem;
@@ -491,18 +490,6 @@ export default defineComponent({
             }
           }
         }
-
-        .file_name {
-          width: 7.4rem;
-          height: 1.6rem;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          word-break: break-all;
-          margin: 0.8rem 0 0;
-          font-size: 1.2rem;
-          color: var(--text-light);
-        }
       }
     }
   }
@@ -515,8 +502,8 @@ export default defineComponent({
     .wrap_left {
       width: 50%;
 
-      .file_insert_btn,
-      .file_clear_btn {
+      .image_insert_btn,
+      .image_clear_btn {
         border: 2px solid var(--primary-dark);
         color: var(--primary-dark);
         border-radius: 3.2rem;
@@ -527,7 +514,7 @@ export default defineComponent({
         letter-spacing: 0.1rem;
       }
 
-      .file_clear_btn {
+      .image_clear_btn {
         margin: 0 0 0 1.2rem;
       }
     }
@@ -548,6 +535,22 @@ export default defineComponent({
         .isLoading-enter-from,
         .isLoading-leave-to {
           opacity: 0;
+        }
+      }
+
+      .wrap_auto-save {
+        display: flex;
+        align-items: center;
+        margin: 0 0 0 2.4rem;
+
+        #auto-save {
+          width: 1.6rem;
+          height: 1.6rem;
+        }
+        label {
+          margin: 0 2.4rem 0 1.2rem;
+          font-size: 1.3rem;
+          color: var(--text-dark);
         }
       }
 

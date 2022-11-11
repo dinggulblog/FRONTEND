@@ -1,27 +1,16 @@
 <template>
-  <template v-if="type === 'post'">
-    <Toggle>
-      <template #toggle_btn>
-        <button><i class="material-icons">more_horiz</i></button>
-      </template>
-      <template #modify><li  @click="onUpdatePost">글 수정</li></template>
-      <template #delete><li>글 삭제</li></template>
-      <template #copy><li>링크 복사</li></template>
-    </Toggle>
-  </template>
-
-  <template v-if="type === 'comment'">
-    <Toggle>
-      <template #toggle_btn>
-        <button><i class="material-icons">more_horiz</i></button>
-      </template>
-      <template #modify><li>댓글 수정</li></template>
-      <template #delete><li>댓글 삭제</li></template>
-    </Toggle>
-  </template>
+  <Toggle ref="toggle">
+    <template #toggle_btn>
+      <button class="btn_toggle" @click.stop="onToggleVisible"><i class="material-icons toggle_ico">more_horiz</i></button>
+    </template>
+    <template #toggle_items>
+      <li v-for="(item, idx) in items" :key="item" @click.stop="$emit(methods[idx])">{{ item }}</li>
+    </template>
+  </Toggle>
 </template>
 
 <script>
+import { ref } from 'vue'
 import Toggle from '../Toggle.vue'
 
 export default {
@@ -30,21 +19,57 @@ export default {
     Toggle,
   },
   props: {
-    type: {
-      type: String,
+    items: {
+      type: Array,
       required: true,
     },
   },
-  setup(props, { emit }) {
-    const onUpdatePost = () => {
-      emit('updatePost')
+  setup(props) {
+    const methods = ref(['onModify', 'onDelete', 'onCopy'])
+    const toggle = ref(null)
+
+    const onToggleVisible = () => {
+      toggle.value.toggleVisible()
     }
 
     return {
-      onUpdatePost
+      methods,
+      toggle,
+      onToggleVisible,
     }
   },
 }
 </script>
 
-<style lang="scss" rel="stylesheet/scss"></style>
+<style lang="scss" rel="stylesheet/scss">
+.toggle {
+  position: relative;
+  .btn_toggle {
+    i {
+      font-size: 2.4rem;
+      color: var(--list_info);
+    }
+  }
+
+  .wrap_toggle_items {
+    position: absolute;
+    top: 3.2rem;
+    right: 0;
+    ul {
+      width: 9.6rem;
+      border-radius: 2.4rem;
+      padding: 0.8rem 1.2rem;
+      box-shadow: 0 0.1rem 2rem rgb(0 0 0 / 16%);
+
+      li {
+        display: flex;
+        justify-content: center;
+        padding: 0.4rem 0;
+        margin: 0.8rem 0;
+        font-size: 1.2rem;
+        color: var(--input_text);
+      }
+    }
+  }
+}
+</style>

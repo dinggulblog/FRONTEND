@@ -55,6 +55,7 @@ export default {
       commit('menu/SET_CURRENT_MENUS', { main: route.params.main, sub: route.params.sub })
       commit('menu/SET_CURRENT_CATEGORIES', menus.value)
       commit('menu/SET_CURRENT_TYPE', menus.value)
+      console.log(user.value)
 
       const query = {
         page: page.value,

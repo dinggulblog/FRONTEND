@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { getItem } from '../common/sessionStorage'
 import store from '../store/index'
 import Home from '../views/Home.vue'
 import Login from '../views/auth/Login.vue'
@@ -30,7 +31,7 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   document.title = to.meta?.title ?? 'DINGGUL'
 
-  if (!store.state.auth.user._id && sessionStorage.getItem('loginState')) {
+  if (!store.state.auth.user._id && getItem('isLogin', false)) {
     await store.dispatch('auth/getAccount')
   }
 

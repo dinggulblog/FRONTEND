@@ -1,23 +1,25 @@
 <template>
-  <div id="header">
-    <MyHeader />
-  </div>
-
-  <div class="content-container">
-    <div id="content">
-      <router-view />
+  <div id="root">
+    <div id="header">
+      <MyHeader />
     </div>
-  </div>
 
-  <div id="footer">copyright SOL & MING all rights reserved</div>
+    <div class="content-container">
+      <div id="content">
+        <router-view />
+      </div>
+    </div>
 
-  <div class="m-createBtn">
-    <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
+    <div id="footer">copyright SOL & MING all rights reserved</div>
+
+    <div class="m-createBtn">
+      <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
+    </div>
   </div>
 </template>
 
 <script>
-import MyHeader from './components/MyHeader.vue'
+import MyHeader from './components/global/MyHeader.vue'
 
 export default {
   name: 'app',

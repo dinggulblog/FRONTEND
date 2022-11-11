@@ -13,7 +13,7 @@
     <!-- Account info -->
     <div class="wrap_auth" v-else>
       <div class="auth">
-        <img class="avatar" src="../assets/4.jpg" alt="user_avatar" />
+        <img class="avatar" src="../../assets/4.jpg" alt="user_avatar" />
         <span class="nickname">{{ user.nickname }} 님</span>
       </div>
 
@@ -50,7 +50,6 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
-  name: 'navigation',
   setup(props, { emit }) {
     const { state, dispatch } = useStore()
 

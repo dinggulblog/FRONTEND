@@ -1,23 +1,17 @@
 <template>
   <div class="commentEditor">
-    <textarea 
-      v-model="content" 
-      ref="contentEl"
-      :placeholder="[route.params.main === 'guest' ? '방명록을 작성해보세요' : '코멘트를 작성해보세요']"
-      @focus="placeholder = ''"
-      @blur="placeholder = [route.params.main === 'guest' ? '방명록을 작성해보세요' : '코멘트를 작성해보세요']">
-    </textarea>
+    <textarea v-model="content" ref="contentEl" onfocus="this.placeholder = ''" @blur="handlerBlur"> </textarea>
 
     <div class="wrap_btns">
       <div class="wrap_toggle">
         <div class="toggle">
-          <i class="material-icons" v-text="isPublic ? 'toggle_off' : 'toggle_on'" :style="[isPublic ? { color: 'var(--list_info-light)' } : { color: 'var(--secondary)' }]" @click="onIsPublic()"></i>
+          <i class="material-icons" v-text="isPublic ? 'toggle_off' : 'toggle_on'" :style="[isPublic ? { color: 'var(--list_info-light)' } : { color: 'var(--secondary)' }]" @click="onToggle"></i>
           <span v-text="isPublic ? '공개' : '비밀'" :style="[isPublic ? { color: 'var(--list_info-dark)' } : { color: 'var(--secondary)' }]"></span>
         </div>
       </div>
       <div class="wrap_submit">
         <div class="submit">
-          <button class="btn_submit" @click="!comment ? onCreateComment() : onUpdateComment()">{{ !comment ? '댓글 작성' : '댓글 수정' }}</button>
+          <button class="btn_submit" @click="!comment && !modify ? onCreateComment() : onUpdateComment()">{{ !comment && !modify ? '댓글 작성' : '댓글 수정' }}</button>
         </div>
       </div>
     </div>
@@ -25,7 +19,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
@@ -33,14 +27,24 @@ export default {
   props: {
     post: {
       type: Object,
-      required: true
+      required: true,
     },
     comment: {
-      type: Object
+      type: Object,
     },
     parentId: {
-      type: String
-    }
+      type: String,
+    },
+    isAuthorized: {
+      type: Boolean,
+    },
+    placeholderText: {
+      type: String,
+      default: '코멘트를 작성해보세요',
+    },
+    modify: {
+      type: Boolean,
+    },
   },
   setup(props) {
     const route = useRoute()
@@ -50,17 +54,23 @@ export default {
     const content = ref('')
     const isPublic = ref(true)
 
-    const onTogglePublic = () => {
+    const handlerBlur = () => {
+      contentEl.value.placeholder = props.placeholderText
+    }
+
+    const onToggle = () => {
       isPublic.value = !isPublic.value
+      console.log(isPublic.value)
     }
 
     const onCreateComment = async () => {
-      await dispatch('comment/createComment', { 
+      await dispatch('comment/createComment', {
         postId: props.post._id,
         parentId: props?.parentId ?? '',
         content: content.value,
-        isPublic: isPublic.value
+        isPublic: isPublic.value,
       })
+      content.value = ''
     }
 
     const onUpdateComment = async () => {
@@ -68,20 +78,22 @@ export default {
         id: props.comment._id,
         postId: props.post._id,
         content: content.value,
-        isPublic: isPublic.value
+        isPublic: isPublic.value,
       })
+      content.value = ''
     }
 
     onMounted(() => {
-      if (props.comment) {
-        content.value = props.comment.content
-      }
+      contentEl.value.placeholder = props.placeholderText
       if (props.parentId) {
         contentEl.value?.focus()
+      } else if (props.comment) {
+        contentEl.value?.focus()
+        //content.value = props.comment.content
       }
     })
 
-    return { route, content, contentEl, isPublic, onTogglePublic, onCreateComment, onUpdateComment }
+    return { route, content, contentEl, isPublic, handlerBlur, onToggle, onCreateComment, onUpdateComment }
   },
 }
 </script>

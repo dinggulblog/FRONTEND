@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import PopupModal from './PopupModal.vue'
+import PopupModal from './global/PopupModal.vue'
 
 export default {
   name: 'Dialog',

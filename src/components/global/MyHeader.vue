@@ -18,7 +18,7 @@
           <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
           <div class="auth dropdown">
             <span class="nickname">{{ user.nickname }} 님</span>
-            <img class="avatar" src="../assets/4.jpg" alt="user_avatar" />
+            <img class="avatar" src="../../assets/4.jpg" alt="user_avatar" />
             <div class="auth_items dropdown_items">
               <ul>
                 <li><router-link :to="{ name: 'account' }">Account</router-link></li>
@@ -53,8 +53,8 @@
 <script>
 import { ref, computed, onBeforeMount, onMounted } from 'vue'
 import { useStore } from 'vuex'
-import Navigation from '../components/Navigation.vue'
-import SearchForm from '../components/SearchForm.vue'
+import Navigation from './Navigation.vue'
+import SearchForm from '../SearchForm.vue'
 
 export default {
   components: {

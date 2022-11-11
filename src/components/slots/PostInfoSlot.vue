@@ -31,7 +31,7 @@ export default {
   props: {
     post: {
       type: Object,
-      required: true
+      required: true,
     },
   },
   setup() {
@@ -39,3 +39,6 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" rel="stylesheet/scss">
+</style>

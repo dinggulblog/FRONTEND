@@ -15,7 +15,7 @@
           </div>
         </div>
         <div class="wrap_right">
-          <ToggleSlot :type="'post'" @updatePost="onUpdatePost" />
+          <ToggleSlot :items="['글 수정', '글 삭제', '링크 복사']" @onModify="onUpdatePost" @onDelete="onDeletePost" @onCopy="onCopyLink" />
         </div>
       </div>
 
@@ -44,7 +44,7 @@
       <div class="comments" v-if="comments.length" ref="commentsEl">
         <h2>댓글 {{ comments.length }}개</h2>
         <ul>
-          <CommentSlot v-for="comment in comments" :key="comment._id" :comment="comment" :post="post" />
+          <CommentSlot v-for="comment in comments" :key="comment._id" :comment="comment" :post="post" :isAuthorized="onGetAuthorized(comment)" />
         </ul>
       </div>
     </div>
@@ -80,8 +80,9 @@ export default defineComponent({
     const route = useRoute()
     const { push } = useRouter()
     const { state, dispatch } = useStore()
-    
+
     const Dialog = ref(null)
+    const commentsEl = ref(null)
     const plugins = ref([{ plugin: MarkdownEmoji }])
 
     const isOpen = ref(true) // Toggle display of the options when clicking
@@ -92,8 +93,6 @@ export default defineComponent({
     const likes = computed(() => state.post.likes)
     const likeCount = computed(() => state.post.likeCount)
     const comments = computed(() => state.comment.comments)
-
-    const commentsEl = ref(null)
 
     const openOptionBtn = () => {
       isOpen.value = false
@@ -122,7 +121,7 @@ export default defineComponent({
     const onUpdateLike = debounce(updateLike, 200)
     const onDeleteLike = debounce(deleteLike, 200)
 
-    const onUpdatePost = async () => {
+    const onUpdatePost = () => {
       if (post.value._id) {
         push({ name: 'editor', params: post.value._id })
       }
@@ -140,6 +139,17 @@ export default defineComponent({
       } catch (err) {
         alert('링크 복사에 실패하였습니다.')
       }
+    }
+
+    const onGetAuthorized = (comment) => {
+      if (comment.isPublic) {
+        return true
+      } else if (user.value && post.value.author.nickname === user.value.nickname) {
+        return true
+      } else if (user.value && comment.commenter.nickname === user.value.nickname) {
+        return true
+      }
+      return false
     }
 
     onBeforeMount(async () => {
@@ -169,6 +179,7 @@ export default defineComponent({
       dayjs,
       route,
       Dialog,
+      commentsEl,
       plugins,
       isOpen,
       isLike,
@@ -177,7 +188,6 @@ export default defineComponent({
       likes,
       likeCount,
       comments,
-      commentsEl,
       openOptionBtn,
       closeOptionBtn,
       onUpdateLike,
@@ -185,6 +195,7 @@ export default defineComponent({
       onUpdatePost,
       onDeletePost,
       onCopyLink,
+      onGetAuthorized,
     }
   },
 })
@@ -211,6 +222,7 @@ export default defineComponent({
             h2 {
               font-size: 2rem;
               color: var(--list_title);
+              font-weight: 400;
             }
 
             .lock_ico {
@@ -223,37 +235,6 @@ export default defineComponent({
             }
           }
         }
-
-        .wrap_info {
-          display: flex;
-
-          span {
-            display: flex;
-            align-items: center;
-            position: relative;
-            font-size: 1.3rem;
-            color: var(--list_info-dark);
-            margin: 0 2.4rem 0 0;
-            padding: 0 0 0 2.4rem;
-
-            &::before {
-              content: '';
-              position: absolute;
-              left: 0;
-              width: 0.01rem;
-              height: 1.2rem;
-              background-color: var(--border-dark);
-            }
-
-            &:first-child {
-              padding: 0;
-
-              &::before {
-                display: none;
-              }
-            }
-          }
-        }
       }
 
       .wrap_right {
@@ -262,16 +243,6 @@ export default defineComponent({
         flex-basis: 20%;
         align-items: flex-end;
         justify-content: center;
-        .toggle {
-          .btn_toggle > i {
-            font-size: 2.4rem;
-            color: var(--list_info);
-          }
-
-          ul {
-            display: none;
-          }
-        }
       }
     }
 
@@ -319,6 +290,7 @@ export default defineComponent({
         color: var(--list_info-dark);
         font-weight: 400;
         font-size: 1.6rem;
+        margin: 0 0 3.2rem 0;
       }
     }
   }
