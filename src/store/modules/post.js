@@ -61,7 +61,7 @@ const actions = {
       const { data } = await axios.post('v1/posts', payload)
       const { post } = data.data
       commit('SET_POST', post)
-      router.push({ name: 'post', params: { main: post.menu.main, sub: post.menu.sub, id: post._id } })
+      router.push({ name: 'post', query: { id: post._id } })
     } catch (err) {
       alert(err.response.data?.message)
     }

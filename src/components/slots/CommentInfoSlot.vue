@@ -43,7 +43,6 @@ export default {
     },
   },
   setup(props) {
-    console.log(props.comment)
     return { dayjs }
   },
 }

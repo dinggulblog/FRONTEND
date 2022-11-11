@@ -85,7 +85,6 @@ export default defineComponent({
     const commentsEl = ref(null)
     const plugins = ref([{ plugin: MarkdownEmoji }])
 
-    const isOpen = ref(true) // Toggle display of the options when clicking
     const isLike = ref(false)
 
     const user = computed(() => state.auth.user)
@@ -93,14 +92,6 @@ export default defineComponent({
     const likes = computed(() => state.post.likes)
     const likeCount = computed(() => state.post.likeCount)
     const comments = computed(() => state.comment.comments)
-
-    const openOptionBtn = () => {
-      isOpen.value = false
-    }
-
-    const closeOptionBtn = () => {
-      isOpen.value = true
-    }
 
     const updateLike = async () => {
       if (!user.value?._id) return alert('로그인 후 이용 가능합니다.')
@@ -159,11 +150,9 @@ export default defineComponent({
       } else {
         push({ name: 'home' })
       }
-    })
 
-    onMounted(() => {
-      if (route.query.quickMove) {
-        const y = commentsEl.value.offsetTop - document.querySelector('.headerWrap').offsetHeight - 33
+      if (route.query.quickMove && comments.value.length) {
+        const y = commentsEl.value.offsetTop - document.querySelector('#header').offsetHeight - 32
         window.scrollTo({ top: y, behavior: 'smooth' })
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -181,15 +170,12 @@ export default defineComponent({
       Dialog,
       commentsEl,
       plugins,
-      isOpen,
       isLike,
       user,
       post,
       likes,
       likeCount,
       comments,
-      openOptionBtn,
-      closeOptionBtn,
       onUpdateLike,
       onDeleteLike,
       onUpdatePost,
