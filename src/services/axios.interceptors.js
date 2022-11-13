@@ -1,14 +1,13 @@
 import axiosInstance from './axios'
-import TokenService from './token.service'
 
 const setup = (store) => {
   axiosInstance.interceptors.request.use(
     async (config) => {
-      const token = TokenService.getAccessToken()
+      const token = store.state.auth.token
 
-      config.headers['Authorization'] = token
-        ? 'Bearer ' + token
-        : config.url.endsWith('account') && config.method.toLowerCase() === 'post' ? process.env.VUE_APP_SECRET_KEY?.trim() : null
+      store.commit('loading/SET_LOADING', true)
+
+      config.headers['Authorization'] = token ? 'Bearer ' + token : config.url.endsWith('account') && config.method.toLowerCase() === 'post' ? process.env.VUE_APP_SECRET_KEY?.trim() : null
 
       return config
     },
@@ -19,12 +18,16 @@ const setup = (store) => {
 
   axiosInstance.interceptors.response.use(
     (response) => {
+      store.commit('loading/SET_LOADING', false)
       return response
     },
     async (error) => {
       const originalConfig = error.config
+
+      store.commit('loading/SET_LOADING', false)
+
       console.log('Error response: ', error.response.status, error.response.data, '\nRequested URL: ', error.response.request.responseURL, '\n')
-      
+
       if (!originalConfig.url.endsWith('auth') && error.response) {
         // 419 Error response => Refresh token was expired OR not exist => Logout
         if (error.response.status === 419) {

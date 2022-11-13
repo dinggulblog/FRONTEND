@@ -4,7 +4,7 @@
       <button class="btn_toggle" @click.stop="onToggleVisible"><i class="material-icons toggle_ico">more_horiz</i></button>
     </template>
     <template #toggle_items>
-      <li v-for="(item, idx) in items" :key="item" @click.stop="$emit(methods[idx])">{{ item }}</li>
+      <li v-for="(value, key) in toggleItems" :key="key" @click.stop="value">{{ key }}</li>
     </template>
   </Toggle>
 </template>
@@ -19,13 +19,12 @@ export default {
     Toggle,
   },
   props: {
-    items: {
-      type: Array,
+    toggleItems: {
+      type: Object,
       required: true,
     },
   },
   setup(props) {
-    const methods = ref(['onModify', 'onDelete', 'onCopy'])
     const toggle = ref(null)
 
     const onToggleVisible = () => {
@@ -33,7 +32,6 @@ export default {
     }
 
     return {
-      methods,
       toggle,
       onToggleVisible,
     }

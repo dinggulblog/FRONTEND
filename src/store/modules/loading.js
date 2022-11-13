@@ -1,12 +1,15 @@
 const state = () => ({
   isLoading: false,
-  message: '',
+  percentage: 0,
 })
 
 const mutations = {
-  SET_LOADING(state, { isLoading, message }) {
-    state.isLoading = isLoading
-    state.message = message
+  SET_LOADING(state, boolean) {
+    state.isLoading = boolean
+  },
+
+  SET_PERCENTAGE(state, num) {
+    state.percentage = num
   },
 }
 

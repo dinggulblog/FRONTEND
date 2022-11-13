@@ -66,10 +66,7 @@ const actions = {
   async getAccount({ commit }) {
     try {
       const { data } = await axios.get('v1/users/account')
-
-      if (data.success) {
-        commit('SET_USER', data.data.user)
-      }
+      commit('SET_USER', data.data.user)
     } catch (err) {
       return err.response.data
     }

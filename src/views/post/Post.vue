@@ -15,7 +15,7 @@
           </div>
         </div>
         <div class="wrap_right">
-          <ToggleSlot :items="['글 수정', '글 삭제', '링크 복사']" @onModify="onUpdatePost" @onDelete="onDeletePost" @onCopy="onCopyLink" />
+          <ToggleSlot :toggleItems="{ '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }" />
         </div>
       </div>
 
@@ -114,7 +114,7 @@ export default defineComponent({
 
     const onUpdatePost = () => {
       if (post.value._id) {
-        push({ name: 'editor', params: post.value._id })
+        push({ name: 'editor', query: { id: post.value._id } })
       }
     }
 

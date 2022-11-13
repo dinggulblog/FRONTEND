@@ -32,14 +32,16 @@ const actions = {
   // params: Object (draft)
   async updateDraft({ commit }, { draftId, payload }) {
     try {
-      commit('loading/SET_LOADING', true, { root: true })
-      const { data } = await axios.put(`v1/drafts/${draftId}`, payload)
+      const { data } = await axios.put(`v1/drafts/${draftId}`, payload, {
+        onUploadProgress: (progressEvent) => {
+          let percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          commit('loding/SET_PERCENTAGE', percentage, { root: true })
+        },
+      })
       commit('SET_DRAFT', data.data.draft)
       return data
     } catch (err) {
       return err.response.data
-    } finally {
-      commit('loading/SET_LOADING', false, { root: true })
     }
   },
 

@@ -67,7 +67,7 @@
       <div class="wrap_right">
         <div class="wrap_isLoading">
           <Transition name="isLoading">
-            <span class="isLoading" v-if="isLoading"> <i class="material-symbols-outlined">hourglass_empty</i>자동 저장중..</span>
+            <span class="isLoading" v-if="isLoading"> <i class="material-symbols-outlined">hourglass_empty</i>{{ `자동 저장중...${percentage}` }}</span>
           </Transition>
         </div>
         <div class="wrap_auto-save">
@@ -108,6 +108,7 @@ export default defineComponent({
     let canLeavePage = true
     let stopDraftUpdate = false
     const isLoading = computed(() => state.loading.isLoading)
+    const percentage = computed(() => state.loading.percentage)
     const draft = computed(() => state.draft.draft)
 
     const mainMenus = computed(() => Object.keys(state.menu.groupedMenus))
@@ -258,7 +259,7 @@ export default defineComponent({
 
     onMounted(() => {
       window.addEventListener('beforeunload', unloadEvent)
-      if (!route.params.id) startAutoUpdate()
+      if (!route.query.id) startAutoUpdate()
     })
 
     onUnmounted(async () => {
@@ -292,6 +293,7 @@ export default defineComponent({
       draft,
       fileState,
       isLoading,
+      percentage,
       onPostUpload,
       onImagesUpload,
       onInsertImage,
