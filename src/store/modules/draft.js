@@ -35,7 +35,7 @@ const actions = {
       const { data } = await axios.put(`v1/drafts/${draftId}`, payload, {
         onUploadProgress: (progressEvent) => {
           let percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          commit('loding/SET_PERCENTAGE', percentage, { root: true })
+          commit('loading/SET_PERCENTAGE', percentage, { root: true })
         },
       })
       commit('SET_DRAFT', data.data.draft)
