@@ -11,7 +11,7 @@
       </div>
       <div class="wrap_submit">
         <div class="submit">
-          <button class="btn_submit" @click="!comment && !modify ? onCreateComment() : onUpdateComment()">{{ !comment && !modify ? '댓글 작성' : '댓글 수정' }}</button>
+          <button class="btn_submit" @click="!isUpdate ? onCreateComment() : onUpdateComment()">{{ !isUpdate ? '댓글 작성' : '댓글 수정' }}</button>
         </div>
       </div>
     </div>
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onBeforeMount } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
@@ -32,9 +32,6 @@ export default {
     comment: {
       type: Object,
     },
-    parentId: {
-      type: String,
-    },
     isAuthorized: {
       type: Boolean,
     },
@@ -42,14 +39,15 @@ export default {
       type: String,
       default: '코멘트를 작성해보세요',
     },
-    modify: {
+    isUpdate: {
       type: Boolean,
     },
   },
-  setup(props) {
+  setup(props, { emit }) {
     const route = useRoute()
     const { dispatch } = useStore()
     const contentEl = ref(null)
+    const parentId = ref(null)
 
     const content = ref('')
     const isPublic = ref(true)
@@ -66,11 +64,12 @@ export default {
     const onCreateComment = async () => {
       await dispatch('comment/createComment', {
         postId: props.post._id,
-        parentId: props?.parentId ?? '',
+        parentId: props.comment._id,
         content: content.value,
         isPublic: isPublic.value,
       })
       content.value = ''
+      emit('closeEditor')
     }
 
     const onUpdateComment = async () => {
@@ -81,15 +80,19 @@ export default {
         isPublic: isPublic.value,
       })
       content.value = ''
+      emit('closeEditor')
     }
 
     onMounted(() => {
       contentEl.value.placeholder = props.placeholderText
-      if (props.parentId) {
-        contentEl.value?.focus()
-      } else if (props.comment) {
-        contentEl.value?.focus()
-        //content.value = props.comment.content
+      if (!props.comment) {
+        return
+      } else if (props.isUpdate) {
+        content.value = props.comment.content
+        contentEl.value.focus()
+      } else {
+        parentId.value = props.comment.parentComment
+        contentEl.value.focus()
       }
     })
 

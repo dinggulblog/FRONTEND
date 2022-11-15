@@ -1,5 +1,5 @@
 <template>
-  <div class="toggle" ref="toggleDiv">
+  <div class="toggle">
     <slot name="toggle_btn"></slot>
     <div class="wrap_toggle_items" v-if="isVisible">
       <ul>
@@ -10,33 +10,22 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 export default {
   name: 'Toggle',
   setup() {
-    const toggleDiv = ref(null)
     const isVisible = ref(false)
 
-    const toggleVisible = () => {
+    const toggle = () => {
       isVisible.value = !isVisible.value
     }
 
-    const clickOutsideToClose = (event) => {
-      if (toggleDiv.value && !toggleDiv.value.firstElementChild.contains(event.target)) {
-        isVisible.value = false
-      }
+    const close = () => {
+      isVisible.value = false
     }
 
-    onMounted(() => {
-      const root = document.querySelector('#root')
-      if (root.getAttribute('listener') !== 'click') {
-        root.addEventListener('click', clickOutsideToClose)
-        root.setAttribute('listener', 'click')
-      }
-    })
-
-    return { toggleDiv, isVisible, toggleVisible }
+    return { isVisible, close, toggle }
   },
 }
 </script>

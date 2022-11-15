@@ -4,39 +4,46 @@
       <div class="wrap_left">
         <CommentInfoSlot :comment="comment" />
         <div class="wrap_reply_btn">
-          <button v-if="!isVisible" class="btn_reply" @click="onCommentEditor">답글 작성</button>
-          <button v-else class="btn_reply" @click="onCommentEditor">답글 작성 취소</button>
+          <button v-if="!isVisible" class="btn_reply" @click="onCreateEditor">답글 작성</button>
+          <button v-else class="btn_reply" @click="onCloseEditor">답글 작성 취소</button>
         </div>
       </div>
-      <div class="wrap_right"></div>
+      <div class="wrap_right">
+        <ToggleSlot :toggleItems="{ '댓글 수정': onUpdateEditor, '댓글 삭제': onDeleteComment, '댓글 복사': onCopyComment }" />
+      </div>
     </div>
     <div class="content">
       <p v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</p>
       <p v-else>{{ comment.content }}</p>
     </div>
-    <CommentEditor v-if="isVisible" :post="post" :comment="comment" />
+    <CommentEditor v-if="isVisible" :post="post" :comment="comment" :isUpdate="isUpdate" @closeEditor="onCloseEditor" />
   </li>
 
-  <li v-else>
-    <p>해당 댓글은 삭제된 댓글입니다.</p>
+  <li class="not-is-acitve" v-else>
+    <p>** 해당 댓글은 삭제된 댓글입니다 **</p>
   </li>
 
   <ul style="margin-left: 8rem" v-if="comment.childComments">
     <CommentSlot v-for="child in comment.childComments" :key="child._id" :comment="child" :post="post" :isAuthorized="isAuthorized" />
   </ul>
+  <Dialog ref="Dialog"></Dialog>
 </template>
 
 <script>
+import { ref } from 'vue'
+import { useStore } from 'vuex'
 import ToggleSlot from './ToggleSlot.vue'
 import CommentInfoSlot from './CommentInfoSlot.vue'
 import CommentEditor from '../CommentEditor.vue'
-import { ref } from 'vue'
+import Dialog from '../../components/Dialog.vue'
 
 export default {
   name: 'CommentSlot',
   components: {
     CommentInfoSlot,
     CommentEditor,
+    Dialog,
+    ToggleSlot,
   },
   props: {
     comment: {
@@ -52,15 +59,49 @@ export default {
       required: true,
     },
   },
-  setup() {
+  setup(props) {
+    const { dispatch } = useStore()
     const isVisible = ref(false)
+    const Dialog = ref(null)
+    const isUpdate = ref(false)
 
-    const onCommentEditor = () => {
-      !isVisible.value ? (isVisible.value = true) : (isVisible.value = false)
+    const onCreateEditor = () => {
+      isUpdate.value = false
+      isVisible.value = true
     }
+
+    const onUpdateEditor = () => {
+      isUpdate.value = true
+      isVisible.value = true
+    }
+
+    const onCloseEditor = () => {
+      isVisible.value = false
+    }
+
+    const onDeleteComment = async () => {
+      const ok = await Dialog.value.show({ title: '댓글 삭제', message: '해당 댓글을 삭제하시겠습니까?\n한번 삭제된 댓글은 되돌릴 수 없습니다.' })
+      if (ok) await dispatch('comment/deleteComment', { postId: props.post._id, id: props.comment._id })
+    }
+
+    const onCopyComment = async () => {
+      try {
+        await navigator.clipboard.writeText(props.comment.content)
+        alert('댓글 내용이 복사되었습니다')
+      } catch (err) {
+        alert('댓글 내용 복사에 실패하였습니다.')
+      }
+    }
+    
     return {
+      Dialog,
       isVisible,
-      onCommentEditor,
+      isUpdate,
+      onCreateEditor,
+      onUpdateEditor,
+      onCloseEditor,
+      onDeleteComment,
+      onCopyComment,
     }
   },
 }
@@ -78,6 +119,7 @@ export default {
     .wrap_left {
       display: flex;
       align-items: center;
+      width: 50%;
 
       .wrap_reply_btn {
         margin: 0 0 0 3.2rem;
@@ -88,11 +130,23 @@ export default {
         }
       }
     }
+
+    .wrap_right {
+      width: 50%;
+      display: flex;
+      justify-content: flex-end;
+    }
   }
 
   .content {
     color: #bababa;
     font-size: 1.4rem;
   }
+}
+
+.not-is-acitve {
+  margin: 0 0 6.4rem;
+  font-size: 1.4rem;
+  color: #bababa;
 }
 </style>

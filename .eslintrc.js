@@ -11,6 +11,7 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-unused-vars': 0,
+    'no-extra-boolean-cast': 0,
     'no-mixed-spaces-and-tabs': 0,
     'vetur.validation.template': 0,
     'vetur.validation.script': 0,
