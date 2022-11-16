@@ -87,9 +87,9 @@ const actions = {
    * @param {String} payload Post ID
    */
 
-  async updateLike({ commit }, payload) {
+  async updateLike({ commit }, { postId }) {
     try {
-      const { data } = await axios.put(`v1/posts/${payload}/like`)
+      const { data } = await axios.put(`v1/posts/${postId}/like`)
       const { likes, likeCount } = data.data
       commit('SET_POST_LIKES', { likes, likeCount })
     } catch (err) {

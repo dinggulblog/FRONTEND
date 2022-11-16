@@ -4,10 +4,7 @@
 
     <div class="wrap_btns">
       <div class="wrap_toggle">
-        <div class="toggle">
-          <i class="material-icons" v-text="isPublic ? 'toggle_off' : 'toggle_on'" :style="[isPublic ? { color: 'var(--list_info-light)' } : { color: 'var(--secondary)' }]" @click="onToggle"></i>
-          <span v-text="isPublic ? '공개' : '비밀'" :style="[isPublic ? { color: 'var(--list_info-dark)' } : { color: 'var(--secondary)' }]"></span>
-        </div>
+        <Toggle :isPublic="isPublic" @updateIsPublic="onUpdatedIsPublic" />
       </div>
       <div class="wrap_submit">
         <div class="submit">
@@ -22,8 +19,12 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
+import Toggle from '../components/Toggle.vue'
 
 export default {
+  components: {
+    Toggle,
+  },
   props: {
     post: {
       type: Object,
@@ -55,16 +56,14 @@ export default {
     const handlerBlur = () => {
       contentEl.value.placeholder = props.placeholderText
     }
-
-    const onToggle = () => {
-      isPublic.value = !isPublic.value
-      console.log(isPublic.value)
+    const onUpdatedIsPublic = (state) => {
+      isPublic.value = state
     }
 
     const onCreateComment = async () => {
       await dispatch('comment/createComment', {
         postId: props.post._id,
-        parentId: props.comment._id,
+        parentId: props.comment ? props.comment._id : '',
         content: content.value,
         isPublic: isPublic.value,
       })
@@ -96,7 +95,7 @@ export default {
       }
     })
 
-    return { route, content, contentEl, isPublic, handlerBlur, onToggle, onCreateComment, onUpdateComment }
+    return { route, content, contentEl, isPublic, handlerBlur, onUpdatedIsPublic, onCreateComment, onUpdateComment }
   },
 }
 </script>

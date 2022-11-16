@@ -17,8 +17,7 @@
         <div class="wrap_auth" v-if="!isMobile && user.nickname">
           <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
           <div class="auth dropdown">
-            <span class="nickname">{{ user.nickname }} 님</span>
-            <img class="avatar" src="../../assets/4.jpg" alt="user_avatar" />
+            <AuthorSlot :user="user" :type="'header'" />
             <div class="auth_items dropdown_items">
               <ul>
                 <li><router-link :to="{ name: 'account' }">Account</router-link></li>
@@ -55,11 +54,13 @@ import { ref, computed, onBeforeMount, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import Navigation from './Navigation.vue'
 import SearchForm from '../SearchForm.vue'
+import AuthorSlot from '../slots/AuthorSlot.vue'
 
 export default {
   components: {
     Navigation,
     SearchForm,
+    AuthorSlot,
   },
   setup() {
     const { state, dispatch } = useStore()
@@ -210,15 +211,7 @@ export default {
           flex-direction: row;
           align-items: center;
           margin: 0 0 0 4.8rem;
-          .nickname {
-            font-family: 'Noto Sans KR';
-          }
-          .avatar {
-            width: 3.2rem;
-            height: 3.2rem;
-            margin-left: 1.6rem;
-            border-radius: 50%;
-          }
+
           .auth_items {
             justify-content: center;
             padding: 5.6rem 0 0;

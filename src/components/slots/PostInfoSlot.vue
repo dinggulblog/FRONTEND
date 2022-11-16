@@ -2,7 +2,7 @@
   <Info>
     <template #author>
       <li>
-        <span class="nickname">{{ post.author.nickname }}</span>
+        <AuthorSlot :post="post" :type="'post'" />
       </li>
     </template>
     <template #createdAt>
@@ -21,12 +21,14 @@
 
 <script>
 import Info from '../Info.vue'
+import AuthorSlot from './AuthorSlot.vue'
 import dayjs from 'dayjs'
 
 export default {
   name: 'InfoSlot',
   components: {
     Info,
+    AuthorSlot,
   },
   props: {
     post: {
@@ -40,5 +42,4 @@ export default {
 }
 </script>
 
-<style lang="scss" rel="stylesheet/scss">
-</style>
+<style lang="scss" rel="stylesheet/scss"></style>

@@ -1,33 +1,42 @@
 <template>
   <div class="toggle">
-    <slot name="toggle_btn"></slot>
-    <div class="wrap_toggle_items" v-if="isVisible">
-      <ul>
-        <slot name="toggle_items"></slot>
-      </ul>
-    </div>
+    <span :style="[isPublic ? { color: '#BABABA' } : { color: 'var(--secondary)' }]">{{ isPublic ? '공개' : '비밀' }}</span>
+    <i class="material-icons" :style="isPublic ? { color: '#E6E6E6' } : { color: 'var(--secondary)' }" @click="onToggle()">{{ isPublic ? 'toggle_off' : 'toggle_on' }}</i>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue'
-
 export default {
   name: 'Toggle',
-  setup() {
-    const isVisible = ref(false)
-
-    const toggle = () => {
-      isVisible.value = !isVisible.value
+  props: {
+    isPublic: {
+      type: Boolean,
+    },
+  },
+  setup(props, { emit }) {
+    const onToggle = () => {
+      emit('updateIsPublic', !props.isPublic)
     }
-
-    const close = () => {
-      isVisible.value = false
-    }
-
-    return { isVisible, close, toggle }
+    return { onToggle }
   },
 }
 </script>
 
-<style lang="scss" rel="stylesheet/scss" scoped></style>
+<style lang="scss" rel="stylesheet/scss" scoped>
+.toggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+
+  i {
+    font-size: 4.8rem;
+  }
+
+  span {
+    font-size: 1.2rem;
+    margin: 0 0.4rem 0 0;
+    letter-spacing: 0.1rem;
+  }
+}
+</style>

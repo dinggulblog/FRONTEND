@@ -1,39 +1,39 @@
 <template>
-  <Toggle ref="ToggleEl">
-    <template #toggle_btn>
-      <button class="btn_toggle" tabindex="-1" @click="onToggle"><i class="material-icons toggle_ico">more_horiz</i></button>
+  <Dropbox ref="dropboxEl">
+    <template #dropbox_btn>
+      <button class="btn_dropbox" tabindex="-1" @click="onDropbox"><i class="material-icons dropbox_ico">more_horiz</i></button>
     </template>
 
-    <template #toggle_items>
-      <li v-for="(value, key) in toggleItems" :key="key" @click="value">{{ key }}</li>
+    <template #dropbox_items>
+      <li v-for="(value, key) in dropboxItems" :key="key" @click="value">{{ key }}</li>
     </template>
-  </Toggle>
+  </Dropbox>
 </template>
 
 <script>
 import { ref, onMounted } from 'vue'
-import Toggle from '../Toggle.vue'
+import Dropbox from '../Dropbox.vue'
 
 export default {
-  name: 'ToggleSlot',
+  name: 'DropboxSlot',
   components: {
-    Toggle,
+    Dropbox,
   },
   props: {
-    toggleItems: {
+    dropboxItems: {
       type: Object,
       required: true,
     },
   },
   setup(props) {
-    const ToggleEl = ref(null)
+    const dropboxEl = ref(null)
 
-    const onToggle = () => {
-      ToggleEl.value.toggle()
+    const onDropbox = () => {
+      dropboxEl.value.dropbox()
     }
 
     const onClose = () => {
-      ToggleEl.value.close()
+      dropboxEl.value.close()
     }
 
     const closeAll = (event) => {
@@ -47,7 +47,7 @@ export default {
     /*
 
     const closeAll = (event) => {
-      if (!event.target.closest('.toggle')) onClose()
+      if (!event.target.closest('.dropbox')) onClose()
     }
 
     /*
@@ -67,8 +67,8 @@ export default {
     */
 
     return {
-      ToggleEl,
-      onToggle,
+      dropboxEl,
+      onDropbox,
       onClose,
     }
   },
@@ -76,16 +76,16 @@ export default {
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-.toggle {
+.dropbox {
   position: relative;
-  .btn_toggle {
+  .btn_dropbox {
     i {
       font-size: 2.4rem;
       color: var(--list_info);
     }
   }
 
-  .wrap_toggle_items {
+  .wrap_dropbox_items {
     position: absolute;
     top: 3.2rem;
     right: 0;

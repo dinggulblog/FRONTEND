@@ -2,8 +2,7 @@
   <Info>
     <template #author>
       <li>
-        <img class="avatar" src="../../assets/4.jpg" alt="user_avatar" />
-        <span class="nickname">{{ comment.commenter.nickname }}</span>
+        <AuthorSlot :comment="comment" :type="'comment'" />
       </li>
     </template>
 
@@ -29,12 +28,14 @@
 
 <script>
 import Info from '../Info.vue'
+import AuthorSlot from './AuthorSlot.vue'
 import dayjs from 'dayjs'
 
 export default {
-  name: 'InfoSlot',
+  name: 'CommentInfoSlot',
   components: {
     Info,
+    AuthorSlot,
   },
   props: {
     comment: {

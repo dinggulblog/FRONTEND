@@ -55,11 +55,14 @@ export default {
         margin: 0;
       }
 
-      .avatar {
-        width: 3.2rem;
-        height: 3.2rem;
-        margin: 0 1.6rem 0 0;
-        border-radius: 50%;
+      .author {
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+
+        .avatar {
+          margin: 0 1.2rem 0 0;
+        }
       }
 
       .info_ico {

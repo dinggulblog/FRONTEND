@@ -9,7 +9,7 @@
         </div>
       </div>
       <div class="wrap_right">
-        <ToggleSlot :toggleItems="{ '댓글 수정': onUpdateEditor, '댓글 삭제': onDeleteComment, '댓글 복사': onCopyComment }" />
+        <DropboxSlot :dropboxItems="{ '댓글 수정': onUpdateEditor, '댓글 삭제': onDeleteComment, '댓글 복사': onCopyComment }" />
       </div>
     </div>
     <div class="content">
@@ -17,22 +17,26 @@
       <p v-else>{{ comment.content }}</p>
     </div>
     <CommentEditor v-if="isVisible" :post="post" :comment="comment" :isUpdate="isUpdate" @closeEditor="onCloseEditor" />
+
+    <ul class="comment_childItem" v-if="comment.childComments">
+      <CommentSlot v-for="child in comment.childComments" :key="child._id" :comment="child" :post="post" :isAuthorized="isAuthorized" />
+    </ul>
   </li>
 
   <li class="not-is-acitve" v-else>
     <p>** 해당 댓글은 삭제된 댓글입니다 **</p>
-  </li>
 
-  <ul style="margin-left: 8rem" v-if="comment.childComments">
-    <CommentSlot v-for="child in comment.childComments" :key="child._id" :comment="child" :post="post" :isAuthorized="isAuthorized" />
-  </ul>
+    <ul class="comment_childItem" v-if="comment.childComments">
+      <CommentSlot v-for="child in comment.childComments" :key="child._id" :comment="child" :post="post" :isAuthorized="isAuthorized" />
+    </ul>
+  </li>
   <Dialog ref="Dialog"></Dialog>
 </template>
 
 <script>
 import { ref } from 'vue'
 import { useStore } from 'vuex'
-import ToggleSlot from './ToggleSlot.vue'
+import DropboxSlot from './DropboxSlot.vue'
 import CommentInfoSlot from './CommentInfoSlot.vue'
 import CommentEditor from '../CommentEditor.vue'
 import Dialog from '../../components/Dialog.vue'
@@ -43,7 +47,7 @@ export default {
     CommentInfoSlot,
     CommentEditor,
     Dialog,
-    ToggleSlot,
+    DropboxSlot,
   },
   props: {
     comment: {
@@ -92,7 +96,7 @@ export default {
         alert('댓글 내용 복사에 실패하였습니다.')
       }
     }
-    
+
     return {
       Dialog,
       isVisible,
@@ -108,13 +112,17 @@ export default {
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
+.comment_items > li > ul {
+  margin: 0 0 6.4rem 8rem;
+}
+
 .comment_item {
   margin: 0 0 6.4rem;
 
   .wrap_header {
     display: flex;
     align-items: center;
-    margin: 0 0 3.2rem;
+    margin: 0 0 2.4rem;
 
     .wrap_left {
       display: flex;

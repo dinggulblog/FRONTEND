@@ -24,9 +24,8 @@
         </div>
       </div>
 
-      <div class="toggle">
-        <span :style="[isPublic ? { color: '#BABABA' } : { color: 'var(--secondary)' }]">{{ isPublic ? '공개' : '비밀' }}</span>
-        <i class="material-icons" :style="isPublic ? { color: '#E6E6E6' } : { color: 'var(--secondary)' }" @click="onToggle">{{ isPublic ? 'toggle_off' : 'toggle_on' }}</i>
+      <div class="wrap_toggle">
+        <Toggle :isPublic="isPublic" @updateIsPublic="onUpdatedIsPublic" />
       </div>
     </div>
 
@@ -87,6 +86,7 @@ import { useRoute, onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
 import Markdown from 'vue3-markdown-it'
 import MarkdownEmoji from 'markdown-it-emoji'
+import Toggle from '../../components/Toggle.vue'
 import Dialog from '../../components/Dialog.vue'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import 'highlight.js/styles/atom-one-dark.css'
@@ -94,6 +94,7 @@ import 'highlight.js/styles/atom-one-dark.css'
 export default defineComponent({
   name: 'editor',
   components: {
+    Toggle,
     Dialog,
     Markdown,
   },
@@ -128,13 +129,13 @@ export default defineComponent({
       fileIndex: 0,
     })
 
-    const onToggle = () => {
-      isPublic.value = !isPublic.value
-    }
-
     const onResetMenu = () => {
       sub.value = ''
       category.value = ''
+    }
+
+    const onUpdatedIsPublic = (state) => {
+      isPublic.value = state
     }
 
     const draftUpload = async () => {
@@ -294,13 +295,13 @@ export default defineComponent({
       fileState,
       isLoading,
       percentage,
+      onUpdatedIsPublic,
       onPostUpload,
       onImagesUpload,
       onInsertImage,
       onClearImages,
       onDeleteImage,
       onSelectImage,
-      onToggle,
       onResetMenu,
     }
   },
@@ -345,23 +346,11 @@ export default defineComponent({
       }
     }
 
-    .toggle {
+    .wrap_toggle {
       display: flex;
       align-items: center;
       justify-content: flex-end;
       width: 10%;
-      cursor: pointer;
-      user-select: none;
-
-      i {
-        font-size: 4.8rem;
-      }
-
-      span {
-        font-size: 1.2rem;
-        margin: 0 0.4rem 0 0;
-        letter-spacing: 0.1rem;
-      }
     }
   }
 

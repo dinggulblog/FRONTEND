@@ -15,7 +15,7 @@
           </div>
         </div>
         <div class="wrap_right">
-          <ToggleSlot :toggleItems="{ '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }" />
+          <DropboxSlot :dropboxItems="{ '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }" />
         </div>
       </div>
 
@@ -25,7 +25,7 @@
 
       <div class="wrap_like">
         <div class="liked_count">
-          <span class="like_ico"><i class="material-icons" @click="!isLike ? onUpdateLike : onDeleteLike">favorite</i></span>
+          <span class="like_ico"><i class="material-icons" @click="!isLike ? onUpdateLike : onDeleteLike" :style="!isLike ? { color: '#ddd' } : { color: 'red' }">favorite</i></span>
           <span>{{ likeCount }}</span>
         </div>
         <div class="liked_user">
@@ -43,7 +43,7 @@
 
       <div class="comments" v-if="comments.length" ref="commentsEl">
         <h2>댓글 {{ comments.length }}개</h2>
-        <ul>
+        <ul class="comment_items">
           <CommentSlot v-for="comment in comments" :key="comment._id" :comment="comment" :post="post" :isAuthorized="onGetAuthorized(comment)" />
         </ul>
       </div>
@@ -64,7 +64,7 @@ import Dialog from '../../components/Dialog.vue'
 import Markdown from 'vue3-markdown-it'
 import MarkdownEmoji from 'markdown-it-emoji'
 import PostInfoSlot from '../../components/slots/PostInfoSlot.vue'
-import ToggleSlot from '../../components/slots/ToggleSlot.vue'
+import DropboxSlot from '../../components/slots/DropboxSlot.vue'
 
 export default defineComponent({
   name: 'post',
@@ -74,7 +74,7 @@ export default defineComponent({
     CommentEditor,
     CommentSlot,
     PostInfoSlot,
-    ToggleSlot,
+    DropboxSlot,
   },
   setup() {
     const route = useRoute()
