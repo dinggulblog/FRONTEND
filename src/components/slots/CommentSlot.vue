@@ -1,22 +1,24 @@
 <template>
   <li v-if="comment.isActive" class="comment_item">
-    <div class="wrap_header">
-      <div class="wrap_left">
-        <CommentInfoSlot :comment="comment" />
-        <div class="wrap_reply_btn">
-          <button v-if="!isVisible" class="btn_reply" @click="onCreateEditor">답글 작성</button>
-          <button v-else class="btn_reply" @click="onCloseEditor">답글 작성 취소</button>
+    <div class="wrap_item">
+      <div class="wrap_header">
+        <div class="wrap_left">
+          <CommentInfoSlot :comment="comment" />
+          <div class="wrap_reply_btn">
+            <button v-if="!isVisible" class="btn_reply" @click="onCreateEditor">답글 작성</button>
+            <button v-else class="btn_reply" @click="onCloseEditor">답글 작성 취소</button>
+          </div>
+        </div>
+        <div class="wrap_right">
+          <DropboxSlot :dropboxItems="{ '댓글 수정': onUpdateEditor, '댓글 삭제': onDeleteComment, '댓글 복사': onCopyComment }" />
         </div>
       </div>
-      <div class="wrap_right">
-        <DropboxSlot :dropboxItems="{ '댓글 수정': onUpdateEditor, '댓글 삭제': onDeleteComment, '댓글 복사': onCopyComment }" />
+      <div class="content">
+        <p v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</p>
+        <p v-else>{{ comment.content }}</p>
       </div>
+      <CommentEditor v-if="isVisible" :post="post" :comment="comment" :isUpdate="isUpdate" @closeEditor="onCloseEditor" />
     </div>
-    <div class="content">
-      <p v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</p>
-      <p v-else>{{ comment.content }}</p>
-    </div>
-    <CommentEditor v-if="isVisible" :post="post" :comment="comment" :isUpdate="isUpdate" @closeEditor="onCloseEditor" />
 
     <ul class="comment_childItem" v-if="comment.childComments">
       <CommentSlot v-for="child in comment.childComments" :key="child._id" :comment="child" :post="post" :isAuthorized="isAuthorized" />
@@ -113,42 +115,44 @@ export default {
 
 <style lang="scss" rel="stylesheet/scss">
 .comment_items > li > ul {
-  margin: 0 0 6.4rem 8rem;
+  margin: -3.2rem 0 0 4.8rem;
 }
 
 .comment_item {
-  margin: 0 0 6.4rem;
+  .wrap_item {
+    margin: 0 0 6.4rem;
 
-  .wrap_header {
-    display: flex;
-    align-items: center;
-    margin: 0 0 2.4rem;
-
-    .wrap_left {
+    .wrap_header {
       display: flex;
       align-items: center;
-      width: 50%;
+      margin: 0 0 2.4rem;
 
-      .wrap_reply_btn {
-        margin: 0 0 0 3.2rem;
+      .wrap_left {
+        display: flex;
+        align-items: center;
+        width: 50%;
 
-        .btn_reply {
-          font-size: 1.2rem;
-          color: var(--primary-dark);
+        .wrap_reply_btn {
+          margin: 0 0 0 3.2rem;
+
+          .btn_reply {
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+          }
         }
+      }
+
+      .wrap_right {
+        width: 50%;
+        display: flex;
+        justify-content: flex-end;
       }
     }
 
-    .wrap_right {
-      width: 50%;
-      display: flex;
-      justify-content: flex-end;
+    .content {
+      color: #bababa;
+      font-size: 1.4rem;
     }
-  }
-
-  .content {
-    color: #bababa;
-    font-size: 1.4rem;
   }
 }
 

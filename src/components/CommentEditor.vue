@@ -9,6 +9,7 @@
       <div class="wrap_submit">
         <div class="submit">
           <button class="btn_submit" @click="!isUpdate ? onCreateComment() : onUpdateComment()">{{ !isUpdate ? '댓글 작성' : '댓글 수정' }}</button>
+          <Button :className="'btn-submit'" :content="!isUpdate ? '댓글 작성' : '댓글 수정'" :rounded="true"></Button>
         </div>
       </div>
     </div>
@@ -16,14 +17,16 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import Toggle from '../components/Toggle.vue'
+import Button from '../components/Button.vue'
 
 export default {
   components: {
     Toggle,
+    Button,
   },
   props: {
     post: {
@@ -56,6 +59,7 @@ export default {
     const handlerBlur = () => {
       contentEl.value.placeholder = props.placeholderText
     }
+
     const onUpdatedIsPublic = (state) => {
       isPublic.value = state
     }
@@ -104,7 +108,7 @@ export default {
 .commentEditor {
   display: flex;
   flex-direction: column;
-  margin: 4.8rem 0 0 0;
+  margin: 2.4rem 0 0 0;
 
   textarea {
     color: var(--input_text);

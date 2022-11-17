@@ -243,6 +243,7 @@ export default defineComponent({
       display: flex;
       flex-direction: column;
       align-items: center;
+      margin-bottom: 0 0 2.4rem;
 
       .liked_count {
         display: flex;
