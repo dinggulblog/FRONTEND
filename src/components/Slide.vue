@@ -57,13 +57,13 @@
 </template>
 
 <script>
-export default {
-  name: 'Slide',
-  components: {},
-  setup() {},
-}
+  export default {
+    name: 'Slide',
+    components: {},
+    setup() {},
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-@import '../scss/slide.scss';
+  @import '../scss/slide.scss';
 </style>

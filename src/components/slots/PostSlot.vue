@@ -41,7 +41,13 @@
   <template v-if="type === 'card'">
     <Card>
       <template #thumbnail>
-        <img :src="[post?.thumbnail.length ? `https://dinggul.me/` + post.thumbnail : 'https://photo.coolenjoy.co.kr/data/editor/2105/09198d36ef38aea9e4348cc363c80232f1cd5a92.jpg']" />
+        <img
+          :src="[
+            post?.thumbnail.length
+              ? `https://dinggul.me/` + post.thumbnail
+              : 'https://photo.coolenjoy.co.kr/data/editor/2105/09198d36ef38aea9e4348cc363c80232f1cd5a92.jpg',
+          ]"
+        />
       </template>
 
       <template #num>
@@ -80,7 +86,13 @@
   <template v-if="type === 'slide'">
     <Slide>
       <template #thumbnail>
-        <img :src="[post.thumbnail ? `https://dinggul.me/` + post.thumbnail : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU']" />
+        <img
+          :src="[
+            post.thumbnail
+              ? `https://dinggul.me/` + post.thumbnail
+              : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU',
+          ]"
+        />
       </template>
 
       <template #lock_ico>
@@ -109,51 +121,51 @@
 </template>
 
 <script>
-import { ref, watchEffect } from 'vue'
-import { useRoute } from 'vue-router'
-import List from '../List.vue'
-import Card from '../Card.vue'
-import Slide from '../Slide.vue'
-import markdownText from 'markdown-to-text'
-import dayjs from 'dayjs'
+  import { ref, watchEffect } from 'vue'
+  import { useRoute } from 'vue-router'
+  import List from '../List.vue'
+  import Card from '../Card.vue'
+  import Slide from '../Slide.vue'
+  import markdownText from 'markdown-to-text'
+  import dayjs from 'dayjs'
 
-export default {
-  name: 'PostSlot',
-  components: {
-    List,
-    Card,
-    Slide,
-  },
-  props: {
-    type: {
-      type: String,
+  export default {
+    name: 'PostSlot',
+    components: {
+      List,
+      Card,
+      Slide,
     },
-    post: {
-      type: Object,
-      required: true,
+    props: {
+      type: {
+        type: String,
+      },
+      post: {
+        type: Object,
+        required: true,
+      },
+      isLike: {
+        type: Boolean,
+        default: false,
+      },
     },
-    isLike: {
-      type: Boolean,
-      default: false,
+    setup(props) {
+      const route = useRoute()
+
+      const isLikeEl = ref(null)
+      const addLikeClass = (like) => {
+        if (like && isLikeEl.value) isLikeEl.value.classList.add('is-like')
+      }
+
+      watchEffect(() => addLikeClass(props.isLike))
+
+      return { markdownText, dayjs, route, isLikeEl }
     },
-  },
-  setup(props) {
-    const route = useRoute()
-
-    const isLikeEl = ref(null)
-    const addLikeClass = (like) => {
-      if (like && isLikeEl.value) isLikeEl.value.classList.add('is-like')
-    }
-
-    watchEffect(() => addLikeClass(props.isLike))
-
-    return { markdownText, dayjs, route, isLikeEl }
-  },
-}
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-@import '../../scss/list.scss';
-@import '../../scss/card.scss';
-@import '../../scss/slide.scss';
+  @import '../../scss/list.scss';
+  @import '../../scss/card.scss';
+  @import '../../scss/slide.scss';
 </style>

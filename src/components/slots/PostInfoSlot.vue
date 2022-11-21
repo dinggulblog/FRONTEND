@@ -20,26 +20,26 @@
 </template>
 
 <script>
-import Info from '../Info.vue'
-import AuthorSlot from './AuthorSlot.vue'
-import dayjs from 'dayjs'
+  import Info from '../Info.vue'
+  import AuthorSlot from './AuthorSlot.vue'
+  import dayjs from 'dayjs'
 
-export default {
-  name: 'InfoSlot',
-  components: {
-    Info,
-    AuthorSlot,
-  },
-  props: {
-    post: {
-      type: Object,
-      required: true,
+  export default {
+    name: 'InfoSlot',
+    components: {
+      Info,
+      AuthorSlot,
     },
-  },
-  setup() {
-    return { dayjs }
-  },
-}
+    props: {
+      post: {
+        type: Object,
+        required: true,
+      },
+    },
+    setup() {
+      return { dayjs }
+    },
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss"></style>

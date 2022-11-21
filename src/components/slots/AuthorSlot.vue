@@ -31,45 +31,45 @@
 </template>
 
 <script>
-import Author from '../Author.vue'
+  import Author from '../Author.vue'
 
-export default {
-  name: 'AuthorSlot',
-  components: {
-    Author,
-  },
-  props: {
-    type: {
-      type: String,
+  export default {
+    name: 'AuthorSlot',
+    components: {
+      Author,
     },
-    user: {
-      type: Object,
+    props: {
+      type: {
+        type: String,
+      },
+      user: {
+        type: Object,
+      },
+      post: {
+        type: Object,
+      },
+      comment: {
+        type: Object,
+      },
     },
-    post: {
-      type: Object,
+    setup() {
+      return {}
     },
-    comment: {
-      type: Object,
-    },
-  },
-  setup() {
-    return {}
-  },
-}
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-.author {
-  display: flex;
-  align-items: center;
+  .author {
+    display: flex;
+    align-items: center;
 
-  .nickname {
-    font-family: 'Noto Sans KR';
+    .nickname {
+      font-family: 'Noto Sans KR';
+    }
+    .avatar {
+      width: 3.2rem;
+      height: 3.2rem;
+      border-radius: 50%;
+    }
   }
-  .avatar {
-    width: 3.2rem;
-    height: 3.2rem;
-    border-radius: 50%;
-  }
-}
 </style>

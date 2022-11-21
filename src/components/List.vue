@@ -31,9 +31,9 @@
 </template>
 
 <script>
-export default {
-  name: 'List',
-}
+  export default {
+    name: 'List',
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped></style>

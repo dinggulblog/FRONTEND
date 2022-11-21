@@ -10,24 +10,24 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+  import { ref } from 'vue'
 
-export default {
-  name: 'Dropbox',
-  setup() {
-    const isVisible = ref(false)
+  export default {
+    name: 'Dropbox',
+    setup() {
+      const isVisible = ref(false)
 
-    const dropbox = () => {
-      isVisible.value = !isVisible.value
-    }
+      const dropbox = () => {
+        isVisible.value = !isVisible.value
+      }
 
-    const close = () => {
-      isVisible.value = false
-    }
+      const close = () => {
+        isVisible.value = false
+      }
 
-    return { isVisible, close, dropbox }
-  },
-}
+      return { isVisible, close, dropbox }
+    },
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped></style>

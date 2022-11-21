@@ -27,24 +27,24 @@
 </template>
 
 <script>
-import Info from '../Info.vue'
-import AuthorSlot from './AuthorSlot.vue'
-import dayjs from 'dayjs'
+  import Info from '../Info.vue'
+  import AuthorSlot from './AuthorSlot.vue'
+  import dayjs from 'dayjs'
 
-export default {
-  name: 'CommentInfoSlot',
-  components: {
-    Info,
-    AuthorSlot,
-  },
-  props: {
-    comment: {
-      type: Object,
-      required: true,
+  export default {
+    name: 'CommentInfoSlot',
+    components: {
+      Info,
+      AuthorSlot,
     },
-  },
-  setup(props) {
-    return { dayjs }
-  },
-}
+    props: {
+      comment: {
+        type: Object,
+        required: true,
+      },
+    },
+    setup(props) {
+      return { dayjs }
+    },
+  }
 </script>

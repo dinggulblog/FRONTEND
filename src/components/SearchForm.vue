@@ -12,73 +12,73 @@
 </template>
 
 <script>
-import { useStore } from 'vuex'
-import { useRoute } from 'vue-router'
+  import { useStore } from 'vuex'
+  import { useRoute } from 'vue-router'
 
-export default {
-  name: 'navigation',
-  setup() {
-    const { getters } = useStore()
-    const route = useRoute() // route는 computed 속성이라서 path나 params에 computed 안묶어도 됌
+  export default {
+    name: 'navigation',
+    setup() {
+      const { getters } = useStore()
+      const route = useRoute() // route는 computed 속성이라서 path나 params에 computed 안묶어도 됌
 
-    return { getters }
-  },
-}
+      return { getters }
+    },
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-.searchForm__inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: calc(120rem - 4.8rem);
-
-  @include mobile {
-    width: calc(100% - 4rem);
-    margin: 0 2rem;
-  }
-
-  @include tablet {
-    width: calc(100% - 6.4rem);
-    margin: 0 4.8rem;
-  }
-
-  @include tablet_landscape {
-    width: calc(100% - 6.4rem);
-    margin: 0 3.2rem;
-  }
-
-  .searchForm {
-    border-bottom: 1px solid #fff;
-    width: 100%;
+  .searchForm__inner {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(120rem - 4.8rem);
 
-    input {
-      width: 85%;
-      height: 4.8rem;
-      padding: 0 0 0.2rem 0;
+    @include mobile {
+      width: calc(100% - 4rem);
+      margin: 0 2rem;
     }
 
-    .searchForm__btn {
-      width: 15%;
+    @include tablet {
+      width: calc(100% - 6.4rem);
+      margin: 0 4.8rem;
+    }
+
+    @include tablet_landscape {
+      width: calc(100% - 6.4rem);
+      margin: 0 3.2rem;
+    }
+
+    .searchForm {
+      border-bottom: 1px solid #fff;
+      width: 100%;
       display: flex;
-      justify-content: flex-end;
-    }
-    input::placeholder,
-    input {
-      font-size: 2.4rem;
-      font-weight: 300;
-      color: #fff;
-    }
 
-    i {
-      font-size: 1.8rem;
-      color: #fff;
+      input {
+        width: 85%;
+        height: 4.8rem;
+        padding: 0 0 0.2rem 0;
+      }
 
-      @include mobile_all {
+      .searchForm__btn {
+        width: 15%;
+        display: flex;
+        justify-content: flex-end;
+      }
+      input::placeholder,
+      input {
         font-size: 2.4rem;
+        font-weight: 300;
+        color: #fff;
+      }
+
+      i {
+        font-size: 1.8rem;
+        color: #fff;
+
+        @include mobile_all {
+          font-size: 2.4rem;
+        }
       }
     }
   }
-}
 </style>

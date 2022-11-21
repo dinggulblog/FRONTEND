@@ -9,57 +9,54 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+  import { ref } from 'vue'
 
-export default {
-  setup() {
-    const isVisible = ref(false)
+  export default {
+    setup() {
+      const isVisible = ref(false)
 
-    const open = () => {
-      isVisible.value = true
-    }
+      const open = () => {
+        isVisible.value = true
+      }
 
-    const close = () => {
-      isVisible.value = false
-    }
+      const close = () => {
+        isVisible.value = false
+      }
 
-    return { isVisible, open, close }
-  },
-}
+      return { isVisible, open, close }
+    },
+  }
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
+  }
 
-.popup-modal {
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  position: fixed;
-  align-items: center;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-}
+  .popup-modal {
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    position: fixed;
+    align-items: center;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+  }
 
-.window {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin: 0 auto;
-  width: 40rem;
-  height: 24rem;
-  font-weight: 400;
-  letter-spacing: 0.05rem;
-  box-shadow: 0 0 2.4rem 0.3rem rgba(0, 0, 0, 0.05);
-  background: #fff;
-  border-radius: 3.2rem;
-}
+  .window {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 auto;
+    width: 40rem;
+    height: 24rem;
+    font-weight: 400;
+    letter-spacing: 0.05rem;
+    box-shadow: 0 0 2.4rem 0.3rem rgba(0, 0, 0, 0.05);
+    background: #fff;
+    border-radius: 3.2rem;
+  }
 </style>

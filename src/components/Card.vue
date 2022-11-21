@@ -35,29 +35,29 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+  import { ref, onMounted } from 'vue'
 
-export default {
-  name: 'Card',
-  components: {},
-  props: {
-    postLength: {
-      type: Number,
+  export default {
+    name: 'Card',
+    components: {},
+    props: {
+      postLength: {
+        type: Number,
+      },
     },
-  },
-  setup() {
-    const mediaQuery = window.matchMedia('only screen and (max-width: 1023px')
-    const isMobile = ref(mediaQuery.matches)
+    setup() {
+      const mediaQuery = window.matchMedia('only screen and (max-width: 1023px')
+      const isMobile = ref(mediaQuery.matches)
 
-    onMounted(() => {
-      mediaQuery.addEventListener('change', () => {
-        isMobile.value = mediaQuery.matches
+      onMounted(() => {
+        mediaQuery.addEventListener('change', () => {
+          isMobile.value = mediaQuery.matches
+        })
       })
-    })
-  },
-}
+    },
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-@import '../scss/card.scss';
+  @import '../scss/card.scss';
 </style>
