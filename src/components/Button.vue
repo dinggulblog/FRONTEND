@@ -72,14 +72,13 @@
         padding: props.size ? `var(--${props.size})` : `${props.customSize}`,
         fontSize: props.size ? `var(--text-${props.size})` : `${props.customFontSize}`,
         bgColor: props.fill ? `var(--${props.fill})` : `${props.customBgColor}`,
-        color:
-          props.fill || (props.fill && props.outline)
-            ? '#fff'
-            : props.outline
-            ? props.customColor
-              ? `${props.customColor}`
-              : `var(--${props.outline})`
-            : `var(--text-light)`,
+        color: props.customColor
+          ? `${props.customColor}`
+          : props.fill || (props.fill && props.outline)
+          ? '#fff'
+          : props.outline
+          ? `var(--${props.outline})`
+          : `var(--text-light)`,
         border: props.outline ? (props.customBorder ? `solid +${props.customBorder}` : 'solid 0.2rem') : '0',
         borderRadius: props.rounded ? '3.2rem' : '0',
         borderColor: props.outline ? `var(--${props.outline})` : `${props.customBoderColor}`,
