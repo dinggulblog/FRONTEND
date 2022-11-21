@@ -1,11 +1,11 @@
 <template>
-  <button ref="btnEl" :class="className">{{ content }}</button>
+  <button class="btn" @click="$emit('onClick')" ref="BTN_EL">{{ content }}</button>
 </template>
 
 <script>
-import { onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 
-const colors = ['primary', 'secondary', 'primary-dark', 'secondary-dark']
+const bgColors = ['primary', 'secondary', 'secondary-dark']
 
 export default {
   name: 'Button',
@@ -38,7 +38,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    color: {
+    bgColor: {
       type: String,
       default: 'primary-dark',
     },
@@ -48,43 +48,40 @@ export default {
     },
   },
   setup(props) {
-    const btnEl = ref(null)
+    const BTN_EL = ref(null)
+    const sizes = {
+      sm: '0.8rem 1.2rem',
+      md: '1.2rem 2.4rem',
+      lg: '2.4rem 3.2rem',
+    }
 
-    onMounted(() => {
-      if (props.size === 'md') {
-        btnEl.value.style.width = '10.8rem'
-        btnEl.value.style.height = '4rem'
-        btnEl.value.style.fontSize = '1.2rem'
-      }
+    const state = computed(() => ({
+      width: props.full ? '100%' : 'auto',
+      padding: sizes[props.size] ? sizes[props.size] : props.size,
+    }))
 
-      if (props.full) btnEl.value.style.width = '100%'
+    if (bgColors.includes(props.bgColor)) {
+      BTN_EL.value.setProperty('--bgColor', props.bgColor)
+    }
 
-      if (props.fill) {
-        if (colors.includes(props.color)) {
-          btnEl.value.style.backgroundColor = `var(--${props.color})`
-        } else {
-          btnEl.value.style.backgroundColor = `${props.color}`
-        }
-        btnEl.value.style.color = `${props.textColor}`
-      }
-
-      if (props.stroke) {
-        btnEl.value.style.border = '0.2rem solid'
-        if (colors.includes(props.color)) {
-          btnEl.value.style.borderColor = `var(--${props.color})`
-        } else btnEl.value.style.borderColor = `${props.color}`
-      }
-
-      if (props.rounded) btnEl.value.style.borderRadius = '2rem'
-    })
-
-    return { btnEl }
+    return {
+      BTN_EL,
+      state,
+    }
   },
 }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-button {
+.btn {
+  --bgColor: var(--primary-dark);
+
+  width: v-bind('state.width');
+  padding: v-bind('state.padding');
+  color: v-bind(textColor);
+  background-color: var(--bgColor);
+  border: 0;
   font-weight: 500;
+  font-size: 1.2rem;
 }
 </style>

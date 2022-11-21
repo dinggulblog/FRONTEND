@@ -1,6 +1,6 @@
 <template>
   <div class="commentEditor">
-    <textarea v-model="content" ref="contentEl" onfocus="this.placeholder = ''" @blur="handlerBlur"> </textarea>
+    <textarea v-model="content" ref="CONTENT_EL" onfocus="this.placeholder = ''" @blur="handlerBlur"> </textarea>
 
     <div class="wrap_btns">
       <div class="wrap_toggle">
@@ -8,8 +8,7 @@
       </div>
       <div class="wrap_submit">
         <div class="submit">
-          <button class="btn_submit" @click="!isUpdate ? onCreateComment() : onUpdateComment()">{{ !isUpdate ? '댓글 작성' : '댓글 수정' }}</button>
-          <Button :className="'btn-submit'" :content="!isUpdate ? '댓글 작성' : '댓글 수정'" :rounded="true"></Button>
+          <Button :className="'btn_submit'" :content="!isUpdate ? '댓글 작성' : '댓글 수정'" :fill="true" :full="true" :rounded="true" @onClick="!isUpdate ? onCreateComment() : onUpdateComment()"></Button>
         </div>
       </div>
     </div>
@@ -17,7 +16,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import Toggle from '../components/Toggle.vue'
@@ -50,14 +49,14 @@ export default {
   setup(props, { emit }) {
     const route = useRoute()
     const { dispatch } = useStore()
-    const contentEl = ref(null)
-    const parentId = ref(null)
+    const CONTENT_EL = ref(null)
 
+    const parentId = ref(null)
     const content = ref('')
     const isPublic = ref(true)
 
     const handlerBlur = () => {
-      contentEl.value.placeholder = props.placeholderText
+      CONTENT_EL.value.placeholder = props.placeholderText
     }
 
     const onUpdatedIsPublic = (state) => {
@@ -86,20 +85,25 @@ export default {
       emit('closeEditor')
     }
 
-    onMounted(() => {
-      contentEl.value.placeholder = props.placeholderText
+    const remountContent = () => {
+      CONTENT_EL.value.placeholder = props.placeholderText
       if (!props.comment) {
         return
       } else if (props.isUpdate) {
         content.value = props.comment.content
-        contentEl.value.focus()
       } else {
         parentId.value = props.comment.parentComment
-        contentEl.value.focus()
       }
+      CONTENT_EL.value.focus()
+    }
+
+    onMounted(() => {
+      remountContent()
     })
 
-    return { route, content, contentEl, isPublic, handlerBlur, onUpdatedIsPublic, onCreateComment, onUpdateComment }
+    watch(() => props.isUpdate, remountContent)
+
+    return { route, content, CONTENT_EL, isPublic, handlerBlur, onUpdatedIsPublic, onCreateComment, onUpdateComment }
   },
 }
 </script>
@@ -155,16 +159,6 @@ export default {
       display: flex;
       flex-basis: 50%;
       justify-content: flex-end;
-
-      .btn_submit {
-        width: 10.8rem;
-        height: 4rem;
-        background: var(--primary-dark);
-        border-radius: 2rem;
-        color: #fff;
-        font-weight: 500;
-        font-size: 1.2rem;
-      }
     }
   }
 }

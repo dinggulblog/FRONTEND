@@ -60,8 +60,8 @@
 
     <div class="wrap_btns">
       <div class="wrap_left">
-        <button @click="onInsertImage" v-show="draft.images?.length" class="image_insert_btn">사진 첨부</button>
-        <button @click="onClearImages" v-show="draft.images?.length" class="image_clear_btn">사진 모두 제거</button>
+        <Button v-show="draft.images?.length" :className="'btn_image_insert'" :content="'사진 첨부'" :rounded="true" :stroke="true" @onClick="onInsertImage"></Button>
+        <Button v-show="draft.images?.length" :className="'btn_image_clear'" :content="'사진 모두 제거'" :rounded="true" :stroke="true" @onClick="onClearImages"></Button>
       </div>
       <div class="wrap_right">
         <div class="wrap_isLoading">
@@ -73,7 +73,7 @@
           <input type="checkbox" id="auto-save" />
           <label for="auto-save">자동 저장 여부</label>
         </div>
-        <button class="submit_btn" @click="onPostUpload">글 등록</button>
+        <Button :className="'btn_submit'" :content="'글 등록'" :rounded="true" @onClick="onPostUpload"></Button>
       </div>
     </div>
   </div>
@@ -87,6 +87,7 @@ import { useStore } from 'vuex'
 import Markdown from 'vue3-markdown-it'
 import MarkdownEmoji from 'markdown-it-emoji'
 import Toggle from '../../components/Toggle.vue'
+import Button from '../../components/Button.vue'
 import Dialog from '../../components/Dialog.vue'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import 'highlight.js/styles/atom-one-dark.css'
@@ -95,6 +96,7 @@ export default defineComponent({
   name: 'editor',
   components: {
     Toggle,
+    Button,
     Dialog,
     Markdown,
   },
@@ -488,24 +490,11 @@ export default defineComponent({
   .wrap_btns {
     display: flex;
     flex-direction: row;
-    margin: 4.8rem 0 0;
+    margin: 1.2rem 0 0;
 
     .wrap_left {
       width: 50%;
-
-      .image_insert_btn,
-      .image_clear_btn {
-        border: 2px solid var(--primary-dark);
-        color: var(--primary-dark);
-        border-radius: 3.2rem;
-        padding: 1.2rem 2.4rem;
-        font-size: 1.3rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.1rem;
-      }
-
-      .image_clear_btn {
+      .btn_image_clear {
         margin: 0 0 0 1.2rem;
       }
     }
@@ -516,11 +505,18 @@ export default defineComponent({
       justify-content: flex-end;
 
       .wrap_isLoading {
+        display: flex;
+        align-items: center;
         margin: 0 2.4rem 0 0;
 
+        .isLoading {
+          display: flex;
+          align-items: center;
+          color: var(--text-light);
+        }
         .isLoading-enter-active,
         .isLoading-leave-active {
-          transition: opacity 2s ease;
+          transition: opacity 5s ease;
         }
 
         .isLoading-enter-from,

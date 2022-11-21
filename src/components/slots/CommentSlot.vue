@@ -6,7 +6,7 @@
           <CommentInfoSlot :comment="comment" />
           <div class="wrap_reply_btn">
             <button v-if="!isVisible" class="btn_reply" @click="onCreateEditor">답글 작성</button>
-            <button v-else class="btn_reply" @click="onCloseEditor">답글 작성 취소</button>
+            <button v-else-if="isVisible || (isVisible && !isUpdate)" class="btn_reply" @click="onCloseEditor">에디터 닫기</button>
           </div>
         </div>
         <div class="wrap_right">
