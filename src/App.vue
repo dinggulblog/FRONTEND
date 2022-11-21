@@ -41,6 +41,7 @@ export default {
   --primary-dark: #aec4d4;
   --secondary: #c5c3de;
   --secondary-dark: #b4b1d5;
+
   --likeActive: #f3c7c7;
   --success: #4cd964;
   --warning: #ffc861;
@@ -58,6 +59,13 @@ export default {
   --btn_text: #b7b7b7;
   --border-light: #efefef;
   --border-dark: #dddddd;
+
+  --sm: 0.8rem 1.2rem;
+  --md: 1.2rem 2.4rem;
+  --lg: 2.4rem 3.2rem;
+  --text-sm: 1.1rem;
+  --text-md: 1.2rem;
+  --text-lg: 2rem;
 }
 
 /********** CSS RESET **********/

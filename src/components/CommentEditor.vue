@@ -8,7 +8,7 @@
       </div>
       <div class="wrap_submit">
         <div class="submit">
-          <Button :className="'btn_submit'" :content="!isUpdate ? '댓글 작성' : '댓글 수정'" :fill="true" :full="true" :rounded="true" @onClick="!isUpdate ? onCreateComment() : onUpdateComment()"></Button>
+          <Button :className="'btn_submit'" :content="!isUpdate ? '댓글 작성' : '댓글 수정'" fill="primary" size="md" :full="true" :rounded="false" @onClick="!isUpdate ? onCreateComment() : onUpdateComment()"></Button>
         </div>
       </div>
     </div>

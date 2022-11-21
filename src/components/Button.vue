@@ -1,9 +1,9 @@
 <template>
-  <button class="btn" @click="$emit('onClick')" ref="BTN_EL">{{ content }}</button>
+  <button class="btn" :class="className" @click="$emit('onClick')" ref="BTN_EL">{{ content }}</button>
 </template>
 
 <script>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const bgColors = ['primary', 'secondary', 'secondary-dark']
 
@@ -20,17 +20,43 @@ export default {
     },
     size: {
       type: String,
-      default: 'md',
+      validator: (value) => ['sm', 'md', 'lg'].includes(value),
     },
-    full: {
-      type: Boolean,
-      default: false,
+    customSize: {
+      type: String,
+      default: '1.2rem 2.4rem',
+    },
+    customFontSize: {
+      type: String,
+      default: '1.2',
     },
     fill: {
-      type: Boolean,
-      default: true,
+      type: String,
+      validator: (value) => ['primary', 'primary-dark', 'secondary', 'secondary-dark'].includes(value),
     },
-    stroke: {
+    outline: {
+      type: String,
+    },
+    color: {
+      type: String,
+    },
+    customBgColor: {
+      type: String,
+      default: 'transparent',
+    },
+    customBoderColor: {
+      type: String,
+      default: 'transparent',
+    },
+    customColor: {
+      type: String,
+      default: 'text-light',
+    },
+    customBorder: {
+      type: String,
+      default: '0',
+    },
+    full: {
       type: Boolean,
       default: false,
     },
@@ -38,34 +64,20 @@ export default {
       type: Boolean,
       default: false,
     },
-    bgColor: {
-      type: String,
-      default: 'primary-dark',
-    },
-    textColor: {
-      type: String,
-      default: '#fff',
-    },
   },
   setup(props) {
-    const BTN_EL = ref(null)
-    const sizes = {
-      sm: '0.8rem 1.2rem',
-      md: '1.2rem 2.4rem',
-      lg: '2.4rem 3.2rem',
-    }
-
     const state = computed(() => ({
       width: props.full ? '100%' : 'auto',
-      padding: sizes[props.size] ? sizes[props.size] : props.size,
+      padding: props.size ? `var(--${props.size})` : `${props.customSize}`,
+      fontSize: props.size ? `var(--text-${props.size})` : `${props.customFontSize}`,
+      bgColor: props.fill ? `var(--${props.fill})` : `${props.customBgColor}`,
+      color: props.color ? `var(--${props.color})` : `var(--${props.customColor})`,
+      border: props.outline ? '0.2rem soild' : `${props.customBorder}`,
+      borderRadius: props.rounded ? '3.2rem' : '0',
+      borderColor: props.outline ? `var(--${props.outline})` : `${props.customBoderColor}`,
     }))
 
-    if (bgColors.includes(props.bgColor)) {
-      BTN_EL.value.setProperty('--bgColor', props.bgColor)
-    }
-
     return {
-      BTN_EL,
       state,
     }
   },
@@ -74,14 +86,13 @@ export default {
 
 <style lang="scss" rel="stylesheet/scss" scoped>
 .btn {
-  --bgColor: var(--primary-dark);
-
   width: v-bind('state.width');
   padding: v-bind('state.padding');
-  color: v-bind(textColor);
-  background-color: var(--bgColor);
-  border: 0;
+  color: v-bind('state.color');
+  background-color: v-bind('state.bgColor');
+  border: v-bind('state.border');
+  border-radius: v-bind('state.borderRadius');
+  font-size: v-bind('state.fontSize');
   font-weight: 500;
-  font-size: 1.2rem;
 }
 </style>
