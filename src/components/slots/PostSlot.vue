@@ -13,7 +13,7 @@
 
       <template #title>
         <router-link :to="{ name: 'post', query: { id: post._id } }">{{ post.title }}</router-link>
-        <span class="info_ico"><i class="material-icons">lock</i></span>
+        <span class="info_ico" v-if="!post.isPublic"><i class="material-icons">lock</i></span>
       </template>
 
       <template #summary>

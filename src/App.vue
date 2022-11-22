@@ -111,7 +111,6 @@ video,
 canvas,
 svg {
   display: block;
-  max-width: 100%;
 }
 
 a,

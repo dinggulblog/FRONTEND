@@ -13,7 +13,7 @@
 </template>
 
 <script>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, onUnmounted } from 'vue'
   import Dropbox from '../Dropbox.vue'
 
   export default {
@@ -44,6 +44,10 @@
 
       onMounted(() => {
         document.addEventListener('click', closeAll)
+      })
+
+      onUnmounted(() => {
+        document.removeEventListener('click', closeAll)
       })
 
       /*

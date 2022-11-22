@@ -30,9 +30,9 @@
           </div>
         </div>
 
-        <router-link :to="{ name: 'login' }" class="a_login" v-else-if="!isMobile && !isLogin"
-          ><i class="material-icons">person</i></router-link
-        >
+        <router-link :to="{ name: 'login' }" class="a_login" v-else-if="!isMobile && !isLogin">
+          <i class="material-icons">person</i>
+        </router-link>
 
         <button class="btn_search" v-else-if="isMobile" @click="onChangeDisply('search')">
           <i class="material-icons" v-if="searchState">close</i>
@@ -215,6 +215,14 @@
             flex-direction: row;
             align-items: center;
             margin: 0 0 0 4.8rem;
+
+            &::v-deep .author {
+              flex-direction: row-reverse;
+
+              .avatar {
+                margin: 0 0 0 1.2rem;
+              }
+            }
 
             .auth_items {
               justify-content: center;

@@ -11,6 +11,7 @@
           <Button
             :className="'btn_submit'"
             :content="!isUpdate ? '댓글 작성' : '댓글 수정'"
+            :fill="'primary-dark'"
             :size="'md'"
             :rounded="true"
             @onClick="!isUpdate ? onCreateComment() : onUpdateComment()"
