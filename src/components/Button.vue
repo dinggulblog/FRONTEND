@@ -26,11 +26,9 @@
       },
       customSize: {
         type: String,
-        default: '0',
       },
       customFontSize: {
         type: String,
-        default: '1.2rem',
       },
       fill: {
         type: String,
@@ -45,11 +43,9 @@
       },
       customBgColor: {
         type: String,
-        default: 'transparent',
       },
       customBoderColor: {
         type: String,
-        default: 'transparent',
       },
       customColor: {
         type: String,
@@ -69,9 +65,13 @@
     setup(props) {
       const state = computed(() => ({
         width: props.full ? '100%' : 'auto',
-        padding: props.size ? `var(--${props.size})` : `${props.customSize}`,
-        fontSize: props.size ? `var(--text-${props.size})` : `${props.customFontSize}`,
-        bgColor: props.fill ? `var(--${props.fill})` : `${props.customBgColor}`,
+        padding: props.size ? (props.customSize ? `${props.customSize}` : `var(--${props.size})`) : '0',
+        fontSize: props.size
+          ? props.customFontSize
+            ? `${props.customFontSize}`
+            : `var(--text-${props.size})`
+          : '1.2rem',
+        bgColor: props.fill ? (props.customBgColor ? `${props.customBgColor}` : `var(--${props.fill})`) : 'transparent',
         color: props.customColor
           ? `${props.customColor}`
           : props.fill || (props.fill && props.outline)
@@ -81,7 +81,11 @@
           : `var(--text-light)`,
         border: props.outline ? (props.customBorder ? `solid +${props.customBorder}` : 'solid 0.2rem') : '0',
         borderRadius: props.rounded ? '3.2rem' : '0',
-        borderColor: props.outline ? `var(--${props.outline})` : `${props.customBoderColor}`,
+        borderColor: props.outline
+          ? props.customBoderColor
+            ? `${props.customBoderColor}`
+            : `var(--${props.outline})`
+          : 'transparent',
       }))
 
       return {
