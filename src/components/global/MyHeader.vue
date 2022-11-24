@@ -2,11 +2,28 @@
   <div class="container_bar">
     <div class="bar">
       <div class="wrap_left">
+        <Button
+          :class="isMobile ? 'btn_m-toggle' : 'btn_search'"
+          :content="'버튼'"
+          :svgPath="'home'"
+          :size="'md'"
+          :svg="'home'"
+          :color="'#fff'"
+          :customPadding="'0'"
+          :rounded="true"
+          @onClick="!isUpdate ? onCreateComment() : onUpdateComment()"
+        >
+        </Button>
+
+        <!--
+
         <button :class="isMobile ? 'btn_m-toggle' : 'btn_search'">
           <i v-if="isMobile" class="material-icons" @click="onChangeDisply('gnb')">menu</i>
           <i v-else-if="!isMobile && searchState" class="material-icons" @click="onChangeDisply('search')">close</i>
           <i v-else class="material-icons" @click="onChangeDisply('search')">search</i>
         </button>
+
+        -->
       </div>
 
       <div class="logo">
@@ -59,18 +76,19 @@
   import Navigation from './Navigation.vue'
   import SearchForm from '../SearchForm.vue'
   import AuthorSlot from '../slots/AuthorSlot.vue'
+  import Button from '../Button.vue'
 
   export default {
     components: {
       Navigation,
       SearchForm,
       AuthorSlot,
+      Button,
     },
     setup() {
       const { state, dispatch } = useStore()
       const gnb = ref(null)
       const searchForm = ref(null)
-
       const mediaQuery = window.matchMedia('only screen and (max-width: 1023px')
       const isMobile = ref(mediaQuery.matches)
       const gnbState = ref(false)
@@ -129,6 +147,11 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
+  svg {
+    width: 2.4rem;
+    height: 2.4rem;
+    fill: #fff;
+  }
   .container_bar {
     display: flex;
     justify-content: center;

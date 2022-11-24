@@ -81,19 +81,19 @@
       <div class="wrap_left">
         <Button
           v-show="draft.images?.length"
-          :className="'btn_image_insert'"
+          class="btn_image_insert"
           :content="'사진 첨부'"
           :size="'md'"
-          :outline="'primary-dark'"
+          :borderColor="'primary-dark'"
           :rounded="true"
           @onClick="onInsertImage"
         ></Button>
         <Button
           v-show="draft.images?.length"
-          :className="'btn_image_clear'"
+          class="btn_image_clear"
           :content="'사진 모두 제거'"
           :size="'md'"
-          :outline="'primary-dark'"
+          :borderColor="'primary-dark'"
           :rounded="true"
           @onClick="onClearImages"
         ></Button>
@@ -111,10 +111,12 @@
           <label for="auto-save">자동 저장 여부</label>
         </div>
         <Button
-          :className="'btn_submit'"
+          class="btn_submit"
           :content="'글 등록'"
           :size="'md'"
-          :fill="'primary-dark'"
+          :bgColor="'primary-dark'"
+          :customBgColor="'red'"
+          :custom="true"
           :rounded="true"
           @onClick="onPostUpload"
         ></Button>
@@ -561,6 +563,9 @@
 
       .wrap_left {
         width: 50%;
+        display: flex;
+        align-items: center;
+
         .btn_image_clear {
           margin: 0 0 0 1.2rem;
         }
