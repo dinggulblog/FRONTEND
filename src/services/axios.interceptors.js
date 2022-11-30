@@ -2,12 +2,21 @@ import axiosInstance from './axios'
 
 const setup = (store) => {
   axiosInstance.interceptors.request.use(
-    async (config) => {
+    (config) => {
       const token = store.state.auth.token
 
       store.commit('loading/SET_LOADING', true)
 
-      config.headers['Authorization'] = token ? 'Bearer ' + token : config.url.endsWith('account') && config.method.toLowerCase() === 'post' ? process.env.VUE_APP_SECRET_KEY?.trim() : null
+      config.headers['Authorization'] = token
+        ? 'Bearer ' + token
+        : config.url.endsWith('account') && config.method.toLowerCase() === 'post'
+          ? process.env.VUE_APP_SECRET_KEY?.trim()
+          : null
+
+      config.onUploadProgress = (progressEvent) => {
+        let percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+        store.commit('loading/SET_PERCENTAGE', percentage, { root: true })
+      }
 
       return config
     },

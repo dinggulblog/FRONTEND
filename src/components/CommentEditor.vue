@@ -9,7 +9,7 @@
       <div class="wrap_submit">
         <div class="submit">
           <Button
-            :className="'btn_submit'"
+            class="btn_submit"
             :content="!isUpdate ? '댓글 작성' : '댓글 수정'"
             :bgColor="'primary-dark'"
             :size="'md'"
@@ -26,13 +26,11 @@
   import { ref, onMounted, watch } from 'vue'
   import { useRoute } from 'vue-router'
   import { useStore } from 'vuex'
-  import Toggle from '../components/Toggle.vue'
-  import Button from '../components/Button.vue'
-
+  import Toggle from './Toggle.vue'
+  
   export default {
     components: {
       Toggle,
-      Button,
     },
     props: {
       post: {
@@ -157,10 +155,6 @@
           align-items: center;
           user-select: none;
           cursor: pointer;
-
-          i {
-            font-size: 4.8rem;
-          }
 
           span {
             margin: 0 0 0 0.8rem;

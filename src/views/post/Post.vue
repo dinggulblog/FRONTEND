@@ -6,7 +6,7 @@
           <div class="wrap_title">
             <div class="title">
               <h2>{{ post.title }}</h2>
-              <span class="lock_ico"><i class="material-icons"> lock </i></span>
+              <span v-if="!post.isPublic" class="lock_ico"><Ico :size="'md'" :svg="'lock'" /></span>
             </div>
           </div>
 
@@ -32,14 +32,8 @@
 
       <div class="wrap_like">
         <div class="liked_count">
-          <span class="like_ico">
-            <i
-              class="material-icons"
-              @click="!isLike ? onUpdateLike : onDeleteLike"
-              :style="!isLike ? { color: '#ddd' } : { color: 'red' }"
-            >
-              favorite
-            </i>
+          <span class="like_ico" @click="!isLike ? onUpdateLike() : onDeleteLike()">
+            <Ico :size="'lg'" :svg="'like-fill'" :customColor="!isLike ? '#ddd' : 'red'" />
           </span>
           <span>{{ likeCount }}</span>
         </div>
@@ -79,7 +73,7 @@
 </template>
 
 <script>
-  import { defineComponent, ref, computed, onBeforeMount, onBeforeUpdate } from 'vue'
+  import { defineComponent, ref, computed, onBeforeMount, onBeforeUpdate, onMounted } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
   import { useStore } from 'vuex'
   import { debounce } from '../../common/util'
@@ -188,10 +182,11 @@
         } else {
           window.scrollTo({ top: 0, behavior: 'smooth' })
         }
+
+        isLike.value = likes.value.some((likedUser) => likedUser._id === user.value._id)
       })
 
       onBeforeUpdate(() => {
-        isLike.value = likes.value.includes(user.value._id)
         document.title = post.value?.title ?? 'Post'
       })
 
@@ -244,11 +239,7 @@
 
               .lock_ico {
                 margin: 0 0 0 1.6rem;
-
-                i {
-                  font-size: 2.4rem;
-                  color: var(--list_info);
-                }
+                color: var(--list_info);
               }
             }
           }
@@ -308,7 +299,6 @@
             .avatar {
               width: 9.6rem;
               height: 9.6rem;
-              margin: 0 1.6rem 0 0;
             }
           }
           .wrap_nickname_greetings {

@@ -22,6 +22,7 @@
         </div>
       </div>
       <div class="content">
+        <span class="receiver" v-if="comment.parentComment">@ {{ parentComment.commenter.nickname }}</span>
         <p v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</p>
         <p v-else>{{ comment.content }}</p>
       </div>
@@ -62,12 +63,13 @@
 </template>
 
 <script>
-  import { ref } from 'vue'
+  import { onBeforeMount, ref, computed } from 'vue'
   import { useStore } from 'vuex'
   import DropboxSlot from './DropboxSlot.vue'
   import CommentInfoSlot from './CommentInfoSlot.vue'
   import CommentEditor from '../CommentEditor.vue'
   import Dialog from '../../components/Dialog.vue'
+  import comment from '../../store/modules/comment'
 
   export default {
     name: 'CommentSlot',
@@ -92,10 +94,12 @@
       },
     },
     setup(props) {
-      const { dispatch } = useStore()
+      const { state, dispatch } = useStore()
+      const comments = computed(() => state.comment.comments)
       const isVisible = ref(false)
       const Dialog = ref(null)
       const isUpdate = ref(false)
+      const parentComment = ref(null)
 
       const onCreateEditor = () => {
         isUpdate.value = false
@@ -128,10 +132,19 @@
         }
       }
 
+      onBeforeMount(() => {
+        parentComment.value = comments.value.find((comment) => comment._id === props.comment.parentComment)
+        //comments.value.find((comment) => comment._id === props.comment.parentComment)
+        //comments.value.filter((comment) => console.log(comment))
+      })
+
+      const getParentComment = () => {}
+
       return {
         Dialog,
         isVisible,
         isUpdate,
+        parentComment,
         onCreateEditor,
         onUpdateEditor,
         onCloseEditor,
@@ -179,8 +192,19 @@
       }
 
       .content {
+        display: flex;
+        align-items: center;
         color: #bababa;
         font-size: 1.4rem;
+
+        .receiver {
+          padding: 0.4rem 1rem;
+          background: var(--secondary);
+          font-weight: 500;
+          color: #fff;
+          border-radius: 3.2rem;
+          margin: 0 0.8rem 0 0;
+        }
       }
     }
   }

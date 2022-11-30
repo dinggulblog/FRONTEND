@@ -1,9 +1,16 @@
 <template>
   <Dropbox ref="dropboxEl">
     <template #dropbox_btn>
-      <button class="btn_dropbox" tabindex="-1" @click="onDropbox">
-        <i class="material-icons dropbox_ico">more_horiz</i>
-      </button>
+      <Button
+        class="btn_dropbox"
+        tabindex="-1"
+        :size="'sm'"
+        :svg="'more'"
+        :customColor="`var(--list_info)`"
+        :customPadding="'0'"
+        @click="onDropbox"
+      >
+      </Button>
     </template>
 
     <template #dropbox_items>
@@ -15,7 +22,7 @@
 <script>
   import { ref, onMounted, onUnmounted } from 'vue'
   import Dropbox from '../Dropbox.vue'
-
+  
   export default {
     name: 'DropboxSlot',
     components: {
@@ -31,7 +38,7 @@
       const dropboxEl = ref(null)
 
       const onDropbox = () => {
-        dropboxEl.value.dropbox()
+        dropboxEl.value.toggle()
       }
 
       const onClose = () => {
@@ -39,15 +46,15 @@
       }
 
       const closeAll = (event) => {
-        if (!event.target.classList[1]) onClose()
+        if (!event.target.closest('.dropbox') && dropboxEl.value) onClose()
       }
 
       onMounted(() => {
-        document.addEventListener('click', closeAll)
+        document.body.addEventListener('click', closeAll)
       })
 
       onUnmounted(() => {
-        document.removeEventListener('click', closeAll)
+        document.body.removeEventListener('click', closeAll)
       })
 
       /*
@@ -58,19 +65,23 @@
 
     /*
 
-    onMounted(() => {
-      if (document.body.getAttribute('listener') !== 'click') {
-        document.body.setAttribute('listener', 'click')
-        document.body.addEventListener('click', closeAll)
+      /*
+      const closeAll = (event) => {
+        if (!event.target.closest('.dropbox')) onClose()
       }
-    })
 
-    onUnmounted(() => {
-      document.body.removeAttribute('listener')
-      document.body.removeEventListener('click', closeAll)
-    })
+      onMounted(() => {
+        if (document.body.getAttribute('listener') !== 'click') {
+          document.body.setAttribute('listener', 'click')
+          document.body.addEventListener('click', closeAll)
+        }
+      })
 
-    */
+      onUnmounted(() => {
+        document.body.removeAttribute('listener')
+        document.body.removeEventListener('click', closeAll)
+      })
+      */
 
       return {
         dropboxEl,

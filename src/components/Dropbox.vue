@@ -17,7 +17,7 @@
     setup() {
       const isVisible = ref(false)
 
-      const dropbox = () => {
+      const toggle = () => {
         isVisible.value = !isVisible.value
       }
 
@@ -25,7 +25,7 @@
         isVisible.value = false
       }
 
-      return { isVisible, close, dropbox }
+      return { isVisible, toggle, close }
     },
   }
 </script>

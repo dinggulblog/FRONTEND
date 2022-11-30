@@ -11,10 +11,16 @@ const actions = {
   async getDraft({ commit }) {
     try {
       const { data } = await axios.get('v1/drafts')
-      commit('SET_DRAFT', data.data.draft)
-      return data
+      const { success, data: { draft } } = data
+
+      if (draft) {
+        commit('SET_DRAFT', draft)
+      }
+      
+      return { success, draft }
     } catch (err) {
-      return err.response.data
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 
@@ -22,26 +28,33 @@ const actions = {
   async createDraft({ commit }) {
     try {
       const { data } = await axios.post('v1/drafts')
-      commit('SET_DRAFT', data.data.draft)
-      return data
+      const { success, data: { draft } } = data
+
+      if (draft) {
+        commit('SET_DRAFT', draft)
+      }
+
+      return { success, draft }
     } catch (err) {
-      return err.response.data
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 
   // params: Object (draft)
   async updateDraft({ commit }, { draftId, payload }) {
     try {
-      const { data } = await axios.put(`v1/drafts/${draftId}`, payload, {
-        onUploadProgress: (progressEvent) => {
-          let percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          commit('loading/SET_PERCENTAGE', percentage, { root: true })
-        },
-      })
-      commit('SET_DRAFT', data.data.draft)
-      return data
+      const { data } = await axios.put(`v1/drafts/${draftId}`, payload)
+      const { success, data: { draft } } = data
+
+      if (success) {
+        commit('SET_DRAFT', draft)
+      }
+      
+      return { success, draft }
     } catch (err) {
-      return err.response.data
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 
@@ -51,7 +64,8 @@ const actions = {
       const { data } = await axios.delete(`v1/drafts/${payload}`)
       return data
     } catch (err) {
-      return err.response.data
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 
@@ -63,7 +77,8 @@ const actions = {
       commit('DELETE_DRAFT_FILE', imageId)
       return data
     } catch (err) {
-      return err.response.data
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 }

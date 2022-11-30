@@ -1,15 +1,15 @@
 <template>
   <div class="toggle">
+    <Ico
+      :svg="isPublic ? 'toggle' : 'toggle-fill'"
+      :size="'xl'"
+      :customColor="isPublic ? '#E6E6E6' : 'var(--secondary)'"
+      @click="onToggle()"
+    />
+
     <span :style="[isPublic ? { color: '#BABABA' } : { color: 'var(--secondary)' }]">
       {{ isPublic ? '공개' : '비밀' }}
     </span>
-    <i
-      class="material-icons"
-      :style="isPublic ? { color: '#E6E6E6' } : { color: 'var(--secondary)' }"
-      @click="onToggle()"
-    >
-      {{ isPublic ? 'toggle_off' : 'toggle_on' }}
-    </i>
   </div>
 </template>
 
@@ -37,13 +37,9 @@
     cursor: pointer;
     user-select: none;
 
-    i {
-      font-size: 4.8rem;
-    }
-
     span {
       font-size: 1.2rem;
-      margin: 0 0.4rem 0 0;
+      margin: 0 0 0 0.4rem;
       letter-spacing: 0.1rem;
     }
   }

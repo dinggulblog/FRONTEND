@@ -61,7 +61,7 @@
           flex-direction: row;
 
           .avatar {
-            margin: 0 1.2rem 0 0;
+            margin: 0 0 0 0;
           }
         }
 

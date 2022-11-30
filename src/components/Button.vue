@@ -1,23 +1,19 @@
 <template>
-  <button class="btn" :style="customState" @click="$emit('onClick')" ref="BTN_EL">
-    <svg xmlns="http://www.w3.org/2000/svg" :viewBox="'0 0 24 24'" v-if="svg">
-      <path />
-    </svg>
+  <button class="btn" type="button" :style="customState" @click="$emit('onClick')" ref="BTN_EL">
+    <Ico :svg="svg" :size="size" :customColor="customColor"></Ico>
     {{ content }}
   </button>
 </template>
 
 <script>
   import { computed, ref } from 'vue'
-
-  const viewBox = {
-    sm: '0 0 12 12',
-    md: '0 0 24 24',
-    lg: '0 0 32 32',
-  }
+  import Ico from './Ico.vue'
 
   export default {
     name: 'Button',
+    components: {
+      Ico,
+    },
     props: {
       content: {
         type: String,
@@ -57,7 +53,6 @@
       },
       svg: {
         type: String,
-        validator: (value) => ['home', 'search', 'create', 'row', 'grid'].includes(value),
       },
       full: {
         type: Boolean,
@@ -80,10 +75,7 @@
         border: props.borderColor ? 'solid 0.2rem' : '0',
         borderRadius: props.rounded ? '3.2rem' : '0',
         borderColor: props.borderColor ? `var(--${props.borderColor})` : 'transparent',
-        svgPath: props.svg ? `path(var(--Ico-${props.svg}))` : '',
-        svgSize: props.svg ? `var(--Ico-${props.size})` : '',
         svgMargin: props.svg && props.content ? '0.8rem' : '',
-        viewBox: props.size ? viewBox[props.size] : '0 0 24 24',
       }))
 
       const customState = computed(() => ({
@@ -108,8 +100,6 @@
   .btn {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-
     width: v-bind('state.width');
     padding: v-bind('state.padding');
     color: v-bind('state.color');
@@ -121,14 +111,7 @@
     font-weight: 500;
 
     svg {
-      width: 2.4rem;
-      height: 2.4rem;
-      margin: v-bind('state.svgMargin');
-      fill: v-bind('state.color');
-
-      path {
-        d: v-bind('state.svgPath');
-      }
+      margin-right: v-bind('state.svgMargin');
     }
   }
 </style>

@@ -84,14 +84,7 @@
 
       .info_ico {
         margin: 0 0 0 1.2rem;
-        i {
-          font-size: 1.8rem;
-          color: var(--list_info);
-
-          @include mobile_all {
-            font-size: 2rem;
-          }
-        }
+        color: var(--list_info);
       }
     }
   }
@@ -124,8 +117,6 @@
     flex-direction: row;
     align-items: center;
     width: 100%;
-    font-size: 1.2rem;
-    color: var(--list_info);
     margin: 6.4rem 0 0;
 
     @include mobile_all {
@@ -145,6 +136,11 @@
 
     @include tablet_landscape {
       margin: 3.2rem 0 0;
+    }
+
+    span {
+      font-size: 1.2rem;
+      color: var(--list_info);
     }
 
     .wrap_left {
@@ -173,19 +169,7 @@
         }
 
         .info_ico {
-          i {
-            font-size: 1.8rem;
-            margin: 0 0.8rem 0 0;
-            color: var(--list_info);
-
-            @include mobile_all {
-              font-size: 2.4rem;
-            }
-          }
-        }
-
-        span {
-          color: var(--list_info);
+          margin: 0 1.2rem 0 0;
         }
       }
     }

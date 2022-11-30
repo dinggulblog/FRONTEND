@@ -13,7 +13,7 @@
 
       <template #title>
         <router-link :to="{ name: 'post', query: { id: post._id } }">{{ post.title }}</router-link>
-        <span class="info_ico" v-if="!post.isPublic"><i class="material-icons">lock</i></span>
+        <span class="info_ico" v-if="!post.isPublic"><Ico :size="'sm'" :svg="'lock'" /></span>
       </template>
 
       <template #summary>
@@ -26,13 +26,13 @@
 
       <template #comment_count>
         <router-link :to="{ name: 'post', query: { id: post._id, quickMove: true } }">
-          <span class="info_ico"><i class="material-icons">comment</i></span>
+          <span class="info_ico"><Ico :size="'sm'" :svg="'comment'" /></span>
           <span>{{ post.commentCount }}</span>
         </router-link>
       </template>
 
       <template #like_count>
-        <span class="info_ico" ref="isLikeEl"><i class="material-icons">favorite</i></span>
+        <span class="info_ico" ref="isLikeEl"><Ico :size="'sm'" :svg="'like'" /></span>
         <span>{{ post.likeCount }}</span>
       </template>
     </List>
@@ -56,7 +56,7 @@
 
       <template #title>
         <router-link :to="{ name: 'post', query: { id: post._id } }">{{ post.title }}</router-link>
-        <span class="info_ico"><i class="material-icons">lock</i></span>
+        <span class="info_ico"><Ico :size="'sm'" :svg="'lock'" /></span>
       </template>
 
       <template #summary>
@@ -70,14 +70,14 @@
       <template #comment_count>
         <div class="wrap_comment_count">
           <router-link :to="{ name: 'post', query: { id: post._id, quickMove: true } }">
-            <span class="info_ico"><i class="material-icons">comment</i></span>
+            <span class="info_ico"><Ico :size="'sm'" :svg="'comment'" /></span>
             <span>{{ post.commentCount }}</span>
           </router-link>
         </div>
       </template>
 
       <template #like_count>
-        <span class="info_ico" ref="isLikeEl"><i class="material-icons">favorite</i></span>
+        <span class="info_ico" ref="isLikeEl"><Ico :size="'sm'" :svg="'like'" /></span>
         <span>{{ post.likeCount }}</span>
       </template>
     </Card>
@@ -96,7 +96,7 @@
       </template>
 
       <template #lock_ico>
-        <span class="info_ico"><i class="material-icons">lock</i></span>
+        <Ico :size="'sm'" :svg="'lock'" />
       </template>
 
       <template #createdAt>
@@ -108,12 +108,12 @@
       </template>
 
       <template #comment_count>
-        <span class="info_ico"><i class="material-icons">comment</i></span>
+        <span class="info_ico"><Ico :size="'sm'" :svg="'comment'" /></span>
         <span>{{ post.commentCount }}</span>
       </template>
 
       <template #like_count>
-        <span class="info_ico" ref="isLikeEl"><i class="material-icons">favorite</i></span>
+        <span class="info_ico" ref="isLikeEl"><Ico :size="'sm'" :svg="'like'" /></span>
         <span>{{ post.likeCount }}</span>
       </template>
     </Slide>

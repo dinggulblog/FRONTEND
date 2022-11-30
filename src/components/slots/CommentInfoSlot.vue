@@ -8,7 +8,7 @@
 
     <template #createdAt>
       <li>
-        <span class="createdAt">{{ dayjs(comment.createdAt).format('YYYY년 M월 D일') }}</span>
+        <span class="createdAt">{{ dayjs(comment.createdAt).format('YYYY년 M월 D일').fromNow() }}</span>
       </li>
     </template>
 
@@ -20,7 +20,9 @@
 
     <template #is-public v-if="!comment?.isPublic">
       <li>
-        <span class="info_ico"><i class="material-icons">lock</i></span>
+        <span class="info_ico">
+          <Ico :svg="'lock'" :size="'sm'"></Ico>
+        </span>
       </li>
     </template>
   </Info>

@@ -3,7 +3,6 @@ import axios from '../../services/axios'
 import router from '../../router'
 
 const state = () => ({
-  draft: {},
   post: {},
   posts: [],
   likes: [],
@@ -20,20 +19,28 @@ const actions = {
   /**
    * Get post with Post ID
    * @param {String} payload Post ID
+   * @return {Object} Success, Post
    */
   async getPost({ commit }, payload) {
     try {
       const { data } = await axios.get(`v1/posts/${payload}`)
-      const { post, likes, likeCount, comments } = data.data
+      const {
+        success,
+        data: { post, likes, likeCount, comments },
+      } = data
 
-      if (post) commit('SET_POST', post)
-      if (likes) commit('SET_POST_LIKES', { likes, likeCount })
-      if (comments) commit('comment/SET_COMMENTS', comments, { root: true })
+      if (!success || !post) {
+        throw new Error('포스트가 업서요!')
+      }
 
-      return post
+      commit('SET_POST', post)
+      commit('SET_POST_LIKES', { likes, likeCount })
+      commit('comment/SET_COMMENTS', comments, { root: true })
+
+      return { success, post }
     } catch (err) {
-      alert(err.response.data?.message)
-      router.push({ name: 'posts', params: { main: router.currentRoute.value.params.main, sub: router.currentRoute.value.params?.sub } })
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 
@@ -47,8 +54,8 @@ const actions = {
       const { posts, maxPage } = data.data
       commit('SET_POSTS', { posts, maxPage })
     } catch (err) {
-      alert(err.response.data.message)
-      router.push({ name: 'home' })
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 
@@ -59,26 +66,44 @@ const actions = {
   async createPost({ commit }, payload) {
     try {
       const { data } = await axios.post('v1/posts', payload)
-      const { post } = data.data
-      commit('SET_POST', post)
-      router.push({ name: 'post', query: { id: post._id } })
+      const {
+        success,
+        data: { post },
+      } = data
+
+      if (success) {
+        commit('SET_POST', post)
+        router.push({ name: 'post', query: { id: post._id } })
+      }
+
+      return { success }
     } catch (err) {
-      alert(err.response.data?.message)
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 
   /**
    * Update a post with post object
    * @param {Object} Post { _id, title, content, menu, ... }
+   * @return Success, Post
    */
   async updatePost({ commit }, { postId, payload }) {
     try {
       const { data } = await axios.put(`v1/posts/${postId}`, payload)
-      const { post } = data.data
-      commit('SET_POST', post)
-      router.push({ name: 'post', params: { main: post.menu.main, sub: post.menu.sub, id: post._id } })
+      const {
+        success,
+        data: { post },
+      } = data
+
+      if (success) {
+        commit('SET_POST', post)
+      }
+
+      return { success, post }
     } catch (err) {
-      alert(err.response.data?.message)
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 
@@ -86,14 +111,14 @@ const actions = {
    * Add my ID from the like field of a post
    * @param {String} payload Post ID
    */
-
-  async updateLike({ commit }, { postId }) {
+  async updateLike({ commit }, payload) {
     try {
-      const { data } = await axios.put(`v1/posts/${postId}/like`)
+      const { data } = await axios.put(`v1/posts/${payload}/like`)
       const { likes, likeCount } = data.data
       commit('SET_POST_LIKES', { likes, likeCount })
     } catch (err) {
-      alert(err.response.data?.message)
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 
@@ -104,9 +129,13 @@ const actions = {
   async deletePost({ commit }, payload) {
     try {
       await axios.delete(`v1/posts/${payload}`)
-      router.push({ name: 'posts', params: { main: router.currentRoute.value.params.main, sub: router.currentRoute.value.params?.sub } })
+      router.push({
+        name: 'posts',
+        params: { main: router.currentRoute.value.params.main, sub: router.currentRoute.value.params?.sub },
+      })
     } catch (err) {
-      alert(err.response.data?.message)
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 
@@ -120,7 +149,8 @@ const actions = {
       const { data } = await axios.delete(`v1/posts/${postId}/file`, { data: imageId })
       return data
     } catch (err) {
-      alert(err.response.data?.message)
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 
@@ -130,9 +160,12 @@ const actions = {
    */
   async deleteLike({ commit }, payload) {
     try {
-      await axios.delete(`v1/posts/${payload}/like`)
+      const { data } = await axios.delete(`v1/posts/${payload}/like`)
+      const { likes, likeCount } = data.data
+      commit('SET_POST_LIKES', { likes, likeCount })
     } catch (err) {
-      return err.response.data
+      console.log(err.response?.data)
+      return { success: false }
     }
   },
 }
@@ -143,8 +176,8 @@ const mutations = {
   },
 
   SET_POSTS(state, { posts, maxPage }) {
-    state.posts = posts
-    state.maxPage = maxPage
+    state.posts = [...posts]
+    state.maxPage = Number(maxPage)
   },
 
   SET_POST_LIKES(state, { likes, likeCount }) {

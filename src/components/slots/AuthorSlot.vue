@@ -32,7 +32,9 @@
   <template v-if="type === 'postAuthor'">
     <Author>
       <template #avatar>
-        <img class="avatar" src="../../assets/4.jpg" alt="user_avatar" />
+        <div class="wrap_avatar">
+          <img class="avatar" src="../../assets/4.jpg" alt="user_avatar" />
+        </div>
       </template>
       <template #nickname>
         <span class="nickname">{{ post.author.nickname }}</span>

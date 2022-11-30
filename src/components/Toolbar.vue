@@ -4,7 +4,9 @@
       <div class="breadcrumb">
         <ul>
           <li>
-            <router-link :to="{ name: 'home' }"><i class="material-icons">home</i></router-link>
+            <router-link :to="{ name: 'home' }">
+              <Ico :size="'md'" :svg="'home'" />
+            </router-link>
           </li>
           <li>
             <router-link :to="{ name: 'posts', params: { main: route.params.main } }">
@@ -21,9 +23,7 @@
 
       <div class="type">
         <button v-for="view in views" :key="view.name" ref="typeBtnsEl">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" :class="view.name">
-            <path :d="view.path" />
-          </svg>
+          <Ico :size="'md'" :svg="view.path" :class="view.name" />
         </button>
       </div>
     </div>
@@ -54,11 +54,11 @@
       const views = [
         {
           name: 'list',
-          path: 'M19 11V5H5v6h14zm0 2H5v6h14v-6zM4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z',
+          path: 'grid',
         },
         {
           name: 'card',
-          path: 'M21,3c0.6,0,1,0.4,1,1v16c0,0.6-0.4,1-1,1H3c-0.6,0-1-0.4-1-1V4c0-0.6,0.4-1,1-1H21z M11,13H4v6h7V13zM20,13h-7v6h7V13zM11,5H4v6h7V5zM20,5h-7v6h7V5z',
+          path: 'row',
         },
       ]
 
@@ -158,11 +158,10 @@
           }
 
           li:not(:first-child)::before {
-            font-family: 'Material Icons';
-            content: '\e5cc';
-            width: 3.2rem;
-            font-size: 2rem;
-            color: var(--text-light);
+            margin-right: 1rem;
+            width: 24px;
+            height: 24px;
+            content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d0d0d0'><path d='M13.2,12L7.6,6.4l1.6-1.6l7.2,7.2l-7.2,7.2l-1.6-1.6L13.2,12z' /></svg>");
           }
         }
       }
@@ -177,13 +176,8 @@
           display: flex;
           align-items: center;
           transition: all 0.3s ease;
-          margin: 0 0 0 0.8rem;
-
-          svg {
-            width: 2.4rem;
-            height: 2.4rem;
-            fill: var(--text-light);
-          }
+          margin: 0 0 0 1.2rem;
+          color: var(--text-light);
 
           svg.on {
             fill: var(--primary-dark);
@@ -199,9 +193,10 @@
       ul {
         display: flex;
         flex-wrap: wrap;
+        margin: 0 0 1.2rem 0;
         li {
           flex: 0 0 auto;
-          margin: 0 1.6rem 1.2rem 0;
+          margin: 0 1.6rem 0 0;
           padding: 0 1.6rem;
           height: 3.8rem;
           line-height: 3.6rem;

@@ -4,26 +4,13 @@
       <div class="wrap_left">
         <Button
           :class="isMobile ? 'btn_m-toggle' : 'btn_search'"
-          :content="'버튼'"
-          :svgPath="'home'"
           :size="'md'"
-          :svg="'home'"
-          :color="'#fff'"
+          :svg="isMobile ? 'menu' : !isMobile && searchState ? 'close' : 'search'"
+          :customColor="'#fff'"
           :customPadding="'0'"
-          :rounded="true"
-          @onClick="!isUpdate ? onCreateComment() : onUpdateComment()"
+          @click="isMobile ? onChangeDisply('gnb') : onChangeDisply('search')"
         >
         </Button>
-
-        <!--
-
-        <button :class="isMobile ? 'btn_m-toggle' : 'btn_search'">
-          <i v-if="isMobile" class="material-icons" @click="onChangeDisply('gnb')">menu</i>
-          <i v-else-if="!isMobile && searchState" class="material-icons" @click="onChangeDisply('search')">close</i>
-          <i v-else class="material-icons" @click="onChangeDisply('search')">search</i>
-        </button>
-
-        -->
       </div>
 
       <div class="logo">
@@ -32,7 +19,9 @@
 
       <div class="wrap_right">
         <div class="wrap_auth" v-if="!isMobile && user.nickname">
-          <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
+          <router-link :to="{ name: 'editor' }" class="a_create">
+            <Ico :size="'md'" :svg="'create'" />
+          </router-link>
           <div class="auth dropdown">
             <AuthorSlot :user="user" :type="'header'" />
             <div class="auth_items dropdown_items">
@@ -41,20 +30,26 @@
                 <li>
                   <router-link :to="{ name: 'profile', params: { nickname: user.nickname } }">Profile</router-link>
                 </li>
-                <li><button @click="onLogout">Logout</button></li>
+                <li><span @click="onLogout">Logout</span></li>
               </ul>
             </div>
           </div>
         </div>
 
         <router-link :to="{ name: 'login' }" class="a_login" v-else-if="!isMobile && !isLogin">
-          <i class="material-icons">person</i>
+          <Ico :size="'md'" :svg="'lock'" />
         </router-link>
 
-        <button class="btn_search" v-else-if="isMobile" @click="onChangeDisply('search')">
-          <i class="material-icons" v-if="searchState">close</i>
-          <i class="material-icons" v-else>search</i>
-        </button>
+        <Button
+          v-else-if="isMobile"
+          class="btn_search"
+          :size="'md'"
+          :svg="searchState ? 'close' : 'search'"
+          :customColor="'#fff'"
+          :customPadding="'0'"
+          @click="onChangeDisply('search')"
+        >
+        </Button>
       </div>
     </div>
   </div>
@@ -76,14 +71,12 @@
   import Navigation from './Navigation.vue'
   import SearchForm from '../SearchForm.vue'
   import AuthorSlot from '../slots/AuthorSlot.vue'
-  import Button from '../Button.vue'
 
   export default {
     components: {
       Navigation,
       SearchForm,
       AuthorSlot,
-      Button,
     },
     setup() {
       const { state, dispatch } = useStore()
@@ -104,22 +97,16 @@
           if (searchState.value) {
             searchState.value = !searchState.value
             searchForm.value.style.display = searchState.value ? 'flex' : 'none'
-            gnbState.value = !gnbState.value
-            gnb.value.style.display = gnbState.value ? 'flex' : 'none'
-          } else {
-            gnbState.value = !gnbState.value
-            gnb.value.style.display = gnbState.value ? 'flex' : 'none'
           }
+          gnbState.value = !gnbState.value
+          gnb.value.style.display = gnbState.value ? 'flex' : 'none'
         } else {
           if (gnbState.value) {
             gnbState.value = !gnbState.value
             gnb.value.style.display = gnbState.value ? 'flex' : 'none'
-            searchState.value = !searchState.value
-            searchForm.value.style.display = searchState.value ? 'flex' : 'none'
-          } else {
-            searchState.value = !searchState.value
-            searchForm.value.style.display = searchState.value ? 'flex' : 'none'
           }
+          searchState.value = !searchState.value
+          searchForm.value.style.display = searchState.value ? 'flex' : 'none'
         }
       }
 
@@ -147,11 +134,6 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  svg {
-    width: 2.4rem;
-    height: 2.4rem;
-    fill: #fff;
-  }
   .container_bar {
     display: flex;
     justify-content: center;
@@ -191,15 +173,6 @@
         margin: 0 3.2rem;
       }
 
-      i {
-        font-size: 2rem;
-        color: #fff;
-
-        @include mobile_all {
-          font-size: 2.4rem;
-        }
-      }
-
       a {
         color: #fff;
       }
@@ -226,7 +199,6 @@
         align-items: center;
         .wrap_auth {
           display: flex;
-          flex-direction: row;
           align-items: center;
           .a_create {
             @include mobile_all {
@@ -242,7 +214,7 @@
             &::v-deep .author {
               flex-direction: row-reverse;
 
-              .avatar {
+              .wrap_avatar {
                 margin: 0 0 0 1.2rem;
               }
             }
@@ -254,6 +226,7 @@
               ul {
                 background-color: var(--border-light);
                 box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.2);
+                cursor: default;
               }
 
               li {
@@ -267,10 +240,11 @@
                 }
 
                 a,
-                button {
+                span {
                   font-size: 1.2rem;
                   font-weight: 400;
                   color: var(--text-light);
+                  cursor: pointer;
 
                   @include tablet_landscape {
                     font-size: 1.6rem;
@@ -279,6 +253,12 @@
               }
             }
           }
+        }
+
+        .a_create,
+        .a_login {
+          display: flex;
+          align-items: center;
         }
       }
     }
