@@ -7,15 +7,21 @@ const setup = (store) => {
 
       store.commit('loading/SET_LOADING', true)
 
-      config.headers['Authorization'] = token
-        ? 'Bearer ' + token
-        : config.url.endsWith('account') && config.method.toLowerCase() === 'post'
-          ? process.env.VUE_APP_SECRET_KEY?.trim()
-          : null
+      if (config.headers?.Authorization === false) {
+        config.headers.Authorization = null
+      }
+      else if (token) {
+        config.headers.Authorization = 'Bearer ' + token
+      }
+      else if (config.url.endsWith('account') && config.method.toLowerCase() === 'post') {
+        config.headers.Authorization = process.env.VUE_APP_SECRET_KEY?.trim()
+      }
 
-      config.onUploadProgress = (progressEvent) => {
-        let percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-        store.commit('loading/SET_PERCENTAGE', percentage, { root: true })
+      if (config.method.toLowerCase() === 'put') {
+        config.onUploadProgress = (progressEvent) => {
+          let percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          store.commit('loading/SET_PERCENTAGE', percentage, { root: true })
+        }
       }
 
       return config
@@ -35,8 +41,18 @@ const setup = (store) => {
 
       store.commit('loading/SET_LOADING', false)
 
-      console.log('Error response: ', error.response.status, error.response.data, '\nRequested URL: ', error.response.request.responseURL, '\n')
-
+      console.log(`에러:
+------------ Original  Config ------------
+      URL: ${originalConfig.url}
+      Method: ${originalConfig.method}
+      Message: ${error.message}
+------------ Backend Response ------------
+      URL: ${error?.response?.request?.responseURL}
+      Status: ${error?.response?.status}
+      Message: ${error?.response?.data?.message}
+      Success: ${error?.response?.data?.success}
+      `)
+      
       if (!originalConfig.url.endsWith('auth') && error.response) {
         // 419 Error response => Refresh token was expired OR not exist => Logout
         if (error.response.status === 419) {

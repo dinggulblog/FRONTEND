@@ -1,11 +1,12 @@
 import axios from '../../services/axios.js'
 
 const state = () => ({
+  type: 'list',
+  category: '전체',
+  categories: [],
   menus: [],
-  groupedMenus: {},
   currentMenus: [],
-  currentCategories: [],
-  currentType: '',
+  groupedMenus: {},
 })
 
 const getters = {}
@@ -27,6 +28,14 @@ const actions = {
 }
 
 const mutations = {
+  SET_TYPE(state, type) {
+    state.currentType = type
+  },
+
+  SET_CATEGORY(state, category) {
+    state.category = category
+  },
+
   SET_MENUS(state, menus = []) {
     state.menus = menus
   },
@@ -40,31 +49,18 @@ const mutations = {
     }, {})
   },
 
-  SET_TYPE(state, type) {
-    state.currentType = type
-  },
-
   SET_CURRENT_MENUS(state, { main, sub }) {
     if (!sub && main) {
       state.currentMenus = state.groupedMenus[main]
     } else if (sub && main) {
       state.currentMenus = state.groupedMenus[main]?.filter((subMenus) => subMenus.sub === sub)
     } else {
-      state.currentMenus = state.menus ?? []
+      state.currentMenus = state.menus
     }
-  },
-
-  SET_CURRENT_CATEGORIES(state, menus = []) {
-    state.currentCategories = [...new Set(menus.flatMap((menu) => menu.categories))]
-  },
-
-  SET_CURRENT_TYPE(state, menus = []) {
-    if (menus.length === 1) {
-      state.currentType = [...menus].shift()?.type
-    } else {
-      state.currentType = 'list'
-    }
-  },
+    
+    state.type = state.currentMenus.length === 1 ? [...state.currentMenus].shift()?.type : 'list'
+    state.categories = [...new Set(state.currentMenus.flatMap((menu) => menu.categories))]
+  }
 }
 
 export default {

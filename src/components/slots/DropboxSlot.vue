@@ -1,5 +1,5 @@
 <template>
-  <Dropbox ref="dropboxEl">
+  <Dropbox ref="DROPBOX_EL">
     <template #dropbox_btn>
       <Button
         class="btn_dropbox"
@@ -8,7 +8,7 @@
         :svg="'more'"
         :customColor="`var(--list_info)`"
         :customPadding="'0'"
-        @click="onDropbox"
+        @onClick="onToggle"
       >
       </Button>
     </template>
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-  import { ref, onMounted, onUnmounted } from 'vue'
+  import { ref } from 'vue'
   import Dropbox from '../Dropbox.vue'
   
   export default {
@@ -35,58 +35,15 @@
       },
     },
     setup(props) {
-      const dropboxEl = ref(null)
+      const DROPBOX_EL = ref(null)
 
-      const onDropbox = () => {
-        dropboxEl.value.toggle()
+      const onToggle = () => {
+        DROPBOX_EL.value.toggle()
       }
-
-      const onClose = () => {
-        dropboxEl.value.close()
-      }
-
-      const closeAll = (event) => {
-        if (!event.target.closest('.dropbox') && dropboxEl.value) onClose()
-      }
-
-      onMounted(() => {
-        document.body.addEventListener('click', closeAll)
-      })
-
-      onUnmounted(() => {
-        document.body.removeEventListener('click', closeAll)
-      })
-
-      /*
-
-    const closeAll = (event) => {
-      if (!event.target.closest('.dropbox')) onClose()
-    }
-
-    /*
-
-      /*
-      const closeAll = (event) => {
-        if (!event.target.closest('.dropbox')) onClose()
-      }
-
-      onMounted(() => {
-        if (document.body.getAttribute('listener') !== 'click') {
-          document.body.setAttribute('listener', 'click')
-          document.body.addEventListener('click', closeAll)
-        }
-      })
-
-      onUnmounted(() => {
-        document.body.removeAttribute('listener')
-        document.body.removeEventListener('click', closeAll)
-      })
-      */
 
       return {
-        dropboxEl,
-        onDropbox,
-        onClose,
+        DROPBOX_EL,
+        onToggle
       }
     },
   }
@@ -103,6 +60,7 @@
     }
 
     .wrap_dropbox_items {
+      display: none;
       position: absolute;
       top: 3.2rem;
       right: 0;
@@ -125,6 +83,10 @@
           cursor: pointer;
         }
       }
+    }
+
+    .wrap_dropbox_items.show {
+      display: block;
     }
   }
 </style>

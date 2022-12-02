@@ -8,7 +8,7 @@
 
     <template #createdAt>
       <li>
-        <span class="createdAt">{{ dayjs(comment.createdAt).format('YYYY년 M월 D일').fromNow() }}</span>
+        <span class="createdAt">{{ dayjs(comment.createdAt).format('YYYY년 M월 D일') }}</span>
       </li>
     </template>
 

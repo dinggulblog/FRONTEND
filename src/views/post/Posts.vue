@@ -1,72 +1,65 @@
 <template>
   <div class="posts">
     <Toolbar :type="type" :categories="categories" @updateType="onUpdateType" @updateCategory="onUpdateCategory" />
-    <div v-if="posts.length">
-      <ul :id="type">
-        <template v-for="post in posts" :key="post._id">
-          <PostSlot :type="type" :post="post" :isLike="post.likes?.includes(user._id) ?? false"> </PostSlot>
-        </template>
-      </ul>
-    </div>
-    <div v-else class="empty"><span>There is no posts.</span></div>
-
-    <Pagenation :page="page" :maxPage="maxPage" @updatePage="onUpdatePage" />
+    <Posts :type="type" :user="user"></Posts>
   </div>
 </template>
 
 <script>
-  import { computed, onBeforeMount, watchEffect } from 'vue'
+  import { computed, onBeforeMount, watch } from 'vue'
   import { useRoute } from 'vue-router'
   import { useStore } from 'vuex'
   import { mapState } from '../../common/vuex-helper.js'
+  import Posts from '../../components/Posts.vue'
   import Toolbar from '../../components/Toolbar.vue'
-  import PostSlot from '../../components/slots/PostSlot.vue'
-  import Pagenation from '../../components/Pagenation.vue'
 
   export default {
     name: 'posts',
     components: {
+      Posts,
       Toolbar,
-      PostSlot,
-      Pagenation,
     },
     setup(props) {
       const route = useRoute()
-
       const { state, dispatch, commit } = useStore()
-      const { posts, category, page, limit, maxPage } = mapState('post')
+
       const user = computed(() => state.auth.user)
-      const menus = computed(() => state.menu.currentMenus)
-      const categories = computed(() => state.menu.currentCategories)
-      const type = computed(() => state.menu.currentType)
+      const { page, limit } = mapState('post')
+      const { type, category, categories, currentMenus } = mapState('menu')
 
       const onUpdateType = (type) => commit('menu/SET_TYPE', type)
-      const onUpdatePage = (page) => commit('post/SET_PAGE', page)
-      const onUpdateCategory = (ctg) => commit('post/SET_CATEGORY', ctg)
+      const onUpdateCategory = (ctg) => {
+        commit('menu/SET_CATEGORY', ctg)
+        getPosts()
+      }
+
+      const getPosts = async () => {
+        await dispatch('post/getPosts', {
+          payload: {
+            page: page.value,
+            limit: limit.value,
+            menu: currentMenus.value?.map((menu) => menu._id),
+            category: category.value === '전체' ? null : category.value
+          }
+        })
+      }
+
+      watch(
+        () => route.params,
+        () => {
+          window.scrollTo({ left: 0, top: 0, behavior: 'smooth' })
+          commit('menu/SET_CURRENT_MENUS', { main: route.params.main, sub: route.params.sub })
+          commit('menu/SET_CATEGORY', '전체')
+          getPosts()
+        },
+        { immediate: true } 
+      )
 
       onBeforeMount(() => {
         commit('menu/SET_CURRENT_MENUS', { main: route.params.main, sub: route.params.sub })
-        commit('menu/SET_CURRENT_CATEGORIES', menus.value)
-        commit('menu/SET_CURRENT_TYPE', menus.value)
       })
 
-      watchEffect(async () => {
-        window.scrollTo({ left: 0, top: 0, behavior: 'smooth' })
-        commit('menu/SET_CURRENT_MENUS', { main: route.params.main, sub: route.params.sub })
-        commit('menu/SET_CURRENT_CATEGORIES', menus.value)
-        commit('menu/SET_CURRENT_TYPE', menus.value)
-
-        const query = {
-          page: page.value,
-          limit: limit.value,
-          menu: menus.value?.map((menu) => menu._id),
-          category: category.value === '전체' ? null : category.value,
-        }
-
-        await dispatch('post/getPosts', query)
-      })
-
-      return { menus, posts, page, maxPage, user, categories, type, onUpdateType, onUpdatePage, onUpdateCategory }
+      return { user, type, categories, onUpdateType, onUpdateCategory }
     },
   }
 </script>

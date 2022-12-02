@@ -1,13 +1,11 @@
 import { stringify } from 'querystring'
 import axios from '../../services/axios'
-import router from '../../router'
 
 const state = () => ({
   post: {},
   posts: [],
   likes: [],
   likeCount: 0,
-  category: '전체',
   page: 1,
   limit: 6,
   maxPage: 1,
@@ -24,22 +22,16 @@ const actions = {
   async getPost({ commit }, payload) {
     try {
       const { data } = await axios.get(`v1/posts/${payload}`)
-      const {
-        success,
-        data: { post, likes, likeCount, comments },
-      } = data
+      const { success, message, data: { post, likes, likeCount } } = data
 
-      if (!success || !post) {
-        throw new Error('포스트가 업서요!')
-      }
+      if (!success || !post) throw new Error(message || '게시물을 받아오지 못하였습니다.')
 
       commit('SET_POST', post)
       commit('SET_POST_LIKES', { likes, likeCount })
-      commit('comment/SET_COMMENTS', comments, { root: true })
 
       return { success, post }
     } catch (err) {
-      console.log(err.response?.data)
+      console.log(err.response)
       return { success: false }
     }
   },
@@ -48,13 +40,16 @@ const actions = {
    * Get posts with pagenation query object
    * @param {Object} payload { menu, page, limit, ... }
    */
-  async getPosts({ commit }, payload) {
+  async getPosts({ commit }, { auth = true, payload }) {
     try {
-      const { data } = await axios.get('v1/posts', { params: payload, paramsSerializer: (params) => stringify(params) })
-      const { posts, maxPage } = data.data
+      const { data } = await axios.get('v1/posts', { params: payload, paramsSerializer: (params) => stringify(params), headers: { Authorization: auth } })
+      const { success, data: { posts = [], maxPage = 1 } } = data
+
+      if (!success) throw new Error('게시물 리스트 쿼리가 이상해요')
+
       commit('SET_POSTS', { posts, maxPage })
     } catch (err) {
-      console.log(err.response?.data)
+      console.log(err.response)
       return { success: false }
     }
   },
@@ -66,19 +61,13 @@ const actions = {
   async createPost({ commit }, payload) {
     try {
       const { data } = await axios.post('v1/posts', payload)
-      const {
-        success,
-        data: { post },
-      } = data
+      const { success, data: { post } } = data
 
-      if (success) {
-        commit('SET_POST', post)
-        router.push({ name: 'post', query: { id: post._id } })
-      }
+      if (!success) throw new Error('게시물이 작성되지 않앗따')
 
-      return { success }
+      return { success, post }
     } catch (err) {
-      console.log(err.response?.data)
+      console.log(err.response)
       return { success: false }
     }
   },
@@ -91,18 +80,13 @@ const actions = {
   async updatePost({ commit }, { postId, payload }) {
     try {
       const { data } = await axios.put(`v1/posts/${postId}`, payload)
-      const {
-        success,
-        data: { post },
-      } = data
+      const { success, data: { post } } = data
 
-      if (success) {
-        commit('SET_POST', post)
-      }
-
+      if (!success) throw new Error('게시물이 수정되지 않앗따')
+      
       return { success, post }
     } catch (err) {
-      console.log(err.response?.data)
+      console.log(err.response)
       return { success: false }
     }
   },
@@ -111,13 +95,17 @@ const actions = {
    * Add my ID from the like field of a post
    * @param {String} payload Post ID
    */
-  async updateLike({ commit }, payload) {
+  async updateLike({ commit }, { postId, user }) {
     try {
-      const { data } = await axios.put(`v1/posts/${payload}/like`)
-      const { likes, likeCount } = data.data
-      commit('SET_POST_LIKES', { likes, likeCount })
+      const { data } = await axios.put(`v1/posts/${postId}/like`)
+      const { success } = data
+      
+      if (!success) throw new Error('게시물 좋아요가 수정되지 않앗따')
+
+      commit('ADD_POST_LIKE', user)
+      return { success }
     } catch (err) {
-      console.log(err.response?.data)
+      console.log(err.response)
       return { success: false }
     }
   },
@@ -128,13 +116,15 @@ const actions = {
    */
   async deletePost({ commit }, payload) {
     try {
-      await axios.delete(`v1/posts/${payload}`)
-      router.push({
-        name: 'posts',
-        params: { main: router.currentRoute.value.params.main, sub: router.currentRoute.value.params?.sub },
-      })
+      const { data } = await axios.delete(`v1/posts/${payload}`)
+      const { success } = data
+
+      if (!success) throw new Error('게시물이 삭제되지 않았따')
+
+      commit('SET_POST', {})
+      return { success }
     } catch (err) {
-      console.log(err.response?.data)
+      console.log(err.response)
       return { success: false }
     }
   },
@@ -147,9 +137,13 @@ const actions = {
   async deleteFile({ commit }, { postId, imageId }) {
     try {
       const { data } = await axios.delete(`v1/posts/${postId}/file`, { data: imageId })
-      return data
+      const { success } = data
+      
+      if (!success) throw new Error('게시물이 삭제되지 않았따')
+
+      return { success }
     } catch (err) {
-      console.log(err.response?.data)
+      console.log(err.response)
       return { success: false }
     }
   },
@@ -158,25 +152,29 @@ const actions = {
    * Remove my ID from the like field of a post
    * @param {String} payload
    */
-  async deleteLike({ commit }, payload) {
+  async deleteLike({ commit }, { postId, user }) {
     try {
-      const { data } = await axios.delete(`v1/posts/${payload}/like`)
-      const { likes, likeCount } = data.data
-      commit('SET_POST_LIKES', { likes, likeCount })
+      const { data } = await axios.delete(`v1/posts/${postId}/like`)
+      const { success } = data
+
+      if (!success) throw new Error('게시물 좋아요가 삭제되지 않아따')
+
+      commit('DELETE_POST_LIKE', user)
+      return { success }
     } catch (err) {
-      console.log(err.response?.data)
+      console.log(err.response)
       return { success: false }
     }
   },
 }
 
 const mutations = {
-  SET_POST(state, post) {
+  SET_POST(state, post = {}) {
     state.post = post
   },
 
   SET_POSTS(state, { posts, maxPage }) {
-    state.posts = [...posts]
+    state.posts = posts
     state.maxPage = Number(maxPage)
   },
 
@@ -185,12 +183,24 @@ const mutations = {
     state.likeCount = likeCount
   },
 
-  SET_PAGE(state, page) {
-    state.page = page
+  ADD_POST_LIKE(state, user) {
+    const idx = state.likes.findIndex(likeuser => likeuser._id === user._id)
+
+    if (idx === -1 && Array.isArray(state.likes)) {
+      state.likes = state.likes.concat(user)
+      state.likeCount = state.likes.length
+    }
   },
 
-  SET_CATEGORY(state, category) {
-    state.category = category
+  DELETE_POST_LIKE(state, user) {
+    if (Array.isArray(state.likes)) {
+      state.likes = state.likes.filter(likeuser => likeuser._id !== user._id)
+      state.likeCount = state.likes.length
+    }
+  },
+
+  SET_PAGE(state, page) {
+    state.page = page
   },
 }
 

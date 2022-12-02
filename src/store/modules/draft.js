@@ -13,13 +13,13 @@ const actions = {
       const { data } = await axios.get('v1/drafts')
       const { success, data: { draft } } = data
 
-      if (draft) {
-        commit('SET_DRAFT', draft)
-      }
+      if (!success) throw new Error('Draft 받기 실패')
+
+      commit('SET_DRAFT', draft)
       
       return { success, draft }
     } catch (err) {
-      console.log(err.response?.data)
+      console.log(err.response)
       return { success: false }
     }
   },
@@ -30,13 +30,13 @@ const actions = {
       const { data } = await axios.post('v1/drafts')
       const { success, data: { draft } } = data
 
-      if (draft) {
-        commit('SET_DRAFT', draft)
-      }
+      if (!success) throw new Error('Draft 받기 실패')
+
+      commit('SET_DRAFT', draft)
 
       return { success, draft }
     } catch (err) {
-      console.log(err.response?.data)
+      console.log(err.response)
       return { success: false }
     }
   },
@@ -47,10 +47,10 @@ const actions = {
       const { data } = await axios.put(`v1/drafts/${draftId}`, payload)
       const { success, data: { draft } } = data
 
-      if (success) {
-        commit('SET_DRAFT', draft)
-      }
-      
+      if (!success) throw new Error('Draft 받기 실패')
+
+      commit('SET_DRAFT', draft)
+
       return { success, draft }
     } catch (err) {
       console.log(err.response?.data)
@@ -71,8 +71,6 @@ const actions = {
 
   async deleteFile({ commit }, { draftId, imageId }) {
     try {
-      console.log('draftId: ', draftId)
-      console.log('imageId: ', imageId)
       const { data } = await axios.delete(`v1/drafts/${draftId}/file`, { data: { image: imageId } })
       commit('DELETE_DRAFT_FILE', imageId)
       return data

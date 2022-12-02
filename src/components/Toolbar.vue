@@ -62,12 +62,12 @@
         },
       ]
 
-      const type = computed(() => state.menu.currentType)
+      const type = computed(() => state.menu.type)
       const typeBtnsEl = ref(null)
       const categoryEl = ref(null)
 
       const addOnClass = (element) => {
-        element.classList.add('on')
+        element?.classList?.add('on')
       }
 
       const removeOnClass = (elements = []) => {

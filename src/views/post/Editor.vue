@@ -3,29 +3,29 @@
     <div class="wrap_select_toggle">
       <div class="select">
         <div class="main">
-          <select v-model="main" required @change="onResetSubMenu">
+          <select required @change="onChangeMainMenu">
             <option selected disabled hidden value="">main menu</option>
-            <option v-for="mainmenu in mainMenus" :key="mainmenu" :value="mainmenu">{{ mainmenu }}</option>
+            <option v-for="main in Object.keys(menuState.groupedMenus)" :key="main" :value="main">{{ main }}</option>
           </select>
         </div>
 
         <div class="sub">
-          <select v-model="sub" required :disabled="!main">
+          <select required :disabled="!menuState.mainMenus.length" @change="onChangeSubMenu">
             <option selected disabled hidden value="">sub menu</option>
-            <option v-for="submenu in subMenus" :key="submenu" :value="submenu">{{ submenu }}</option>
+            <option v-for="menu in menuState.mainMenus" :key="menu?._id" :value="menu?.sub">{{ menu?.sub }}</option>
           </select>
         </div>
 
         <div class="category">
-          <select v-model="category" :disabled="!sub">
+          <select :disabled="!menuState.subMenu.categories" @change="onChangeCategory">
             <option selected disabled hidden value="">category</option>
-            <option v-for="ctg in categories" :key="ctg" :value="ctg">{{ ctg }}</option>
+            <option v-for="category in menuState.subMenu.categories" :key="category" :value="category">{{ category }}</option>
           </select>
         </div>
       </div>
 
       <div class="wrap_toggle">
-        <Toggle :isPublic="isPublic" @updateIsPublic="onUpdateIsPublic" />
+        <Toggle :isPublic="postState.isPublic" @updateIsPublic="onChangeIsPublic" />
       </div>
     </div>
 
@@ -33,7 +33,7 @@
       <div class="title">
         <input
           type="text"
-          v-model="title"
+          v-model="postState.title"
           placeholder="제목을 입력하세요."
           onfocus="this.placeholder=''"
           onblur="this.placeholder='제목을 입력하세요.'"
@@ -48,12 +48,12 @@
     <div class="content">
       <textarea 
         id="content-el"
-        v-model="content"
+        v-model="postState.content"
         placeholder="당신의 이야기를 적어보세요..."
-        @keydown="onUpdateCanLeavePage(false)"></textarea>
+        @keydown="onChangeCanLeavePage(false)"></textarea>
       <markdown
         class="markdown"
-        :source="content"
+        :source="postState.content"
         :plugins="plugins"
         :breaks="true"
         :xhtmlOut="true"
@@ -61,19 +61,17 @@
       />
     </div>
 
-    <div class="images" v-if="images.length">
+    <div class="images" v-if="fileState.files.length">
       <ul>
-        <li v-for="(image, index) in images" :key="image.serverFileName">
+        <li v-for="(file, index) in fileState.files" :key="file.serverFileName">
           <div class="wrap_thumbnail">
+            <!-- <img :src="`${fileState.fileUrl}${image.serverFileName}`" /> -->
             <img
               src="https://news.nateimg.co.kr/orgImg/cc/2021/07/23/4159_10727_3352.png"
               :class="fileState.fileIndex === index ? 'selected_thumbnail' : ''"
-              @click="onSelectImage(image, index)"
+              @click="onSelectImage(file, index)"
             />
-            <!--
-            <img :src="`${fileState.fileUrl}${image.serverFileName}`" :class="fileState.fileIndex === index ? 'selectedThumbnail' : ''" @click="onSelectImage(image, index)" />
-            -->
-            <button class="image_del_btn" @click="onDeleteImage(image, index)">
+            <button class="image_del_btn" @click="onDeleteImage(file, index)">
               <i class="material-symbols-outlined"> do_not_disturb_on </i>
             </button>
           </div>
@@ -89,25 +87,25 @@
           :size="'md'"
           :borderColor="'primary-dark'"
           :rounded="true"
-          :disabled="isLoading"
+          :disabled="menuState.isLoading"
           @onClick="onInsertImage"
         ></Button>
         <Button
-          v-show="images.length"
+          v-show="fileState.files.length"
           class="btn_image_clear"
           :content="'사진 모두 제거'"
           :size="'md'"
           :borderColor="'primary-dark'"
           :rounded="true"
-          :disabled="isLoading"
+          :disabled="menuState.isLoading"
           @onClick="onClearImages"
         ></Button>
       </div>
       <div class="wrap_right">
         <div class="wrap_isLoading">
           <Transition name="isLoading">
-            <span class="isLoading" v-if="isLoading">
-              <i class="material-symbols-outlined">hourglass_empty</i>{{ `자동 저장중...${percentage}` }}
+            <span class="isLoading" v-if="menuState.isLoading">
+              <i class="material-symbols-outlined">hourglass_empty</i>{{ `자동 저장중...${menuState.percentage}` }}
             </span>
           </Transition>
         </div>
@@ -123,8 +121,8 @@
           :customBgColor="'red'"
           :custom="true"
           :rounded="true"
-          :disabled="isLoading"
-          @onClick="onUpdatePost"
+          :disabled="menuState.isLoading"
+          @onClick="onChangeCanLeavePage(true); onUpdatePost()"
         ></Button>
       </div>
     </div>
@@ -133,16 +131,7 @@
 </template>
 
 <script>
-  import {
-    defineComponent,
-    ref,
-    reactive,
-    computed,
-    watchEffect,
-    onBeforeMount,
-    onMounted,
-    onUnmounted,
-  } from 'vue'
+  import { defineComponent, ref, reactive, computed, onBeforeMount, onMounted, onUnmounted } from 'vue'
   import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
   import { useStore } from 'vuex'
   import Markdown from 'vue3-markdown-it'
@@ -160,78 +149,75 @@
     },
     setup() {
       const route = useRoute()
-      const { go } = useRouter()
+      const { push } = useRouter()
       const { state, commit, dispatch } = useStore()
 
+      let canLeavePage = true
       const Dialog = ref(null)
       const plugins = ref([{ plugin: MarkdownEmoji }])
 
-      let postId = ''
-      let draftId = ''
-      let canLeavePage = true
-      const isLoading = computed(() => state.loading.isLoading)
-      const percentage = computed(() => state.loading.percentage)
-      const mainMenus = computed(() => Object.keys(state.menu.groupedMenus))
-      const subMenus = computed(() => state.menu.groupedMenus[main.value]?.map((menu) => menu.sub))
-      const menus = computed(() => state.menu.currentMenus)
-      const categories = computed(() => state.menu.currentCategories)
+      const menuState = reactive({
+        isLoading: computed(() => state.loading.isLoading),
+        percentage: computed(() => state.loading.percentage),
+        groupedMenus: computed(() => state.menu.groupedMenus),
+        mainMenus: [],
+        subMenu: {},
+      })
 
-      const main = ref('')
-      const sub = ref('')
-      const category = ref('')
-      const title = ref('')
-      const content = ref('')
-      const isPublic = ref(true)
-      const images = ref([])
+      const postState = reactive({
+        _id: '',
+        menu: '',
+        title: '',
+        content: '',
+        category: '기타',
+        isPublic: true,
+        images: computed(() => fileState.files.map(file => file._id)),
+        thumbnail: computed(() => fileState.fileId)
+      })
 
       const fileState = reactive({
+        files: [],
         fileId: '',
         fileName: '',
         fileUrl: 'http://localhost:3000/uploads/',
         fileIndex: 0,
       })
 
-      const onResetSubMenu = () => {
-        sub.value = ''
-        category.value = ''
+      const onChangeMainMenu = (event) => {
+        menuState.mainMenus = menuState.groupedMenus[event.target.value]
+        document.body.querySelector('div.sub select').selectedIndex = 0
+        document.body.querySelector('div.category select').selectedIndex = 0
       }
 
-      const onUpdateIsPublic = (state) => {
-        isPublic.value = state
+      const onChangeSubMenu = (event) => {
+        menuState.subMenu = menuState.mainMenus.find(menu => menu.sub === event.target.value)
+        postState.menu = menuState.subMenu?._id
+        document.body.querySelector('div.category select').selectedIndex = 0
+      }
+
+      const onChangeCategory = (event) => {
+        postState.category = event.target.value
+      }
+
+      const onChangeIsPublic = (state) => {
+        postState.isPublic = Boolean(state) 
       }
 
       const updateDraft = async () => {
-        const payload = {
-          menu: menus.value?.shift()?._id,
-          title: title.value,
-          content: content.value,
-          category: category.value,
-          isPublic: isPublic.value,
-          thumbnail: fileState.fileId,
-        }
+        const { _id: draftId, ...payload } = postState
         await dispatch('draft/updateDraft', { draftId, payload })
       }
 
       const onUpdatePost = async () => {
-        if (!main.value || !sub.value) return alert('게시글을 삽입할 메뉴를 선택해야 합니다.')
-        
-        onUpdateCanLeavePage(true)
-        const payload = {
-          menu: menus.value?.shift()._id,
-          title: title.value,
-          content: content.value,
-          category: category.value,
-          isPublic: isPublic.value,
-          images: images.value.map((image) => image._id),
-          thumbnail: fileState.fileId,
-        }
+        if (!postState.menu) return alert('게시글을 삽입할 메뉴를 선택해야 합니다.')
 
-        const { success } = route.query.id
+        const { _id: postId, ...payload } = postState
+        const { success, post } = route.query.id
           ? await dispatch('post/updatePost', { postId, payload })
           : await dispatch('post/createPost', payload)
         
-        if (success && route.query.id) {
-          go(-1)
+        if (success && canLeavePage) {
+          push({ name: 'post', query: { id: post._id } })
         }
       }
 
@@ -240,19 +226,20 @@
         Object.values(event.target.files).forEach((file) => formData.append('images', file))
 
         const response = route.query.id
-          ? await dispatch('draft/updateDraft', { draftId, payload: formData })
-          : await dispatch('post/updatePost', { postId, payload: formData })
+          ? await dispatch('post/updatePost', { postId: postState._id, payload: formData })
+          : await dispatch('draft/updateDraft', { draftId: postState._id, payload: formData })
         
         if (response.success && response.post) {
-          images.value = images.value.concat(response.post.images)
+          fileState.files = fileState.files.concat(response.post.images)
         }
         if (response.success && response.draft) {
-          images.value = images.value.concat(response.draft.images)
+          fileState.files = fileState.files.concat(response.draft.images)
         }
+        // onSelectImage(fileState.files[0], 0)
       }
 
       const onDeleteImage = async (file) => {
-        await dispatch('draft/deleteFile', { draftId, imageId: file._id })
+        await dispatch('draft/deleteFile', { draftId: postState._id, imageId: file._id })
       }
 
       const onSelectImage = (file, index) => {
@@ -270,15 +257,15 @@
         let end = textarea.value.substring(textarea.selectionEnd, textarea.value.length)
 
         const innerText = `!` + `[` + `${fileState.fileName}` + `]` + `(` + `${fileState.fileUrl}` + `)\n`
-        content.value = start + innerText + end
+        postState.content = start + innerText + end
         textarea.focus()
       }
 
       const onClearImages = () => {
-        images.value = []
+        fileState.files = []
       }
 
-      const onUpdateCanLeavePage = (bool) => {
+      const onChangeCanLeavePage = (bool) => {
         canLeavePage = bool
       }
 
@@ -290,33 +277,41 @@
       }
       
       const setInitData = (post) => {
-        const menu = state.menu.menus.find((menu) => menu._id === post.menu)
-        main.value = menu?.main ?? ''
-        sub.value = menu?.sub ?? ''
-        title.value = post?.title
-        content.value = post?.content
-        isPublic.value = post?.isPublic
-        images.value = [...post?.images]
-        onSelectImage(images.value.shift(), 0)
+        const { _id, menu, category, title, content, isPublic, images, thumbnail } = post
+        postState._id = _id
+        postState.menu = menu
+        postState.title = title
+        postState.content = content
+        postState.category = category
+        postState.isPublic = isPublic
+        fileState.files = [...images]
+
+        if (menu) {
+          const { main, sub } = state.menu.menus.find(m => m._id === menu)
+
+          document.body.querySelector('div.main select').value = main
+          menuState.mainMenus = menuState.groupedMenus[main]
+
+          document.body.querySelector('div.sub select').value = sub
+          menuState.subMenu = menuState.mainMenus.find(menu => menu.sub === sub)
+        }
+
+        if (category) {
+          document.body.querySelector('div.category select').value = category
+        }
+
+        const idx = fileState.files.findIndex(file => file._id === thumbnail)
+        if (thumbnail && idx !== -1) {
+          onSelectImage(fileState.files[idx], idx)
+        }
       }
 
       const autoSave = route.query.id ? setInterval(onUpdatePost, 1000 * 60 * 10) : setInterval(updateDraft, 1000 * 60 * 10)
 
-      watchEffect(() => {
-        commit('menu/SET_CURRENT_MENUS', { main: main.value, sub: sub.value })
-        commit('menu/SET_CURRENT_CATEGORIES', menus.value)
-      })
-
-      watchEffect(() => {
-        onSelectImage(images.value.shift(), 0)
-      })
-
       onBeforeMount(async () => {
         if (route.query.id) {
-          const { post } = state.post.post._id ? state.post : await dispatch('post/getPost', route.query.id)
-          postId = post._id
-          setInitData(post)
-          return
+          const { post } = await dispatch('post/getPost', route.query.id)
+          return setInitData(post)
         }
         
         const { draft } = await dispatch('draft/getDraft')
@@ -327,21 +322,10 @@
             okButton: '불러오기',
             cancelButton: '아니요, 새로 작성할래요!'
           })
-          if (ok) {
-            draftId = draft._id
-            setInitData(draft)
-          }
-          else {
-            const { draft } = await dispatch('draft/createDraft')
-            draftId = draft._id
-            setInitData(draft)
-          }  
+          if (ok) return setInitData(state.draft.draft)
         }
-        else {
-          const { draft } = await dispatch('draft/createDraft')
-            draftId = draft._id
-            setInitData(draft)
-        }
+
+        await dispatch('draft/createDraft')
       })
 
       onMounted(() => {
@@ -370,23 +354,14 @@
       return {
         Dialog,
         plugins,
-        mainMenus,
-        subMenus,
-        menus,
-        categories,
-        main,
-        sub,
-        category,
-        title,
-        content,
-        isPublic,
-        images,
+        menuState,
+        postState,
         fileState,
-        isLoading,
-        percentage,
-        onResetSubMenu,
-        onUpdateCanLeavePage,
-        onUpdateIsPublic,
+        onChangeCanLeavePage,
+        onChangeMainMenu,
+        onChangeSubMenu,
+        onChangeCategory,
+        onChangeIsPublic,
         onUpdatePost,
         onUploadImages,
         onInsertImage,

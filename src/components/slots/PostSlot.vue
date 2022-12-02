@@ -1,9 +1,11 @@
 <template>
   <template v-if="type === 'list'">
     <List>
-      <template #thumbnail v-if="post?.thumbnail.length">
+      <template #thumbnail v-if="post?.thumbnail">
         <div class="thumbnail">
-          <img :src="`https://dinggul.me/` + post.thumbnail" />
+          <img :src="post.thumbnail
+            ? `${IMAGE_URL}${post.thumbnail.serverFileName}`
+            : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU'" />
         </div>
       </template>
 
@@ -32,7 +34,7 @@
       </template>
 
       <template #like_count>
-        <span class="info_ico" ref="isLikeEl"><Ico :size="'sm'" :svg="'like'" /></span>
+        <span class="info_ico" ref="LIKE_EL"><Ico :size="'sm'" :svg="'like'" /></span>
         <span>{{ post.likeCount }}</span>
       </template>
     </List>
@@ -41,13 +43,9 @@
   <template v-if="type === 'card'">
     <Card>
       <template #thumbnail>
-        <img
-          :src="[
-            post?.thumbnail.length
-              ? `https://dinggul.me/` + post.thumbnail
-              : 'https://photo.coolenjoy.co.kr/data/editor/2105/09198d36ef38aea9e4348cc363c80232f1cd5a92.jpg',
-          ]"
-        />
+        <img :src="post.thumbnail
+          ? `${IMAGE_URL}${post.thumbnail}`
+          : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU'" />
       </template>
 
       <template #num>
@@ -77,7 +75,7 @@
       </template>
 
       <template #like_count>
-        <span class="info_ico" ref="isLikeEl"><Ico :size="'sm'" :svg="'like'" /></span>
+        <span class="info_ico" ref="LIKE_EL"><Ico :size="'sm'" :svg="'like'" /></span>
         <span>{{ post.likeCount }}</span>
       </template>
     </Card>
@@ -86,13 +84,9 @@
   <template v-if="type === 'slide'">
     <Slide>
       <template #thumbnail>
-        <img
-          :src="[
-            post.thumbnail
-              ? `https://dinggul.me/` + post.thumbnail
-              : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU',
-          ]"
-        />
+        <img :src="post.thumbnail
+          ? `${IMAGE_URL}${post.thumbnail}`
+          : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU'" />
       </template>
 
       <template #lock_ico>
@@ -113,7 +107,7 @@
       </template>
 
       <template #like_count>
-        <span class="info_ico" ref="isLikeEl"><Ico :size="'sm'" :svg="'like'" /></span>
+        <span class="info_ico" ref="LIKE_EL"><Ico :size="'sm'" :svg="'like'" /></span>
         <span>{{ post.likeCount }}</span>
       </template>
     </Slide>
@@ -121,8 +115,7 @@
 </template>
 
 <script>
-  import { ref, watchEffect } from 'vue'
-  import { useRoute } from 'vue-router'
+  import { onMounted, ref } from 'vue'
   import List from '../List.vue'
   import Card from '../Card.vue'
   import Slide from '../Slide.vue'
@@ -139,6 +132,7 @@
     props: {
       type: {
         type: String,
+        default: 'list'
       },
       post: {
         type: Object,
@@ -150,16 +144,16 @@
       },
     },
     setup(props) {
-      const route = useRoute()
+      const LIKE_EL = ref(null)
+      const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
 
-      const isLikeEl = ref(null)
-      const addLikeClass = (like) => {
-        if (like && isLikeEl.value) isLikeEl.value.classList.add('is-like')
-      }
+      onMounted(() => {
+        if (props.isLike && LIKE_EL.value) {
+          LIKE_EL.value.classList.add('is-like')
+        }
+      })
 
-      watchEffect(() => addLikeClass(props.isLike))
-
-      return { markdownText, dayjs, route, isLikeEl }
+      return { markdownText, dayjs, LIKE_EL, IMAGE_URL }
     },
   }
 </script>

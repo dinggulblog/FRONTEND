@@ -17,8 +17,5 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .introduce {
-    font-size: 1.6rem;
-    color: var(--primary);
-  }
+  
 </style>

@@ -32,7 +32,7 @@
 
       <div class="wrap_like">
         <div class="liked_count">
-          <span class="like_ico" @click="!isLike ? onUpdateLike() : onDeleteLike()">
+          <span class="like_ico" @click="onChangeLike">
             <Ico :size="'lg'" :svg="'like-fill'" :customColor="!isLike ? '#ddd' : 'red'" />
           </span>
           <span>{{ likeCount }}</span>
@@ -55,7 +55,7 @@
     <div class="comment">
       <CommentEditor :post="post" />
 
-      <div class="comments" v-if="comments.length" ref="commentsEl">
+      <div class="comments" v-if="comments.length" ref="COMMENTS_EL">
         <h2>댓글 {{ comments.length }}개</h2>
         <ul class="comment_items">
           <CommentSlot
@@ -73,7 +73,7 @@
 </template>
 
 <script>
-  import { defineComponent, ref, computed, onBeforeMount, onBeforeUpdate, onMounted } from 'vue'
+  import { defineComponent, ref, computed, onBeforeMount, onBeforeUpdate, onUnmounted } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
   import { useStore } from 'vuex'
   import { debounce } from '../../common/util'
@@ -101,10 +101,10 @@
     setup() {
       const route = useRoute()
       const { push } = useRouter()
-      const { state, dispatch } = useStore()
+      const { state, dispatch, commit } = useStore()
 
       const Dialog = ref(null)
-      const commentsEl = ref(null)
+      const COMMENTS_EL = ref(null)
       const plugins = ref([{ plugin: MarkdownEmoji }])
 
       const isLike = ref(false)
@@ -115,24 +115,12 @@
       const likeCount = computed(() => state.post.likeCount)
       const comments = computed(() => state.comment.comments)
 
-      const updateLike = async () => {
+      const onChangeLike = debounce(async () => {
         if (!user.value?._id) return alert('로그인 후 이용 가능합니다.')
-        else {
-          isLike.value = true
-          await dispatch('post/updateLike', post.value._id)
-        }
-      }
 
-      const deleteLike = async () => {
-        if (!user.value?._id) return alert('로그인 후 이용 가능합니다.')
-        else {
-          isLike.value = false
-          await dispatch('post/deleteLike', post.value._id)
-        }
-      }
-
-      const onUpdateLike = debounce(updateLike, 200)
-      const onDeleteLike = debounce(deleteLike, 200)
+        if (!isLike.value) await dispatch('post/updateLike', { postId: post.value._id, user: user.value })
+        else await dispatch('post/deleteLike', { postId: post.value._id, user: user.value })
+      }, 200)
 
       const onUpdatePost = () => {
         if (post.value._id) {
@@ -177,24 +165,27 @@
         }
 
         if (route.query.quickMove && comments.value.length) {
-          const y = commentsEl.value.offsetTop - document.querySelector('#header').offsetHeight - 32
+          const y = COMMENTS_EL.value.offsetTop - document.querySelector('#header').offsetHeight - 32
           window.scrollTo({ top: y, behavior: 'smooth' })
         } else {
           window.scrollTo({ top: 0, behavior: 'smooth' })
         }
-
-        isLike.value = likes.value.some((likedUser) => likedUser._id === user.value._id)
+        
+        document.title = post.value?.title ?? 'Post'
       })
 
       onBeforeUpdate(() => {
-        document.title = post.value?.title ?? 'Post'
+        isLike.value = likes.value.some(likeuser => likeuser._id === user.value._id)
+      })
+
+      onUnmounted(() => {
+        commit('post/SET_POST')
       })
 
       return {
         dayjs,
-        route,
         Dialog,
-        commentsEl,
+        COMMENTS_EL,
         plugins,
         isLike,
         user,
@@ -202,8 +193,7 @@
         likes,
         likeCount,
         comments,
-        onUpdateLike,
-        onDeleteLike,
+        onChangeLike,
         onUpdatePost,
         onDeletePost,
         onCopyLink,

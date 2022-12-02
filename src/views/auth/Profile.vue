@@ -2,10 +2,15 @@
   <div class="profile">
     <form v-on:submit.prevent="submitForm">
       <div class="wrap_author">
-        <AuthorSlot :profile="profileState" :type="displayState.display"></AuthorSlot>
+        <AuthorSlot 
+          :profile="profileState"
+          :type="displayState.button"
+          @updateAvatar="onUpdateAvatar"
+          @updateGreetings="updateGreetings">
+        </AuthorSlot>
         <div class="wrap_btn-edit">
-          <button class="btn_edit" @click="displayState.display === 'profileView' ? onChangeDisplay() : onSubmit()">
-            {{ displayState.display === 'profileView' ? 'EDIT' : 'OK' }}
+          <button class="btn_edit" @click="displayState.button === 'ok' ? onUpdateGreetings() : onChangeButton('ok')">
+            {{ displayState.button.toUpperCase() }}
           </button>
         </div>
       </div>
@@ -15,224 +20,135 @@
       <ul class="tab">
         <li
           @click="onChangeTab('introduce')"
-          :style="[
-            displayState.tab === 'introduce' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '',
-          ]"
-        >
+          :style="[displayState.tab === 'introduce' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '']">
           INTRODUCE
         </li>
         <li
           @click="onChangeTab('like')"
-          :style="[displayState.tab === 'like' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '']"
-        >
+          :style="[displayState.tab === 'like' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '']">
           LIKED POSTS
         </li>
         <li
           @click="onChangeTab('comment')"
-          :style="[
-            displayState.tab === 'comment' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '',
-          ]"
-        >
+          :style="[displayState.tab === 'comment' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '']">
           COMMENTED POSTS
         </li>
       </ul>
     </div>
 
-    <Introduce v-if="displayState.tab === 'introduce'" :introduce="profileState.introduce" />
+    <div v-if="displayState.tab === 'introduce'" class="introduce">{{ profileState.introduce }}</div>
+    <Posts v-else type="list" :user="user"></Posts>
+    
   </div>
-
-  <!--
-
-  <div class="profile">
-    <form v-on:submit.prevent="submitForm">
-      <div class="author">
-        <div class="avatar">
-          <img :src="profileState.avatar" alt="avatar" />
-        </div>
-        <div class="info">
-          <h2>{{ profileState.nickname }}님</h2>
-          <p v-if="displayState.display === 'view'">
-            {{ profileState.greetings ? profileState.greetings : 'EDIT 버튼을 눌러 인사말을 추가할 수 있어요.' }}
-          </p>
-          <input v-else ref="GREETINGS_EL" v-model="greetings" />
-        </div>
-        <div class="edit-btn">
-          <button @click="displayState.display === 'view' ? onChangeDisplay() : onSubmit()">
-            {{ displayState.display === 'view' ? 'Edit' : 'OK' }}
-          </button>
-        </div>
-      </div>
-    </form>
-
-    <ul class="tab">
-      <li
-        @click="onChangeTab('introduce')"
-        :style="[
-          displayState.tab === 'introduce' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '',
-        ]"
-      >
-        INTRODUCE
-      </li>
-      <li
-        @click="onChangeTab('like')"
-        :style="[displayState.tab === 'like' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '']"
-      >
-        LIKED POSTS
-      </li>
-      <li
-        @click="onChangeTab('comment')"
-        :style="[displayState.tab === 'comment' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '']"
-      >
-        COMMENTED POSTS
-      </li>
-    </ul>
-
-    <Introduce v-if="displayState.tab === 'introduce'" :introduce="profileState.introduce" />
-
-
-          <div class="posts" v-if="displayState.tab === 'like' || displayState.tab === 'comment'">
-      <ul v-if="posts.length">
-        <template v-for="post in posts" :key="post._id">
-          <List
-            :type="'profile'"
-            :title="getters['menu/getTitle'](post.subject)"
-            :subject="getters['menu/getSubject'](post.subject)"
-            :post="post"
-            :isLike="[...post.likes].includes(user._id)"
-          />
-        </template>
-      </ul>
-      <div v-else class="empty"><span>There is no posts.</span></div>
-
-      <Pagenation2
-        :page="pageState.page"
-        :limit="pageState.limit"
-        :maxPage="pageState.maxPage"
-        @updatePage="updatePage"
-      />
-    </div>
-  </div>
-
-  -->
 </template>
 
 <script>
-  import { onBeforeMount, computed, ref, reactive, nextTick, onMounted } from 'vue'
-  import { useRouter } from 'vue-router'
+  import { onBeforeMount, computed, reactive } from 'vue'
+  import { useRoute } from 'vue-router'
   import { useStore } from 'vuex'
   import AuthorSlot from '../../components/slots/AuthorSlot.vue'
-  import Introduce from '../../components/Introduce.vue'
-  import Pagenation2 from '../../components/Pagenation.vue'
+  import Posts from '../../components/Posts.vue'
 
   export default {
     name: 'profile',
     components: {
       AuthorSlot,
-      Introduce,
+      Posts
     },
     setup() {
-      const { currentRoute } = useRouter()
-      const { state, getters, dispatch } = useStore()
+      const route = useRoute()
+      const { state, dispatch, commit } = useStore()
 
-      const user = computed(() => state.auth.user)
-      const posts = computed(() => state.post.posts)
+      const displayState = reactive({
+        button: 'edit',
+        tab: 'introduce',
+      })
 
       const profileState = reactive({
-        nickname: currentRoute.value.params.nickname,
+        nickname: route.params.nickname,
+        _id: '',
+        email: '',
         avatar: '',
         greetings: '',
         introduce: '',
       })
 
-      const displayState = reactive({
-        display: 'profileView',
-        tab: 'introduce',
-      })
+      const user = computed(() => state.auth.user)
+      const posts = computed(() => state.post.posts)
+      const page = computed(() => state.post.page)
+      const maxPage = computed(() => state.post.maxPage)
+      const limit = computed(() => state.post.limit)
 
-      const pageState = reactive({
-        page: 1,
-        limit: 5,
-        maxPage: 1,
-      })
-
-      const greetings = ref(null)
-      const GREETINGS_EL = ref(null)
-      let avatarFlie = ''
-
-      onBeforeMount(async () => {
-        if (profileState.nickname) {
-          const response = await dispatch('auth/getProfile', profileState.nickname)
-          const user = response.data.user
-
-          if (user) {
-            profileState.greetings = user.greetings
-            profileState.introduce = user.introduce
-            profileState.avatar = user.avatar
-          }
-        }
-      })
-
-      const onChangeDisplay = () => {
-        displayState.display = 'profileEdit'
-      }
-
-      const fileUpload = async (event) => {
-        avatarFlie = event.target.files[0]
-        const reader = new FileReader()
-        reader.readAsDataURL(event.target.files[0])
-        reader.onload = () => (profileState.avatar = reader.result)
-      }
-
-      const onSubmit = async () => {
-        const formData = new FormData()
-        formData.append('avatar', avatarFlie)
-        formData.append('greetings', greetings.value)
-        formData.append('introduce', profileState.introduce)
-        const response = await dispatch('auth/updateProfile', formData)
-        if (response.success) {
-          profileState.avatar = response.data.user.avatar
-          profileState.greetings = response.data.user.greetings
-          profileState.introduce = response.data.user.introduce
-          displayState.display = 'view'
-        }
-      }
-
-      const findUserPosts = async (filter) => {
-        const response = await dispatch('post/getPosts', {
-          filter,
-          nickname: profileState.nickname,
-          page: pageState.page,
-          limit: pageState.limit,
-        })
-        response.success ? (pageState.maxPage = response.data.maxPage || 1) : alert(response.message)
+      const onChangeButton = (text) => {
+        displayState.button = text
       }
 
       const onChangeTab = (tab) => {
         displayState.tab = tab
-        if (tab === 'like' || tab === 'comment') {
-          findUserPosts(tab)
-        }
-        console.log('현재 선택한 tab : ', displayState.tab)
+        if (tab === 'like' || tab === 'comment') getPosts(tab)
       }
 
-      const updatePage = ({ updatedPage }) => {
-        pageState.page = updatedPage
+      const onUpdatePage = (page) => commit('post/SET_PAGE', page)
+
+      const onUpdateAvatar = async (event) => {
+        const formData = new FormData()
+        formData.append('avatar', event.target.files[0])
+        const { success, profile } = await dispatch('auth/updateProfileAvatar', { nickname: profileState.nickname, payload: formData })
+
+        if (!success) return
+
+        profileState.avatar = process.env.VUE_APP_IMAGE_URL + profile.avatar?.serverFileName
       }
+
+      const updateGreetings = (event) => {
+        profileState.greetings = event.target.value
+      }
+
+      const onUpdateGreetings = async () => {
+        const { success, profile } = await dispatch('auth/updateProfile', { nickname: profileState.nickname, payload: { greetings: profileState.greetings } })
+
+        if (!success) return
+
+        profileState.greetings = profile.greetings
+        onChangeButton('edit')
+      }
+
+      const getPosts = async (filter) => {
+        await dispatch('post/getPosts', { auth: false, payload: {
+          filter,
+          page: page.value,
+          limit: limit.value,
+          userId: profileState._id,
+        }})
+      }
+
+      onBeforeMount(async () => {
+        if (profileState.nickname) {
+          const { success, profile } = await dispatch('auth/getProfile', { nickname: profileState.nickname })
+
+          if (!success) return
+
+          profileState._id = profile._id;
+          profileState.email = profile.email
+          profileState.avatar = profile.avatar
+          profileState.greetings = profile.greetings
+          profileState.introduce = profile.introduce
+        }
+      })
 
       return {
-        getters,
         user,
         posts,
+        page,
+        maxPage,
         profileState,
         displayState,
-        pageState,
-        greetings,
-        GREETINGS_EL,
-        onChangeDisplay,
-        fileUpload,
-        onSubmit,
+        onChangeButton,
         onChangeTab,
-        updatePage,
+        onUpdatePage,
+        onUpdateAvatar,
+        updateGreetings,
+        onUpdateGreetings,
       }
     },
   }
@@ -328,5 +244,10 @@
         }
       }
     }
+  }
+
+  .introduce {
+    font-size: 1.6rem;
+    color: var(--primary);
   }
 </style>

@@ -45,10 +45,10 @@
     </Author>
   </template>
 
-  <template v-if="type === 'profileView'">
+  <template v-if="type === 'edit'">
     <Author>
       <template #avatar>
-        <img class="avatar" :src="profile.avatar" alt="user_avatar" />
+        <img class="avatar" src="../../assets/4.jpg" alt="user_avatar" />
       </template>
       <template #nickname>
         <div class="nickname">{{ profile.nickname }}</div>
@@ -59,27 +59,27 @@
     </Author>
   </template>
 
-  <template v-if="type === 'profileEdit'">
+  <template v-if="type === 'ok'">
     <Author>
       <template #avatar>
-        <img class="avatar" :src="profile.avatar" alt="user_avatar" />
+        <img class="avatar" src="../../assets/4.jpg" alt="user_avatar" />
         <span class="wrap_input_file">
           <label for="input_file"><i class="material-symbols-outlined"> add_circle </i></label>
-          <input type="file" id="input_file" @change="fileUpload" />
+          <input type="file" id="input_file" @change="$emit('updateAvatar', $event)" accept="image/*" />
         </span>
       </template>
       <template #nickname>
         <div class="nickname">{{ profile.nickname }}</div>
       </template>
       <template #greetings>
-        <input class="input_greetings" ref="GREETINGS_El" v-model="greetings" />
+        <textarea class="input_greetings" :value="profile.greetings" @keydown="$emit('updateGreetings', $event)"></textarea>
       </template>
     </Author>
   </template>
 </template>
 
 <script>
-  import Author from '../Author.vue'
+import Author from '../Author.vue'
 
   export default {
     name: 'AuthorSlot',
@@ -103,7 +103,8 @@
         type: Object,
       },
     },
-    setup(props) {
+    emits: ['updateAvatar', 'updateGreetings'],
+    setup(props, { emit }) {
       return {}
     },
   }
