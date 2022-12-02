@@ -21,7 +21,6 @@ const actions = {
   async createComment({ commit }, { postId, parentId, ...payload }) {
     try {
       const { data } = await axios.post(`v1/comments/${postId}/${parentId}`, payload)
-      console.log(data)
       if (data.success) {
         await actions.getComments({ commit }, postId)
       }

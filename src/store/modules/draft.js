@@ -45,13 +45,13 @@ const actions = {
   async updateDraft({ commit }, { draftId, payload }) {
     try {
       const { data } = await axios.put(`v1/drafts/${draftId}`, payload)
-      const { success, data: { draft } } = data
+      const { success, data: { draft, images } } = data
 
       if (!success) throw new Error('Draft 받기 실패')
 
       commit('SET_DRAFT', draft)
 
-      return { success, draft }
+      return { success, draft, images }
     } catch (err) {
       console.log(err.response?.data)
       return { success: false }
@@ -62,6 +62,7 @@ const actions = {
   async deleteDraft({ commit }, payload) {
     try {
       const { data } = await axios.delete(`v1/drafts/${payload}`)
+      
       return data
     } catch (err) {
       console.log(err.response?.data)
@@ -72,8 +73,11 @@ const actions = {
   async deleteFile({ commit }, { draftId, imageId }) {
     try {
       const { data } = await axios.delete(`v1/drafts/${draftId}/file`, { data: { image: imageId } })
-      commit('DELETE_DRAFT_FILE', imageId)
-      return data
+      const { success } = data
+
+      if (!success) throw new Error('Draft file이 정상적으로 삭제되지 않았습니다.')
+
+      return { success }
     } catch (err) {
       console.log(err.response?.data)
       return { success: false }

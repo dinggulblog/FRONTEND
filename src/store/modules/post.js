@@ -45,7 +45,7 @@ const actions = {
       const { data } = await axios.get('v1/posts', { params: payload, paramsSerializer: (params) => stringify(params), headers: { Authorization: auth } })
       const { success, data: { posts = [], maxPage = 1 } } = data
 
-      if (!success) throw new Error('게시물 리스트 쿼리가 이상해요')
+      if (!success) throw new Error('게시물들을 받아오는 데 실패하였습니다.')
 
       commit('SET_POSTS', { posts, maxPage })
     } catch (err) {
@@ -63,7 +63,7 @@ const actions = {
       const { data } = await axios.post('v1/posts', payload)
       const { success, data: { post } } = data
 
-      if (!success) throw new Error('게시물이 작성되지 않앗따')
+      if (!success) throw new Error('게시물이 작성되지 않았습니다.')
 
       return { success, post }
     } catch (err) {
@@ -80,11 +80,11 @@ const actions = {
   async updatePost({ commit }, { postId, payload }) {
     try {
       const { data } = await axios.put(`v1/posts/${postId}`, payload)
-      const { success, data: { post } } = data
+      const { success, data: { post, images } } = data
 
-      if (!success) throw new Error('게시물이 수정되지 않앗따')
+      if (!success) throw new Error('게시물 수정에 실패하였습니다.')
       
-      return { success, post }
+      return { success, post, images }
     } catch (err) {
       console.log(err.response)
       return { success: false }
@@ -100,7 +100,7 @@ const actions = {
       const { data } = await axios.put(`v1/posts/${postId}/like`)
       const { success } = data
       
-      if (!success) throw new Error('게시물 좋아요가 수정되지 않앗따')
+      if (!success) throw new Error('게시물 좋아요 수정에 실패하였습니다.')
 
       commit('ADD_POST_LIKE', user)
       return { success }
@@ -119,7 +119,7 @@ const actions = {
       const { data } = await axios.delete(`v1/posts/${payload}`)
       const { success } = data
 
-      if (!success) throw new Error('게시물이 삭제되지 않았따')
+      if (!success) throw new Error('게시물 삭제에 실패하였습니다.')
 
       commit('SET_POST', {})
       return { success }
@@ -139,7 +139,7 @@ const actions = {
       const { data } = await axios.delete(`v1/posts/${postId}/file`, { data: imageId })
       const { success } = data
       
-      if (!success) throw new Error('게시물이 삭제되지 않았따')
+      if (!success) throw new Error('게시물 파일 삭제에 실패하였습니다.')
 
       return { success }
     } catch (err) {
@@ -157,7 +157,7 @@ const actions = {
       const { data } = await axios.delete(`v1/posts/${postId}/like`)
       const { success } = data
 
-      if (!success) throw new Error('게시물 좋아요가 삭제되지 않아따')
+      if (!success) throw new Error('게시물 좋아요 삭제에 실패하였습니다.')
 
       commit('DELETE_POST_LIKE', user)
       return { success }

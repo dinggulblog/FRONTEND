@@ -2,11 +2,12 @@
   <div class="profile">
     <form v-on:submit.prevent="submitForm">
       <div class="wrap_author">
-        <AuthorSlot 
+        <AuthorSlot
           :profile="profileState"
           :type="displayState.button"
           @updateAvatar="onUpdateAvatar"
-          @updateGreetings="updateGreetings">
+          @updateGreetings="updateGreetings"
+        >
         </AuthorSlot>
         <div class="wrap_btn-edit">
           <button class="btn_edit" @click="displayState.button === 'ok' ? onUpdateGreetings() : onChangeButton('ok')">
@@ -20,17 +21,24 @@
       <ul class="tab">
         <li
           @click="onChangeTab('introduce')"
-          :style="[displayState.tab === 'introduce' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '']">
+          :style="[
+            displayState.tab === 'introduce' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '',
+          ]"
+        >
           INTRODUCE
         </li>
         <li
           @click="onChangeTab('like')"
-          :style="[displayState.tab === 'like' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '']">
+          :style="[displayState.tab === 'like' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '']"
+        >
           LIKED POSTS
         </li>
         <li
           @click="onChangeTab('comment')"
-          :style="[displayState.tab === 'comment' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '']">
+          :style="[
+            displayState.tab === 'comment' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '',
+          ]"
+        >
           COMMENTED POSTS
         </li>
       </ul>
@@ -38,7 +46,6 @@
 
     <div v-if="displayState.tab === 'introduce'" class="introduce">{{ profileState.introduce }}</div>
     <Posts v-else type="list" :user="user"></Posts>
-    
   </div>
 </template>
 
@@ -53,7 +60,7 @@
     name: 'profile',
     components: {
       AuthorSlot,
-      Posts
+      Posts,
     },
     setup() {
       const route = useRoute()
@@ -93,7 +100,10 @@
       const onUpdateAvatar = async (event) => {
         const formData = new FormData()
         formData.append('avatar', event.target.files[0])
-        const { success, profile } = await dispatch('auth/updateProfileAvatar', { nickname: profileState.nickname, payload: formData })
+        const { success, profile } = await dispatch('auth/updateProfileAvatar', {
+          nickname: profileState.nickname,
+          payload: formData,
+        })
 
         if (!success) return
 
@@ -105,7 +115,10 @@
       }
 
       const onUpdateGreetings = async () => {
-        const { success, profile } = await dispatch('auth/updateProfile', { nickname: profileState.nickname, payload: { greetings: profileState.greetings } })
+        const { success, profile } = await dispatch('auth/updateProfile', {
+          nickname: profileState.nickname,
+          payload: { greetings: profileState.greetings },
+        })
 
         if (!success) return
 
@@ -114,12 +127,15 @@
       }
 
       const getPosts = async (filter) => {
-        await dispatch('post/getPosts', { auth: false, payload: {
-          filter,
-          page: page.value,
-          limit: limit.value,
-          userId: profileState._id,
-        }})
+        await dispatch('post/getPosts', {
+          auth: false,
+          payload: {
+            filter,
+            page: page.value,
+            limit: limit.value,
+            userId: profileState._id,
+          },
+        })
       }
 
       onBeforeMount(async () => {
@@ -128,7 +144,7 @@
 
           if (!success) return
 
-          profileState._id = profile._id;
+          profileState._id = profile._id
           profileState.email = profile.email
           profileState.avatar = profile.avatar
           profileState.greetings = profile.greetings

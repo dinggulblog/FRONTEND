@@ -6,7 +6,7 @@
           <img
             :src="
               post.thumbnail
-                ? `${IMAGE_URL}${post.thumbnail.serverFileName}`
+                ? `${IMAGE_URL}${post.thumbnail?.serverFileName}`
                 : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU'
             "
           />
@@ -52,7 +52,7 @@
         <img
           :src="
             post.thumbnail
-              ? `${IMAGE_URL}${post.thumbnail}`
+              ? `${IMAGE_URL}${post.thumbnail?.serverFileName}`
               : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU'
           "
         />
@@ -86,7 +86,7 @@
 
       <template #like_count>
         <span class="info_ico" ref="LIKE_EL">
-          <Ico :size="'sm'" :svg="'like'" :customColor="isLike ? 'var(--likeActive)' : ''" />
+          <Ico :size="'sm'" :svg="'like'" :customColor="isLike ? 'var(--likeActive)' : ''"/>
         </span>
         <span>{{ post.likeCount }}</span>
       </template>
@@ -99,7 +99,7 @@
         <img
           :src="
             post.thumbnail
-              ? `${IMAGE_URL}${post.thumbnail}`
+              ? `${IMAGE_URL}${post.thumbnail?.serverFileName}`
               : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU'
           "
         />
@@ -124,7 +124,7 @@
 
       <template #like_count>
         <span class="info_ico" ref="LIKE_EL">
-          <Ico :size="'sm'" :svg="'like'" :customColor="isLike ? 'var(--likeActive)' : ''" />
+          <Ico :size="'sm'" :svg="'like'" :customColor="isLike ? 'var(--likeActive)' : ''"/>
         </span>
         <span>{{ post.likeCount }}</span>
       </template>

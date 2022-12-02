@@ -169,7 +169,6 @@
         if (route.query.id) {
           await dispatch('post/getPost', route.query.id)
           await dispatch('comment/getComments', route.query.id)
-          console.log(likes.value)
         } else {
           push({ name: 'home' })
         }
@@ -239,6 +238,7 @@
 
               .lock_ico {
                 margin: 0 0 0 1.6rem;
+                color: var(--list_info);
               }
             }
           }

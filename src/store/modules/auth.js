@@ -16,7 +16,10 @@ const actions = {
   async login({ commit }, payload) {
     try {
       const { data } = await axios.post('v1/auth', payload)
-      const { success, data: { accessToken } } = data
+      const {
+        success,
+        data: { accessToken },
+      } = data
 
       if (!success || !accessToken) throw new Error('로그인에 실패하였습니다.')
 
@@ -31,7 +34,10 @@ const actions = {
   async refresh({ commit }) {
     try {
       const { data } = await axios.put('v1/auth')
-      const { success, data: { accessToken } } = data
+      const {
+        success,
+        data: { accessToken },
+      } = data
 
       if (!success || !accessToken) throw new Error('로그인 갱신에 실패하였습니다.')
 
@@ -71,7 +77,10 @@ const actions = {
   async getAccount({ commit }) {
     try {
       const { data } = await axios.get('v1/users/account')
-      const { success, data: { user } } = data
+      const {
+        success,
+        data: { user },
+      } = data
 
       if (!success) throw new Error('계정 받아오기에 실패하였습니다.')
 
@@ -113,8 +122,11 @@ const actions = {
   async getProfile({ commit }, { nickname }) {
     try {
       const { data } = await axios.get(`v1/users/profile/${nickname}`)
-      const { success, data: { profile } } = data
-    
+      const {
+        success,
+        data: { profile },
+      } = data
+
       if (!success || !profile) throw new Error('프로필을 받아오는데 실패하였습니다.')
 
       return { success, profile }
@@ -126,41 +138,52 @@ const actions = {
   async updateProfile({ commit }, { nickname, payload }) {
     try {
       const { data } = await axios.put(`v1/users/profile/${nickname}`, payload)
-      const { success, data: { profile } } = data
-      
+      const {
+        success,
+        data: { profile },
+      } = data
+
       if (!success) throw new Error('프로필 업데이트에 실패하였습니다.')
 
       return { success, profile }
     } catch (err) {
-      alert(err?.response?.data?.message || err?.message) 
+      alert(err?.response?.data?.message || err?.message)
     }
   },
 
   async updateProfileAvatar({ commit }, { nickname, payload }) {
     try {
       const { data } = await axios.put(`v1/users/profile/${nickname}/avatar`, payload)
-      const { success, data: { profile } } = data
-      
+      const {
+        success,
+        data: { profile },
+      } = data
+
+      console.log(data)
+
       if (!success) throw new Error('프로필 아바타 업로드를 실패하였습니다.')
 
       return { success, profile }
     } catch (err) {
-      alert(err?.response?.data?.message || err?.message) 
+      alert(err?.response?.data?.message || err?.message)
     }
   },
 
   async deleteProfileAvatar({ commit }, { nickname }) {
     try {
       const { data } = await axios.delete(`v1/users/profile/${nickname}/avatar`)
-      const { success, data: { profile } } = data
-      
+      const {
+        success,
+        data: { profile },
+      } = data
+
       if (!success) throw new Error('프로필 아바타 업로드를 실패하였습니다.')
 
       return { success, profile }
     } catch (err) {
-      alert(err?.response?.data?.message || err?.message) 
+      alert(err?.response?.data?.message || err?.message)
     }
-  }
+  },
 }
 
 const mutations = {

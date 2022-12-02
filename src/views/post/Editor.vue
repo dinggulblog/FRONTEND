@@ -85,6 +85,7 @@
     <div class="wrap_btns">
       <div class="wrap_left">
         <Button
+          v-show="fileState.files.length"
           class="btn_image_insert"
           :content="'사진 첨부'"
           :size="'md'"
@@ -225,6 +226,7 @@
       }
 
       const onUploadImages = async (event) => {
+        if (!event.target.files.length) return
         const formData = new FormData()
         Object.values(event.target.files).forEach((file) => formData.append('images', file))
 
@@ -232,17 +234,17 @@
           ? await dispatch('post/updatePost', { postId: postState._id, payload: formData })
           : await dispatch('draft/updateDraft', { draftId: postState._id, payload: formData })
 
-        if (response.success && response.post) {
-          fileState.files = fileState.files.concat(response.post.images)
-        }
-        if (response.success && response.draft) {
-          fileState.files = fileState.files.concat(response.draft.images)
+        if (response.success && response.images) {
+          fileState.files = fileState.files.concat(response.images)
         }
         // onSelectImage(fileState.files[0], 0)
       }
 
       const onDeleteImage = async (file) => {
-        await dispatch('draft/deleteFile', { draftId: postState._id, imageId: file._id })
+        const { success } = await dispatch('draft/deleteFile', { draftId: postState._id, imageId: file._id })
+
+        const idx = fileState.files.indexOf(file)
+        if (success && idx !== -1) fileState.files.splice(idx)
       }
 
       const onSelectImage = (file, index) => {
@@ -255,6 +257,7 @@
       }
 
       const onInsertImage = () => {
+        console.log(fileState)
         let textarea = document.body.querySelector('#content-el')
         let start = textarea.value.substring(0, textarea.selectionStart)
         let end = textarea.value.substring(textarea.selectionEnd, textarea.value.length)
@@ -287,7 +290,7 @@
         postState.content = content
         postState.category = category
         postState.isPublic = isPublic
-        fileState.files = [...images]
+        fileState.files = Array.isArray(images) ? images : []
 
         if (menu) {
           const { main, sub } = state.menu.menus.find((m) => m._id === menu)
@@ -327,10 +330,11 @@
             okButton: '불러오기',
             cancelButton: '새로 작성하기',
           })
-          if (ok) return setInitData(state.draft.draft)
+          if (ok) return setInitData(draft)
         }
 
-        await dispatch('draft/createDraft')
+        const { draft: newDraft } = await dispatch('draft/createDraft')
+        setInitData(newDraft)
       })
 
       onMounted(() => {
