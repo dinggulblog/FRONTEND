@@ -10,15 +10,18 @@
 
   margin: 0 0 6.4rem 0;
   margin-right: var(--margin_right-24);
+  width: calc((100% / var(--col3)) - var(--margin_right-24) + (var(--margin_right-24) / var(--col3)));
   max-width: calc((100% / var(--col3)) - var(--margin_right-24) + (var(--margin_right-24) / var(--col3)));
 
   @include tablet {
     margin-right: var(--margin_right-20);
+    width: calc((100% / var(--col2)) - var(--margin_right-20) + (var(--margin_right-20) / var(--col2)));
     max-width: calc((100% / var(--col2)) - var(--margin_right-20) + (var(--margin_right-20) / var(--col2)));
   }
 
   @include mobile {
     margin-right: var(--margin_right-16);
+    width: calc((100% / var(--col2)) - var(--margin_right-16) + (var(--margin_right-16) / var(--col2)));
     max-width: calc((100% / var(--col2)) - var(--margin_right-16) + (var(--margin_right-16) / var(--col2)));
   }
 

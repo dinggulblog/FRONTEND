@@ -19,7 +19,9 @@
         <div class="category">
           <select :disabled="!menuState.subMenu.categories" @change="onChangeCategory">
             <option selected disabled hidden value="">category</option>
-            <option v-for="category in menuState.subMenu.categories" :key="category" :value="category">{{ category }}</option>
+            <option v-for="category in menuState.subMenu.categories" :key="category" :value="category">
+              {{ category }}
+            </option>
           </select>
         </div>
       </div>
@@ -46,11 +48,12 @@
     </div>
 
     <div class="content">
-      <textarea 
+      <textarea
         id="content-el"
         v-model="postState.content"
         placeholder="당신의 이야기를 적어보세요..."
-        @keydown="onChangeCanLeavePage(false)"></textarea>
+        @keydown="onChangeCanLeavePage(false)"
+      ></textarea>
       <markdown
         class="markdown"
         :source="postState.content"
@@ -122,7 +125,7 @@
           :custom="true"
           :rounded="true"
           :disabled="menuState.isLoading"
-          @onClick="onChangeCanLeavePage(true); onUpdatePost()"
+          @onClick="onChangeCanLeavePage(true), onUpdatePost()"
         ></Button>
       </div>
     </div>
@@ -171,8 +174,8 @@
         content: '',
         category: '기타',
         isPublic: true,
-        images: computed(() => fileState.files.map(file => file._id)),
-        thumbnail: computed(() => fileState.fileId)
+        images: computed(() => fileState.files.map((file) => file._id)),
+        thumbnail: computed(() => fileState.fileId),
       })
 
       const fileState = reactive({
@@ -190,7 +193,7 @@
       }
 
       const onChangeSubMenu = (event) => {
-        menuState.subMenu = menuState.mainMenus.find(menu => menu.sub === event.target.value)
+        menuState.subMenu = menuState.mainMenus.find((menu) => menu.sub === event.target.value)
         postState.menu = menuState.subMenu?._id
         document.body.querySelector('div.category select').selectedIndex = 0
       }
@@ -200,7 +203,7 @@
       }
 
       const onChangeIsPublic = (state) => {
-        postState.isPublic = Boolean(state) 
+        postState.isPublic = Boolean(state)
       }
 
       const updateDraft = async () => {
@@ -215,7 +218,7 @@
         const { success, post } = route.query.id
           ? await dispatch('post/updatePost', { postId, payload })
           : await dispatch('post/createPost', payload)
-        
+
         if (success && canLeavePage) {
           push({ name: 'post', query: { id: post._id } })
         }
@@ -228,7 +231,7 @@
         const response = route.query.id
           ? await dispatch('post/updatePost', { postId: postState._id, payload: formData })
           : await dispatch('draft/updateDraft', { draftId: postState._id, payload: formData })
-        
+
         if (response.success && response.post) {
           fileState.files = fileState.files.concat(response.post.images)
         }
@@ -275,7 +278,7 @@
           event.returnValue = ''
         }
       }
-      
+
       const setInitData = (post) => {
         const { _id, menu, category, title, content, isPublic, images, thumbnail } = post
         postState._id = _id
@@ -287,40 +290,42 @@
         fileState.files = [...images]
 
         if (menu) {
-          const { main, sub } = state.menu.menus.find(m => m._id === menu)
+          const { main, sub } = state.menu.menus.find((m) => m._id === menu)
 
           document.body.querySelector('div.main select').value = main
           menuState.mainMenus = menuState.groupedMenus[main]
 
           document.body.querySelector('div.sub select').value = sub
-          menuState.subMenu = menuState.mainMenus.find(menu => menu.sub === sub)
+          menuState.subMenu = menuState.mainMenus.find((menu) => menu.sub === sub)
         }
 
         if (category) {
           document.body.querySelector('div.category select').value = category
         }
 
-        const idx = fileState.files.findIndex(file => file._id === thumbnail)
+        const idx = fileState.files.findIndex((file) => file._id === thumbnail)
         if (thumbnail && idx !== -1) {
           onSelectImage(fileState.files[idx], idx)
         }
       }
 
-      const autoSave = route.query.id ? setInterval(onUpdatePost, 1000 * 60 * 10) : setInterval(updateDraft, 1000 * 60 * 10)
+      const autoSave = route.query.id
+        ? setInterval(onUpdatePost, 1000 * 60 * 10)
+        : setInterval(updateDraft, 1000 * 60 * 10)
 
       onBeforeMount(async () => {
         if (route.query.id) {
           const { post } = await dispatch('post/getPost', route.query.id)
           return setInitData(post)
         }
-        
+
         const { draft } = await dispatch('draft/getDraft')
         if (draft) {
-          const ok = await Dialog.value.show({ 
-            title: '임시 저장된 게시물을 불러올깝쇼?',
-            message: '루비는 동그랗습니다...',
+          const ok = await Dialog.value.show({
+            title: '임시 저장된 게시물이 존재합니다',
+            message: '임시 저장된 게시물을 불러오시겠어요?',
             okButton: '불러오기',
-            cancelButton: '아니요, 새로 작성할래요!'
+            cancelButton: '새로 작성하기',
           })
           if (ok) return setInitData(state.draft.draft)
         }

@@ -33,13 +33,22 @@
       <div class="wrap_like">
         <div class="liked_count">
           <span class="like_ico" @click="onChangeLike">
-            <Ico :size="'lg'" :svg="'like-fill'" :customColor="!isLike ? '#ddd' : 'red'" />
+            <Ico :size="'lg'" :svg="'like-fill'" :customColor="!isLike ? '#ddd' : 'var(--likeActive)'" />
           </span>
           <span>{{ likeCount }}</span>
         </div>
         <div class="liked_user">
           <ul>
-            <li v-for="likedUser in likes" :key="likedUser._id">{{ likedUser.nickname }}</li>
+            <li v-for="likedUser in likes" :key="likedUser._id">
+              <img
+                :src="
+                  likedUser.avatar === null
+                    ? 'https://riverlegacy.org/wp-content/uploads/2021/07/blank-profile-photo.jpeg'
+                    : likedUser.avatar
+                "
+              />
+              <span>{{ likedUser.nickname }}</span>
+            </li>
           </ul>
         </div>
       </div>
@@ -160,6 +169,7 @@
         if (route.query.id) {
           await dispatch('post/getPost', route.query.id)
           await dispatch('comment/getComments', route.query.id)
+          console.log(likes.value)
         } else {
           push({ name: 'home' })
         }
@@ -170,12 +180,12 @@
         } else {
           window.scrollTo({ top: 0, behavior: 'smooth' })
         }
-        
+
         document.title = post.value?.title ?? 'Post'
       })
 
       onBeforeUpdate(() => {
-        isLike.value = likes.value.some(likeuser => likeuser._id === user.value._id)
+        isLike.value = likes.value.some((likeuser) => likeuser._id === user.value._id)
       })
 
       onUnmounted(() => {
@@ -229,7 +239,6 @@
 
               .lock_ico {
                 margin: 0 0 0 1.6rem;
-                color: var(--list_info);
               }
             }
           }
@@ -271,10 +280,25 @@
           .like_ico {
             margin-right: 0.8rem;
             cursor: pointer;
+          }
+        }
 
-            i {
-              font-size: 2.8rem;
-              color: var(--list_info-light);
+        .liked_user {
+          ul > li {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            img {
+              border-radius: 50%;
+              width: 3.6rem;
+              height: 3.6rem;
+            }
+
+            span {
+              font-size: 1.2rem;
+              color: var(--input_text);
+              margin: 0.8rem 0 0;
             }
           }
         }

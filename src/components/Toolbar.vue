@@ -54,11 +54,11 @@
       const views = [
         {
           name: 'list',
-          path: 'grid',
+          path: 'row',
         },
         {
           name: 'card',
-          path: 'row',
+          path: 'grid',
         },
       ]
 

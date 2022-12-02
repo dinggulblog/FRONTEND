@@ -3,9 +3,13 @@
     <List>
       <template #thumbnail v-if="post?.thumbnail">
         <div class="thumbnail">
-          <img :src="post.thumbnail
-            ? `${IMAGE_URL}${post.thumbnail.serverFileName}`
-            : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU'" />
+          <img
+            :src="
+              post.thumbnail
+                ? `${IMAGE_URL}${post.thumbnail.serverFileName}`
+                : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU'
+            "
+          />
         </div>
       </template>
 
@@ -34,7 +38,9 @@
       </template>
 
       <template #like_count>
-        <span class="info_ico" ref="LIKE_EL"><Ico :size="'sm'" :svg="'like'" /></span>
+        <span class="info_ico" ref="LIKE_EL">
+          <Ico :size="'sm'" :svg="'like'" :customColor="isLike ? 'var(--likeActive)' : ''" />
+        </span>
         <span>{{ post.likeCount }}</span>
       </template>
     </List>
@@ -43,9 +49,13 @@
   <template v-if="type === 'card'">
     <Card>
       <template #thumbnail>
-        <img :src="post.thumbnail
-          ? `${IMAGE_URL}${post.thumbnail}`
-          : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU'" />
+        <img
+          :src="
+            post.thumbnail
+              ? `${IMAGE_URL}${post.thumbnail}`
+              : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU'
+          "
+        />
       </template>
 
       <template #num>
@@ -75,7 +85,9 @@
       </template>
 
       <template #like_count>
-        <span class="info_ico" ref="LIKE_EL"><Ico :size="'sm'" :svg="'like'" /></span>
+        <span class="info_ico" ref="LIKE_EL">
+          <Ico :size="'sm'" :svg="'like'" :customColor="isLike ? 'var(--likeActive)' : ''" />
+        </span>
         <span>{{ post.likeCount }}</span>
       </template>
     </Card>
@@ -84,9 +96,13 @@
   <template v-if="type === 'slide'">
     <Slide>
       <template #thumbnail>
-        <img :src="post.thumbnail
-          ? `${IMAGE_URL}${post.thumbnail}`
-          : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU'" />
+        <img
+          :src="
+            post.thumbnail
+              ? `${IMAGE_URL}${post.thumbnail}`
+              : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnI3Ftw4ttKq1OERD38V3Z6Y65RvY9pSwkIw&usqp=CAU'
+          "
+        />
       </template>
 
       <template #lock_ico>
@@ -107,7 +123,9 @@
       </template>
 
       <template #like_count>
-        <span class="info_ico" ref="LIKE_EL"><Ico :size="'sm'" :svg="'like'" /></span>
+        <span class="info_ico" ref="LIKE_EL">
+          <Ico :size="'sm'" :svg="'like'" :customColor="isLike ? 'var(--likeActive)' : ''" />
+        </span>
         <span>{{ post.likeCount }}</span>
       </template>
     </Slide>
@@ -132,7 +150,7 @@
     props: {
       type: {
         type: String,
-        default: 'list'
+        default: 'list',
       },
       post: {
         type: Object,

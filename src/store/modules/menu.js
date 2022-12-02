@@ -29,7 +29,7 @@ const actions = {
 
 const mutations = {
   SET_TYPE(state, type) {
-    state.currentType = type
+    state.type = type
   },
 
   SET_CATEGORY(state, category) {
@@ -57,10 +57,10 @@ const mutations = {
     } else {
       state.currentMenus = state.menus
     }
-    
+
     state.type = state.currentMenus.length === 1 ? [...state.currentMenus].shift()?.type : 'list'
     state.categories = [...new Set(state.currentMenus.flatMap((menu) => menu.categories))]
-  }
+  },
 }
 
 export default {
