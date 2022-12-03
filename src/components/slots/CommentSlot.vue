@@ -22,9 +22,11 @@
         </div>
       </div>
       <div class="content">
-        <span class="receiver" v-if="comment.parentComment">@ {{ parentComment?.commenter?.nickname }}</span>
-        <p v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</p>
-        <p v-else>{{ comment.content }}</p>
+        <p>
+          <span class="receiver" v-if="comment.parentComment">@ {{ parentComment?.commenter?.nickname }}</span>
+          <span v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</span>
+          <span v-else>{{ comment.content }}</span>
+        </p>
       </div>
       <CommentEditor
         v-if="isVisible"
@@ -183,7 +185,7 @@
         .wrap_left {
           display: flex;
           align-items: center;
-          width: 50%;
+          width: 90%;
 
           .wrap_reply_btn {
             margin: 0 0 0 3.2rem;
@@ -196,7 +198,7 @@
         }
 
         .wrap_right {
-          width: 50%;
+          width: 10%;
           display: flex;
           justify-content: flex-end;
         }
@@ -209,10 +211,8 @@
         font-size: 1.4rem;
 
         .receiver {
-          padding: 0.4rem 1rem;
-          background: var(--secondary);
           font-weight: 500;
-          color: #fff;
+          color: var(--secondary-dark);
           border-radius: 3.2rem;
           margin: 0 0.8rem 0 0;
         }

@@ -145,6 +145,8 @@ const actions = {
 
       if (!success) throw new Error('프로필 업데이트에 실패하였습니다.')
 
+      console.log(profile)
+
       return { success, profile }
     } catch (err) {
       alert(err?.response?.data?.message || err?.message)
@@ -159,7 +161,7 @@ const actions = {
         data: { profile },
       } = data
 
-      console.log(data)
+      console.log(profile)
 
       if (!success) throw new Error('프로필 아바타 업로드를 실패하였습니다.')
 
@@ -177,7 +179,7 @@ const actions = {
         data: { profile },
       } = data
 
-      if (!success) throw new Error('프로필 아바타 업로드를 실패하였습니다.')
+      if (!success) throw new Error('프로필 아바타 삭제에 실패하였습니다.')
 
       return { success, profile }
     } catch (err) {

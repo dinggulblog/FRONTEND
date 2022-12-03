@@ -122,7 +122,6 @@
           :content="'글 등록'"
           :size="'md'"
           :bgColor="'primary-dark'"
-          :customBgColor="'red'"
           :custom="true"
           :rounded="true"
           :disabled="menuState.isLoading"

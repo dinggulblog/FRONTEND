@@ -41,11 +41,7 @@
           <ul>
             <li v-for="likedUser in likes" :key="likedUser._id">
               <img
-                :src="
-                  likedUser.avatar === null
-                    ? 'https://riverlegacy.org/wp-content/uploads/2021/07/blank-profile-photo.jpeg'
-                    : likedUser.avatar
-                "
+                :src="likedUser.avatar === null ? DEFAULT_AVATAR_64 : `${IMAGE_URL}${likedUser.avatar.serverFileName}`"
               />
               <span>{{ likedUser.nickname }}</span>
             </li>
@@ -95,6 +91,7 @@
   import MarkdownEmoji from 'markdown-it-emoji'
   import PostInfoSlot from '../../components/slots/PostInfoSlot.vue'
   import DropboxSlot from '../../components/slots/DropboxSlot.vue'
+  import DEFAULT_AVATAR_64 from '../../assets/defalut_avatar_64.png'
 
   export default defineComponent({
     name: 'post',
@@ -123,6 +120,7 @@
       const likes = computed(() => state.post.likes)
       const likeCount = computed(() => state.post.likeCount)
       const comments = computed(() => state.comment.comments)
+      const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
 
       const onChangeLike = debounce(async () => {
         if (!user.value?._id) return alert('로그인 후 이용 가능합니다.')
@@ -202,6 +200,8 @@
         likes,
         likeCount,
         comments,
+        IMAGE_URL,
+        DEFAULT_AVATAR_64,
         onChangeLike,
         onUpdatePost,
         onDeletePost,
@@ -293,6 +293,7 @@
               border-radius: 50%;
               width: 3.6rem;
               height: 3.6rem;
+              object-fit: cover;
             }
 
             span {

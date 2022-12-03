@@ -4,13 +4,14 @@
       <div class="wrap_author">
         <AuthorSlot
           :profile="profileState"
-          :type="displayState.button"
+          :type="displayState.state"
           @updateAvatar="onUpdateAvatar"
+          @resetAvatar="resetAvatar"
           @updateGreetings="updateGreetings"
         >
         </AuthorSlot>
         <div class="wrap_btn-edit">
-          <button class="btn_edit" @click="displayState.button === 'ok' ? onUpdateGreetings() : onChangeButton('ok')">
+          <button class="btn_edit" @click="displayState.state === 'edit' ? onUpdateGreetings() : onChangeState('edit')">
             {{ displayState.button.toUpperCase() }}
           </button>
         </div>
@@ -25,13 +26,13 @@
             displayState.tab === 'introduce' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '',
           ]"
         >
-          INTRODUCE
+          소개글
         </li>
         <li
           @click="onChangeTab('like')"
           :style="[displayState.tab === 'like' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '']"
         >
-          LIKED POSTS
+          좋아요한 게시글
         </li>
         <li
           @click="onChangeTab('comment')"
@@ -39,12 +40,33 @@
             displayState.tab === 'comment' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '',
           ]"
         >
-          COMMENTED POSTS
+          댓글단 게시글
         </li>
       </ul>
     </div>
 
-    <div v-if="displayState.tab === 'introduce'" class="introduce">{{ profileState.introduce }}</div>
+    <div v-if="displayState.tab === 'introduce'" class="introduce">
+      <span v-if="displayState.state === 'introEdit'">
+        <QuillEditor theme="snow" v-model:content="profileState.introduce" contentType="html" />
+      </span>
+
+      <div
+        class="content_intro"
+        v-else
+        v-html="profileState.introduce ? profileState.introduce : '작성된 소개글이 없습니다.'"
+      ></div>
+
+      <Button
+        class="btn_edit_introduce"
+        :content="displayState.introButton"
+        :size="'sm'"
+        :rounded="true"
+        :bgColor="'primary-dark'"
+        :customFontSize="'1.2rem'"
+        @onClick="displayState.state === 'introEdit' ? onUpdateIntroduce() : onChangeState('introEdit')"
+      ></Button>
+    </div>
+
     <Posts v-else type="list" :user="user"></Posts>
   </div>
 </template>
@@ -53,6 +75,8 @@
   import { onBeforeMount, computed, reactive } from 'vue'
   import { useRoute } from 'vue-router'
   import { useStore } from 'vuex'
+  import { QuillEditor } from '@vueup/vue-quill'
+  import '@vueup/vue-quill/dist/vue-quill.snow.css'
   import AuthorSlot from '../../components/slots/AuthorSlot.vue'
   import Posts from '../../components/Posts.vue'
 
@@ -61,14 +85,18 @@
     components: {
       AuthorSlot,
       Posts,
+      QuillEditor,
     },
     setup() {
       const route = useRoute()
       const { state, dispatch, commit } = useStore()
 
       const displayState = reactive({
-        button: 'edit',
+        state: 'view',
+        button: computed(() => (displayState.state === 'edit' ? '편집 완료' : '기본 정보 편집')),
+        introButton: computed(() => (displayState.state === 'introEdit' ? '편집 완료' : '소개글 편집')),
         tab: 'introduce',
+        alignItems: computed(() => (displayState.state === 'edit' ? 'flex-start' : 'center')),
       })
 
       const profileState = reactive({
@@ -86,8 +114,8 @@
       const maxPage = computed(() => state.post.maxPage)
       const limit = computed(() => state.post.limit)
 
-      const onChangeButton = (text) => {
-        displayState.button = text
+      const onChangeState = (state) => {
+        displayState.state = state
       }
 
       const onChangeTab = (tab) => {
@@ -107,7 +135,17 @@
 
         if (!success) return
 
-        profileState.avatar = process.env.VUE_APP_IMAGE_URL + profile.avatar?.serverFileName
+        profileState.avatar = profile.avatar
+      }
+
+      const resetAvatar = async () => {
+        const { success, profile } = await dispatch('auth/deleteProfileAvatar', {
+          nickname: profileState.nickname,
+        })
+
+        if (!success) return
+
+        profileState.avatar = null
       }
 
       const updateGreetings = (event) => {
@@ -115,6 +153,7 @@
       }
 
       const onUpdateGreetings = async () => {
+        if (profileState.greetings.length > 150) return alert('글자 수 제한을 초과하였습니다. (최대 150자까지 허용)')
         const { success, profile } = await dispatch('auth/updateProfile', {
           nickname: profileState.nickname,
           payload: { greetings: profileState.greetings },
@@ -123,7 +162,23 @@
         if (!success) return
 
         profileState.greetings = profile.greetings
-        onChangeButton('edit')
+        onChangeState('view')
+      }
+
+      const onUpdateIntroduce = async () => {
+        const { success, profile } = await dispatch('auth/updateProfile', {
+          nickname: profileState.nickname,
+          payload: {
+            introduce: profileState.introduce.replace(/(^([ ]*<p><br><\/p>)*)|((<p><br><\/p>)*[ ]*$)/gi, '').trim(' '),
+          },
+        })
+
+        if (!success) return
+
+        //console.log('인트로듀스', profile)
+
+        profileState.introduce = profile.introduce
+        onChangeState('view')
       }
 
       const getPosts = async (filter) => {
@@ -159,12 +214,14 @@
         maxPage,
         profileState,
         displayState,
-        onChangeButton,
+        onChangeState,
         onChangeTab,
         onUpdatePage,
         onUpdateAvatar,
+        resetAvatar,
         updateGreetings,
         onUpdateGreetings,
+        onUpdateIntroduce,
       }
     },
   }
@@ -173,22 +230,29 @@
 <style lang="scss" rel="stylesheet/scss" scoped>
   .profile {
     .wrap_author {
-      margin: 0 0 6.4rem;
       position: relative;
+      margin: 0 0 4.8rem;
 
       &::v-deep .author {
+        align-items: v-bind('displayState.alignItems');
         .wrap_avatar {
-          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
           .avatar {
             width: 9.6rem;
             height: 9.6rem;
-            margin: 0 1.6rem 0 0;
           }
 
           .wrap_input_file {
-            position: absolute;
-            bottom: 0;
-            right: 0;
+            margin: 2.4rem 0 0.8rem;
+            label {
+              padding: 0.8rem 1.2rem;
+              border-radius: 3.2rem;
+              background: var(--primary);
+              color: #fff;
+              font-size: 1.1rem;
+            }
 
             #input_file {
               display: none;
@@ -212,14 +276,18 @@
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
-            word-break: keep-all;
+            white-space: pre-wrap;
           }
 
-          .input_greetings {
+          .textarea_greetings {
             margin: 1.6rem 0 0;
-            border: 1px solid blue;
+            border: 0.1rem solid #ccc;
+            border-radius: 1.2rem;
             padding: 1.2rem;
             width: 100%;
+            min-height: 6.8rem;
+            resize: none;
+            font-size: 1.4rem;
           }
         }
       }
@@ -235,28 +303,36 @@
     }
 
     .wrap_tab {
-      margin: 4.8rem 0;
+      margin: 0 0 3.2rem 0;
 
       .tab {
         display: flex;
+        flex-wrap: wrap;
         li {
-          padding: 1.2rem 2.4rem;
-          margin: 0 2.4rem 0 0;
+          flex: 0 0 auto;
+          padding: 0.8rem 1.6rem;
+          margin: 0 1.6rem 0 0;
           list-style: none;
           text-align: center;
-          border: 2px solid #ddd;
+          border: 1px solid #ddd;
           border-radius: 3.2rem;
           transition: border-color ease 0.5s;
           cursor: pointer;
-          font-weight: 500;
           color: var(--btn_text);
           user-select: none;
-          font-size: 1.2rem;
+          font-size: 1.4rem;
           letter-spacing: 0.1rem;
+          font-family: 'Noto Sans KR';
 
           &:last-child {
             margin: 0;
           }
+        }
+
+        @include mobile_all {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          overflow-y: hidden;
         }
       }
     }
@@ -264,6 +340,13 @@
 
   .introduce {
     font-size: 1.6rem;
-    color: var(--primary);
+    .content_intro {
+      color: var(--btn_text);
+    }
+
+    .btn_edit_introduce {
+      margin: 2.4rem 0 0;
+      margin-left: auto;
+    }
   }
 </style>

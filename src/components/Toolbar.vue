@@ -197,9 +197,7 @@
         li {
           flex: 0 0 auto;
           margin: 0 1.6rem 0 0;
-          padding: 0 1.6rem;
-          height: 3.8rem;
-          line-height: 3.6rem;
+          padding: 0.8rem 1.6rem;
           font-family: 'Noto Sans KR';
           font-size: 1.4rem;
           color: var(--text-light);

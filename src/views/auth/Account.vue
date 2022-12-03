@@ -12,14 +12,14 @@
         </form>
       </Form>
 
-      <Form v-else as="div" class="modify_account" v-slot="{ handleSubmit }" :validation-schema="updateAccountSchema">
+      <Form v-else-if="user" as="div" class="modify_account" v-slot="{ handleSubmit }" :validation-schema="updateAccountSchema">
         <h2 v-text="'modify account'"></h2>
         <form @submit="handleSubmit($event, onUpdateAccount)">
-          <TextInput name="email" type="email" label="이메일" :disabled="true" :placeholder="user?.email" spellcheck="false" success-message="이메일은 변경할 수 없습니다." />
+          <TextInput name="email" type="email" label="이메일" :disabled="true" :value="user?.email" :placeholder="user?.email" spellcheck="false" success-message="이메일은 변경할 수 없습니다." />
           <TextInput name="currentPassword" type="password" label="현재 비밀번호" placeholder="Current Password" />
-          <TextInput name="password" type="password" label="새 비밀번호" placeholder="New Password" />
+          <TextInput name="newPassword" type="password" label="새 비밀번호" placeholder="New Password" />
           <TextInput name="passwordConfirmation" type="password" label="새 비밀번호 확인" placeholder="Type password again" success-message="비밀번호가 정상적으로 입력되었습니다." />
-          <TextInput name="nickname" type="text" label="닉네임" :placeholder="user?.nickname" spellcheck="false" success-message="사용할 수 있는 닉네임입니다." />
+          <TextInput name="nickname" type="text" label="닉네임" :value="user?.email" :placeholder="user?.nickname" spellcheck="false" success-message="사용할 수 있는 닉네임입니다." />
           <button type="submit" class="btn_submit">수정 완료</button>
         </form>
       </Form>
@@ -69,15 +69,15 @@ export default {
 
     const updateAccountSchema = Yup.object().shape({
       email: Yup.string()
-        .default(user.value?.email ?? '')
+        .default(user.value.email)
         .email(),
       currentPassword: Yup.string().required(),
       newPassword: Yup.string()
         .nullable(true)
         .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
-      passwordConfirmation: Yup.string().oneOf([Yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
+      passwordConfirmation: Yup.string().oneOf([Yup.ref('newPassword')], '비밀번호가 일치하지 않습니다.'),
       nickname: Yup.string()
-        .default(user.value?.nickname ?? '')
+        .default(user.value.nickname)
         .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
     })
 

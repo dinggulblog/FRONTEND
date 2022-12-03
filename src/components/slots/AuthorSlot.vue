@@ -4,7 +4,7 @@
       <template #avatar>
         <img
           class="avatar"
-          :src="`${IMAGE_URL}${user?.avatar?.serverFileName}` || '../../assets/1.jpg'"
+          :src="user.avatar ? `${IMAGE_URL}${user.avatar.serverFileName}` : DEFAULT_AVATAR_64"
           alt="user_avatar"
         />
       </template>
@@ -25,7 +25,11 @@
   <template v-if="type === 'comment'">
     <Author>
       <template #avatar>
-        <img class="avatar" :src="profile.avatar || '../../assets/1.jpg'" alt="user_avatar" />
+        <img
+          class="avatar"
+          :src="comment.commenter.avatar ? `${IMAGE_URL}${comment.commenter.avatar.serverFileName}` : DEFAULT_AVATAR_64"
+          alt="user_avatar"
+        />
       </template>
       <template #nickname>
         <span class="nickname">{{ comment.commenter.nickname }}</span>
@@ -37,7 +41,11 @@
     <Author>
       <template #avatar>
         <div class="wrap_avatar">
-          <img class="avatar" :src="profile.avatar || '../../assets/1.jpg'" alt="user_avatar" />
+          <img
+            class="avatar"
+            :src="post.author.avatar ? `${IMAGE_URL}${post.author.avatar.serverFileName}` : DEFAULT_AVATAR_192"
+            alt="user_avatar"
+          />
         </div>
       </template>
       <template #nickname>
@@ -49,35 +57,50 @@
     </Author>
   </template>
 
-  <template v-if="type === 'edit'">
+  <template v-if="type === 'view' || type === 'introEdit'">
     <Author>
       <template #avatar>
-        <img class="avatar" :src="profile.avatar || '../../assets/1.jpg'" alt="user_avatar" />
+        <img
+          class="avatar"
+          :src="profile.avatar ? `${IMAGE_URL}${profile.avatar.serverFileName}` : DEFAULT_AVATAR_192"
+          alt="user_avatar"
+        />
       </template>
       <template #nickname>
         <div class="nickname">{{ profile.nickname }}</div>
       </template>
       <template #greetings>
-        <p class="greetings">{{ profile.greetings }}</p>
+        <p class="greetings">{{ profile.greetings ? profile.greetings : '인사말을 적어보세요.' }}</p>
       </template>
     </Author>
   </template>
 
-  <template v-if="type === 'ok'">
+  <template v-if="type === 'edit'">
     <Author>
       <template #avatar>
-        <img class="avatar" :src="profile.avatar || '../../assets/1.jpg'" alt="user_avatar" />
-        <span class="wrap_input_file">
-          <label for="input_file"><i class="material-symbols-outlined"> add_circle </i></label>
+        <img
+          class="avatar"
+          :src="profile.avatar ? `${IMAGE_URL}${profile.avatar.serverFileName}` : DEFAULT_AVATAR_192"
+          alt="user_avatar"
+        />
+        <div class="wrap_input_file">
+          <label for="input_file">아바타 업로드</label>
           <input type="file" id="input_file" @change="$emit('updateAvatar', $event)" accept="image/*" />
-        </span>
+        </div>
+        <Button
+          class="btn_avatar_reset"
+          :content="'아바타 초기화'"
+          :size="'sm'"
+          :rounded="true"
+          @click="$emit('resetAvatar')"
+        ></Button>
       </template>
       <template #nickname>
         <div class="nickname">{{ profile.nickname }}</div>
       </template>
       <template #greetings>
         <textarea
-          class="input_greetings"
+          class="textarea_greetings"
           :value="profile.greetings"
           @keydown="$emit('updateGreetings', $event)"
         ></textarea>
@@ -89,6 +112,8 @@
 <script>
   import { ref } from 'vue'
   import Author from '../Author.vue'
+  import DEFAULT_AVATAR_192 from '../../assets/defalut_avatar_192.png'
+  import DEFAULT_AVATAR_64 from '../../assets/defalut_avatar_64.png'
 
   export default {
     name: 'AuthorSlot',
@@ -112,13 +137,14 @@
         type: Object,
       },
     },
-    emits: ['updateAvatar', 'updateGreetings'],
+    emits: ['updateAvatar', 'updateGreetings', 'resetAvatar'],
     setup(props) {
       const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
 
-      console.log(props.user)
       return {
         IMAGE_URL,
+        DEFAULT_AVATAR_192,
+        DEFAULT_AVATAR_64,
       }
     },
   }
@@ -137,6 +163,7 @@
         width: 3.2rem;
         height: 3.2rem;
         border-radius: 50%;
+        object-fit: cover;
       }
     }
   }
