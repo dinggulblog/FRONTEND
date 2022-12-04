@@ -86,6 +86,7 @@
           emit('updateType', event.currentTarget.firstChild.classList[0])
           addOnClass(event.currentTarget.firstChild)
         }
+        console.log(event.currentTarget.firstChild.classList[0])
       }
 
       const changeCategory = (event) => {

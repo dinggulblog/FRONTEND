@@ -39,8 +39,8 @@
             page: page.value,
             limit: limit.value,
             menu: currentMenus.value?.map((menu) => menu._id),
-            category: category.value === '전체' ? null : category.value
-          }
+            category: category.value === '전체' ? null : category.value,
+          },
         })
       }
 
@@ -52,7 +52,7 @@
           commit('menu/SET_CATEGORY', '전체')
           getPosts()
         },
-        { immediate: true } 
+        { immediate: true }
       )
 
       onBeforeMount(() => {
@@ -65,32 +65,4 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-  #list {
-    display: flex;
-    flex-direction: column;
-  }
-
-  #card {
-    display: flex;
-    width: 100%;
-    flex-wrap: wrap;
-
-    @include tablet_landscape {
-      & .card_item:nth-child(3n + 0) {
-        margin-right: 0;
-      }
-    }
-
-    @include desktop {
-      & .card_item:nth-child(3n + 0) {
-        margin-right: 0;
-      }
-    }
-
-    @include mobile_tablet {
-      & .card_item:nth-child(2n + 0) {
-        margin-right: 0;
-      }
-    }
-  }
 </style>

@@ -1,6 +1,5 @@
 <template>
   <div class="posts">
-    
     <div v-if="posts?.length">
       <ul :id="type">
         <template v-for="post in posts" :key="post._id">
@@ -32,22 +31,22 @@
     props: {
       type: {
         type: String,
-        default: 'list'
+        default: 'List',
       },
       user: {
         type: Object,
-        default: () => ({})
-      }
+        default: () => ({}),
+      },
     },
     setup(props) {
       const { state, commit } = useStore()
 
       const { _id: userId } = toRefs(props.user)
-      
+
       const posts = computed(() => state.post.posts)
       const page = computed(() => state.post.page)
       const maxPage = computed(() => state.post.maxPage)
-      
+
       const onUpdatePage = (page) => commit('post/SET_PAGE', page)
 
       return { userId, posts, page, maxPage, onUpdatePage }

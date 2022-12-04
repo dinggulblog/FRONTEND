@@ -16,8 +16,7 @@
     <!-- Account info -->
     <div class="wrap_auth" v-else>
       <div class="auth">
-        <img class="avatar" src="../../assets/4.jpg" alt="user_avatar" />
-        <span class="nickname">{{ user.nickname }} 님</span>
+        <AuthorSlot :user="user" :type="'header'" />
       </div>
 
       <div class="auth_items">
@@ -51,8 +50,12 @@
 <script>
   import { computed } from 'vue'
   import { useStore } from 'vuex'
+  import AuthorSlot from '../slots/AuthorSlot.vue'
 
   export default {
+    components: {
+      AuthorSlot,
+    },
     setup(props, { emit }) {
       const { state, dispatch } = useStore()
 

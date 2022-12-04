@@ -8,6 +8,7 @@
       <div class="contents">
         <div class="title">
           <slot name="title"></slot>
+          <slot name="lock_ico"></slot>
         </div>
         <div class="summary">
           <slot name="summary"></slot>
@@ -36,4 +37,6 @@
   }
 </script>
 
-<style lang="scss" rel="stylesheet/scss" scoped></style>
+<style lang="scss" rel="stylesheet/scss">
+  @import '../scss/list.scss';
+</style>

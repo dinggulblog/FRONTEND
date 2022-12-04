@@ -26,7 +26,9 @@
 
       <div class="wrap_right">
         <div class="wrap_comment_like">
-          <slot name="comment_count"></slot>
+          <div class="wrap_comment_count">
+            <slot name="comment_count"></slot>
+          </div>
           <slot name="like_count"></slot>
         </div>
       </div>
@@ -58,6 +60,6 @@
   }
 </script>
 
-<style lang="scss" rel="stylesheet/scss" scoped>
+<style lang="scss" rel="stylesheet/scss">
   @import '../scss/card.scss';
 </style>
