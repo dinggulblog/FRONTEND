@@ -23,7 +23,7 @@
             <Ico :size="'md'" :svg="'create'" />
           </router-link>
           <div class="auth dropdown">
-            <AuthorSlot :user="user" :type="'header'" />
+            <AuthorSlot :user="user"/>
             <div class="auth_items dropdown_items">
               <ul>
                 <li><router-link :to="{ name: 'account' }">Account</router-link></li>

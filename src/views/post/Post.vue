@@ -37,6 +37,7 @@
           </span>
           <span>{{ likeCount }}</span>
         </div>
+        <!--
         <div class="liked_user">
           <ul>
             <li v-for="likedUser in likes" :key="likedUser._id">
@@ -47,10 +48,11 @@
             </li>
           </ul>
         </div>
+        -->
       </div>
 
       <div class="wrap_author">
-        <AuthorSlot :post="post" :type="'postAuthor'" />
+        <AuthorSlot :user="post.author" />
         <router-link :to="{ name: 'profile', params: { nickname: post.author.nickname } }" class="a_link">
           프로필 보러가기
         </router-link>
@@ -155,7 +157,7 @@
       const onGetAuthorized = (comment) => {
         if (comment.isPublic) {
           return true
-        } else if (user.value && post.value.author.nickname === user.value.nickname) {
+        } else if (user.value && post.value.author?.nickname === user.value.nickname) {
           return true
         } else if (user.value && comment.commenter.nickname === user.value.nickname) {
           return true
@@ -264,13 +266,11 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-bottom: 0 0 2.4rem;
 
         .liked_count {
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 0 0 2.4rem 0;
 
           span {
             color: var(--list_info);
@@ -350,7 +350,7 @@
 
     .comment {
       .comments {
-        margin: 8.6rem 0 0;
+        margin: 6.4rem 0 0;
 
         h2 {
           color: var(--list_info-dark);

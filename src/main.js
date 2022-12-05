@@ -3,6 +3,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import VueDOMPurifyHTML from 'vue-dompurify-html'
 import setupInterceptors from './services/axios.interceptors'
 import Button from './components/Button.vue'
 import Ico from './components/Ico.vue'
@@ -13,6 +14,7 @@ setupInterceptors(store) // create axios instance
 const app = createApp(App)
 app.use(store)
 app.use(router)
+app.use(VueDOMPurifyHTML)
 app.component('Button', Button)
 app.component('Ico', Ico)
 app.mount('#app')

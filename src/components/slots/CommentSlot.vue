@@ -23,7 +23,7 @@
       </div>
       <div class="content">
         <p>
-          <span class="receiver" v-if="comment.parentComment">@ {{ parentComment?.commenter?.nickname }}</span>
+          <span class="receiver" v-if="comment.parentComment">@ {{ MyParentComment?.commenter?.nickname }}</span>
           <span v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</span>
           <span v-else>{{ comment.content }}</span>
         </p>
@@ -101,7 +101,7 @@
       const isVisible = ref(false)
       const Dialog = ref(null)
       const isUpdate = ref(false)
-      const parentComment = ref(null)
+      const MyParentComment = ref(null)
 
       const onCreateEditor = () => {
         isUpdate.value = false
@@ -139,7 +139,7 @@
       const searchParentComment = (comment, id = null) => {
         if (comment._id === id) {
           return comment
-        } else if (Array.isArray(comment.childComments) && comment.childComments.length) {
+        } else if (Array.isArray(comment.childComments)) {
           let result = null
           for (const childComment of comment.childComments) {
             result = searchParentComment(childComment, id)
@@ -150,14 +150,16 @@
       }
 
       onBeforeMount(() => {
-        parentComment.value = searchParentComment(comments.value[0], props.comment.parentComment)
+        MyParentComment.value = comments.value
+          ?.filter((comment) => searchParentComment(comment, props.comment.parentComment))
+          ?.pop()
       })
 
       return {
         Dialog,
         isVisible,
         isUpdate,
-        parentComment,
+        MyParentComment,
         onCreateEditor,
         onUpdateEditor,
         onCloseEditor,

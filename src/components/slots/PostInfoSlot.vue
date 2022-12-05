@@ -1,10 +1,5 @@
 <template>
   <Info>
-    <template #author>
-      <li>
-        <AuthorSlot :post="post" :type="'post'" />
-      </li>
-    </template>
     <template #createdAt>
       <li>
         <span class="createdAt">{{ dayjs(post.createdAt).format('YYYY. M. D') }}</span>
@@ -28,7 +23,6 @@
     name: 'InfoSlot',
     components: {
       Info,
-      AuthorSlot,
     },
     props: {
       post: {

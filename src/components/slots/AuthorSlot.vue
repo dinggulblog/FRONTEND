@@ -1,116 +1,48 @@
 <template>
-  <template v-if="type === 'header'">
-    <Author>
-      <template #avatar>
-        <img
-          class="avatar"
-          :src="user.avatar ? `${IMAGE_URL}${user.avatar.serverFileName}` : DEFAULT_AVATAR_64"
-          alt="user_avatar"
-        />
-      </template>
-      <template #nickname>
-        <span class="nickname">{{ user.nickname }}</span>
-      </template>
-    </Author>
-  </template>
+  <Author>
+    <template #avatar>
+      <img
+        class="avatar"
+        :src="avatar ? `${IMAGE_URL}${avatar.serverFileName}` : DEFAULT_AVATAR_192"
+        alt="user_avatar"
+      />
+    </template>
 
-  <template v-if="type === 'post'">
-    <Author>
-      <template #nickname>
-        <span class="nickname">{{ post.author.nickname }}</span>
-      </template>
-    </Author>
-  </template>
+    <template #avatar_upload v-if="state === 'edit'">
+      <div class="wrap_input_file">
+        <label for="input_file">아바타 업로드</label>
+        <input type="file" id="input_file" @change="$emit('updateAvatar', $event)" accept="image/*" />
+      </div>
+      <Button
+        class="btn_avatar_reset"
+        :content="'아바타 초기화'"
+        :size="'sm'"
+        :rounded="true"
+        @click="$emit('resetAvatar')"
+      />
+    </template>
 
-  <template v-if="type === 'comment'">
-    <Author>
-      <template #avatar>
-        <img
-          class="avatar"
-          :src="comment.commenter.avatar ? `${IMAGE_URL}${comment.commenter.avatar.serverFileName}` : DEFAULT_AVATAR_64"
-          alt="user_avatar"
-        />
-      </template>
-      <template #nickname>
-        <span class="nickname">{{ comment.commenter.nickname }}</span>
-      </template>
-    </Author>
-  </template>
+    <template #nickname v-if="nickname">
+      <span class="nickname">{{ nickname }}</span>
+    </template>
 
-  <template v-if="type === 'postAuthor'">
-    <Author>
-      <template #avatar>
-        <div class="wrap_avatar">
-          <img
-            class="avatar"
-            :src="post.author.avatar ? `${IMAGE_URL}${post.author.avatar.serverFileName}` : DEFAULT_AVATAR_192"
-            alt="user_avatar"
-          />
-        </div>
-      </template>
-      <template #nickname>
-        <span class="nickname">{{ post.author.nickname }}</span>
-      </template>
-      <template #greetings>
-        <p class="greetings">{{ post.author.greetings }}</p>
-      </template>
-    </Author>
-  </template>
+    <template #greetings v-if="greetings && state !== 'edit'">
+      <p class="greetings">{{ greetings }}</p>
+    </template>
 
-  <template v-if="type === 'view' || type === 'introEdit'">
-    <Author>
-      <template #avatar>
-        <img
-          class="avatar"
-          :src="profile.avatar ? `${IMAGE_URL}${profile.avatar.serverFileName}` : DEFAULT_AVATAR_192"
-          alt="user_avatar"
-        />
-      </template>
-      <template #nickname>
-        <div class="nickname">{{ profile.nickname }}</div>
-      </template>
-      <template #greetings>
-        <p class="greetings">{{ profile.greetings ? profile.greetings : '인사말을 적어보세요.' }}</p>
-      </template>
-    </Author>
-  </template>
-
-  <template v-if="type === 'edit'">
-    <Author>
-      <template #avatar>
-        <img
-          class="avatar"
-          :src="profile.avatar ? `${IMAGE_URL}${profile.avatar.serverFileName}` : DEFAULT_AVATAR_192"
-          alt="user_avatar"
-        />
-        <div class="wrap_input_file">
-          <label for="input_file">아바타 업로드</label>
-          <input type="file" id="input_file" @change="$emit('updateAvatar', $event)" accept="image/*" />
-        </div>
-        <Button
-          class="btn_avatar_reset"
-          :content="'아바타 초기화'"
-          :size="'sm'"
-          :rounded="true"
-          @click="$emit('resetAvatar')"
-        ></Button>
-      </template>
-      <template #nickname>
-        <div class="nickname">{{ profile.nickname }}</div>
-      </template>
-      <template #greetings>
-        <textarea
-          class="textarea_greetings"
-          :value="profile.greetings"
-          @keydown="$emit('updateGreetings', $event)"
-        ></textarea>
-      </template>
-    </Author>
-  </template>
+    <template #greetings_textarea v-else-if="state === 'edit'">
+      <textarea
+        class="textarea_greetings"
+        placeholder="인사말을 적어보세요."
+        :value="greetings"
+        @change="$emit('updateGreetings', $event)"
+      />
+    </template>
+  </Author>
 </template>
 
 <script>
-  import { ref } from 'vue'
+  import { reactive, ref, toRefs } from 'vue'
   import Author from '../Author.vue'
   import DEFAULT_AVATAR_192 from '../../assets/defalut_avatar_192.png'
   import DEFAULT_AVATAR_64 from '../../assets/defalut_avatar_64.png'
@@ -121,30 +53,27 @@
       Author,
     },
     props: {
-      type: {
-        type: String,
-      },
       user: {
         type: Object,
+        default: () => reactive({}),
       },
-      post: {
-        type: Object,
-      },
-      comment: {
-        type: Object,
-      },
-      profile: {
-        type: Object,
+      state: {
+        type: String,
       },
     },
     emits: ['updateAvatar', 'updateGreetings', 'resetAvatar'],
     setup(props) {
       const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
 
+      const { avatar, nickname, greetings } = toRefs(props.user)
+
       return {
         IMAGE_URL,
         DEFAULT_AVATAR_192,
         DEFAULT_AVATAR_64,
+        avatar,
+        nickname,
+        greetings,
       }
     },
   }

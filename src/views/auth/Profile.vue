@@ -3,14 +3,14 @@
     <form v-on:submit.prevent="submitForm">
       <div class="wrap_author">
         <AuthorSlot
-          :profile="profileState"
-          :type="displayState.state"
+          :user="profileState"
+          :state="displayState.state"
           @updateAvatar="onUpdateAvatar"
           @resetAvatar="resetAvatar"
           @updateGreetings="updateGreetings"
         >
         </AuthorSlot>
-        <div class="wrap_btn-edit">
+        <div class="wrap_btn-edit" v-if="profileState.nickname === user.nickname">
           <button class="btn_edit" @click="displayState.state === 'edit' ? onUpdateGreetings() : onChangeState('edit')">
             {{ displayState.button.toUpperCase() }}
           </button>
@@ -53,11 +53,12 @@
       <div
         class="content_intro"
         v-else
-        v-html="profileState.introduce ? profileState.introduce : '작성된 소개글이 없습니다.'"
+        v-dompurify-html="profileState.introduce ? profileState.introduce : '작성된 소개글이 없습니다.'"
       ></div>
 
       <Button
         class="btn_edit_introduce"
+        v-if="profileState.nickname === user.nickname"
         :content="displayState.introButton"
         :size="'sm'"
         :rounded="true"
@@ -288,6 +289,7 @@
             min-height: 6.8rem;
             resize: none;
             font-size: 1.4rem;
+            color: var(--text-light);
           }
         }
       }
@@ -318,7 +320,7 @@
           border-radius: 3.2rem;
           transition: border-color ease 0.5s;
           cursor: pointer;
-          color: var(--btn_text);
+          color: var(--text-light);
           user-select: none;
           font-size: 1.4rem;
           letter-spacing: 0.1rem;

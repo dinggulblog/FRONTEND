@@ -2,7 +2,7 @@
   <Info>
     <template #author>
       <li>
-        <AuthorSlot :comment="comment" :type="'comment'" />
+        <AuthorSlot :user="comment.commenter" />
       </li>
     </template>
 
