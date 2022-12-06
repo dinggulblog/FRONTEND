@@ -20,7 +20,7 @@
       },
       size: {
         type: String,
-        validator: (value) => ['sm', 'md', 'lg'].includes(value),
+        validator: (value) => ['xs', 'sm', 'md', 'lg'].includes(value),
       },
       customSize: {
         type: String,

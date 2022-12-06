@@ -19,7 +19,7 @@
 <script>
   import { computed, toRefs } from 'vue'
   import { useStore } from 'vuex'
-  import PostSlot from '../components/slots/PostSlot.vue'
+  import PostSlot from './slots/PostsSlot.vue'
   import Pagenation from '../components/Pagenation.vue'
 
   export default {

@@ -53,7 +53,7 @@
         v-model="postState.content"
         placeholder="당신의 이야기를 적어보세요..."
         @keydown="onChangeCanLeavePage(false)"
-      ></textarea>
+      />
       <markdown
         class="markdown"
         :source="postState.content"

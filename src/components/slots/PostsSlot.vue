@@ -33,7 +33,7 @@
     </template>
 
     <template #comment_count>
-      <router-link :to="{ name: 'post', query: { id: post._id, quickMove: true } }">
+      <router-link :to="{ name: 'post', query: { id: post._id }, params: { quickMove: true } }">
         <span class="info_ico"><Ico :size="'sm'" :svg="'comment'" /></span>
         <span>{{ post.commentCount }}</span>
       </router-link>
@@ -57,7 +57,7 @@
   import slide from '../Slide.vue'
 
   export default {
-    name: 'PostSlot',
+    name: 'PostsSlot',
     props: {
       type: {
         type: String,

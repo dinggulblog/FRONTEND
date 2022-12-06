@@ -14,7 +14,9 @@
       </div>
 
       <div class="logo">
-        <router-link :to="{ name: 'home' }" class="a_logo">DINGGUL</router-link>
+        <router-link :to="{ name: 'home' }" class="a_logo">
+          <img :src="LOGO" />
+        </router-link>
       </div>
 
       <div class="wrap_right">
@@ -23,7 +25,7 @@
             <Ico :size="'md'" :svg="'create'" />
           </router-link>
           <div class="auth dropdown">
-            <AuthorSlot :user="user"/>
+            <AuthorSlot :user="user" />
             <div class="auth_items dropdown_items">
               <ul>
                 <li><router-link :to="{ name: 'account' }">Account</router-link></li>
@@ -48,8 +50,7 @@
           :customColor="'#fff'"
           :customPadding="'0'"
           @click="onChangeDisply('search')"
-        >
-        </Button>
+        />
       </div>
     </div>
   </div>
@@ -71,6 +72,7 @@
   import Navigation from './Navigation.vue'
   import SearchForm from '../SearchForm.vue'
   import AuthorSlot from '../slots/AuthorSlot.vue'
+  import LOGO from '../../assets/logo.png'
 
   export default {
     components: {
@@ -128,7 +130,7 @@
         searchForm.value = document.querySelector('.container_searchForm')
       })
 
-      return { isMobile, searchState, isLogin, user, onLogout, onChangeDisply }
+      return { LOGO, isMobile, searchState, isLogin, user, onLogout, onChangeDisply }
     },
   }
 </script>
@@ -184,6 +186,10 @@
         justify-content: center;
         .a_logo {
           font-size: 2.4rem;
+
+          img {
+            width: 14rem;
+          }
         }
       }
       .wrap_left {

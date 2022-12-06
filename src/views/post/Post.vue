@@ -1,141 +1,42 @@
 <template>
   <div class="wrap_post_comment">
-    <div class="post" v-if="post._id">
-      <div class="wrap_header">
-        <div class="wrap_left">
-          <div class="wrap_title">
-            <div class="title">
-              <h2>{{ post.title }}</h2>
-              <span v-if="!post.isPublic" class="lock_ico"><Ico :size="'md'" :svg="'lock'" /></span>
-            </div>
-          </div>
-
-          <div class="wrap_info">
-            <PostInfoSlot :post="post" />
-          </div>
-        </div>
-        <div class="wrap_right">
-          <DropboxSlot :dropboxItems="{ '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }" />
-        </div>
-      </div>
-
-      <div class="content">
-        <markdown
-          class="markdown"
-          :source="post.content"
-          :plugins="plugins"
-          :breaks="true"
-          :xhtmlOut="true"
-          :typographer="true"
-        />
-      </div>
-
-      <div class="wrap_like">
-        <div class="liked_count">
-          <span class="like_ico" @click="onChangeLike">
-            <Ico :size="'lg'" :svg="'like-fill'" :customColor="!isLike ? '#ddd' : 'var(--likeActive)'" />
-          </span>
-          <span>{{ likeCount }}</span>
-        </div>
-        <!--
-        <div class="liked_user">
-          <ul>
-            <li v-for="likedUser in likes" :key="likedUser._id">
-              <img
-                :src="likedUser.avatar === null ? DEFAULT_AVATAR_64 : `${IMAGE_URL}${likedUser.avatar.serverFileName}`"
-              />
-              <span>{{ likedUser.nickname }}</span>
-            </li>
-          </ul>
-        </div>
-        -->
-      </div>
-
-      <div class="wrap_author">
-        <AuthorSlot :user="post.author" />
-        <router-link :to="{ name: 'profile', params: { nickname: post.author.nickname } }" class="a_link">
-          프로필 보러가기
-        </router-link>
-      </div>
-    </div>
-
-    <div class="comment">
-      <CommentEditor :post="post" />
-
-      <div class="comments" v-if="comments.length" ref="COMMENTS_EL">
-        <h2>댓글 {{ comments.length }}개</h2>
-        <ul class="comment_items">
-          <CommentSlot
-            v-for="comment in comments"
-            :key="comment._id"
-            :comment="comment"
-            :post="post"
-            :isAuthorized="onGetAuthorized(comment)"
-          />
-        </ul>
-      </div>
-    </div>
+    <Post :user="user" :post="post" @onDeletePost="onDeletePost" />
+    <Comments :comments="comments" :user="user" :post="post" @onDeleteComment="onDeleteComment" />
   </div>
   <Dialog ref="Dialog"></Dialog>
 </template>
 
 <script>
-  import { defineComponent, ref, computed, onBeforeMount, onBeforeUpdate, onUnmounted } from 'vue'
+  import { defineComponent, ref, computed, onBeforeMount, onUnmounted } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
   import { useStore } from 'vuex'
-  import { debounce } from '../../common/util'
-  import dayjs from 'dayjs'
-  import CommentEditor from '../../components/CommentEditor.vue'
-  import CommentSlot from '../../components/slots/CommentSlot.vue'
-  import AuthorSlot from '../../components/slots/AuthorSlot.vue'
+  import Post from '../../components/Post.vue'
+  import Comments from '../../components/Comments.vue'
   import Dialog from '../../components/Dialog.vue'
-  import Markdown from 'vue3-markdown-it'
-  import MarkdownEmoji from 'markdown-it-emoji'
-  import PostInfoSlot from '../../components/slots/PostInfoSlot.vue'
-  import DropboxSlot from '../../components/slots/DropboxSlot.vue'
-  import DEFAULT_AVATAR_64 from '../../assets/defalut_avatar_64.png'
 
   export default defineComponent({
     name: 'post',
     components: {
       Dialog,
-      Markdown,
-      CommentEditor,
-      CommentSlot,
-      PostInfoSlot,
-      AuthorSlot,
-      DropboxSlot,
+      Post,
+      Comments,
     },
-    setup() {
+    props: {
+      quickMove: {
+        type: [Boolean, String],
+        default: false,
+      },
+    },
+    setup(props) {
       const route = useRoute()
       const { push } = useRouter()
       const { state, dispatch, commit } = useStore()
 
       const Dialog = ref(null)
-      const COMMENTS_EL = ref(null)
-      const plugins = ref([{ plugin: MarkdownEmoji }])
-
-      const isLike = ref(false)
 
       const user = computed(() => state.auth.user)
       const post = computed(() => state.post.post)
-      const likes = computed(() => state.post.likes)
-      const likeCount = computed(() => state.post.likeCount)
       const comments = computed(() => state.comment.comments)
-      const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
-
-      const onChangeLike = debounce(async () => {
-        if (!user.value?._id) return alert('로그인 후 이용 가능합니다.')
-
-        if (!isLike.value) await dispatch('post/updateLike', { postId: post.value._id, user: user.value })
-        else await dispatch('post/deleteLike', { postId: post.value._id, user: user.value })
-      }, 200)
-
-      const onUpdatePost = () => {
-        if (post.value._id) {
-          push({ name: 'editor', query: { id: post.value._id } })
-        }
-      }
 
       const onDeletePost = async () => {
         const ok = await Dialog.value.show({
@@ -145,24 +46,12 @@
         if (ok) await dispatch('post/deletePost', post.value._id)
       }
 
-      const onCopyLink = async () => {
-        try {
-          await navigator.clipboard.writeText(window.location.href)
-          alert('클립보드에 복사되었습니다')
-        } catch (err) {
-          alert('링크 복사에 실패하였습니다.')
-        }
-      }
-
-      const onGetAuthorized = (comment) => {
-        if (comment.isPublic) {
-          return true
-        } else if (user.value && post.value.author?.nickname === user.value.nickname) {
-          return true
-        } else if (user.value && comment.commenter.nickname === user.value.nickname) {
-          return true
-        }
-        return false
+      const onDeleteComment = async (commentId) => {
+        const ok = await Dialog.value.show({
+          title: '댓글 삭제',
+          message: '해당 댓글을 삭제하시겠습니까?\n한번 삭제된 댓글은 되돌릴 수 없습니다.',
+        })
+        if (ok) await dispatch('comment/deleteComment', { postId: post.value._id, id: commentId })
       }
 
       onBeforeMount(async () => {
@@ -173,8 +62,8 @@
           push({ name: 'home' })
         }
 
-        if (route.query.quickMove && comments.value.length) {
-          const y = COMMENTS_EL.value.offsetTop - document.querySelector('#header').offsetHeight - 32
+        if (Boolean(props.quickMove)) {
+          const y = document.querySelector('.comments').offsetTop - document.querySelector('#header').offsetHeight - 32
           window.scrollTo({ top: y, behavior: 'smooth' })
         } else {
           window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -183,32 +72,17 @@
         document.title = post.value?.title ?? 'Post'
       })
 
-      onBeforeUpdate(() => {
-        isLike.value = likes.value.some((likeuser) => likeuser._id === user.value._id)
-      })
-
       onUnmounted(() => {
         commit('post/SET_POST')
       })
 
       return {
-        dayjs,
         Dialog,
-        COMMENTS_EL,
-        plugins,
-        isLike,
         user,
         post,
-        likes,
-        likeCount,
         comments,
-        IMAGE_URL,
-        DEFAULT_AVATAR_64,
-        onChangeLike,
-        onUpdatePost,
         onDeletePost,
-        onCopyLink,
-        onGetAuthorized,
+        onDeleteComment,
       }
     },
   })
