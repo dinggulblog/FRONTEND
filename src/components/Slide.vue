@@ -1,23 +1,7 @@
 <template>
   <li class="slide_item">
-    <div class="wrap_category_page-count">
-      <div class="wrap_left">
-        <div class="category">
-          <slot name="category"></slot>
-        </div>
-      </div>
-
-      <div class="wrap_right">
-        <div class="page-count">
-          <slot name="page-count"></slot>
-        </div>
-      </div>
-    </div>
-
     <div class="wrap_thumnail">
-      <div class="thumbnail">
-        <slot name="thumbnail"></slot>
-      </div>
+      <slot name="thumbnail"></slot>
 
       <div class="wrap_hover">
         <div class="wrap_info_is-private_createdAt">

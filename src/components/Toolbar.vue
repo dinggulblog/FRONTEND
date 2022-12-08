@@ -60,6 +60,10 @@
           name: 'card',
           path: 'grid',
         },
+        {
+          name: 'slide',
+          path: 'column',
+        },
       ]
 
       const type = computed(() => state.menu.type)
@@ -86,7 +90,6 @@
           emit('updateType', event.currentTarget.firstChild.classList[0])
           addOnClass(event.currentTarget.firstChild)
         }
-        console.log(event.currentTarget.firstChild.classList[0])
       }
 
       const changeCategory = (event) => {

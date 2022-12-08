@@ -1,17 +1,121 @@
 .slide_item {
   .wrap_thumnail {
-    height: 20.8rem;
     position: relative;
+    z-index: 9;
 
-    .thumbnail > img {
-      height: 20.8rem;
+    &:hover .wrap_hover {
+      visibility: visible;
+      opacity: 1;
+      transition: all 0.2s ease-in;
+    }
+
+    .thumbnail {
+      img {
+        width: 27rem;
+        height: 20.8rem;
+        object-fit: cover;
+        border-radius: 3.2rem 0 3.2rem 0;
+      }
     }
 
     .wrap_hover {
-      display: none;
+      visibility: hidden;
       position: absolute;
+      top: 0;
+      left: 0;
       display: flex;
       flex-direction: column;
+      justify-content: center;
+      padding: 2.4rem;
+      border-radius: 3.2rem 0 3.2rem 0;
+      background-color: rgba(58, 58, 58, 0.25);
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px) brightness(100%);
+      color: #fff;
+      transition: all 0.2s ease-out;
+      cursor: pointer;
+      pointer-events: none;
+
+      .wrap_info_is-private_createdAt {
+        display: flex;
+
+        .wrap_left {
+          width: 50%;
+        }
+
+        .wrap_right {
+          width: 50%;
+          display: flex;
+          justify-content: flex-end;
+
+          .createdAt {
+            font-size: 1.2rem;
+          }
+        }
+      }
+
+      .title {
+        margin: 4rem 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 3.2rem;
+        min-height: 4.8rem;
+
+        a {
+          font-size: 1.6rem;
+          color: #fff;
+          font-family: 'Noto Sans KR';
+          overflow: hidden;
+          white-space: normal;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          white-space: pre-wrap;
+        }
+      }
+
+      .wrap_info_comment_like {
+        display: flex;
+
+        .wrap_left {
+          width: 50%;
+
+          .like_count {
+            display: flex;
+            align-items: center;
+
+            span {
+              font-size: 1.4rem;
+            }
+          }
+        }
+
+        .wrap_right {
+          width: 50%;
+          display: flex;
+          justify-content: flex-end;
+
+          .comment_count a {
+            display: flex;
+            align-items: center;
+            color: #fff;
+            pointer-events: auto;
+
+            span {
+              font-size: 1.4rem;
+            }
+          }
+        }
+
+        .info_ico {
+          margin: 0 0.8rem 0 0;
+        }
+      }
     }
   }
 }

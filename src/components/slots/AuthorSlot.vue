@@ -43,9 +43,11 @@
 
 <script>
   import { reactive, ref, toRefs } from 'vue'
+  import { useMedia } from '../../common/mediaQuery'
+
+  import DEFAULT_AVATAR_192 from '../../assets/default_avatar_192.png'
+  import DEFAULT_AVATAR_64 from '../../assets/default_avatar_64.png'
   import Author from '../Author.vue'
-  import DEFAULT_AVATAR_192 from '../../assets/defalut_avatar_192.png'
-  import DEFAULT_AVATAR_64 from '../../assets/defalut_avatar_64.png'
 
   export default {
     name: 'AuthorSlot',
@@ -64,13 +66,15 @@
     emits: ['updateAvatar', 'updateGreetings', 'resetAvatar'],
     setup(props) {
       const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
+      const isMobile = useMedia('only screen and (max-width: 1023px)')
 
       const { avatar, nickname, greetings } = toRefs(props.user)
 
       return {
-        IMAGE_URL,
         DEFAULT_AVATAR_192,
         DEFAULT_AVATAR_64,
+        IMAGE_URL,
+        isMobile,
         avatar,
         nickname,
         greetings,
@@ -94,6 +98,14 @@
         border-radius: 50%;
         object-fit: cover;
       }
+    }
+
+    .nickname {
+      display: block;
+    }
+
+    .time {
+      display: block;
     }
   }
 </style>

@@ -1,8 +1,11 @@
 <template>
-  <div class="posts">
     <Toolbar :type="type" :categories="categories" @updateType="onUpdateType" @updateCategory="onUpdateCategory" />
-    <Posts :type="type" :user="user"></Posts>
-  </div>
+    <Posts v-if="type !== 'slide'" :type="type" :user="user"></Posts>
+    <ul v-else-if="type === 'slide'">
+      <li v-for="category in categories" :key="category">
+        <Posts :type="type" :user="user" :category="category"></Posts>
+      </li>
+    </ul>
 </template>
 
 <script>
@@ -27,7 +30,10 @@
       const { page, limit } = mapState('post')
       const { type, category, categories, currentMenus } = mapState('menu')
 
-      const onUpdateType = (type) => commit('menu/SET_TYPE', type)
+      const onUpdateType = (type) => {
+        commit('menu/SET_TYPE', type)
+      }
+
       const onUpdateCategory = (ctg) => {
         commit('menu/SET_CATEGORY', ctg)
         getPosts()

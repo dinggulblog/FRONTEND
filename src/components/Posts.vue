@@ -1,4 +1,8 @@
 <template>
+  <div v-if="type === 'slide'">
+    <p>현재 페이지는 ? {{ nowPage }}</p>
+    <p>전체 페이지는 ? {{ totalPage }}</p>
+  </div>
   <div class="posts">
     <div v-if="posts?.length">
       <ul :id="type">
@@ -12,14 +16,35 @@
       <span>There is no posts.</span>
     </div>
 
-    <Pagenation :page="page" :maxPage="maxPage" @updatePage="onUpdatePage" />
+    <div v-if="type === 'slide'" class="wrap_btn_slidePage">
+      <Button
+        v-if="nowPage !== 1"
+        :class="'btn_prev'"
+        :size="'md'"
+        :svg="'arrow-left'"
+        :customColor="nowPage === 1 ? 'red' : '#fff'"
+        :customPadding="'0'"
+        @click="prevSlide"
+      />
+      <Button
+        v-if="posts?.length > nowItem + targetItem"
+        :class="'btn_next'"
+        :size="'md'"
+        :svg="'arrow-right'"
+        :customColor="posts?.length < nowItem + targetItem ? 'red' : '#fff'"
+        :customPadding="'0'"
+        @click="nextSlide"
+      />
+    </div>
+
+    <Pagenation v-if="type !== 'slide'" :page="page" :maxPage="maxPage" @updatePage="onUpdatePage" />
   </div>
 </template>
 
 <script>
-  import { computed, toRefs } from 'vue'
+  import { computed, toRefs, ref, onMounted } from 'vue'
   import { useStore } from 'vuex'
-  import PostSlot from './slots/PostsSlot.vue'
+  import PostSlot from './slots/PostSlot.vue'
   import Pagenation from '../components/Pagenation.vue'
 
   export default {
@@ -37,6 +62,9 @@
         type: Object,
         default: () => ({}),
       },
+      category: {
+        type: String,
+      },
     },
     setup(props) {
       const { state, commit } = useStore()
@@ -49,12 +77,87 @@
 
       const onUpdatePage = (page) => commit('post/SET_PAGE', page)
 
-      return { userId, posts, page, maxPage, onUpdatePage }
+      const nowPage = ref(1)
+      const totalPage = ref()
+
+      let nowItem = ref(1)
+      let targetItem = ref(4)
+
+      const nextSlide = (event) => {
+        const container = event.currentTarget.parentNode.previousSibling.querySelector('#slide')
+        const moveItem = event.currentTarget.parentNode.previousSibling.querySelector(
+          `#slide :nth-child(${nowItem.value + targetItem.value})`
+        )
+        const x = moveItem.getBoundingClientRect().left
+        container.scrollTo({ left: x, behavior: 'smooth' })
+        nowItem.value = nowItem.value + targetItem.value
+        nowPage.value = nowPage.value + 1
+      }
+
+      const prevSlide = (event) => {
+        const container = event.currentTarget.parentNode.previousSibling.querySelector('#slide')
+        const moveItem = event.currentTarget.parentNode.previousSibling.querySelector(
+          `#slide :nth-child(${nowItem.value - targetItem.value})`
+        )
+        const x = moveItem.getBoundingClientRect().left
+        container.scrollTo({ left: x, behavior: 'smooth' })
+        nowItem.value = nowItem.value - targetItem.value
+        nowPage.value = nowPage.value - 1
+      }
+
+      return {
+        userId,
+        posts,
+        page,
+        maxPage,
+        nowPage,
+        totalPage,
+        nowItem,
+        targetItem,
+        onUpdatePage,
+        nextSlide,
+        prevSlide,
+      }
     },
   }
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
+  .posts {
+    position: relative;
+
+    .wrap_btn_slidePage {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+
+      .btn_prev,
+      .btn_next {
+        border-radius: 50%;
+        background-color: rgba(174, 196, 212);
+        width: 3.2rem;
+        height: 3.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 10;
+      }
+
+      .btn_prev {
+        left: -1.6rem;
+      }
+
+      .btn_next {
+        margin-left: auto;
+        left: 1.6rem;
+      }
+    }
+  }
+
   #list {
     display: flex;
     flex-direction: column;
@@ -81,6 +184,31 @@
       & .card_item:nth-child(2n + 0) {
         margin-right: 0;
       }
+    }
+  }
+
+  #slide {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    margin: 0 0 2.4rem;
+    -ms-overflow-style: none;
+    overflow: -moz-scrollbars-none;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    & > li {
+      margin: 0 2.4rem 0 0;
+    }
+
+    & > li:last-child {
+      margin: 0;
     }
   }
 </style>

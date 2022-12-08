@@ -70,7 +70,7 @@
           <div class="wrap_thumbnail">
             <!-- <img :src="`${fileState.fileUrl}${image.serverFileName}`" /> -->
             <img
-              src="https://news.nateimg.co.kr/orgImg/cc/2021/07/23/4159_10727_3352.png"
+              :src="`${IMAGE_URL}${file.serverFileName}`"
               :class="fileState.fileIndex === index ? 'selected_thumbnail' : ''"
               @click="onSelectImage(file, index)"
             />
@@ -158,6 +158,7 @@
       let canLeavePage = true
       const Dialog = ref(null)
       const plugins = ref([{ plugin: MarkdownEmoji }])
+      const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
 
       const menuState = reactive({
         isLoading: computed(() => state.loading.isLoading),
@@ -236,7 +237,8 @@
         if (response.success && response.images) {
           fileState.files = fileState.files.concat(response.images)
         }
-        // onSelectImage(fileState.files[0], 0)
+
+        onSelectImage(fileState.files[0], 0)
       }
 
       const onDeleteImage = async (file) => {
@@ -362,6 +364,7 @@
       return {
         Dialog,
         plugins,
+        IMAGE_URL,
         menuState,
         postState,
         fileState,

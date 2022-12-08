@@ -55,6 +55,7 @@
       position: relative;
       top: 0.1rem;
       margin: 0 2.4rem 0 0;
+      width: 10%;
 
       span {
         font-size: 1.4rem;
@@ -80,9 +81,18 @@
     .title {
       display: flex;
       align-items: center;
+      width: 90%;
 
       a {
         color: var(--list_title);
+        overflow: hidden;
+        white-space: normal;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        white-space: pre-wrap;
+        width: 95%;
       }
 
       .info_ico {

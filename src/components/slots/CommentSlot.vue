@@ -219,7 +219,7 @@
   }
 </script>
 
-<style lang="scss" rel="stylesheet/scss">
+<style lang="scss" rel="stylesheet/scss" scoped>
   .comment_items > li > ul {
     margin: -2.4rem 0 0 4.8rem;
   }

@@ -14,7 +14,9 @@
     </template>
 
     <template #dropbox_items>
-      <li v-for="(value, key) in dropboxItems" :key="key" @click="value">{{ key }}</li>
+      <li v-for="(value, key) in dropboxItems" :key="key">
+        <span @click="value">{{ key }}</span>
+      </li>
     </template>
   </Dropbox>
 </template>
@@ -22,7 +24,7 @@
 <script>
   import { ref } from 'vue'
   import Dropbox from '../Dropbox.vue'
-  
+
   export default {
     name: 'DropboxSlot',
     components: {
@@ -43,7 +45,7 @@
 
       return {
         DROPBOX_EL,
-        onToggle
+        onToggle,
       }
     },
   }
@@ -52,6 +54,7 @@
 <style lang="scss" rel="stylesheet/scss">
   .dropbox {
     position: relative;
+
     .btn_dropbox {
       i {
         font-size: 2.4rem;
@@ -80,7 +83,11 @@
           margin: 1.2rem 0;
           font-size: 1.2rem;
           color: var(--input_text);
-          cursor: pointer;
+
+          span {
+            cursor: pointer;
+          }
+
         }
       }
     }

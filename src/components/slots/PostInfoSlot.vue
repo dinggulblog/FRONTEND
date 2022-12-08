@@ -16,7 +16,6 @@
 
 <script>
   import Info from '../Info.vue'
-  import AuthorSlot from './AuthorSlot.vue'
   import dayjs from 'dayjs'
 
   export default {
