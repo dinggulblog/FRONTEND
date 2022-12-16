@@ -1,34 +1,21 @@
 <template>
-  <Dropbox ref="DROPBOX_EL">
-    <template #dropbox_btn>
-      <Button
-        class="btn_dropbox"
-        tabindex="-1"
-        :size="'sm'"
-        :svg="'more'"
-        :customColor="`var(--list_info)`"
-        :customPadding="'0'"
-        @onClick="onToggle"
-      >
-      </Button>
-    </template>
-
-    <template #dropbox_items>
-      <li v-for="(value, key) in dropboxItems" :key="key">
-        <span @click="value">{{ key }}</span>
-      </li>
-    </template>
-  </Dropbox>
+  <component :is="isMobile ? 'ModalBottom' : 'Dropbox'" ref="DROPBOX_EL">
+    <li v-for="(value, key) in dropboxItems" :key="key">
+      <span @click="value">{{ key }}</span>
+    </li>
+  </component>
 </template>
 
 <script>
   import { ref } from 'vue'
   import Dropbox from '../Dropbox.vue'
+  import ModalBottom from '../global/ModalBottom.vue'
 
   export default {
     name: 'DropboxSlot',
     components: {
       Dropbox,
+      ModalBottom,
     },
     props: {
       dropboxItems: {
@@ -36,14 +23,32 @@
         required: true,
       },
     },
-    setup(props) {
+    setup() {
+      const mediaQuery = window.matchMedia('only screen and (max-width: 767px')
+      const isMobile = ref(mediaQuery.matches)
+
       const DROPBOX_EL = ref(null)
 
       const onToggle = () => {
-        DROPBOX_EL.value.toggle()
+        if (!isMobile.value) DROPBOX_EL.value.toggle()
+        else {
+          DROPBOX_EL.value.open()
+        }
+      }
+
+      window.onclick = (event) => {
+        if (
+          !event.target.matches('.window') &&
+          !event.target.matches('.window > ul') &&
+          !event.target.matches('.window > ul > li')
+        ) {
+          DROPBOX_EL.value.close()
+          console.log(DROPBOX_EL.value.isVisible)
+        }
       }
 
       return {
+        isMobile,
         DROPBOX_EL,
         onToggle,
       }
@@ -87,7 +92,6 @@
           span {
             cursor: pointer;
           }
-
         }
       }
     }

@@ -25,7 +25,18 @@
           </div>
         </div>
         <div class="wrap_right">
+          <Button
+            class="btn_dropbox"
+            tabindex="-1"
+            :size="'sm'"
+            :svg="'more'"
+            :customColor="`var(--list_info)`"
+            :customPadding="'0'"
+            @click="toggle"
+          />
+
           <DropboxSlot
+            ref="DROPBOX_SLOT_EL"
             :dropboxItems="{
               '댓글 수정': onUpdateEditor,
               '댓글 삭제': onDeleteComment,
@@ -140,11 +151,16 @@
       const Dialog = ref(null)
       const isUpdate = ref(false)
       const MyParentComment = ref(null)
+      const DROPBOX_SLOT_EL = ref(null)
 
       const isVisible = reactive({
         commentEditor: false,
         childComments: false,
       })
+
+      const toggle = () => {
+        DROPBOX_SLOT_EL.value.onToggle()
+      }
 
       const onCreateEditor = () => {
         isUpdate.value = false
@@ -206,7 +222,8 @@
         Dialog,
         isVisible,
         isUpdate,
-        MyParentComment,
+        DROPBOX_SLOT_EL,
+        toggle,
         onCreateEditor,
         onUpdateEditor,
         onCloseEditor,

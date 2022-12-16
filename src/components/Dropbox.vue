@@ -1,9 +1,8 @@
 <template>
   <div class="dropbox">
-    <slot name="dropbox_btn"></slot>
     <div class="wrap_dropbox_items" ref="DROPBOX_ITEMS_EL">
       <ul>
-        <slot name="dropbox_items"></slot>
+        <slot></slot>
       </ul>
     </div>
   </div>

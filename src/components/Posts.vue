@@ -1,5 +1,6 @@
 <template>
-  <div v-if="type === 'slide'">
+  <div v-if="type === 'slide' && category">
+    <p>카테고리 : {{ category }}</p>
     <p>현재 페이지는 ? {{ nowPage }}</p>
     <p>전체 페이지는 ? {{ totalPage }}</p>
   </div>
@@ -104,6 +105,10 @@
         nowItem.value = nowItem.value - targetItem.value
         nowPage.value = nowPage.value - 1
       }
+
+      onMounted(() => {
+        console.log(posts.value)
+      })
 
       return {
         userId,

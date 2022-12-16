@@ -60,7 +60,7 @@
           push({ name: 'home' })
         }
 
-        if (Boolean(props.quickMove)) {
+        if (Boolean(props.quickMove && comments.value)) {
           const y = document.querySelector('.comments').offsetTop - document.querySelector('#header').offsetHeight - 32
           window.scrollTo({ top: y, behavior: 'smooth' })
         } else {
