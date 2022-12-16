@@ -7,7 +7,7 @@
 </template>
 
 <script>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, onUnmounted } from 'vue'
   import Dropbox from '../Dropbox.vue'
   import BottomSheet from '../global/BottomSheet.vue'
   import { useMedia } from '../../common/mediaQuery'
@@ -48,6 +48,10 @@
 
       onMounted(() => {
         document.body.addEventListener('click', onClose)
+      })
+
+      onUnmounted(() => {
+        document.body.removeEventListener('click', onClose)
       })
 
       return {

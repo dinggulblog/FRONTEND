@@ -2,8 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { getItem } from '../common/sessionStorage'
 import store from '../store/index'
 import Home from '../views/Home.vue'
-import Login from '../views/auth/Login.vue'
-import Account from '../views/auth/Account.vue'
 import Profile from '../views/auth/Profile.vue'
 import Posts from '../views/post/Posts.vue'
 import Post from '../views/post/Post.vue'
@@ -13,10 +11,15 @@ import NotFound from '../views/NotFound.vue'
 const routes = [
   { path: '/', redirect: 'home' },
   { path: '/home', name: 'home', component: Home, meta: { title: 'Home' } },
-  { path: '/auth/login', name: 'login', component: Login, meta: { title: 'Login' } },
-  { path: '/auth/sign-up', name: 'signUp', component: Account, meta: { title: 'Sign-up', requiredAuth: false } },
-  { path: '/auth/account', name: 'account', component: Account, meta: { title: 'Account', requiredAuth: true } },
-  { path: '/auth/profile/:nickname', name: 'profile', component: Profile, meta: { title: 'Profile', requiredAuth: false } },
+  //{ path: '/auth/login', name: 'login', component: Login, meta: { title: 'Login' } },
+  //{ path: '/auth/sign-up', name: 'signUp', component: Account, meta: { title: 'Sign-up', requiredAuth: false } },
+  //{ path: '/auth/account', name: 'account', component: Account, meta: { title: 'Account', requiredAuth: true } },
+  {
+    path: '/auth/profile/:nickname',
+    name: 'profile',
+    component: Profile,
+    meta: { title: 'Profile', requiredAuth: false },
+  },
   { path: '/posts/:main/:sub?', name: 'posts', component: Posts, meta: { title: 'Posts' } },
   { path: '/posts', name: 'post', component: Post, props: true, meta: { title: 'Post' } },
   { path: '/editor', name: 'editor', component: Editor, meta: { title: 'Editor', requiredAuth: true } },
@@ -42,7 +45,7 @@ router.beforeEach(async (to, from, next) => {
   if ((to.name === 'login' || to.path === '/auth/sign-up') && store.state.auth.user._id) {
     next({ name: 'home' })
   } else if (to.meta.requiredAuth && !store.state.auth.user.nickname) {
-    next({ name: 'login' })
+    next({ name: 'home' })
   } else {
     next()
   }

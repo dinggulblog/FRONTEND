@@ -36,7 +36,7 @@
           />
 
           <ActionSlot
-            ref="DROPBOX_SLOT_EL"
+            ref="ACTION_SLOT_EL"
             :dropboxItems="{
               '댓글 수정': onUpdateEditor,
               '댓글 삭제': onDeleteComment,
@@ -151,7 +151,7 @@
       const Dialog = ref(null)
       const isUpdate = ref(false)
       const MyParentComment = ref(null)
-      const DROPBOX_SLOT_EL = ref(null)
+      const ACTION_SLOT_EL = ref(null)
 
       const isVisible = reactive({
         commentEditor: false,
@@ -159,7 +159,7 @@
       })
 
       const onAction = () => {
-        DROPBOX_SLOT_EL.value.onToggle()
+        ACTION_SLOT_EL.value.onToggle()
       }
 
       const onCreateEditor = () => {
@@ -222,7 +222,7 @@
         Dialog,
         isVisible,
         isUpdate,
-        DROPBOX_SLOT_EL,
+        ACTION_SLOT_EL,
         onAction,
         onCreateEditor,
         onUpdateEditor,

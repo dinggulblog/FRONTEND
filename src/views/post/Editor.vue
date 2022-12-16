@@ -263,7 +263,7 @@
         let start = textarea.value.substring(0, textarea.selectionStart)
         let end = textarea.value.substring(textarea.selectionEnd, textarea.value.length)
 
-        const innerText = `!` + `[` + `${fileState.fileName}` + `]` + `(` + `${fileState.fileUrl}` + `)\n`
+        const innerText = `!` + `[` + `]` + `(` + `${fileState.fileUrl}` + `)\n`
         postState.content = start + innerText + end
         textarea.focus()
       }

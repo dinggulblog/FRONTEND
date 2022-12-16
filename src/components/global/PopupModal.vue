@@ -51,8 +51,8 @@
     flex-direction: column;
     justify-content: center;
     margin: 0 auto;
-    width: 40rem;
-    height: 24rem;
+    min-width: 30.4rem;
+    max-width: 37rem;
     font-weight: 400;
     letter-spacing: 0.05rem;
     box-shadow: 0 0 2.4rem 0.3rem rgba(0, 0, 0, 0.05);

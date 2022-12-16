@@ -61,7 +61,7 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   .massage {
-    padding: 0 4.8rem;
+    padding: 0 2.4rem;
 
     h2 {
       font-weight: 500;

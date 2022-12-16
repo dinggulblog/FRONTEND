@@ -23,7 +23,8 @@
         :class="'btn_prev'"
         :size="'md'"
         :svg="'arrow-left'"
-        :customColor="nowPage === 1 ? 'red' : '#fff'"
+        :bgColor="'primary'"
+        :customColor="'#fff'"
         :customPadding="'0'"
         @click="prevSlide"
       />
@@ -32,7 +33,8 @@
         :class="'btn_next'"
         :size="'md'"
         :svg="'arrow-right'"
-        :customColor="posts?.length < nowItem + targetItem ? 'red' : '#fff'"
+        :bgColor="'primary'"
+        :customColor="'#fff'"
         :customPadding="'0'"
         @click="nextSlide"
       />
@@ -43,8 +45,9 @@
 </template>
 
 <script>
-  import { computed, toRefs, ref, onMounted } from 'vue'
+  import { computed, toRefs, ref, onBeforeMount } from 'vue'
   import { useStore } from 'vuex'
+  import { useMedia } from '../common/mediaQuery'
   import PostSlot from './slots/PostSlot.vue'
   import Pagenation from '../components/Pagenation.vue'
 
@@ -69,7 +72,6 @@
     },
     setup(props) {
       const { state, commit } = useStore()
-
       const { _id: userId } = toRefs(props.user)
 
       const posts = computed(() => state.post.posts)
@@ -106,10 +108,6 @@
         nowPage.value = nowPage.value - 1
       }
 
-      onMounted(() => {
-        console.log(posts.value)
-      })
-
       return {
         userId,
         posts,
@@ -142,7 +140,6 @@
       .btn_prev,
       .btn_next {
         border-radius: 50%;
-        background-color: rgba(174, 196, 212);
         width: 3.2rem;
         height: 3.2rem;
         display: flex;
