@@ -25,7 +25,11 @@
         isVisible.value = false
       }
 
-      return { isVisible, open, close }
+      const toggle = () => {
+        isVisible.value ? close() : open()
+      }
+
+      return { isVisible, open, close, toggle }
     },
   }
 </script>
@@ -69,6 +73,7 @@
         span {
           font-size: 1.6rem;
           color: #aaa;
+          cursor: pointer;
         }
       }
     }

@@ -16,7 +16,20 @@
         </div>
       </div>
       <div class="wrap_right">
-        <DropboxSlot :dropboxItems="{ '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }" />
+        <Button
+          class="btn_dropbox"
+          tabindex="-1"
+          :size="'sm'"
+          :svg="'more'"
+          :customColor="`var(--list_info)`"
+          :customPadding="'0'"
+          @click="onAction"
+        />
+
+        <ActionSlot
+          ref="DROPBOX_SLOT_EL"
+          :dropboxItems="{ '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }"
+        />
       </div>
     </div>
 
@@ -59,7 +72,7 @@
   import Markdown from 'vue3-markdown-it'
   import MarkdownEmoji from 'markdown-it-emoji'
   import PostInfoSlot from './slots/PostInfoSlot.vue'
-  import DropboxSlot from './slots/DropboxSlot.vue'
+  import ActionSlot from './slots/ActionSlot.vue'
   import DEFAULT_AVATAR_64 from '../assets/default_avatar_64.png'
 
   export default defineComponent({
@@ -68,7 +81,7 @@
       Markdown,
       PostInfoSlot,
       AuthorSlot,
-      DropboxSlot,
+      ActionSlot,
     },
     props: {
       post: {
@@ -89,6 +102,12 @@
       const likes = computed(() => state.post.likes)
       const likeCount = computed(() => state.post.likeCount)
       const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
+
+      const DROPBOX_SLOT_EL = ref(null)
+
+      const onAction = () => {
+        DROPBOX_SLOT_EL.value.onToggle()
+      }
 
       const onChangeLike = debounce(async () => {
         if (!props.user?._id) return alert('로그인 후 이용 가능합니다.')
@@ -127,7 +146,9 @@
         likes,
         likeCount,
         IMAGE_URL,
+        DROPBOX_SLOT_EL,
         DEFAULT_AVATAR_64,
+        onAction,
         onChangeLike,
         onUpdatePost,
         onDeletePost,

@@ -69,6 +69,7 @@
 <script>
   import { ref, computed, onBeforeMount, onMounted } from 'vue'
   import { useStore } from 'vuex'
+  import { useMedia } from '../../common/mediaQuery'
   import Navigation from './Navigation.vue'
   import SearchForm from '../SearchForm.vue'
   import AuthorSlot from '../slots/AuthorSlot.vue'

@@ -32,10 +32,10 @@
             :svg="'more'"
             :customColor="`var(--list_info)`"
             :customPadding="'0'"
-            @click="toggle"
+            @click="onAction"
           />
 
-          <DropboxSlot
+          <ActionSlot
             ref="DROPBOX_SLOT_EL"
             :dropboxItems="{
               '댓글 수정': onUpdateEditor,
@@ -116,7 +116,7 @@
 <script>
   import { onBeforeMount, ref, computed, reactive } from 'vue'
   import { useStore } from 'vuex'
-  import DropboxSlot from './DropboxSlot.vue'
+  import ActionSlot from './ActionSlot.vue'
   import CommentInfoSlot from './CommentInfoSlot.vue'
   import CommentEditor from '../CommentEditor.vue'
   import Dialog from '../../components/Dialog.vue'
@@ -128,7 +128,7 @@
       CommentInfoSlot,
       CommentEditor,
       Dialog,
-      DropboxSlot,
+      ActionSlot,
     },
     props: {
       comment: {
@@ -158,7 +158,7 @@
         childComments: false,
       })
 
-      const toggle = () => {
+      const onAction = () => {
         DROPBOX_SLOT_EL.value.onToggle()
       }
 
@@ -223,7 +223,7 @@
         isVisible,
         isUpdate,
         DROPBOX_SLOT_EL,
-        toggle,
+        onAction,
         onCreateEditor,
         onUpdateEditor,
         onCloseEditor,

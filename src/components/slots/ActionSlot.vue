@@ -7,9 +7,10 @@
 </template>
 
 <script>
-  import { ref } from 'vue'
+  import { ref, onMounted } from 'vue'
   import Dropbox from '../Dropbox.vue'
   import ModalBottom from '../global/ModalBottom.vue'
+  import { useMedia } from '../../common/mediaQuery'
 
   export default {
     name: 'DropboxSlot',
@@ -24,28 +25,29 @@
       },
     },
     setup() {
-      const mediaQuery = window.matchMedia('only screen and (max-width: 767px')
-      const isMobile = ref(mediaQuery.matches)
-
+      const isMobile = useMedia('only screen and (max-width: 1023px)')
       const DROPBOX_EL = ref(null)
 
       const onToggle = () => {
-        if (!isMobile.value) DROPBOX_EL.value.toggle()
-        else {
-          DROPBOX_EL.value.open()
-        }
+        DROPBOX_EL.value.toggle()
       }
 
-      window.onclick = (event) => {
+      const onClose = (event) => {
         if (
+          DROPBOX_EL.value.isVisible &&
+          !event.target.matches('.btn_dropbox > svg') &&
+          !event.target.matches('.btn_dropbox > svg > path') &&
           !event.target.matches('.window') &&
           !event.target.matches('.window > ul') &&
           !event.target.matches('.window > ul > li')
         ) {
           DROPBOX_EL.value.close()
-          console.log(DROPBOX_EL.value.isVisible)
         }
       }
+
+      onMounted(() => {
+        document.body.addEventListener('click', onClose)
+      })
 
       return {
         isMobile,
