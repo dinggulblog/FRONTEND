@@ -1,5 +1,5 @@
 <template>
-  <component :is="isMobile ? 'ModalBottom' : 'Dropbox'" ref="DROPBOX_EL">
+  <component :is="isMobile ? 'BottomSheet' : 'Dropbox'" ref="DROPBOX_EL">
     <li v-for="(value, key) in dropboxItems" :key="key">
       <span @click="value">{{ key }}</span>
     </li>
@@ -9,14 +9,14 @@
 <script>
   import { ref, onMounted } from 'vue'
   import Dropbox from '../Dropbox.vue'
-  import ModalBottom from '../global/ModalBottom.vue'
+  import BottomSheet from '../global/BottomSheet.vue'
   import { useMedia } from '../../common/mediaQuery'
 
   export default {
     name: 'DropboxSlot',
     components: {
       Dropbox,
-      ModalBottom,
+      BottomSheet,
     },
     props: {
       dropboxItems: {
@@ -34,6 +34,7 @@
 
       const onClose = (event) => {
         if (
+          isMobile &&
           DROPBOX_EL.value.isVisible &&
           !event.target.matches('.btn_dropbox > svg') &&
           !event.target.matches('.btn_dropbox > svg > path') &&
