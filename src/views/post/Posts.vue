@@ -1,19 +1,19 @@
 <template>
     <Toolbar :type="type" :categories="categories" @updateType="onUpdateType" @updateCategory="onUpdateCategory" />
-    <Posts v-if="type !== 'slide'" :type="type" :user="user"></Posts>
+    <Posts v-if="type !== 'slide'" :type="type"></Posts>
     <ul v-else-if="type === 'slide'">
       <li v-for="category in categories" :key="category">
-        <Posts :type="type" :user="user" :category="category"></Posts>
+        <Posts :type="type" :category="category"></Posts>
       </li>
     </ul>
 </template>
 
 <script>
-  import { computed, onBeforeMount, watch } from 'vue'
+  import { onBeforeMount, watch } from 'vue'
   import { useRoute } from 'vue-router'
   import { useStore } from 'vuex'
   import { mapState } from '../../common/vuex-helper.js'
-  import Posts from '../../components/Posts.vue'
+  import Posts from '../../components/posts/Posts.vue'
   import Toolbar from '../../components/Toolbar.vue'
 
   export default {
@@ -24,9 +24,8 @@
     },
     setup(props) {
       const route = useRoute()
-      const { state, dispatch, commit } = useStore()
+      const { dispatch, commit } = useStore()
 
-      const user = computed(() => state.auth.user)
       const { page, limit } = mapState('post')
       const { type, category, categories, currentMenus } = mapState('menu')
 
@@ -65,7 +64,7 @@
         commit('menu/SET_CURRENT_MENUS', { main: route.params.main, sub: route.params.sub })
       })
 
-      return { user, type, categories, onUpdateType, onUpdateCategory }
+      return { type, categories, onUpdateType, onUpdateCategory }
     },
   }
 </script>

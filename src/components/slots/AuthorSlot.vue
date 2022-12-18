@@ -4,7 +4,7 @@
       <img
         class="avatar"
         :src="avatar ? `${IMAGE_URL}${avatar.serverFileName}` : DEFAULT_AVATAR_192"
-        alt="user_avatar"
+        alt="profile_avatar"
       />
     </template>
 
@@ -43,19 +43,17 @@
 
 <script>
   import { reactive, ref, toRefs } from 'vue'
-  import { useMedia } from '../../common/mediaQuery'
-
+  import Author from '../posts/Author.vue'
   import DEFAULT_AVATAR_192 from '../../assets/default_avatar_192.png'
   import DEFAULT_AVATAR_64 from '../../assets/default_avatar_64.png'
-  import Author from '../Author.vue'
-
+  
   export default {
     name: 'AuthorSlot',
     components: {
       Author,
     },
     props: {
-      user: {
+      profile: {
         type: Object,
         default: () => reactive({}),
       },
@@ -66,15 +64,13 @@
     emits: ['updateAvatar', 'updateGreetings', 'resetAvatar'],
     setup(props) {
       const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
-      const isMobile = useMedia('only screen and (max-width: 1023px)')
 
-      const { avatar, nickname, greetings } = toRefs(props.user)
+      const { avatar, nickname, greetings } = toRefs(props.profile)
 
       return {
         DEFAULT_AVATAR_192,
         DEFAULT_AVATAR_64,
         IMAGE_URL,
-        isMobile,
         avatar,
         nickname,
         greetings,

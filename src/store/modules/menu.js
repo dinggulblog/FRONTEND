@@ -1,12 +1,13 @@
+import { setItem, getItem } from '../../common/sessionStorage.js'
 import axios from '../../services/axios.js'
 
 const state = () => ({
   type: 'list',
   category: '전체',
   categories: [],
-  menus: [],
+  menus: getItem('menus'),
+  groupMenus: getItem('groupMenus', {}),
   currentMenus: [],
-  groupedMenus: {},
 })
 
 const getters = {}
@@ -38,22 +39,24 @@ const mutations = {
 
   SET_MENUS(state, menus = []) {
     state.menus = menus
+    setItem('menus', state.menus)
   },
 
   SET_GROUP_MENUS(state, menus = []) {
-    state.groupedMenus = menus.reduce((acc, menu) => {
+    state.groupMenus = menus.reduce((acc, menu) => {
       const { main } = menu
       if (!acc[main]) acc[main] = []
       acc[main].push(menu)
       return acc
     }, {})
+    setItem('groupMenus', state.groupMenus)
   },
 
   SET_CURRENT_MENUS(state, { main, sub }) {
     if (!sub && main) {
-      state.currentMenus = state.groupedMenus[main]
+      state.currentMenus = state.groupMenus[main]
     } else if (sub && main) {
-      state.currentMenus = state.groupedMenus[main]?.filter((subMenus) => subMenus.sub === sub)
+      state.currentMenus = state.groupMenus[main]?.filter((subMenus) => subMenus.sub === sub)
     } else {
       state.currentMenus = state.menus
     }

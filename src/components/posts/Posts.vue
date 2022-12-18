@@ -8,7 +8,7 @@
     <div v-if="posts?.length">
       <ul :id="type">
         <template v-for="post in posts" :key="post._id">
-          <PostSlot :type="type" :post="post" :isLike="post.likes?.includes(userId)"></PostSlot>
+          <PostSlot :type="type" :post="post"></PostSlot>
         </template>
       </ul>
     </div>
@@ -45,14 +45,12 @@
 </template>
 
 <script>
-  import { computed, toRefs, ref, onBeforeMount } from 'vue'
+  import { computed, ref } from 'vue'
   import { useStore } from 'vuex'
-  import { useMedia } from '../common/mediaQuery'
-  import PostSlot from './slots/PostSlot.vue'
-  import Pagenation from '../components/Pagenation.vue'
+  import PostSlot from '../slots/PostSlot.vue'
+  import Pagenation from '../Pagenation.vue'
 
   export default {
-    name: 'posts',
     components: {
       PostSlot,
       Pagenation,
@@ -62,17 +60,12 @@
         type: String,
         default: 'List',
       },
-      user: {
-        type: Object,
-        default: () => ({}),
-      },
       category: {
         type: String,
       },
     },
-    setup(props) {
+    setup() {
       const { state, commit } = useStore()
-      const { _id: userId } = toRefs(props.user)
 
       const posts = computed(() => state.post.posts)
       const page = computed(() => state.post.page)
@@ -109,7 +102,6 @@
       }
 
       return {
-        userId,
         posts,
         page,
         maxPage,

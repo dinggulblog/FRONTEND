@@ -47,14 +47,14 @@
     <div class="wrap_like">
       <div class="liked_count">
         <span class="like_ico" @click="onChangeLike">
-          <Ico :size="'lg'" :svg="'like-fill'" :customColor="!isLike ? '#ddd' : 'var(--likeActive)'" />
+          <Ico :size="'lg'" :svg="'like-fill'" :customColor="!liked ? '#ddd' : 'var(--likeActive)'" />
         </span>
         <span>{{ likeCount }}</span>
       </div>
     </div>
 
     <div class="wrap_author">
-      <AuthorSlot :user="post.author" />
+      <AuthorSlot :profile="post.author" />
       <router-link :to="{ name: 'profile', params: { nickname: post.author.nickname } }" class="a_link">
         프로필 보러가기
       </router-link>
@@ -66,42 +66,42 @@
   import { defineComponent, ref, computed, onBeforeUpdate } from 'vue'
   import { useRouter } from 'vue-router'
   import { useStore } from 'vuex'
-  import { debounce } from '../common/util'
+  import { debounce } from '../../common/util.js'
   import dayjs from 'dayjs'
-  import AuthorSlot from './slots/AuthorSlot.vue'
   import Markdown from 'vue3-markdown-it'
   import MarkdownEmoji from 'markdown-it-emoji'
-  import PostInfoSlot from './slots/PostInfoSlot.vue'
-  import ActionSlot from './slots/ActionSlot.vue'
-  import DEFAULT_AVATAR_64 from '../assets/default_avatar_64.png'
+  import ActionSlot from '../slots/ActionSlot.vue'
+  import AuthorSlot from '../slots/AuthorSlot.vue'
+  import PostInfoSlot from '../slots/PostInfoSlot.vue'
+  import DEFAULT_AVATAR_64 from '../../assets/default_avatar_64.png'
 
   export default defineComponent({
-    name: 'post',
     components: {
       Markdown,
-      PostInfoSlot,
-      AuthorSlot,
       ActionSlot,
+      AuthorSlot,
+      PostInfoSlot,
     },
     props: {
       post: {
         type: Object,
+        default: () => ({})
       },
-      user: {
+      profile: {
         type: Object,
+        default: () => ({})
       },
     },
     setup(props, { emit }) {
       const { push } = useRouter()
       const { state, dispatch } = useStore()
 
+      const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
       const plugins = ref([{ plugin: MarkdownEmoji }])
 
-      const isLike = ref(false)
-
+      const liked = ref(false)
       const likes = computed(() => state.post.likes)
       const likeCount = computed(() => state.post.likeCount)
-      const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
 
       const DROPBOX_SLOT_EL = ref(null)
 
@@ -110,20 +110,18 @@
       }
 
       const onChangeLike = debounce(async () => {
-        if (!props.user?._id) return alert('로그인 후 이용 가능합니다.')
+        if (!props.profile._id) return alert('로그인 후 이용 가능합니다.')
 
-        if (!isLike.value) await dispatch('post/updateLike', { postId: props.post._id, user: props.user })
-        else await dispatch('post/deleteLike', { postId: props.post._id, user: props.user })
+        if (!liked.value) await dispatch('post/updateLike', { postId: props.post._id, userId: props.profile._id })
+        else await dispatch('post/deleteLike', { postId: props.post._id, userId: props.profile._id })
       }, 200)
 
       const onUpdatePost = () => {
-        if (props.post._id) {
-          push({ name: 'editor', query: { id: props.post._id } })
-        }
+        if (props.post._id) push({ name: 'editor', query: { id: props.post._id } })
       }
 
       const onDeletePost = () => {
-        emit('onDeletePost')
+        if (props.post._id) emit('onDeletePost')
       }
 
       const onCopyLink = async () => {
@@ -136,13 +134,13 @@
       }
 
       onBeforeUpdate(() => {
-        isLike.value = likes.value.some((likeuser) => likeuser._id === props.user._id)
+        liked.value = likes.value.some((likedUserId) => likedUserId === props.profile._id)
       })
 
       return {
         dayjs,
         plugins,
-        isLike,
+        liked,
         likes,
         likeCount,
         IMAGE_URL,

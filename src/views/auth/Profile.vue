@@ -3,14 +3,14 @@
     <form v-on:submit.prevent="submitForm">
       <div class="wrap_author">
         <AuthorSlot
-          :user="profileState"
+          :profile="profileState"
           :state="displayState.state"
           @updateAvatar="onUpdateAvatar"
           @resetAvatar="resetAvatar"
           @updateGreetings="updateGreetings"
         >
         </AuthorSlot>
-        <div class="wrap_btn-edit" v-if="profileState.nickname === user.nickname">
+        <div class="wrap_btn-edit" v-if="profileState.nickname === profile.nickname">
           <button class="btn_edit" @click="displayState.state === 'edit' ? onUpdateGreetings() : onChangeState('edit')">
             {{ displayState.button.toUpperCase() }}
           </button>
@@ -58,7 +58,7 @@
 
       <Button
         class="btn_edit_introduce"
-        v-if="profileState.nickname === user.nickname"
+        v-if="profileState.nickname === profile.nickname"
         :content="displayState.introButton"
         :size="'sm'"
         :rounded="true"
@@ -68,7 +68,7 @@
       ></Button>
     </div>
 
-    <Posts v-else type="list" :user="user"></Posts>
+    <Posts v-else type="list"></Posts>
   </div>
 </template>
 
@@ -77,16 +77,16 @@
   import { useRoute } from 'vue-router'
   import { useStore } from 'vuex'
   import { QuillEditor } from '@vueup/vue-quill'
-  import '@vueup/vue-quill/dist/vue-quill.snow.css'
   import AuthorSlot from '../../components/slots/AuthorSlot.vue'
-  import Posts from '../../components/Posts.vue'
+  import Posts from '../../components/posts/Posts.vue'
+  import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
   export default {
     name: 'profile',
     components: {
+      QuillEditor,
       AuthorSlot,
       Posts,
-      QuillEditor,
     },
     setup() {
       const route = useRoute()
@@ -103,13 +103,12 @@
       const profileState = reactive({
         nickname: route.params.nickname,
         _id: '',
-        email: '',
         avatar: '',
         greetings: '',
         introduce: '',
       })
 
-      const user = computed(() => state.auth.user)
+      const profile = computed(() => state.auth.profile)
       const posts = computed(() => state.post.posts)
       const page = computed(() => state.post.page)
       const maxPage = computed(() => state.post.maxPage)
@@ -140,9 +139,7 @@
       }
 
       const resetAvatar = async () => {
-        const { success, profile } = await dispatch('auth/deleteProfileAvatar', {
-          nickname: profileState.nickname,
-        })
+        const { success, profile } = await dispatch('auth/deleteProfileAvatar', { nickname: profileState.nickname })
 
         if (!success) return
 
@@ -169,14 +166,10 @@
       const onUpdateIntroduce = async () => {
         const { success, profile } = await dispatch('auth/updateProfile', {
           nickname: profileState.nickname,
-          payload: {
-            introduce: profileState.introduce.replace(/(^([ ]*<p><br><\/p>)*)|((<p><br><\/p>)*[ ]*$)/gi, '').trim(' '),
-          },
+          payload: { introduce: profileState.introduce.replace(/(^([ ]*<p><br><\/p>)*)|((<p><br><\/p>)*[ ]*$)/gi, '').trim(' ') },
         })
 
         if (!success) return
-
-        //console.log('인트로듀스', profile)
 
         profileState.introduce = profile.introduce
         onChangeState('view')
@@ -199,9 +192,8 @@
           const { success, profile } = await dispatch('auth/getProfile', { nickname: profileState.nickname })
 
           if (!success) return
-
+          
           profileState._id = profile._id
-          profileState.email = profile.email
           profileState.avatar = profile.avatar
           profileState.greetings = profile.greetings
           profileState.introduce = profile.introduce
@@ -209,7 +201,7 @@
       })
 
       return {
-        user,
+        profile,
         posts,
         page,
         maxPage,

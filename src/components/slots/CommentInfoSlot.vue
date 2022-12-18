@@ -2,7 +2,7 @@
   <Info>
     <template #author>
       <li>
-        <AuthorSlot :user="comment.commenter" />
+        <AuthorSlot :profile="comment.commenter" />
       </li>
     </template>
 
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-  import Info from '../Info.vue'
+  import Info from '../posts/Info.vue'
   import AuthorSlot from './AuthorSlot.vue'
   import dayjs from 'dayjs'
 

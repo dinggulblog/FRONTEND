@@ -13,9 +13,7 @@
 </template>
 
 <script>
-  export default {
-    name: 'Author',
-  }
+  export default {}
 </script>
 
 <style lang="scss" rel="stylesheet/scss"></style>

@@ -11,9 +11,7 @@
 </template>
 
 <script>
-  export default {
-    name: 'Info',
-  }
+  export default {}
 </script>
 
 <style lang="scss" rel="stylesheet/scss">

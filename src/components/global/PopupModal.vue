@@ -1,11 +1,13 @@
 <template>
-  <transition name="fade">
-    <div class="popup-modal" v-if="isVisible">
-      <div class="window">
-        <slot></slot>
+  <Teleport to="body">
+    <Transition name="fade">
+      <div class="popup-modal" v-if="isVisible">
+        <div class="window">
+          <slot></slot>
+        </div>
       </div>
-    </div>
-  </transition>
+    </Transition>
+  </Teleport>
 </template>
 
 <script>
@@ -53,6 +55,7 @@
     margin: 0 auto;
     min-width: 30.4rem;
     max-width: 37rem;
+    height: auto;
     font-weight: 400;
     letter-spacing: 0.05rem;
     box-shadow: 0 0 2.4rem 0.3rem rgba(0, 0, 0, 0.05);

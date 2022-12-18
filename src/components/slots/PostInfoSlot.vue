@@ -15,7 +15,7 @@
 </template>
 
 <script>
-  import Info from '../Info.vue'
+  import Info from '../posts/Info.vue'
   import dayjs from 'dayjs'
 
   export default {

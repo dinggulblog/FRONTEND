@@ -1,28 +1,29 @@
 <template>
   <nav class="nav">
+
     <!-- Close button -->
     <div class="m_menu_close">
-      <button class="btn_close" @click="onChangeDisply('gnb')">
+      <button class="btn_close" @click="$emit('close')">
         <i class="material-icons">close</i>
       </button>
     </div>
 
     <!-- Login rink -->
-    <div class="m_menu_login" v-if="!user._id">
-      <router-link :to="{ name: 'login' }" class="a_login" @click="onChangeDisplay('view')"> 로그인 </router-link>
+    <div class="m_menu_login" v-if="!profile.nickname">
+      <span class="a_login" @click="$emit('openLoginModal'); $emit('close')"> 로그인 </span>
       이 필요합니다.
     </div>
 
     <!-- Account info -->
     <div class="wrap_auth" v-else>
       <div class="auth">
-        <AuthorSlot :user="user" :type="'header'" />
+        <AuthorSlot :profile="profile" :type="'header'" />
       </div>
 
       <div class="auth_items">
         <ul>
-          <li><router-link :to="{ name: 'account' }">Account</router-link></li>
-          <li><router-link :to="{ name: 'profile', params: { nickname: user.nickname } }">Profile</router-link></li>
+          <li><span @click="$emit('openAccountModal'); $emit('close')">Account</span></li>
+          <li><router-link :to="{ name: 'profile', params: { nickname: profile.nickname } }" @click="$emit('close')">Profile</router-link></li>
           <li><button @click="onLogout">Logout</button></li>
         </ul>
       </div>
@@ -31,19 +32,20 @@
     <!-- Menu links -->
     <div class="wrap_nav_item">
       <ul>
-        <li class="nav_item"><router-link :to="{ name: 'home' }" class="item_number">home</router-link></li>
+        <li class="nav_item"><router-link :to="{ name: 'home' }" class="item_number" @click="$emit('close')">home</router-link></li>
         <li v-for="(subMenus, main) in menus" :key="main" class="nav_item dropdown">
-          <router-link :to="{ name: 'posts', params: { main } }" class="item_number">{{ main }}</router-link>
+          <router-link :to="{ name: 'posts', params: { main } }" class="item_number" @click="$emit('close')">{{ main }}</router-link>
           <div class="wrap_nav_item_child dropdown_items">
             <ul class="nav_item_child">
               <li v-for="{ _id, sub } in subMenus" :key="_id">
-                <router-link :to="{ name: 'posts', params: { main, sub } }">{{ sub }}</router-link>
+                <router-link :to="{ name: 'posts', params: { main, sub } }" @click="$emit('close')">{{ sub }}</router-link>
               </li>
             </ul>
           </div>
         </li>
       </ul>
     </div>
+
   </nav>
 </template>
 
@@ -56,19 +58,16 @@
     components: {
       AuthorSlot,
     },
-    setup(props, { emit }) {
+    emits: ['close', 'openLoginModal', 'openAccountModal'],
+    setup() {
       const { state, dispatch } = useStore()
 
-      const menus = computed(() => state.menu.groupedMenus)
-      const user = computed(() => state.auth.user)
+      const menus = computed(() => state.menu.groupMenus)
+      const profile = computed(() => state.auth.profile)
 
       const onLogout = async () => await dispatch('auth/logout')
 
-      const onChangeDisply = (param) => {
-        emit('onChangeDisply', param)
-      }
-
-      return { menus, user, onLogout, onChangeDisply }
+      return { menus, profile, onLogout }
     },
   }
 </script>

@@ -207,7 +207,6 @@
           color: var(--text-light);
           border: 1px solid var(--border-dark);
           border-radius: 2.4rem;
-          text-transform: capitalize;
           cursor: pointer;
 
           &:last-child {

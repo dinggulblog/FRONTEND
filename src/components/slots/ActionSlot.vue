@@ -8,9 +8,9 @@
 
 <script>
   import { ref, onMounted, onUnmounted } from 'vue'
+  import { useMedia } from '../../common/mediaQuery'
   import Dropbox from '../Dropbox.vue'
   import BottomSheet from '../global/BottomSheet.vue'
-  import { useMedia } from '../../common/mediaQuery'
 
   export default {
     name: 'DropboxSlot',

@@ -1,6 +1,6 @@
 <template>
-  <Post :user="user" :post="post" @onDeletePost="onDeletePost" />
-  <Comments :comments="comments" :user="user" :post="post" @onDeleteComment="onDeleteComment" />
+  <Post :profile="profile" :post="post" @onDeletePost="onDeletePost" />
+  <Comments :comments="comments" :profile="profile" :post="post" @onDeleteComment="onDeleteComment" />
   <Dialog ref="Dialog"></Dialog>
 </template>
 
@@ -8,14 +8,12 @@
   import { defineComponent, ref, computed, onBeforeMount, onUnmounted } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
   import { useStore } from 'vuex'
-  import Post from '../../components/Post.vue'
+  import Post from '../../components/posts/Post.vue'
   import Comments from '../../components/Comments.vue'
-  import Dialog from '../../components/Dialog.vue'
 
   export default defineComponent({
     name: 'post',
     components: {
-      Dialog,
       Post,
       Comments,
     },
@@ -32,11 +30,13 @@
 
       const Dialog = ref(null)
 
-      const user = computed(() => state.auth.user)
+      const profile = computed(() => state.auth.profile)
       const post = computed(() => state.post.post)
       const comments = computed(() => state.comment.comments)
 
       const onDeletePost = async () => {
+        if (post.value.author._id !== profile.value._id) return alert('본인 소유의 게시물만 삭제가 가능합니다.')
+
         const ok = await Dialog.value.show({
           title: '게시물 삭제',
           message: '게시물을 삭제하시겠습니까?\n한번 삭제된 게시물은 되돌릴 수 없습니다.',
@@ -44,12 +44,14 @@
         if (ok) await dispatch('post/deletePost', post.value._id)
       }
 
-      const onDeleteComment = async (commentId) => {
+      const onDeleteComment = async (comment) => {
+        if (comment.commenter._id !== profile.value._id) return alert('본인 댓글만 삭제가 가능합니다.')
+
         const ok = await Dialog.value.show({
           title: '댓글 삭제',
           message: '해당 댓글을 삭제하시겠습니까?\n한번 삭제된 댓글은 되돌릴 수 없습니다.',
         })
-        if (ok) await dispatch('comment/deleteComment', { postId: post.value._id, id: commentId })
+        if (ok) await dispatch('comment/deleteComment', { postId: post.value._id, id: comment._id })
       }
 
       onBeforeMount(async () => {
@@ -66,17 +68,15 @@
         } else {
           window.scrollTo({ top: 0, behavior: 'smooth' })
         }
-
-        document.title = post.value?.title ?? 'Post'
       })
 
       onUnmounted(() => {
-        commit('post/SET_POST')
+        commit('post/SET_POST', new Object())
       })
 
       return {
         Dialog,
-        user,
+        profile,
         post,
         comments,
         onDeletePost,

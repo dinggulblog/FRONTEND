@@ -36,7 +36,7 @@
       post: {
         type: Object,
       },
-      user: {
+      profile: {
         type: Object,
       },
     },
@@ -44,16 +44,16 @@
       const onGetAuthorized = (comment) => {
         if (comment.isPublic) {
           return true
-        } else if (props.user && props.post.author?.nickname === props.user.nickname) {
+        } else if (props.profile && props.post.author?.nickname === props.profile.nickname) {
           return true
-        } else if (props.user && comment.commenter.nickname === props.user.nickname) {
+        } else if (props.profile && comment.commenter.nickname === props.profile.nickname) {
           return true
         }
         return false
       }
 
-      const onDeleteComment = (commentId) => {
-        emit('onDeleteComment', commentId)
+      const onDeleteComment = (comment) => {
+        emit('onDeleteComment', comment)
       }
 
       return {

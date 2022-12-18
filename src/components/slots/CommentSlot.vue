@@ -3,23 +3,26 @@
     <div class="wrap_item">
       <div class="wrap_header">
         <div class="wrap_left">
+
+          <!-- Comment Info -->
           <CommentInfoSlot :comment="comment" />
+          
           <div class="wrap_reply_btn">
             <Button
               v-if="!isVisible.commentEditor"
               class="btn_reply"
-              :content="'답글 작성'"
-              :customColor="'var(--primary-dark)'"
-              :customPadding="'0'"
+              content="답글 작성"
+              customPadding="0"
+              :customColor="`var(--primary-dark)`"
               @click="onCreateEditor"
             />
 
             <Button
-              v-else-if="isVisible.commentEditor || (isVisible.commentEditor && !isUpdate)"
+              v-else
               class="btn_reply"
-              :content="'답글 작성'"
-              :customColor="'var(--primary-dark)'"
-              :customPadding="'0'"
+              content="에디터 닫기"
+              customPadding="0"
+              :customColor="`var(--primary-dark)`"
               @click="onCloseEditor"
             />
           </div>
@@ -27,11 +30,10 @@
         <div class="wrap_right">
           <Button
             class="btn_dropbox"
-            tabindex="-1"
-            :size="'sm'"
-            :svg="'more'"
+            size="sm"
+            svg="more"
+            customPadding="0"
             :customColor="`var(--list_info)`"
-            :customPadding="'0'"
             @click="onAction"
           />
 
@@ -47,7 +49,7 @@
       </div>
       <div class="content">
         <p>
-          <span class="receiver" v-if="comment.parentComment">@ {{ MyParentComment?.commenter?.nickname }}</span>
+          <span class="receiver" v-if="comment.parentComment">@ {{ myParentComment?.commenter?.nickname }}</span>
           <span v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</span>
           <span v-else>{{ comment.content }}</span>
         </p>
@@ -110,7 +112,6 @@
       />
     </ul>
   </li>
-  <Dialog ref="Dialog"></Dialog>
 </template>
 
 <script>
@@ -119,7 +120,6 @@
   import ActionSlot from './ActionSlot.vue'
   import CommentInfoSlot from './CommentInfoSlot.vue'
   import CommentEditor from '../CommentEditor.vue'
-  import Dialog from '../../components/Dialog.vue'
   import comment from '../../store/modules/comment'
 
   export default {
@@ -127,7 +127,6 @@
     components: {
       CommentInfoSlot,
       CommentEditor,
-      Dialog,
       ActionSlot,
     },
     props: {
@@ -147,10 +146,10 @@
     emits: ['onDeleteComment'],
     setup(props, { emit }) {
       const { state } = useStore()
+
       const comments = computed(() => state.comment.comments)
-      const Dialog = ref(null)
       const isUpdate = ref(false)
-      const MyParentComment = ref(null)
+      const myParentComment = ref(null)
       const ACTION_SLOT_EL = ref(null)
 
       const isVisible = reactive({
@@ -185,7 +184,7 @@
       }
 
       const onDeleteComment = () => {
-        emit('onDeleteComment', props.comment._id)
+        emit('onDeleteComment', props.comment)
       }
 
       const onCopyComment = async () => {
@@ -198,7 +197,7 @@
       }
 
       // comment => 원본 트리 배열
-      // id => props comment의 parentComment
+      // id => props comment의 parentComment ID
       const searchParentComment = (comment, id = null) => {
         if (comment._id === id) {
           return comment
@@ -213,16 +212,16 @@
       }
 
       onBeforeMount(() => {
-        MyParentComment.value = comments.value
+        myParentComment.value = comments.value
           ?.filter((comment) => searchParentComment(comment, props.comment.parentComment))
           ?.pop()
       })
 
       return {
-        Dialog,
+        ACTION_SLOT_EL,
         isVisible,
         isUpdate,
-        ACTION_SLOT_EL,
+        myParentComment,
         onAction,
         onCreateEditor,
         onUpdateEditor,

@@ -32,11 +32,9 @@
 </template>
 
 <script>
-  export default {
-    name: 'List',
-  }
+  export default {}
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-  @import '../scss/list.scss';
+  @import '../../scss/list.scss';
 </style>

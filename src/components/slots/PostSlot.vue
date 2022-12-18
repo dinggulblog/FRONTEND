@@ -1,7 +1,7 @@
 <template>
   <component :is="type">
     <template #thumbnail>
-      <div v-if="type !== 'list' || (type === 'list' && post?.thumbnail)" class="thumbnail">
+      <div v-if="type !== 'list' || (type === 'list' && post.thumbnail)" class="thumbnail">
         <router-link :to="{ name: 'post', query: { id: post._id } }">
           <img :src="post.thumbnail ? `${IMAGE_URL}${post.thumbnail?.serverFileName}` : DEFAULT_THUMBNAIL" />
         </router-link>
@@ -41,8 +41,8 @@
       <span class="info_ico" ref="LIKE_EL">
         <Ico
           :size="'sm'"
-          :svg="isLike ? 'like-fill' : 'like'"
-          :customColor="isLike ? (type === 'slide' ? 'var(--likeActive-dark)' : 'var(--likeActive)') : ''"
+          :svg="post.liked ? 'like-fill' : 'like'"
+          :customColor="post.liked ? (type === 'slide' ? 'var(--likeActive-dark)' : 'var(--likeActive)') : ''"
         />
       </span>
       <span>{{ post.likeCount }}</span>
@@ -54,9 +54,9 @@
   import { onMounted, ref } from 'vue'
   import markdownText from 'markdown-to-text'
   import dayjs from 'dayjs'
-  import card from '../Card.vue'
-  import list from '../List.vue'
-  import slide from '../Slide.vue'
+  import card from '../posts/Card.vue'
+  import list from '../posts/List.vue'
+  import slide from '../posts/Slide.vue'
   import DEFAULT_THUMBNAIL from '../../assets/default_thumbnail.png'
 
   export default {
@@ -69,11 +69,7 @@
       post: {
         type: Object,
         required: true,
-      },
-      isLike: {
-        type: Boolean,
-        default: false,
-      },
+      }
     },
     components: {
       list,
@@ -85,9 +81,7 @@
       const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
 
       onMounted(() => {
-        if (props.isLike && LIKE_EL.value) {
-          LIKE_EL.value.classList.add('is-like')
-        }
+        if (props.post.liked) LIKE_EL.value?.classList?.add('is-like')
       })
 
       return {

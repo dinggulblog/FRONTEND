@@ -5,7 +5,7 @@
         <div class="main">
           <select required @change="onChangeMainMenu">
             <option selected disabled hidden value="">main menu</option>
-            <option v-for="main in Object.keys(menuState.groupedMenus)" :key="main" :value="main">{{ main }}</option>
+            <option v-for="main in Object.keys(menuState.groupMenus)" :key="main" :value="main">{{ main }}</option>
           </select>
         </div>
 
@@ -139,20 +139,18 @@
   import { useStore } from 'vuex'
   import Markdown from 'vue3-markdown-it'
   import MarkdownEmoji from 'markdown-it-emoji'
-  import Toggle from '../../components/Toggle.vue'
-  import Dialog from '../../components/Dialog.vue'
+  import Toggle from '../../components/global/Toggle.vue'
   import 'highlight.js/styles/atom-one-dark.css'
 
   export default defineComponent({
     name: 'editor',
     components: {
       Toggle,
-      Dialog,
       Markdown,
     },
     setup() {
       const route = useRoute()
-      const { push } = useRouter()
+      const { go, push } = useRouter()
       const { state, commit, dispatch } = useStore()
 
       let canLeavePage = true
@@ -163,7 +161,7 @@
       const menuState = reactive({
         isLoading: computed(() => state.loading.isLoading),
         percentage: computed(() => state.loading.percentage),
-        groupedMenus: computed(() => state.menu.groupedMenus),
+        groupMenus: computed(() => state.menu.groupMenus),
         mainMenus: [],
         subMenu: {},
       })
@@ -180,6 +178,7 @@
       })
 
       const fileState = reactive({
+        tempFiles: new FormData(),
         files: [],
         fileId: '',
         fileName: '',
@@ -188,7 +187,7 @@
       })
 
       const onChangeMainMenu = (event) => {
-        menuState.mainMenus = menuState.groupedMenus[event.target.value]
+        menuState.mainMenus = menuState.groupMenus[event.target.value]
         document.body.querySelector('div.sub select').selectedIndex = 0
         document.body.querySelector('div.category select').selectedIndex = 0
       }
@@ -225,6 +224,10 @@
         }
       }
 
+      const uploadImage = (event) => {
+
+      }
+
       const onUploadImages = async (event) => {
         if (!event.target.files.length) return
         const formData = new FormData()
@@ -258,7 +261,6 @@
       }
 
       const onInsertImage = () => {
-        console.log(fileState)
         let textarea = document.body.querySelector('#content-el')
         let start = textarea.value.substring(0, textarea.selectionStart)
         let end = textarea.value.substring(textarea.selectionEnd, textarea.value.length)
@@ -297,14 +299,12 @@
           const { main, sub } = state.menu.menus.find((m) => m._id === menu)
 
           document.body.querySelector('div.main select').value = main
-          menuState.mainMenus = menuState.groupedMenus[main]
+          menuState.mainMenus = menuState.groupMenus[main]
 
           document.body.querySelector('div.sub select').value = sub
           menuState.subMenu = menuState.mainMenus.find((menu) => menu.sub === sub)
-        }
 
-        if (category) {
-          document.body.querySelector('div.category select').value = category
+          if (category) document.body.querySelector('div.category select').value = category
         }
 
         const idx = fileState.files.findIndex((file) => file._id === thumbnail)
@@ -318,24 +318,8 @@
         : setInterval(updateDraft, 1000 * 60 * 10)
 
       onBeforeMount(async () => {
-        if (route.query.id) {
-          const { post } = await dispatch('post/getPost', route.query.id)
-          return setInitData(post)
-        }
-
-        const { draft } = await dispatch('draft/getDraft')
-        if (draft) {
-          const ok = await Dialog.value.show({
-            title: '임시 저장된 게시물이 존재합니다',
-            message: '임시 저장된 게시물을 불러오시겠어요?',
-            okButton: '불러오기',
-            cancelButton: '새로 작성하기',
-          })
-          if (ok) return setInitData(draft)
-        }
-
-        const { draft: newDraft } = await dispatch('draft/createDraft')
-        setInitData(newDraft)
+        const { post } = state.post
+        if (route.query.id) return post ? setInitData(post) : go(-1)
       })
 
       onMounted(() => {
@@ -353,9 +337,9 @@
         else {
           const ok = await Dialog.value.show({
             title: '현재 페이지에서 나가시겠습니까?',
-            message: '작성된 내용은 떠나갈것입니다...',
+            message: '임시 저장되지 않은 내용은 사라집니다.',
             okButton: '나가기',
-            cancelButton: '취소',
+            cancelButton: '잠시만요!',
           })
           ok ? next() : next(false)
         }

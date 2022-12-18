@@ -95,14 +95,14 @@ const actions = {
    * Add my ID from the like field of a post
    * @param {String} payload Post ID
    */
-  async updateLike({ commit }, { postId, user }) {
+  async updateLike({ commit }, { postId, userId }) {
     try {
       const { data } = await axios.put(`v1/posts/${postId}/like`)
       const { success } = data
       
       if (!success) throw new Error('게시물 좋아요 수정에 실패하였습니다.')
 
-      commit('ADD_POST_LIKE', user)
+      commit('ADD_POST_LIKE', userId)
       return { success }
     } catch (err) {
       console.log(err.response)
@@ -152,14 +152,14 @@ const actions = {
    * Remove my ID from the like field of a post
    * @param {String} payload
    */
-  async deleteLike({ commit }, { postId, user }) {
+  async deleteLike({ commit }, { postId, userId }) {
     try {
       const { data } = await axios.delete(`v1/posts/${postId}/like`)
       const { success } = data
 
       if (!success) throw new Error('게시물 좋아요 삭제에 실패하였습니다.')
 
-      commit('DELETE_POST_LIKE', user)
+      commit('DELETE_POST_LIKE', userId)
       return { success }
     } catch (err) {
       console.log(err.response)
@@ -183,18 +183,18 @@ const mutations = {
     state.likeCount = likeCount
   },
 
-  ADD_POST_LIKE(state, user) {
-    const idx = state.likes.findIndex(likeuser => likeuser._id === user._id)
+  ADD_POST_LIKE(state, userId) {
+    const idx = state.likes.findIndex(likedUserId => likedUserId === userId)
 
     if (idx === -1 && Array.isArray(state.likes)) {
-      state.likes = state.likes.concat(user)
+      state.likes = state.likes.concat(userId)
       state.likeCount = state.likes.length
     }
   },
 
-  DELETE_POST_LIKE(state, user) {
+  DELETE_POST_LIKE(state, userId) {
     if (Array.isArray(state.likes)) {
-      state.likes = state.likes.filter(likeuser => likeuser._id !== user._id)
+      state.likes = state.likes.filter(likedUserId => likedUserId !== userId)
       state.likeCount = state.likes.length
     }
   },

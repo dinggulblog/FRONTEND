@@ -1,14 +1,15 @@
 <template>
   <div class="container_bar">
     <div class="bar">
+
       <div class="wrap_left">
         <Button
           :class="isMobile ? 'btn_m-toggle' : 'btn_search'"
-          :size="'md'"
-          :svg="isMobile ? 'menu' : !isMobile && searchState ? 'close' : 'search'"
-          :customColor="'#fff'"
-          :customPadding="'0'"
-          @click="isMobile ? onChangeDisply('gnb') : onChangeDisply('search')"
+          size="md"
+          :svg="isMobile ? 'menu' : searchState.isOpen ? 'close' : 'search'"
+          customColor="#fff"
+          customPadding="0"
+          @click="isMobile ? onToggleGnbVisible() : onToggleSearchVisible()"
         >
         </Button>
       </div>
@@ -20,36 +21,34 @@
       </div>
 
       <div class="wrap_right">
-        <div class="wrap_auth" v-if="!isMobile && user.nickname">
+        <span class="a_login" v-if="!isMobile && !isLogin" @click="$refs.ACCOUNT_EL.open('login')">
+          <Ico size="md" svg="lock" />
+        </span>
+
+        <div class="wrap_auth" v-else-if="!isMobile && profile.nickname">
           <router-link :to="{ name: 'editor' }" class="a_create">
-            <Ico :size="'md'" :svg="'create'" />
+            <Ico size="md" svg="create" />
           </router-link>
           <div class="auth dropdown">
-            <AuthorSlot :user="user" />
+            <AuthorSlot :profile="profile" />
             <div class="auth_items dropdown_items">
               <ul>
-                <li><router-link :to="{ name: 'account' }">Account</router-link></li>
-                <li>
-                  <router-link :to="{ name: 'profile', params: { nickname: user.nickname } }">Profile</router-link>
-                </li>
+                <li><span @click="$refs.ACCOUNT_EL.open('update')">Account</span></li>
+                <li><router-link :to="{ name: 'profile', params: { nickname: profile.nickname } }">Profile</router-link></li>
                 <li><span @click="onLogout">Logout</span></li>
               </ul>
             </div>
           </div>
         </div>
 
-        <router-link :to="{ name: 'login' }" class="a_login" v-else-if="!isMobile && !isLogin">
-          <Ico :size="'md'" :svg="'lock'" />
-        </router-link>
-
         <Button
-          v-else-if="isMobile"
+          v-else
           class="btn_search"
-          :size="'md'"
-          :svg="searchState ? 'close' : 'search'"
-          :customColor="'#fff'"
-          :customPadding="'0'"
-          @click="onChangeDisply('search')"
+          size="md"
+          :svg="searchState.isOpen ? 'close' : 'search'"
+          customColor="#fff"
+          customPadding="0"
+          @click="onToggleSearchVisible"
         />
       </div>
     </div>
@@ -57,22 +56,31 @@
 
   <div class="container_gnb">
     <div class="gnb">
-      <Navigation @onChangeDisply="onChangeDisply" />
+      <Navigation
+        @toggleGnbVisible="onToggleGnbVisible"
+        @toggleSearchVisible="onToggleSearchVisible"
+        @close="onClose"
+        @openLoginModal="$refs.ACCOUNT_EL.open('login')"
+        @openAccountModal="$refs.ACCOUNT_EL.open('update')"
+      />
     </div>
   </div>
 
   <div class="container_searchForm">
     <SearchForm />
   </div>
+
+  <Account ref="ACCOUNT_EL"></Account>
 </template>
 
 <script>
-  import { ref, computed, onBeforeMount, onMounted } from 'vue'
+  import { ref, reactive, computed } from 'vue'
   import { useStore } from 'vuex'
   import { useMedia } from '../../common/mediaQuery'
   import Navigation from './Navigation.vue'
   import SearchForm from '../SearchForm.vue'
   import AuthorSlot from '../slots/AuthorSlot.vue'
+  import Account from './Account.vue'
   import LOGO from '../../assets/logo.png'
 
   export default {
@@ -80,58 +88,48 @@
       Navigation,
       SearchForm,
       AuthorSlot,
+      Account
     },
     setup() {
       const { state, dispatch } = useStore()
-      const gnb = ref(null)
-      const searchForm = ref(null)
-      const mediaQuery = window.matchMedia('only screen and (max-width: 1023px')
-      const isMobile = ref(mediaQuery.matches)
-      const gnbState = ref(false)
-      const searchState = ref(false)
 
+      const ACCOUNT_EL = ref(null)
+      const isMobile = useMedia('only screen and (max-width: 1023px)')
       const isLogin = computed(() => state.auth.isLogin)
-      const user = computed(() => state.auth.user)
 
-      const onLogout = async () => await dispatch('auth/logout')
+      const profile = reactive({
+        nickname: computed(() => state.auth.profile.nickname),
+        avatar: computed(() => state.auth.profile.avatar)
+      })
+      const gnbState = reactive({
+        isOpen: false,
+        display: computed(() => !isMobile.value ? 'flex' : gnbState.isOpen ? 'flex' : 'none')
+      })
+      const searchState = reactive({
+        isOpen: false,
+        display: computed(() => searchState.isOpen ? 'flex' : 'none')
+      })
 
-      const onChangeDisply = (param) => {
-        if (param === 'gnb') {
-          if (searchState.value) {
-            searchState.value = !searchState.value
-            searchForm.value.style.display = searchState.value ? 'flex' : 'none'
-          }
-          gnbState.value = !gnbState.value
-          gnb.value.style.display = gnbState.value ? 'flex' : 'none'
-        } else {
-          if (gnbState.value) {
-            gnbState.value = !gnbState.value
-            gnb.value.style.display = gnbState.value ? 'flex' : 'none'
-          }
-          searchState.value = !searchState.value
-          searchForm.value.style.display = searchState.value ? 'flex' : 'none'
-        }
+      const onLogout = async () => {
+        await dispatch('auth/logout')
       }
 
-      onBeforeMount(() => {
-        mediaQuery.addEventListener('change', () => {
-          isMobile.value = mediaQuery.matches
-          if (!isMobile.value) {
-            gnb.value.style.display = 'flex'
-          } else if (isMobile.value && gnbState.value) {
-            gnb.value.style.display = 'flex'
-          } else {
-            gnb.value.style.display = 'none'
-          }
-        })
-      })
+      const onClose = () => {
+        gnbState.isOpen = false
+        searchState.isOpen = false
+      }
 
-      onMounted(() => {
-        gnb.value = document.querySelector('.container_gnb')
-        searchForm.value = document.querySelector('.container_searchForm')
-      })
+      const onToggleGnbVisible = () => {
+        searchState.isOpen = false
+        gnbState.isOpen = !gnbState.isOpen
+      }
 
-      return { LOGO, isMobile, searchState, isLogin, user, onLogout, onChangeDisply }
+      const onToggleSearchVisible = () => {
+        gnbState.isOpen = false
+        searchState.isOpen = !searchState.isOpen
+      }
+
+      return { LOGO, ACCOUNT_EL, isMobile, isLogin, profile, gnbState, searchState, onLogout, onClose, onToggleGnbVisible, onToggleSearchVisible }
     },
   }
 </script>
@@ -272,7 +270,7 @@
   }
 
   .container_gnb {
-    display: flex;
+    display: v-bind('gnbState.display');
     justify-content: center;
     position: relative;
     z-index: 3;
@@ -280,7 +278,7 @@
     box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
 
     @include mobile-tablet {
-      display: none;
+      display: v-bind('gnbState.display');
       justify-content: flex-start;
       box-shadow: 0 0;
     }
@@ -310,7 +308,7 @@
   }
 
   .container_searchForm {
-    display: none;
+    display: v-bind('searchState.display');
     justify-content: center;
     position: absolute;
     top: 0;
