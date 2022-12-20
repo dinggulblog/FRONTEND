@@ -1,116 +1,118 @@
 <template>
   <PopupModal ref="POPUP_EL">
-    <Button class="btn_close" size="md" svg="close" customColor="var(--primary)" customPadding="0" @click="close" />
+    <div id="account">
+      <Button class="btn_close" size="md" svg="close" customColor="var(--primary)" customPadding="0" @click="close" />
 
-    <div class="wrap_account">
-      <div class="account" ref="ACCOUNT_EL">
-        <!-- Sign-up Form -->
-        <Form
-          v-if="form === 'create'"
-          as="div"
-          class="create_account"
-          v-slot="{ handleSubmit }"
-          :validation-schema="createAccountSchema"
-        >
-          <h2>create account</h2>
+      <div class="wrap_account">
+        <div class="account" ref="ACCOUNT_EL">
+          <!-- Sign-up Form -->
+          <Form
+            v-if="form === 'create'"
+            as="div"
+            class="create_account"
+            v-slot="{ handleSubmit }"
+            :validation-schema="createAccountSchema"
+          >
+            <h2>create account</h2>
 
-          <form @submit="handleSubmit($event, onCreateAccount)">
-            <TextInput
-              name="email"
-              type="email"
-              label="이메일"
-              placeholder="Email"
-              spellcheck="false"
-              success-message="올바른 이메일 주소입니다."
-            />
+            <form @submit="handleSubmit($event, onCreateAccount)">
+              <TextInput
+                name="email"
+                type="email"
+                label="이메일"
+                placeholder="Email"
+                spellcheck="false"
+                success-message="올바른 이메일 주소입니다."
+              />
 
-            <TextInput name="password" type="password" label="비밀번호" placeholder="Password" />
-            <TextInput
-              name="passwordConfirmation"
-              type="password"
-              label="비밀번호 확인"
-              placeholder="Type password again"
-              success-message="비밀번호가 정상적으로 입력되었습니다."
-            />
-            <TextInput
-              name="nickname"
-              type="text"
-              label="닉네임"
-              placeholder="Nickname"
-              spellcheck="false"
-              success-message="사용할 수 있는 닉네임입니다."
-            />
+              <TextInput name="password" type="password" label="비밀번호" placeholder="Password" />
+              <TextInput
+                name="passwordConfirmation"
+                type="password"
+                label="비밀번호 확인"
+                placeholder="Type password again"
+                success-message="비밀번호가 정상적으로 입력되었습니다."
+              />
+              <TextInput
+                name="nickname"
+                type="text"
+                label="닉네임"
+                placeholder="Nickname"
+                spellcheck="false"
+                success-message="사용할 수 있는 닉네임입니다."
+              />
 
-            <button type="submit" class="btn_submit">가입 완료</button>
-          </form>
-        </Form>
+              <button type="submit" class="btn_submit">가입 완료</button>
+            </form>
+          </Form>
 
-        <!-- Update Form -->
-        <Form
-          v-else-if="form === 'update'"
-          as="div"
-          class="update_account"
-          v-slot="{ handleSubmit }"
-          :validation-schema="updateAccountSchema"
-        >
-          <h2>modify account</h2>
+          <!-- Update Form -->
+          <Form
+            v-else-if="form === 'update'"
+            as="div"
+            class="update_account"
+            v-slot="{ handleSubmit }"
+            :validation-schema="updateAccountSchema"
+          >
+            <h2>modify account</h2>
 
-          <form @submit="handleSubmit($event, onUpdateAccount)">
-            <TextInput
-              name="email"
-              type="email"
-              label="이메일"
-              :disabled="true"
-              :value="user?.email"
-              :placeholder="user?.email"
-              spellcheck="false"
-              success-message="이메일은 변경할 수 없습니다."
-            />
-            <TextInput name="currentPassword" type="password" label="현재 비밀번호" placeholder="Current Password" />
-            <TextInput name="newPassword" type="password" label="새 비밀번호" placeholder="New Password" />
-            <TextInput
-              name="passwordConfirmation"
-              type="password"
-              label="새 비밀번호 확인"
-              placeholder="Type password again"
-              success-message="비밀번호가 정상적으로 입력되었습니다."
-            />
-            <TextInput
-              name="nickname"
-              type="text"
-              label="닉네임"
-              :value="user?.email"
-              :placeholder="user?.nickname"
-              spellcheck="false"
-              success-message="사용할 수 있는 닉네임입니다."
-            />
-            <button type="submit" class="btn_submit">수정 완료</button>
+            <form @submit="handleSubmit($event, onUpdateAccount)">
+              <TextInput
+                name="email"
+                type="email"
+                label="이메일"
+                :disabled="true"
+                :value="user?.email"
+                :placeholder="user?.email"
+                spellcheck="false"
+                success-message="이메일은 변경할 수 없습니다."
+              />
+              <TextInput name="currentPassword" type="password" label="현재 비밀번호" placeholder="Current Password" />
+              <TextInput name="newPassword" type="password" label="새 비밀번호" placeholder="New Password" />
+              <TextInput
+                name="passwordConfirmation"
+                type="password"
+                label="새 비밀번호 확인"
+                placeholder="Type password again"
+                success-message="비밀번호가 정상적으로 입력되었습니다."
+              />
+              <TextInput
+                name="nickname"
+                type="text"
+                label="닉네임"
+                :value="user?.email"
+                :placeholder="user?.nickname"
+                spellcheck="false"
+                success-message="사용할 수 있는 닉네임입니다."
+              />
+              <button type="submit" class="btn_submit">수정 완료</button>
 
-            <div class="wrap_btn_sign-out" v-if="form === 'update'">
-              <button @click="onDeleteAccount" class="btn_sign-out">회원 탈퇴</button>
+              <div class="wrap_btn_sign-out" v-if="form === 'update'">
+                <button @click="onDeleteAccount" class="btn_sign-out">회원 탈퇴</button>
+              </div>
+            </form>
+          </Form>
+
+          <!-- Login Form -->
+          <Form v-else as="div" class="login" v-slot="{ handleSubmit }" :validation-schema="loginSchema">
+            <h2>member login</h2>
+
+            <form @submit="handleSubmit($event, onLogin)" class="login_form">
+              <TextInput name="email" type="email" label="이메일" placeholder="User ID (Email)" spellcheck="false" />
+              <TextInput name="password" type="password" label="비밀번호" placeholder="Password" />
+              <button type="submit" class="btn_submit">로그인</button>
+            </form>
+
+            <div class="wrap_find_account" v-if="form === 'login'">
+              <p>이메일 또는 비밀번호를 잊으셨나요?</p>
+              <button class="btn_find-account">계정 찾기</button>
             </div>
-          </form>
-        </Form>
 
-        <!-- Login Form -->
-        <Form v-else as="div" class="login" v-slot="{ handleSubmit }" :validation-schema="loginSchema">
-          <h2>member login</h2>
-
-          <form @submit="handleSubmit($event, onLogin)" class="login_form">
-            <TextInput name="email" type="email" label="이메일" placeholder="User ID (Email)" spellcheck="false" />
-            <TextInput name="password" type="password" label="비밀번호" placeholder="Password" />
-            <button type="submit" class="btn_submit">로그인</button>
-          </form>
-
-          <div class="wrap_find_account" v-if="form === 'login'">
-            <p>이메일 또는 비밀번호를 잊으셨나요?</p>
-            <button class="btn_find-account">계정 찾기</button>
-          </div>
-
-          <div class="wrap_sign-up" v-if="form === 'login'">
-            <button @click="form = 'create'" class="btn_create-account">회원가입</button>
-          </div>
-        </Form>
+            <div class="wrap_sign-up" v-if="form === 'login'">
+              <button @click="form = 'create'" class="btn_create-account">회원가입</button>
+            </div>
+          </Form>
+        </div>
       </div>
     </div>
   </PopupModal>
@@ -223,6 +225,13 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
+  #account {
+    width: 37rem;
+    box-shadow: 0 0 2.4rem 0.3rem rgba(0, 0, 0, 0.05);
+    background: #fff;
+    padding: 2.4rem 3.2rem;
+    border-radius: 3.2rem;
+  }
   .btn_close {
     margin: 2rem 0;
   }

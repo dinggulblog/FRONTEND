@@ -7,8 +7,7 @@ const state = () => ({
   likes: [],
   likeCount: 0,
   page: 1,
-  limit: 6,
-  maxPage: 1,
+  maxPage: 1
 })
 
 const getters = {}
@@ -22,17 +21,14 @@ const actions = {
   async getPost({ commit }, payload) {
     try {
       const { data } = await axios.get(`v1/posts/${payload}`)
-      const { success, message, data: { post, likes, likeCount } } = data
-
-      if (!success || !post) throw new Error(message || '게시물을 받아오지 못하였습니다.')
+      const { success, data: { post, likes, likeCount } } = data
 
       commit('SET_POST', post)
       commit('SET_POST_LIKES', { likes, likeCount })
 
       return { success, post }
     } catch (err) {
-      console.log(err.response)
-      return { success: false }
+      return { success: false, error: '오류가 발생하여 게시물을 가져오지 못하였습니다.' }
     }
   },
 
@@ -40,17 +36,16 @@ const actions = {
    * Get posts with pagenation query object
    * @param {Object} payload { menu, page, limit, ... }
    */
-  async getPosts({ commit }, { auth = true, payload }) {
+  async getPosts({ commit }, payload) {
     try {
-      const { data } = await axios.get('v1/posts', { params: payload, paramsSerializer: (params) => stringify(params), headers: { Authorization: auth } })
-      const { success, data: { posts = [], maxPage = 1 } } = data
+      const { data } = await axios.get('v1/posts', { params: payload, paramsSerializer: (params) => stringify(params) })
+      const { success, data: { posts, maxPage } } = data
 
-      if (!success) throw new Error('게시물들을 받아오는 데 실패하였습니다.')
+      commit('SET_POSTS', { posts, category: payload.category })
 
-      commit('SET_POSTS', { posts, maxPage })
+      return { success, posts, maxPage }
     } catch (err) {
-      console.log(err.response)
-      return { success: false }
+      return { success: false, maxPage: 1, error: '오류가 발생하여 게시물들을 가져오지 못하였습니다.' }
     }
   },
 
@@ -63,12 +58,9 @@ const actions = {
       const { data } = await axios.post('v1/posts', payload)
       const { success, data: { post } } = data
 
-      if (!success) throw new Error('게시물이 작성되지 않았습니다.')
-
       return { success, post }
     } catch (err) {
-      console.log(err.response)
-      return { success: false }
+      return { success: false, error: '오류가 발생하여 게시물 저장에 실패하였습니다.' }
     }
   },
 
@@ -82,12 +74,9 @@ const actions = {
       const { data } = await axios.put(`v1/posts/${postId}`, payload)
       const { success, data: { post, images } } = data
 
-      if (!success) throw new Error('게시물 수정에 실패하였습니다.')
-      
       return { success, post, images }
     } catch (err) {
-      console.log(err.response)
-      return { success: false }
+      return { success: false, post: null, images: null, error: '오류가 발생하여 게시물 수정에 실패하였습니다.' }
     }
   },
 
@@ -97,16 +86,13 @@ const actions = {
    */
   async updateLike({ commit }, { postId, userId }) {
     try {
-      const { data } = await axios.put(`v1/posts/${postId}/like`)
-      const { success } = data
-      
-      if (!success) throw new Error('게시물 좋아요 수정에 실패하였습니다.')
+      const { data: { success } } = await axios.put(`v1/posts/${postId}/like`)
 
       commit('ADD_POST_LIKE', userId)
+
       return { success }
     } catch (err) {
-      console.log(err.response)
-      return { success: false }
+      return { success: false, error: '오류가 발생하여 좋아요 업데이트에 실패하였습니다.' }
     }
   },
 
@@ -116,16 +102,13 @@ const actions = {
    */
   async deletePost({ commit }, payload) {
     try {
-      const { data } = await axios.delete(`v1/posts/${payload}`)
-      const { success } = data
-
-      if (!success) throw new Error('게시물 삭제에 실패하였습니다.')
+      const { data: { success } } = await axios.delete(`v1/posts/${payload}`)
 
       commit('SET_POST', {})
+
       return { success }
     } catch (err) {
-      console.log(err.response)
-      return { success: false }
+      return { success: false, error: '오류가 발생하여 게시물 삭제에 실패하였습니다.' }
     }
   },
 
@@ -136,15 +119,11 @@ const actions = {
    */
   async deleteFile({ commit }, { postId, imageId }) {
     try {
-      const { data } = await axios.delete(`v1/posts/${postId}/file`, { data: imageId })
-      const { success } = data
+      const { data: { success } } = await axios.delete(`v1/posts/${postId}/file`, { data: imageId })
       
-      if (!success) throw new Error('게시물 파일 삭제에 실패하였습니다.')
-
       return { success }
     } catch (err) {
-      console.log(err.response)
-      return { success: false }
+      return { success: false, error: '오류가 발생하여 파일 삭제에 실패하였습니다.' }
     }
   },
 
@@ -154,16 +133,13 @@ const actions = {
    */
   async deleteLike({ commit }, { postId, userId }) {
     try {
-      const { data } = await axios.delete(`v1/posts/${postId}/like`)
-      const { success } = data
-
-      if (!success) throw new Error('게시물 좋아요 삭제에 실패하였습니다.')
+      const { data: { success } } = await axios.delete(`v1/posts/${postId}/like`)
 
       commit('DELETE_POST_LIKE', userId)
+
       return { success }
     } catch (err) {
-      console.log(err.response)
-      return { success: false }
+      return { success: false, error: '오류가 발생하여 좋아요 업데이트에 실패하였습니다.' }
     }
   },
 }
@@ -173,9 +149,20 @@ const mutations = {
     state.post = post
   },
 
-  SET_POSTS(state, { posts, maxPage }) {
-    state.posts = posts
-    state.maxPage = Number(maxPage)
+  SET_PAGE(state, page) {
+    state.page = page
+  },
+
+  SET_MAXPAGE(state, maxPage) {
+    state.maxPage = maxPage
+  },
+
+  SET_POSTS(state, { posts = [], category = '전체' }) {
+    state.groupPosts = posts.reduce((acc, post) => {
+      if (!acc[category]) acc[category] = []
+      acc[category].push(post)
+      return acc
+    }, {})
   },
 
   SET_POST_LIKES(state, { likes, likeCount }) {
@@ -197,11 +184,7 @@ const mutations = {
       state.likes = state.likes.filter(likedUserId => likedUserId !== userId)
       state.likeCount = state.likes.length
     }
-  },
-
-  SET_PAGE(state, page) {
-    state.page = page
-  },
+  },  
 }
 
 export default {

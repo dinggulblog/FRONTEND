@@ -48,7 +48,7 @@ const actions = {
       return err?.response?.data?.message || err?.message
     } finally {
       commit('UNSET_USER')
-      router.currentRoute.value.meta.requiredAuth ? router.push({ name: 'login' }) : router.go(0)
+      router.currentRoute.value.meta.requiredAuth ? router.push({ name: 'home' }) : router.go(0)
     }
   },
 

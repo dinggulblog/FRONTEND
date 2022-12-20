@@ -26,7 +26,7 @@
   import { ref, onMounted, watch } from 'vue'
   import { useRoute } from 'vue-router'
   import { useStore } from 'vuex'
-  import Toggle from './global/Toggle.vue'
+  import Toggle from '../global/Toggle.vue'
   
   export default {
     components: {

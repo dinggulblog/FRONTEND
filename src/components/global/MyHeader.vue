@@ -78,7 +78,7 @@
   import { useStore } from 'vuex'
   import { useMedia } from '../../common/mediaQuery'
   import Navigation from './Navigation.vue'
-  import SearchForm from '../SearchForm.vue'
+  import SearchForm from './SearchForm.vue'
   import AuthorSlot from '../slots/AuthorSlot.vue'
   import Account from './Account.vue'
   import LOGO from '../../assets/logo.png'

@@ -2,8 +2,8 @@
   <div class="comment">
     <CommentEditor :post="post" />
 
-    <div class="comments" v-if="comments.length">
-      <h2>댓글 {{ comments.length }}개</h2>
+    <div class="comments" v-if="commentCount">
+      <h2>댓글 {{ commentCount }}개</h2>
       <ul class="comment_items">
         <CommentSlot
           v-for="comment in comments"
@@ -21,10 +21,9 @@
 <script>
   import { defineComponent } from 'vue'
   import CommentEditor from './CommentEditor.vue'
-  import CommentSlot from '../components/slots/CommentSlot.vue'
+  import CommentSlot from '../slots/CommentSlot.vue'
 
   export default defineComponent({
-    name: 'post',
     components: {
       CommentEditor,
       CommentSlot,
@@ -32,6 +31,10 @@
     props: {
       comments: {
         type: Object,
+      },
+      commentCount: {
+        type: Number,
+        default: 0
       },
       post: {
         type: Object,

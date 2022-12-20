@@ -9,13 +9,13 @@
             </router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'posts', params: { main: route.params.main } }">
-              {{ route.params.main }}
+            <router-link :to="{ name: 'posts', params: { main } }">
+              {{ main }}
             </router-link>
           </li>
-          <li v-if="route.params.sub">
-            <router-link :to="{ name: 'posts', params: { main: route.params.main, sub: route.params.sub } }">
-              {{ route.params.sub }}
+          <li v-if="sub">
+            <router-link :to="{ name: 'posts', params: { main, sub } }">
+              {{ sub }}
             </router-link>
           </li>
         </ul>
@@ -28,7 +28,7 @@
       </div>
     </div>
 
-    <div class="categories">
+    <div class="categories" v-show="type !== 'slide'">
       <ul ref="categoryEl">
         <li>전체</li>
         <li v-for="category in categories" :key="category">{{ category }}</li>
@@ -38,18 +38,29 @@
 </template>
 
 <script>
-  import { computed, onMounted, ref, watch } from 'vue'
+  import { onMounted, ref, watch } from 'vue'
   import { useRoute } from 'vue-router'
-  import { useStore } from 'vuex'
 
   export default {
     props: {
+      main: {
+        type: String,
+        required: true
+      },
+      sub: {
+        type: String
+      },
+      type: {
+        type: String,
+        default: 'list',
+        validator: (value) => ['list', 'card', 'slide'].includes(value)
+      },
       categories: {
         type: Array,
+        default: () => []
       },
     },
     setup(props, { emit }) {
-      const { state } = useStore()
       const route = useRoute()
       const views = [
         {
@@ -66,7 +77,6 @@
         },
       ]
 
-      const type = computed(() => state.menu.type)
       const typeBtnsEl = ref(null)
       const categoryEl = ref(null)
 
@@ -103,7 +113,7 @@
       const remountClass = () => {
         removeOnClass(typeBtnsEl.value)
         removeOnClass(categoryEl.value?.children)
-        addOnClass(typeBtnsEl.value?.find((button) => button.firstChild.classList.value === type.value)?.firstChild)
+        addOnClass(typeBtnsEl.value?.find((button) => button.firstChild.classList.value === props.type)?.firstChild)
         addOnClass(categoryEl.value?.firstChild)
       }
 
@@ -115,7 +125,7 @@
         remountClass()
       })
 
-      return { route, views, typeBtnsEl, categoryEl }
+      return { views, typeBtnsEl, categoryEl }
     },
   }
 </script>

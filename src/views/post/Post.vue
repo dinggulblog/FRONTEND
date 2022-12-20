@@ -1,6 +1,6 @@
 <template>
   <Post :profile="profile" :post="post" @onDeletePost="onDeletePost" />
-  <Comments :comments="comments" :profile="profile" :post="post" @onDeleteComment="onDeleteComment" />
+  <Comments :comments="comments" :commentCount="commentCount" :profile="profile" :post="post" @onDeleteComment="onDeleteComment" />
   <Dialog ref="Dialog"></Dialog>
 </template>
 
@@ -9,7 +9,7 @@
   import { useRouter, useRoute } from 'vue-router'
   import { useStore } from 'vuex'
   import Post from '../../components/posts/Post.vue'
-  import Comments from '../../components/Comments.vue'
+  import Comments from '../../components/posts/Comments.vue'
 
   export default defineComponent({
     name: 'post',
@@ -33,6 +33,7 @@
       const profile = computed(() => state.auth.profile)
       const post = computed(() => state.post.post)
       const comments = computed(() => state.comment.comments)
+      const commentCount = computed(() => Number(state.comment.commentCount))
 
       const onDeletePost = async () => {
         if (post.value.author._id !== profile.value._id) return alert('본인 소유의 게시물만 삭제가 가능합니다.')
@@ -79,6 +80,7 @@
         profile,
         post,
         comments,
+        commentCount,
         onDeletePost,
         onDeleteComment,
       }

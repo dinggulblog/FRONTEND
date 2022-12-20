@@ -1,120 +1,148 @@
 <template>
-  <div v-if="type === 'slide' && category">
-    <p>카테고리 : {{ category }}</p>
-    <p>현재 페이지는 ? {{ nowPage }}</p>
-    <p>전체 페이지는 ? {{ totalPage }}</p>
+  <div v-if="type === 'slide'" class="wrap_slide_toolbar">
+    <div class="slide_category">
+      <span class="category">{{ category }}</span>
+    </div>
+    <div class="slide_page">
+      <span class="nowPage">{{ page }}</span>
+      <span class="maxPage">{{ maxPage }}</span>
+    </div>
   </div>
+
   <div class="posts">
-    <div v-if="posts?.length">
-      <ul :id="type">
-        <template v-for="post in posts" :key="post._id">
-          <PostSlot :type="type" :post="post"></PostSlot>
+    <div>
+      <ul :id="type" ref="POST_EL">
+        <template v-for="[key, value] in posts" :key="key">
+          <template v-for="post in value" :key="post._id">
+            <PostSlot :type="type" :post="post"></PostSlot>
+          </template>
         </template>
       </ul>
     </div>
 
-    <div v-else class="empty">
-      <span>There is no posts.</span>
-    </div>
-
     <div v-if="type === 'slide'" class="wrap_btn_slidePage">
       <Button
-        v-if="nowPage !== 1"
-        :class="'btn_prev'"
-        :size="'md'"
-        :svg="'arrow-left'"
-        :bgColor="'primary'"
-        :customColor="'#fff'"
-        :customPadding="'0'"
+        v-show="page !== 1"
+        class="btn_prev"
+        size="md"
+        svg="arrow-left"
+        bgColor="primary"
+        customColor="#fff"
+        customPadding="0"
         @click="prevSlide"
       />
       <Button
-        v-if="posts?.length > nowItem + targetItem"
-        :class="'btn_next'"
-        :size="'md'"
-        :svg="'arrow-right'"
-        :bgColor="'primary'"
-        :customColor="'#fff'"
-        :customPadding="'0'"
+        v-show="page < maxPage"
+        class="btn_next"
+        size="md"
+        svg="arrow-right"
+        bgColor="primary"
+        customColor="#fff"
+        customPadding="0"
         @click="nextSlide"
       />
     </div>
-
-    <Pagenation v-if="type !== 'slide'" :page="page" :maxPage="maxPage" @updatePage="onUpdatePage" />
   </div>
+
+  <Pagenation v-if="type !== 'slide'" :page="page" :maxPage="maxPage" @updatePage="onUpdatePage" />
 </template>
 
-<script>
-  import { computed, ref } from 'vue'
+<script setup>
+  import { defineProps, ref, computed, watch } from 'vue'
   import { useStore } from 'vuex'
   import PostSlot from '../slots/PostSlot.vue'
   import Pagenation from '../Pagenation.vue'
 
-  export default {
-    components: {
-      PostSlot,
-      Pagenation,
+  const { state, dispatch } = useStore()
+  const props = defineProps({
+    main: {
+      type: String,
+      required: true,
     },
-    props: {
-      type: {
-        type: String,
-        default: 'List',
-      },
-      category: {
-        type: String,
-      },
+    sub: {
+      type: String,
     },
-    setup() {
-      const { state, commit } = useStore()
-
-      const posts = computed(() => state.post.posts)
-      const page = computed(() => state.post.page)
-      const maxPage = computed(() => state.post.maxPage)
-
-      const onUpdatePage = (page) => commit('post/SET_PAGE', page)
-
-      const nowPage = ref(1)
-      const totalPage = ref()
-
-      let nowItem = ref(1)
-      let targetItem = ref(4)
-
-      const nextSlide = (event) => {
-        const container = event.currentTarget.parentNode.previousSibling.querySelector('#slide')
-        const moveItem = event.currentTarget.parentNode.previousSibling.querySelector(
-          `#slide :nth-child(${nowItem.value + targetItem.value})`
-        )
-        const x = moveItem.getBoundingClientRect().left
-        container.scrollTo({ left: x, behavior: 'smooth' })
-        nowItem.value = nowItem.value + targetItem.value
-        nowPage.value = nowPage.value + 1
-      }
-
-      const prevSlide = (event) => {
-        const container = event.currentTarget.parentNode.previousSibling.querySelector('#slide')
-        const moveItem = event.currentTarget.parentNode.previousSibling.querySelector(
-          `#slide :nth-child(${nowItem.value - targetItem.value})`
-        )
-        const x = moveItem.getBoundingClientRect().left
-        container.scrollTo({ left: x, behavior: 'smooth' })
-        nowItem.value = nowItem.value - targetItem.value
-        nowPage.value = nowPage.value - 1
-      }
-
-      return {
-        posts,
-        page,
-        maxPage,
-        nowPage,
-        totalPage,
-        nowItem,
-        targetItem,
-        onUpdatePage,
-        nextSlide,
-        prevSlide,
-      }
+    type: {
+      type: String,
+      default: 'list',
+      validator: (value) => ['list', 'card', 'slide'].includes(value),
     },
+    category: {
+      type: String,
+      default: '전체',
+    },
+  })
+
+  let nowItem = 1
+  let limit = 4
+
+  const POST_EL = ref(null)
+  const page = ref(1)
+  const maxPage = ref(1)
+  const posts = ref(new Map())
+  const currentMenus = computed(() => state.menu.currentMenus?.map((menu) => menu._id))
+
+  const getPosts = async (payload) => {
+    const { success, posts: Posts, maxPage: MaxPage } = await dispatch('post/getPosts', payload)
+    if (success) {
+      maxPage.value = MaxPage
+      posts.value.set(page.value, Posts)
+    }
   }
+
+  const onUpdatePage = async (updatePage) => {
+    page.value = updatePage
+    await getPosts({
+      page: page.value,
+      limit: limit,
+      menu: currentMenus.value,
+      category: props.category,
+      hasThumbnail: props.type === 'slide' ? true : false,
+    })
+  }
+
+  const nextSlide = async () => {
+    if (page.value === maxPage.value || !POST_EL.value) return
+    nowItem = nowItem + limit
+    await onUpdatePage(page.value + 1)
+
+    const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left
+    POST_EL.value.scrollTo({ left: x, behavior: 'smooth' })
+  }
+
+  const prevSlide = async () => {
+    if (page.value === 1 || !POST_EL.value) return
+    nowItem = nowItem - limit
+    await onUpdatePage(page.value - 1)
+
+    const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left
+    POST_EL.value.scrollTo({ left: x, behavior: 'smooth' })
+  }
+
+  watch(
+    () => [props.main, props.sub, props.category],
+    async () => {
+      page.value = 1
+      posts.value.clear()
+
+      await getPosts({
+        page: page.value,
+        limit: limit,
+        menu: currentMenus.value,
+        category: props.category,
+        hasThumbnail: props.type === 'slide' ? true : false,
+      })
+    }
+  )
+
+  // Create Hook
+  await getPosts({
+    page: page.value,
+    limit: limit,
+    menu: currentMenus.value,
+    category: props.category,
+    hasThumbnail: props.type === 'slide' ? true : false,
+  })
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
@@ -185,7 +213,7 @@
     display: flex;
     flex-direction: row;
     overflow-x: auto;
-    margin: 0 0 2.4rem;
+    margin: 0 0 9.6rem;
     -ms-overflow-style: none;
     overflow: -moz-scrollbars-none;
     scrollbar-width: none;
@@ -203,6 +231,59 @@
 
     & > li:last-child {
       margin: 0;
+    }
+  }
+
+  .wrap_slide_toolbar {
+    display: flex;
+    margin: 0 0 4rem;
+
+    .slide_category,
+    .slide_page {
+      width: 50%;
+    }
+
+    .slide_category {
+      font-size: 1.6rem;
+      color: var(--primary-dark);
+      letter-spacing: 0.2rem;
+      text-transform: uppercase;
+      position: relative;
+
+      .category {
+        padding-left: 1.6rem;
+      }
+
+      .category::before {
+        content: '';
+        position: absolute;
+        width: 0.1rem;
+        height: 1.6rem;
+        background-color: var(--primary-dark);
+        top: 0.6rem;
+        left: 0;
+      }
+    }
+
+    .slide_page {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      font-size: 1.4rem;
+      font-weight: 500;
+
+      .nowPage {
+        color: var(--primary-dark);
+      }
+
+      .maxPage {
+        color: #c7c7c7;
+
+        &::before {
+          content: '/';
+          margin: 0 0.8rem;
+        }
+      }
     }
   }
 </style>

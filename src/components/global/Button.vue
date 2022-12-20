@@ -100,6 +100,7 @@
   .btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     width: v-bind('state.width');
     padding: v-bind('state.padding');
     color: v-bind('state.color');

@@ -64,7 +64,8 @@
     props: {
       type: {
         type: String,
-        default: 'List',
+        default: 'list',
+        validator: (value) => ['list', 'card', 'slide'].includes(value)
       },
       post: {
         type: Object,

@@ -53,12 +53,10 @@ const mutations = {
   },
 
   SET_CURRENT_MENUS(state, { main, sub }) {
-    if (!sub && main) {
+    if (!sub) {
       state.currentMenus = state.groupMenus[main]
-    } else if (sub && main) {
-      state.currentMenus = state.groupMenus[main]?.filter((subMenus) => subMenus.sub === sub)
     } else {
-      state.currentMenus = state.menus
+      state.currentMenus = state.groupMenus[main]?.filter((subMenus) => subMenus.sub === sub)
     }
 
     state.type = state.currentMenus.length === 1 ? [...state.currentMenus].shift()?.type : 'list'

@@ -83,7 +83,6 @@
 
       // maxPage가 바뀌면 실행(route가 변경된 경우)
       watchEffect(() => {
-        onUpdatePage(1)
         resetPages((pageStart.value = 0), props.maxPage)
       })
 

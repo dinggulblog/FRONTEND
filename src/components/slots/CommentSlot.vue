@@ -54,11 +54,11 @@
           <span v-else>{{ comment.content }}</span>
         </p>
         <Button
-          v-if="comment?.childComments?.length"
+          v-if="comment.childCommentCount"
           class="btn_childComment_toggle"
           :svg="!isVisible.childComments ? 'arrow-down' : 'arrow-up'"
           :size="'xs'"
-          :content="'답글 ' + String(comment?.childComments?.length) + '개'"
+          :content="'답글 ' + comment.childCommentCount + '개'"
           :customColor="'var(--primary-dark)'"
           :customFontSize="'1.4rem'"
           :customPadding="'0'"
@@ -90,11 +90,11 @@
       <p>** 해당 댓글은 삭제된 댓글입니다 **</p>
 
       <Button
-        v-if="comment?.childComments?.length"
+        v-if="comment.childCommentCount"
         class="btn_childComment_toggle"
         :svg="!isVisible.childComments ? 'arrow-down' : 'arrow-up'"
         :size="'xs'"
-        :content="'답글 ' + String(comment?.childComments?.length) + '개'"
+        :content="'답글 ' + comment.childCommentCount + '개'"
         :customColor="'var(--primary-dark)'"
         :customFontSize="'1.4rem'"
         :customPadding="'0'"
@@ -119,7 +119,7 @@
   import { useStore } from 'vuex'
   import ActionSlot from './ActionSlot.vue'
   import CommentInfoSlot from './CommentInfoSlot.vue'
-  import CommentEditor from '../CommentEditor.vue'
+  import CommentEditor from '../posts/CommentEditor.vue'
   import comment from '../../store/modules/comment'
 
   export default {
@@ -212,9 +212,7 @@
       }
 
       onBeforeMount(() => {
-        myParentComment.value = comments.value
-          ?.filter((comment) => searchParentComment(comment, props.comment.parentComment))
-          ?.pop()
+        myParentComment.value = comments.value.find((comment) => searchParentComment(comment, props.comment.parentComment))
       })
 
       return {

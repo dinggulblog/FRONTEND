@@ -43,7 +43,14 @@
       </div>
       <div class="images_add_btn">
         <label for="upload_input" class="upload_label">사진 불러오기</label>
-        <input type="file" id="upload_input" @change="onUploadImages" multiple />
+        <input
+          ref="UPLOAD_INPUT_EL"
+          type="file"
+          id="upload_input"
+          @change="onUploadImages"
+          @click="$refs.UPLOAD_INPUT_EL.value = ''"
+          multiple
+        />
       </div>
     </div>
 
@@ -68,7 +75,6 @@
       <ul>
         <li v-for="(file, index) in fileState.files" :key="file.serverFileName">
           <div class="wrap_thumbnail">
-            <!-- <img :src="`${fileState.fileUrl}${image.serverFileName}`" /> -->
             <img
               :src="`${IMAGE_URL}${file.serverFileName}`"
               :class="fileState.fileIndex === index ? 'selected_thumbnail' : ''"
@@ -83,7 +89,7 @@
     </div>
 
     <div class="wrap_btns">
-      <div class="wrap_left">
+      <div class="wrap_image_btns">
         <Button
           v-show="fileState.files.length"
           class="btn_image_insert"
@@ -91,6 +97,7 @@
           :size="'md'"
           :borderColor="'primary-dark'"
           :rounded="true"
+          :full="isMobile ? true : false"
           :disabled="menuState.isLoading"
           @onClick="onInsertImage"
         ></Button>
@@ -101,10 +108,25 @@
           :size="'md'"
           :borderColor="'primary-dark'"
           :rounded="true"
+          :full="isMobile ? true : false"
           :disabled="menuState.isLoading"
           @onClick="onClearImages"
         ></Button>
       </div>
+
+      <Button
+        class="btn_submit"
+        :content="'글 등록'"
+        :size="'md'"
+        :bgColor="'primary-dark'"
+        :custom="true"
+        :rounded="true"
+        :full="isMobile ? true : false"
+        :disabled="menuState.isLoading"
+        @onClick="onChangeCanLeavePage(true), onUpdatePost()"
+      ></Button>
+
+      <!--
       <div class="wrap_right">
         <div class="wrap_isLoading">
           <Transition name="isLoading">
@@ -113,21 +135,8 @@
             </span>
           </Transition>
         </div>
-        <div class="wrap_auto-save">
-          <input type="checkbox" id="auto-save" />
-          <label for="auto-save">자동 저장 여부</label>
-        </div>
-        <Button
-          class="btn_submit"
-          :content="'글 등록'"
-          :size="'md'"
-          :bgColor="'primary-dark'"
-          :custom="true"
-          :rounded="true"
-          :disabled="menuState.isLoading"
-          @onClick="onChangeCanLeavePage(true), onUpdatePost()"
-        ></Button>
       </div>
+      -->
     </div>
   </div>
   <Dialog ref="Dialog"></Dialog>
@@ -137,6 +146,7 @@
   import { defineComponent, ref, reactive, computed, onBeforeMount, onMounted, onUnmounted } from 'vue'
   import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
   import { useStore } from 'vuex'
+  import { useMedia } from '../../common/mediaQuery'
   import Markdown from 'vue3-markdown-it'
   import MarkdownEmoji from 'markdown-it-emoji'
   import Toggle from '../../components/global/Toggle.vue'
@@ -154,6 +164,7 @@
       const { state, commit, dispatch } = useStore()
 
       let canLeavePage = true
+      const isMobile = useMedia('only screen and (max-width: 767px)')
       const Dialog = ref(null)
       const plugins = ref([{ plugin: MarkdownEmoji }])
       const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
@@ -167,7 +178,8 @@
       })
 
       const postState = reactive({
-        _id: '',
+        postId: '',
+        draftId: '',
         menu: '',
         title: '',
         content: '',
@@ -206,16 +218,25 @@
         postState.isPublic = Boolean(state)
       }
 
-      const updateDraft = async () => {
-        const { _id: draftId, ...payload } = postState
-        await dispatch('draft/updateDraft', { draftId, payload })
+      const onUpdateDraft = async (formData = new FormData()) => {
+        if (!postState.menu) return
+
+        const { draftId, postId, ...payload } = postState
+        Object.keys(payload).forEach((key) => formData.append(key, payload[key]))
+
+        const { success, draft, images } = draftId
+          ? await dispatch('draft/updateDraft', { draftId, payload: formData })
+          : await dispatch('draft/createDraft', formData)
+
+        if (draft) postState.draftId = draft._id
+        return { success, images }
       }
 
       const onUpdatePost = async () => {
         if (!postState.menu) return alert('게시글을 삽입할 메뉴를 선택해야 합니다.')
 
-        const { _id: postId, ...payload } = postState
-        const { success, post } = route.query.id
+        const { draftId, postId, ...payload } = postState
+        const { success, post } = postId
           ? await dispatch('post/updatePost', { postId, payload })
           : await dispatch('post/createPost', payload)
 
@@ -224,31 +245,32 @@
         }
       }
 
-      const uploadImage = (event) => {
-
-      }
-
       const onUploadImages = async (event) => {
         if (!event.target.files.length) return
+        if (!postState.menu) return alert('게시글을 삽입할 메뉴를 선택해야 합니다.')
+
         const formData = new FormData()
         Object.values(event.target.files).forEach((file) => formData.append('images', file))
 
-        const response = route.query.id
-          ? await dispatch('post/updatePost', { postId: postState._id, payload: formData })
-          : await dispatch('draft/updateDraft', { draftId: postState._id, payload: formData })
+        const { success, images } = postState.postId
+          ? await dispatch('post/updatePost', { postId: postState.postId, payload: formData })
+          : await onUpdateDraft(formData)
 
-        if (response.success && response.images) {
-          fileState.files = fileState.files.concat(response.images)
+        if (success && images) {
+          fileState.files = fileState.files.concat(images)
+          onSelectImage(fileState.files[0], 0)
         }
-
-        onSelectImage(fileState.files[0], 0)
       }
 
       const onDeleteImage = async (file) => {
-        const { success } = await dispatch('draft/deleteFile', { draftId: postState._id, imageId: file._id })
+        if (!file?._id) return
+
+        const { success } = postState.postId
+          ? await dispatch('post/deleteFile', { postId: postState.postId, imageId: file._id })
+          : await dispatch('draft/deleteFile', { draftId: postState.draftId, imageId: file._id })
 
         const idx = fileState.files.indexOf(file)
-        if (success && idx !== -1) fileState.files.splice(idx)
+        if (success && idx !== -1) fileState.files = fileState.files.filter((file, index) => index !== idx)
       }
 
       const onSelectImage = (file, index) => {
@@ -285,15 +307,43 @@
         }
       }
 
-      const setInitData = (post) => {
+      const setInitData = (post, temp = false) => {
         const { _id, menu, category, title, content, isPublic, images, thumbnail } = post
-        postState._id = _id
+
+        if (temp) postState.draftId = _id
+        else postState.postId = _id
+
         postState.menu = menu
         postState.title = title
         postState.content = content
         postState.category = category
         postState.isPublic = isPublic
         fileState.files = Array.isArray(images) ? images : []
+
+        const idx = fileState.files.findIndex((file) => file._id === thumbnail)
+        if (thumbnail && idx !== -1) {
+          onSelectImage(fileState.files[idx], idx)
+        }
+      }
+
+      const autoSave = route.query.id
+        ? setInterval(onUpdatePost, 1000 * 60 * 10)
+        : setInterval(onUpdateDraft, 1000 * 60 * 10)
+
+      onBeforeMount(() => {
+        const { post } = state.post
+        const { draft } = state.draft
+
+        if (route.query.id) {
+          if (post._id) setInitData(post)
+          else if (draft._id) setInitData(draft, true)
+          else go(-1)
+        }
+      })
+
+      onMounted(() => {
+        window.addEventListener('beforeunload', unloadEvent)
+        const { menu, category } = postState
 
         if (menu) {
           const { main, sub } = state.menu.menus.find((m) => m._id === menu)
@@ -306,24 +356,6 @@
 
           if (category) document.body.querySelector('div.category select').value = category
         }
-
-        const idx = fileState.files.findIndex((file) => file._id === thumbnail)
-        if (thumbnail && idx !== -1) {
-          onSelectImage(fileState.files[idx], idx)
-        }
-      }
-
-      const autoSave = route.query.id
-        ? setInterval(onUpdatePost, 1000 * 60 * 10)
-        : setInterval(updateDraft, 1000 * 60 * 10)
-
-      onBeforeMount(async () => {
-        const { post } = state.post
-        if (route.query.id) return post ? setInitData(post) : go(-1)
-      })
-
-      onMounted(() => {
-        window.addEventListener('beforeunload', unloadEvent)
       })
 
       onUnmounted(async () => {
@@ -346,6 +378,7 @@
       })
 
       return {
+        isMobile,
         Dialog,
         plugins,
         IMAGE_URL,
@@ -375,10 +408,20 @@
       flex-direction: row;
       align-items: center;
 
+      @include mobile {
+        flex-direction: column;
+        align-items: flex-end;
+      }
+
       .select {
         display: flex;
         flex-direction: row;
         width: 90%;
+
+        @include mobile {
+          flex-direction: column;
+          width: 100%;
+        }
 
         div {
           display: flex;
@@ -389,9 +432,16 @@
           border-radius: 3.2rem;
           font-size: 1.4rem;
           margin-right: 2.4rem;
+          padding: 0 2.4rem;
+
+          @include mobile {
+            width: 100%;
+            margin-right: 0;
+            margin-bottom: 1.6rem;
+          }
 
           select {
-            width: calc(27rem - 4.8rem);
+            width: 100%;
             font-size: 1.4rem;
             color: var(--text-light);
             height: 4.8rem;
@@ -411,6 +461,10 @@
         align-items: center;
         justify-content: flex-end;
         width: 10%;
+
+        @include mobile {
+          width: 100%;
+        }
       }
     }
 
@@ -425,8 +479,13 @@
       height: 4.8rem;
       padding: 0 2.4rem;
 
+      @include mobile {
+        margin: 1.6rem 0;
+      }
+
       .title {
-        width: 85%;
+        width: 80%;
+
         input {
           color: var(--text-light);
           font-size: 1.4rem;
@@ -440,9 +499,10 @@
       }
 
       .images_add_btn {
-        width: 15%;
+        width: 20%;
         display: flex;
         justify-content: flex-end;
+        margin: 0 0 0 3.2rem;
 
         label.upload_label {
           font-size: 1.2rem;
@@ -488,11 +548,22 @@
       textarea {
         margin: 0 2.4rem 0 0;
         resize: vertical;
+
+        @include mobile_all {
+          width: 100%;
+          margin: 0;
+        }
       }
 
       textarea::placeholder {
         color: var(--text-light);
         font-size: 1.4rem;
+      }
+
+      .markdown {
+        @include mobile_all {
+          display: none;
+        }
       }
     }
 
@@ -507,11 +578,7 @@
         li {
           width: 7.4rem;
           height: calc(7.4rem + 1.6rem);
-          margin: 1.2rem 2.4rem 0 0;
-
-          &:nth-child(12n + 0) {
-            margin: 1.2rem 0;
-          }
+          margin: 0rem 2.4rem 0 0;
 
           .wrap_thumbnail {
             position: relative;
@@ -548,18 +615,22 @@
 
     .wrap_btns {
       display: flex;
-      flex-direction: row;
-      margin: 3.2rem 0 0;
+      flex-direction: column;
+      align-items: flex-end;
 
-      .wrap_left {
-        width: 50%;
+      .wrap_image_btns {
         display: flex;
         align-items: center;
+        margin: 1.6rem 0 2rem;
+        justify-content: flex-start;
+        width: 100%;
 
         .btn_image_clear {
           margin: 0 0 0 1.2rem;
         }
       }
+
+      /*
 
       .wrap_right {
         width: 50%;
@@ -587,6 +658,7 @@
           }
         }
 
+
         .wrap_auto-save {
           display: flex;
           align-items: center;
@@ -602,7 +674,9 @@
             color: var(--text-dark);
           }
         }
+  
       }
+      */
     }
   }
 </style>
