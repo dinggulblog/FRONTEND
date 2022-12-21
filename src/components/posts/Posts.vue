@@ -32,6 +32,7 @@
         @click="prevSlide"
       />
       <Button
+        v-show="maxPage > page"
         class="btn_next"
         size="md"
         svg="arrow-right"
@@ -85,7 +86,7 @@
   const currentMenus = computed(() => state.menu.currentMenus?.map((menu) => menu._id))
 
   const query = reactive({
-    page: page.value,
+    page: computed(() => (page.value === 1 ? page.value : page.value + 1)),
     limit: limit * 2,
     menu: currentMenus.value,
     category: props.category,
@@ -96,33 +97,22 @@
     const { success, posts: Posts, maxPage: MaxPage } = await dispatch('post/getPosts', payload)
     if (success) {
       maxPage.value = MaxPage * 2
-
-      if (page.value === 1) {
-        /* 현재 페이지가 1이라면 앞 4개는 key 1에 넣고, 뒤 4개는 key 2에 넣기*/
-        posts.value.set(page.value, Posts.slice(0, 4))
-        posts.value.set(page.value + 1, Posts.slice(4))
-        console.log('1페이지 진입시', posts.value)
-      } else {
-        /* 현재 페이지가 1이 아니면 앞 4개는 key는 현재페이지 +1, 뒤 4개는 현재페이지 +2 .. 예를들어 현재가 2페이지면 앞 4개는 3페이지, 뒤 4개는 4페이지에 넣기 */
-        posts.value.set(page.value + 1, Posts.slice(0, 4))
-        posts.value.set(page.value + 2, Posts.slice(4))
-        console.log('next버튼 누른 직후', posts.value)
-      }
+      posts.value.set(query.page, Posts.slice(0, 4))
+      posts.value.set(query.page + 1, Posts.slice(4))
     }
   }
 
   const onUpdatePage = async (updatePage) => {
     page.value = updatePage
 
-    /* 현재 page가 2의 배수이고, 현재 페이지가 끝페이지가 아니라면 데이터 추가로 받아오기 */
     if (page.value % 2 === 0) await getPosts(query)
   }
 
   const nextSlide = async () => {
     if (page.value === maxPage.value || !POST_EL.value) return
     nowItem = nowItem + limit
-
     await onUpdatePage(page.value + 1)
+
     const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left
     POST_EL.value.scrollTo({ left: x, behavior: 'smooth' })
   }
