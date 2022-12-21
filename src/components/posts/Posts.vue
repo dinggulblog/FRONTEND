@@ -110,20 +110,22 @@
 
   const nextSlide = async () => {
     if (page.value === maxPage.value || !POST_EL.value) return
-    nowItem = nowItem + limit
-    await onUpdatePage(page.value + 1)
 
+    nowItem = nowItem + limit
     const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left
     POST_EL.value.scrollTo({ left: x, behavior: 'smooth' })
+
+    await onUpdatePage(page.value + 1)
   }
 
   const prevSlide = async () => {
     if (page.value === 1 || !POST_EL.value) return
-    nowItem = nowItem - limit
-    await onUpdatePage(page.value - 1)
 
+    nowItem = nowItem - limit
     const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left
     POST_EL.value.scrollTo({ left: x, behavior: 'smooth' })
+
+    await onUpdatePage(page.value - 1)
   }
 
   watch(
