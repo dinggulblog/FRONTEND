@@ -231,6 +231,13 @@
     background: #fff;
     padding: 2.4rem 3.2rem;
     border-radius: 3.2rem;
+    overflow-y: auto;
+
+    @include mobile {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+    }
   }
   .btn_close {
     margin: 2rem 0;

@@ -166,7 +166,9 @@
       const onUpdateIntroduce = async () => {
         const { success, profile } = await dispatch('auth/updateProfile', {
           nickname: profileState.nickname,
-          payload: { introduce: profileState.introduce.replace(/(^([ ]*<p><br><\/p>)*)|((<p><br><\/p>)*[ ]*$)/gi, '').trim(' ') },
+          payload: {
+            introduce: profileState.introduce.replace(/(^([ ]*<p><br><\/p>)*)|((<p><br><\/p>)*[ ]*$)/gi, '').trim(' '),
+          },
         })
 
         if (!success) return
@@ -192,7 +194,7 @@
           const { success, profile } = await dispatch('auth/getProfile', { nickname: profileState.nickname })
 
           if (!success) return
-          
+
           profileState._id = profile._id
           profileState.avatar = profile.avatar
           profileState.greetings = profile.greetings
@@ -228,6 +230,10 @@
 
       &::v-deep .author {
         align-items: v-bind('displayState.alignItems');
+
+        @include mobile {
+          align-items: center;
+        }
         .wrap_avatar {
           display: flex;
           flex-direction: column;
@@ -282,6 +288,10 @@
             resize: none;
             font-size: 1.4rem;
             color: var(--text-light);
+
+            @include mobile {
+              min-height: 12rem;
+            }
           }
         }
       }

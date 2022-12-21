@@ -57,7 +57,7 @@
   import card from '../posts/Card.vue'
   import list from '../posts/List.vue'
   import slide from '../posts/Slide.vue'
-  import DEFAULT_THUMBNAIL from '../../assets/default_thumbnail.png'
+  import DEFAULT_THUMBNAIL from '../../assets/default_thumbnail.webp'
 
   export default {
     name: 'PostsSlot',
@@ -65,12 +65,12 @@
       type: {
         type: String,
         default: 'list',
-        validator: (value) => ['list', 'card', 'slide'].includes(value)
+        validator: (value) => ['list', 'card', 'slide'].includes(value),
       },
       post: {
         type: Object,
         required: true,
-      }
+      },
     },
     components: {
       list,

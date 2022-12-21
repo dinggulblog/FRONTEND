@@ -44,8 +44,8 @@
 <script>
   import { reactive, ref, toRefs } from 'vue'
   import Author from '../posts/Author.vue'
-  import DEFAULT_AVATAR_192 from '../../assets/default_avatar_192.png'
-  import DEFAULT_AVATAR_64 from '../../assets/default_avatar_64.png'
+  import DEFAULT_AVATAR_192 from '../../assets/default_avatar_192.webp'
+  import DEFAULT_AVATAR_64 from '../../assets/default_avatar_64.webp'
   
   export default {
     name: 'AuthorSlot',

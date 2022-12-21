@@ -45,19 +45,19 @@
     props: {
       main: {
         type: String,
-        required: true
+        required: true,
       },
       sub: {
-        type: String
+        type: String,
       },
       type: {
         type: String,
         default: 'list',
-        validator: (value) => ['list', 'card', 'slide'].includes(value)
+        validator: (value) => ['list', 'card', 'slide'].includes(value),
       },
       categories: {
         type: Array,
-        default: () => []
+        default: () => [],
       },
     },
     setup(props, { emit }) {
@@ -231,7 +231,6 @@
 
         @include mobile_all {
           flex-wrap: nowrap;
-          overflow-x: auto;
           overflow-y: hidden;
         }
       }

@@ -73,7 +73,7 @@
   import ActionSlot from '../slots/ActionSlot.vue'
   import AuthorSlot from '../slots/AuthorSlot.vue'
   import PostInfoSlot from '../slots/PostInfoSlot.vue'
-  import DEFAULT_AVATAR_64 from '../../assets/default_avatar_64.png'
+  import DEFAULT_AVATAR_64 from '../../assets/default_avatar_64.webp'
 
   export default defineComponent({
     components: {
@@ -85,11 +85,11 @@
     props: {
       post: {
         type: Object,
-        default: () => ({})
+        default: () => ({}),
       },
       profile: {
         type: Object,
-        default: () => ({})
+        default: () => ({}),
       },
     },
     setup(props, { emit }) {
@@ -208,6 +208,15 @@
       font-size: 1.4rem;
       color: var(--input_text);
       line-height: 2.2rem;
+
+      .markdown > p {
+        box-sizing: border-box;
+      }
+
+      .markdown > p > img {
+        width: 100%;
+        height: 100%;
+      }
     }
 
     .wrap_like {

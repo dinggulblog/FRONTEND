@@ -81,7 +81,7 @@
   import SearchForm from './SearchForm.vue'
   import AuthorSlot from '../slots/AuthorSlot.vue'
   import Account from './Account.vue'
-  import LOGO from '../../assets/logo.png'
+  import LOGO from '../../assets/logo.webp'
 
   export default {
     components: {
@@ -101,6 +101,7 @@
         nickname: computed(() => state.auth.profile.nickname),
         avatar: computed(() => state.auth.profile.avatar)
       })
+      
       const gnbState = reactive({
         isOpen: false,
         display: computed(() => !isMobile.value ? 'flex' : gnbState.isOpen ? 'flex' : 'none')

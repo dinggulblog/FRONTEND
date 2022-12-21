@@ -32,7 +32,6 @@
         @click="prevSlide"
       />
       <Button
-        v-show="page < maxPage"
         class="btn_next"
         size="md"
         svg="arrow-right"
@@ -48,8 +47,9 @@
 </template>
 
 <script setup>
-  import { defineProps, ref, computed, watch } from 'vue'
+  import { defineProps, ref, computed, watch, reactive } from 'vue'
   import { useStore } from 'vuex'
+  import { useMedia } from '../../common/mediaQuery'
   import PostSlot from '../slots/PostSlot.vue'
   import Pagenation from '../Pagenation.vue'
 
@@ -73,6 +73,8 @@
     },
   })
 
+  const isMobile = useMedia('only screen and (max-width: 1023px)')
+
   let nowItem = 1
   let limit = 4
 
@@ -82,30 +84,45 @@
   const posts = ref(new Map())
   const currentMenus = computed(() => state.menu.currentMenus?.map((menu) => menu._id))
 
+  const query = reactive({
+    page: page.value,
+    limit: limit * 2,
+    menu: currentMenus.value,
+    category: props.category,
+    hasThumbnail: props.type === 'slide' ? true : false,
+  })
+
   const getPosts = async (payload) => {
     const { success, posts: Posts, maxPage: MaxPage } = await dispatch('post/getPosts', payload)
     if (success) {
-      maxPage.value = MaxPage
-      posts.value.set(page.value, Posts)
+      maxPage.value = MaxPage * 2
+
+      if (page.value === 1) {
+        /* 현재 페이지가 1이라면 앞 4개는 key 1에 넣고, 뒤 4개는 key 2에 넣기*/
+        posts.value.set(page.value, Posts.slice(0, 4))
+        posts.value.set(page.value + 1, Posts.slice(4))
+        console.log('1페이지 진입시', posts.value)
+      } else {
+        /* 현재 페이지가 1이 아니면 앞 4개는 key는 현재페이지 +1, 뒤 4개는 현재페이지 +2 .. 예를들어 현재가 2페이지면 앞 4개는 3페이지, 뒤 4개는 4페이지에 넣기 */
+        posts.value.set(page.value + 1, Posts.slice(0, 4))
+        posts.value.set(page.value + 2, Posts.slice(4))
+        console.log('next버튼 누른 직후', posts.value)
+      }
     }
   }
 
   const onUpdatePage = async (updatePage) => {
     page.value = updatePage
-    await getPosts({
-      page: page.value,
-      limit: limit,
-      menu: currentMenus.value,
-      category: props.category,
-      hasThumbnail: props.type === 'slide' ? true : false,
-    })
+
+    /* 현재 page가 2의 배수이고, 현재 페이지가 끝페이지가 아니라면 데이터 추가로 받아오기 */
+    if (page.value % 2 === 0) await getPosts(query)
   }
 
   const nextSlide = async () => {
     if (page.value === maxPage.value || !POST_EL.value) return
     nowItem = nowItem + limit
-    await onUpdatePage(page.value + 1)
 
+    await onUpdatePage(page.value + 1)
     const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left
     POST_EL.value.scrollTo({ left: x, behavior: 'smooth' })
   }
@@ -125,24 +142,12 @@
       page.value = 1
       posts.value.clear()
 
-      await getPosts({
-        page: page.value,
-        limit: limit,
-        menu: currentMenus.value,
-        category: props.category,
-        hasThumbnail: props.type === 'slide' ? true : false,
-      })
+      await getPosts(query)
     }
   )
 
   // Create Hook
-  await getPosts({
-    page: page.value,
-    limit: limit,
-    menu: currentMenus.value,
-    category: props.category,
-    hasThumbnail: props.type === 'slide' ? true : false,
-  })
+  await getPosts(query)
 </script>
 
 <style lang="scss" rel="stylesheet/scss">

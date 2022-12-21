@@ -1,6 +1,5 @@
 <template>
   <nav class="nav">
-
     <!-- Close button -->
     <div class="m_menu_close">
       <button class="btn_close" @click="$emit('close')">
@@ -10,21 +9,27 @@
 
     <!-- Login rink -->
     <div class="m_menu_login" v-if="!profile.nickname">
-      <span class="a_login" @click="$emit('openLoginModal'); $emit('close')"> 로그인 </span>
+      <span class="a_login" @click="$emit('openLoginModal'), $emit('close')">로그인</span>
       이 필요합니다.
     </div>
 
     <!-- Account info -->
     <div class="wrap_auth" v-else>
       <div class="auth">
-        <AuthorSlot :profile="profile" :type="'header'" />
+        <AuthorSlot :profile="profile" />
       </div>
 
       <div class="auth_items">
         <ul>
-          <li><span @click="$emit('openAccountModal'); $emit('close')">Account</span></li>
-          <li><router-link :to="{ name: 'profile', params: { nickname: profile.nickname } }" @click="$emit('close')">Profile</router-link></li>
-          <li><button @click="onLogout">Logout</button></li>
+          <li>
+            <span @click="$emit('openAccountModal'), $emit('close')">Account</span>
+          </li>
+          <li>
+            <router-link :to="{ name: 'profile', params: { nickname: profile.nickname } }" @click="$emit('close')">
+              Profile
+            </router-link>
+          </li>
+          <li><span @click="onLogout">Logout</span></li>
         </ul>
       </div>
     </div>
@@ -32,25 +37,30 @@
     <!-- Menu links -->
     <div class="wrap_nav_item">
       <ul>
-        <li class="nav_item"><router-link :to="{ name: 'home' }" class="item_number" @click="$emit('close')">home</router-link></li>
+        <li class="nav_item">
+          <router-link :to="{ name: 'home' }" class="item_number" @click="$emit('close')">home</router-link>
+        </li>
         <li v-for="(subMenus, main) in menus" :key="main" class="nav_item dropdown">
-          <router-link :to="{ name: 'posts', params: { main } }" class="item_number" @click="$emit('close')">{{ main }}</router-link>
+          <router-link :to="{ name: 'posts', params: { main } }" class="item_number" @click="$emit('close')">{{
+            main
+          }}</router-link>
           <div class="wrap_nav_item_child dropdown_items">
             <ul class="nav_item_child">
               <li v-for="{ _id, sub } in subMenus" :key="_id">
-                <router-link :to="{ name: 'posts', params: { main, sub } }" @click="$emit('close')">{{ sub }}</router-link>
+                <router-link :to="{ name: 'posts', params: { main, sub } }" @click="$emit('close')">{{
+                  sub
+                }}</router-link>
               </li>
             </ul>
           </div>
         </li>
       </ul>
     </div>
-
   </nav>
 </template>
 
 <script>
-  import { computed } from 'vue'
+  import { computed, reactive } from 'vue'
   import { useStore } from 'vuex'
   import AuthorSlot from '../slots/AuthorSlot.vue'
 
@@ -63,7 +73,11 @@
       const { state, dispatch } = useStore()
 
       const menus = computed(() => state.menu.groupMenus)
-      const profile = computed(() => state.auth.profile)
+
+      const profile = reactive({
+        nickname: computed(() => state.auth.profile.nickname),
+        avatar: computed(() => state.auth.profile.avatar),
+      })
 
       const onLogout = async () => await dispatch('auth/logout')
 
@@ -82,20 +96,15 @@
       top: 0;
       width: 32rem;
       height: 100vh;
-      padding: 4.8rem 4.8rem 0;
+      padding: 4.8rem 4.8rem;
       font-size: 1.6rem;
       color: var(--text-light);
       background-color: #efefef;
       overflow-y: auto;
-      -ms-overflow-style: none;
 
       a,
       button {
         font-size: 1.6rem;
-      }
-
-      &::-webkit-scrollbar {
-        display: none;
       }
     }
 
@@ -116,7 +125,7 @@
 
       @include mobile_all {
         margin: 0rem 0;
-        font-size: 1.6rem;
+        font-size: 1.4rem;
       }
     }
 
@@ -150,11 +159,10 @@
       @include mobile-tablet {
         display: block;
         width: 100%;
-        margin: 0 0 1.6rem;
         padding: 4.8rem 0;
         border-bottom: 1px solid var(--primary);
 
-        a {
+        .a_login {
           text-decoration: underline;
           color: var(--primary);
         }
@@ -168,7 +176,7 @@
         display: flex;
         flex-direction: column;
         width: 100%;
-        padding: 4.8rem 0;
+        padding: 4rem 0;
         border-bottom: 1px solid var(--primary);
       }
 
@@ -195,8 +203,8 @@
           margin: 3.2rem 0 0 0;
 
           a,
-          button {
-            font-size: 1.6rem;
+          span {
+            font-size: 1.4rem;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.2rem;
@@ -234,7 +242,7 @@
           justify-content: flex-start;
           align-items: flex-start;
           width: auto;
-          margin: 4.8rem 0 0;
+          margin: 4rem 0 0;
           background-color: transparent;
         }
 
@@ -331,7 +339,7 @@
           content: '';
           position: absolute;
           left: 0;
-          width: 0.01rem;
+          width: 0.1rem;
           height: 1.2rem;
           background-color: var(--border-dark);
 

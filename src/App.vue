@@ -12,7 +12,7 @@
 
     <div id="footer">copyright SOL & MING all rights reserved</div>
 
-    <div class="m-createBtn">
+    <div class="m-createBtn" v-if="isLogin">
       <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
     </div>
   </div>
@@ -20,6 +20,8 @@
 
 <script>
   import MyHeader from './components/global/MyHeader.vue'
+  import { computed } from 'vue'
+  import { useStore } from 'vuex'
 
   export default {
     name: 'app',
@@ -27,7 +29,9 @@
       MyHeader,
     },
     setup() {
-      return {}
+      const { state } = useStore()
+      const isLogin = computed(() => state.auth.isLogin)
+      return { isLogin }
     },
   }
 </script>
@@ -144,6 +148,7 @@
   html,
   body {
     height: 100%;
+    overflow-x: hidden;
   }
 
   img,
@@ -152,6 +157,7 @@
   canvas,
   svg {
     display: block;
+    width: 100%;
   }
 
   a,

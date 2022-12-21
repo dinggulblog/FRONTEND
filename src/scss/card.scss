@@ -26,12 +26,14 @@
   }
 
   .wrap_item {
-    box-shadow: rgb(0 0 0 / 4%) 0px 4px 16px 0px;
-    transition: box-shadow 0.25s ease-in 0s, transform 0.25s ease-in 0s;
+    @include desktop {
+      transition: box-shadow 0.25s ease-in 0s, transform 0.25s ease-in 0s;
 
-    &:hover {
-      transform: translateY(-1rem);
+      &:hover {
+        transform: translateY(-1rem);
+      }
     }
+    transition: box-shadow 0.25s ease-in 0s, transform 0.25s ease-in 0s;
   }
 
   .thumbnail {
