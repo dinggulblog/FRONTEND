@@ -104,8 +104,6 @@
 
   const onUpdatePage = async (updatePage) => {
     page.value = updatePage
-
-    if (page.value % 2 === 0) await getPosts(query)
   }
 
   const nextSlide = async () => {
@@ -113,15 +111,17 @@
 
     nowItem = isMobile ? nowItem + limit / 2 : nowItem + limit
     const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left
+    console.log(x)
     POST_EL.value.scrollTo({ left: x, behavior: 'smooth' })
 
     await onUpdatePage(page.value + 1)
+    if (page.value % 2 === 0) await getPosts(query)
   }
 
   const prevSlide = async () => {
     if (page.value === 1 || !POST_EL.value) return
 
-    nowItem = isMobile ? nowItem + limit / 2 : nowItem - limit
+    nowItem = isMobile ? nowItem - limit / 2 : nowItem - limit
     const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left
     POST_EL.value.scrollTo({ left: x, behavior: 'smooth' })
 
