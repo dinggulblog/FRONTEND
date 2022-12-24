@@ -1,9 +1,7 @@
 <template>
   <li class="card_item">
     <div class="wrap_item">
-      <div class="thumbnail">
-        <slot name="thumbnail"></slot>
-      </div>
+      <slot name="thumbnail"></slot>
 
       <div class="wrap_num_title">
         <div class="num">

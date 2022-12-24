@@ -31,6 +31,7 @@
     setup() {
       const { state } = useStore()
       const isLogin = computed(() => state.auth.isLogin)
+
       return { isLogin }
     },
   }
