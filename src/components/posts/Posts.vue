@@ -1,36 +1,32 @@
 <template>
+  <!-- Slide toolbar -->
   <div v-if="type === 'slide'" class="wrap_slide_toolbar">
     <div class="slide_category">
       <span class="category">{{ category }}</span>
     </div>
     <div class="slide_page">
-      <span class="nowPage">{{ page }}</span>
-      <span class="maxPage">{{ maxPage }}</span>
+      <span class="nowPage">{{ page + 1 }}</span>
+      <span class="maxPage">{{ maxPage || 1 }}</span>
     </div>
   </div>
 
+  <!-- List of Posts -->
   <div class="posts">
     <div>
       <ul :id="type" ref="POST_EL">
         <template v-for="[key, value] in posts" :key="key">
           <template v-for="post in value" :key="post._id">
-            <PostSlot :type="type" :post="post"></PostSlot>
+            <PostSlot :type="type" :post="post" @commitPosts="onCommitPosts"></PostSlot>
           </template>
         </template>
-        <div
-          v-show="type !== 'slide'"
-          :style="{ display: displayTrigger ? 'block' : 'none' }"
-          ref="trigger"
-          style="width: 100%"
-        >
-          이게 보이면 게시물 더 받아오기
-        </div>
+        <div v-show="type !== 'slide'" ref="TRIGGER_EL" style="width: 100%">이게 보이면 게시물 더 받아오기</div>
       </ul>
     </div>
 
+    <!-- Slide buttons -->
     <div v-if="type === 'slide'" class="wrap_btn_slidePage">
       <Button
-        v-show="page !== 1"
+        v-show="page !== 0"
         class="btn_prev"
         size="md"
         svg="arrow-left"
@@ -40,7 +36,7 @@
         @click="prevSlide"
       />
       <Button
-        v-show="maxPage > page"
+        v-show="maxPage > page + 1"
         class="btn_next"
         size="md"
         svg="arrow-right"
@@ -54,21 +50,12 @@
 </template>
 
 <script setup>
-  import { defineProps, ref, computed, watch, reactive, onMounted, onUnmounted } from 'vue'
-  import { useStore } from 'vuex'
-  import { useMedia } from '../../common/mediaQuery'
+  import { defineProps, ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
+  import { useStore } from 'vuex';
+  import { useMedia } from '../../common/mediaQuery';
   import PostSlot from '../slots/PostSlot.vue'
-  import Pagenation from '../Pagenation.vue'
 
-  const { state, dispatch } = useStore()
   const props = defineProps({
-    main: {
-      type: String,
-      required: true,
-    },
-    sub: {
-      type: String,
-    },
     type: {
       type: String,
       default: 'list',
@@ -79,62 +66,50 @@
       default: '전체',
     },
   })
-
+  const { state, commit, dispatch } = useStore()
   const isMobile = useMedia('only screen and (max-width: 1023px)')
-
+  const options = {
+    threshold: 1.0,
+  }
+  
   let nowItem = 1
   let limit = 4
-
-  const POST_EL = ref(null)
-  const page = ref(1)
+  const page = ref(0)
   const maxPage = ref(1)
   const posts = ref(new Map())
-  const currentMenus = computed(() => state.menu.currentMenus?.map((menu) => menu._id))
+  const POST_EL = ref(null)
+  const TRIGGER_EL = ref(null)
+  const isShowTrigger = ref(false)
 
   const query = reactive({
-    skip: computed(() => (page.value === 1 ? 0 : page.value * 4)),
     limit: limit * 2,
-    menu: currentMenus.value,
-    category: props.category,
-    hasThumbnail: props.type === 'slide' ? true : false,
+    menu: computed(() => state.menu.currentMenus?.map(menu => menu._id)),
+    skip: computed(() => page.value * 4),
+    category: computed(() => props.category),
+    hasThumbnail: computed(() => props.type === 'slide'),
   })
 
-  const getPosts = async (payload) => {
-    const { success, posts: Posts, maxPage: MaxPage } = await dispatch('post/getPosts', payload)
-    if (success) {
-      maxPage.value = MaxPage * 2
-
-      if (page.value === 1) {
-        posts.value.set(page.value, Posts.slice(0, limit))
-        posts.value.set(page.value + 1, Posts.slice(limit))
-      } else {
-        posts.value.set(page.value + 1, Posts.slice(0, limit))
-        posts.value.set(page.value + 2, Posts.slice(limit))
-      }
-    }
+  const onCommitPosts = () => {
+    commit('post/SET_POSTS', posts.value)
   }
-
+  
   const onUpdatePage = (updatePage) => {
     page.value = updatePage
-  }
-
-  const onUpdatePageGetPosts = async (updatePage) => {
-    page.value = updatePage
-    if (page.value % 2 === 0) await getPosts(query)
+    if (updatePage % 2 === 0) getPosts({ payload: query, currentPage: updatePage })
   }
 
   const nextSlide = async () => {
-    if (page.value === maxPage.value || !POST_EL.value) return
+    if (page.value + 1 === maxPage.value || !POST_EL.value) return
 
     nowItem = isMobile ? nowItem + limit / 2 : nowItem + limit
     const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left
     POST_EL.value.scrollTo({ left: x, behavior: 'smooth' })
 
-    await onUpdatePageGetPosts(page.value + 1)
+    onUpdatePage(page.value + 1)
   }
 
-  const prevSlide = () => {
-    if (page.value === 1 || !POST_EL.value) return
+  const prevSlide = async () => {
+    if (page.value === 0 || !POST_EL.value) return
 
     nowItem = isMobile ? nowItem - limit / 2 : nowItem - limit
     const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left
@@ -143,48 +118,49 @@
     onUpdatePage(page.value - 1)
   }
 
-  watch(
-    () => [props.main, props.sub, props.category],
-    async () => {
-      onUpdatePage(1)
-      posts.value.clear()
+  const getPosts = async ({ payload, currentPage }) => {
+    const { success, posts: newPosts, maxPage: newMaxPage } = await dispatch('post/getPosts', payload)
 
-      await getPosts(query)
+    if (success && Array.isArray(newPosts)) {
+      maxPage.value = newMaxPage === 1 && newPosts.length <= limit ? newMaxPage : newMaxPage * 2
+      posts.value.set(currentPage + 1, newPosts.slice(0, limit))
+      posts.value.set(currentPage + 2, newPosts.slice(limit))
     }
-  )
-
-  const trigger = ref(null)
-  const displayTrigger = ref(false)
-
-  const options = {
-    threshold: 1.0,
   }
-
+  
   const callback = (entries, observer) => {
     entries.forEach(async (entry) => {
-      /* trigger.value가 보이지 않는다면 retrun */
+      // TRIGGER_EL.value가 보이지 않는다면 retrun
       if (!entry.isIntersecting) {
         return
       }
-      /* trigger.value가 보였다면 page + 1 이후 getPosts() */
-      displayTrigger.value = true
-      await onUpdatePageGetPosts(page.value + 1)
-      displayTrigger.value = false
+      // TRIGGER_EL.value가 보였다면 page+2(page가 1일때만 +1)
+      isShowTrigger.value = true
+      onUpdatePage(page.value + 2)
+      isShowTrigger.value = false
     })
   }
 
   const observer = new IntersectionObserver(callback, options)
 
+  await getPosts({ payload: query, currentPage: page.value })
+
+  watch(
+    () => [query.menu, props.category],
+    () => {
+      window.scrollTo({ left: 0, top: 0, behavior: 'smooth' })
+      posts.value.clear()
+      onUpdatePage(0)
+    }
+  )
+
   onMounted(() => {
-    observer.observe(trigger.value)
+    observer.observe(TRIGGER_EL.value)
   })
 
   onUnmounted(() => {
     observer.disconnect()
   })
-
-  // Create Hook
-  await getPosts(query)
 </script>
 
 <style lang="scss" rel="stylesheet/scss">

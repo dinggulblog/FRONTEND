@@ -49,7 +49,7 @@
         <span class="like_ico" @click="onChangeLike">
           <Ico :size="'lg'" :svg="'like-fill'" :customColor="!liked ? '#ddd' : 'var(--likeActive)'" />
         </span>
-        <span>{{ likeCount }}</span>
+        <span>{{ likeCount ? likeCount : '0' }}</span>
       </div>
     </div>
 
@@ -59,11 +59,25 @@
         프로필 보러가기
       </router-link>
     </div>
+
+    <div class="wrap_link">
+      <div v-for="linkedPost in post.linkedPosts" :key="linkedPost" class="link">
+        <span v-if="linkedPost.rel === 'prev'">이전글</span>
+        <span v-else>다음글</span>
+        <Button
+          class="btn_link"
+          :content="linkedPost.title"
+          :customFontSize="'1.4rem'"
+          :customPadding="'0'"
+          @click="onPushPost(linkedPost._id)"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-  import { defineComponent, ref, computed, onBeforeUpdate } from 'vue'
+  import { defineComponent, ref, computed, watch, onBeforeUpdate } from 'vue'
   import { useRouter } from 'vue-router'
   import { useStore } from 'vuex'
   import { debounce } from '../../common/util.js'
@@ -85,11 +99,11 @@
     props: {
       post: {
         type: Object,
-        default: () => ({}),
+        required: true,
       },
       profile: {
         type: Object,
-        default: () => ({}),
+        required: true,
       },
     },
     setup(props, { emit }) {
@@ -102,6 +116,9 @@
       const liked = ref(false)
       const likes = computed(() => state.post.likes)
       const likeCount = computed(() => state.post.likeCount)
+
+      const prevPost = ref(null)
+      const nextPost = ref(null)
 
       const DROPBOX_SLOT_EL = ref(null)
 
@@ -124,6 +141,10 @@
         if (props.post._id) emit('onDeletePost')
       }
 
+      const onPushPost = (postId) => {
+        if (postId) push({ name: 'post', query: { id: postId } })
+      }
+
       const onCopyLink = async () => {
         try {
           await navigator.clipboard.writeText(window.location.href)
@@ -134,7 +155,7 @@
       }
 
       onBeforeUpdate(() => {
-        liked.value = likes.value.some((likedUserId) => likedUserId === props.profile._id)
+        if (likes.value) liked.value = likes.value.some((likedUserId) => likedUserId === props.profile._id)
       })
 
       return {
@@ -143,6 +164,8 @@
         liked,
         likes,
         likeCount,
+        prevPost,
+        nextPost,
         IMAGE_URL,
         DROPBOX_SLOT_EL,
         DEFAULT_AVATAR_64,
@@ -150,6 +173,7 @@
         onChangeLike,
         onUpdatePost,
         onDeletePost,
+        onPushPost,
         onCopyLink,
       }
     },
@@ -262,8 +286,27 @@
       }
     }
 
+    .wrap_link {
+      margin: 4.8rem 0 4.8rem;
+      border-top: 1px solid #e1e1e1;
+
+      .link {
+        display: flex;
+        padding: 1.6rem 0;
+
+        &:first-child,
+        &:last-child {
+          border-bottom: 1px solid #e1e1e1;
+        }
+      }
+
+      span {
+        font-size: 1.4rem;
+        margin: 0 1.4rem 0 0;
+      }
+    }
+
     .wrap_author {
-      margin: 4.8rem 0 6.4rem;
       position: relative;
 
       &::v-deep .author {

@@ -72,7 +72,7 @@
     setup() {
       const { state, dispatch } = useStore()
 
-      const menus = computed(() => state.menu.groupMenus)
+      const menus = computed(() => state.menu.menus)
 
       const profile = reactive({
         nickname: computed(() => state.auth.profile.nickname),

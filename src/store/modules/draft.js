@@ -30,7 +30,7 @@ const actions = {
 
       return { success, draft, images }
     } catch (err) {
-      return { success: false, draft: null, images: null, error: '임시 저장에 실패하였습니다.' }
+      return { success: false, draft: null, images: null, error: '임시 저장을 실패하였습니다.' }
     }
   },
 
@@ -44,33 +44,28 @@ const actions = {
 
       return { success, draft, images }
     } catch (err) {
-      return { success: false, draft: null, images: null, error: '임시 저장에 실패하였습니다.' }
+      return { success: false, draft: null, images: null, error: '임시 저장을 실패하였습니다.' }
     }
   },
 
   // params: String (draft ID)
   async deleteDraft({ commit }, payload) {
     try {
-      const { data } = await axios.delete(`v1/drafts/${payload}`)
+      const { data: { success } } = await axios.delete(`v1/drafts/${payload}`)
       
-      return data
+      return { success }
     } catch (err) {
-      console.log(err.response?.data)
       return { success: false }
     }
   },
 
   async deleteFile({ commit }, { draftId, imageId }) {
     try {
-      const { data } = await axios.delete(`v1/drafts/${draftId}/file`, { data: { image: imageId } })
-      const { success } = data
-
-      if (!success) throw new Error('Draft file이 정상적으로 삭제되지 않았습니다.')
+      const { data: { success } } = await axios.delete(`v1/drafts/${draftId}/file`, { data: { image: imageId } })
 
       return { success }
     } catch (err) {
-      console.log(err.response?.data)
-      return { success: false }
+      return { success: false, error: '파일 삭제를 실패하였습니다.' }
     }
   },
 }

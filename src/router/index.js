@@ -2,12 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { getItemWithTTL } from '../common/localStorage'
 import store from '../store/index'
 import Home from '../views/Home.vue'
-import Posts from '../views/post/Posts.vue'
-import Post from '../views/post/Post.vue'
 import NotFound from '../views/NotFound.vue'
 
-const Profile = () => import('../views/auth/Profile.vue')
-const Editor = () => import('../views/post/Editor.vue')
+const Profile = () => import(/* webpackChunkName: "profile" */ '../views/auth/Profile.vue')
+const Editor = () => import(/* webpackChunkName: "editor" */ '../views/post/Editor.vue')
+const Posts = () => import(/* webpackChunkName: "posts" */ '../views/post/Posts.vue')
+const Post = () => import(/* webpackChunkName: "post" */ '../views/post/Post.vue')
 
 const routes = [
   { path: '/', redirect: 'home' },
@@ -25,9 +25,14 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  document.title = to.name === 'post' ? store.state.post.post?.title : to.meta?.title ?? 'DINGGUL'
+  document.title = to.meta?.title ?? 'DINGGUL'
 
-  if (!store.state.menu.menus?.length) {
+  if (to.name === 'posts') {
+    store.commit('menu/SET_CURRENT_MENUS', { main: to.params.main, sub: to.params.sub })
+    store.commit('menu/SET_CATEGORY', '전체')
+  }
+  
+  if (!store.state.menu.menus) {
     await store.dispatch('menu/getMenus')
   }
 

@@ -5,7 +5,7 @@
         <div class="main">
           <select required @change="onChangeMainMenu">
             <option selected disabled hidden value="">main menu</option>
-            <option v-for="main in Object.keys(menuState.groupMenus)" :key="main" :value="main">{{ main }}</option>
+            <option v-for="main in Object.keys(menuState.menus)" :key="main" :value="main">{{ main }}</option>
           </select>
         </div>
 
@@ -172,7 +172,7 @@
       const menuState = reactive({
         isLoading: computed(() => state.loading.isLoading),
         percentage: computed(() => state.loading.percentage),
-        groupMenus: computed(() => state.menu.groupMenus),
+        menus: computed(() => state.menu.menus),
         mainMenus: [],
         subMenu: {},
       })
@@ -199,7 +199,7 @@
       })
 
       const onChangeMainMenu = (event) => {
-        menuState.mainMenus = menuState.groupMenus[event.target.value]
+        menuState.mainMenus = menuState.menus[event.target.value]
         document.body.querySelector('div.sub select').selectedIndex = 0
         document.body.querySelector('div.category select').selectedIndex = 0
       }
@@ -349,7 +349,7 @@
           const { main, sub } = state.menu.menus.find((m) => m._id === menu)
 
           document.body.querySelector('div.main select').value = main
-          menuState.mainMenus = menuState.groupMenus[main]
+          menuState.mainMenus = menuState.menus[main]
 
           document.body.querySelector('div.sub select').value = sub
           menuState.subMenu = menuState.mainMenus.find((menu) => menu.sub === sub)

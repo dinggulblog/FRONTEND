@@ -1,11 +1,17 @@
 <template>
-  <Post :profile="profile" :post="post" @onDeletePost="onDeletePost" />
-  <Comments :comments="comments" :commentCount="commentCount" :profile="profile" :post="post" @onDeleteComment="onDeleteComment" />
+  <Post v-if="post" :profile="profile" :post="post" @onDeletePost="onDeletePost" />
+  <Comments
+    :comments="comments"
+    :commentCount="commentCount"
+    :profile="profile"
+    :post="post"
+    @onDeleteComment="onDeleteComment"
+  />
   <Dialog ref="Dialog"></Dialog>
 </template>
 
 <script>
-  import { defineComponent, ref, computed, onBeforeMount, onUnmounted } from 'vue'
+  import { defineComponent, ref, computed, watch, onBeforeMount, onUnmounted } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
   import { useStore } from 'vuex'
   import Post from '../../components/posts/Post.vue'
@@ -55,14 +61,18 @@
         if (ok) await dispatch('comment/deleteComment', { postId: post.value._id, id: comment._id })
       }
 
-      onBeforeMount(async () => {
-        if (route.query.id) {
-          await dispatch('post/getPost', route.query.id)
-          await dispatch('comment/getComments', route.query.id)
-        } else {
-          push({ name: 'home' })
-        }
+      watch(
+        () => route.query.id,
+        async () => {
+          if (route.query.id) {
+            await dispatch('post/getPost', route.query.id)
+            await dispatch('comment/getComments', route.query.id)
+          }
+        },
+        { immediate: true }
+      )
 
+      onBeforeMount(async () => {
         if (Boolean(props.quickMove && comments.value)) {
           const y = document.querySelector('.comments').offsetTop - document.querySelector('#header').offsetHeight - 32
           window.scrollTo({ top: y, behavior: 'smooth' })
