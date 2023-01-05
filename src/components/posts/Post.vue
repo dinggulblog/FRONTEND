@@ -288,7 +288,7 @@
 
     .wrap_link {
       margin: 4.8rem 0 4.8rem;
-      border-top: 1px solid #e1e1e1;
+      border-top: 1px solid #e5e5e5;
 
       .link {
         display: flex;
@@ -296,13 +296,15 @@
 
         &:first-child,
         &:last-child {
-          border-bottom: 1px solid #e1e1e1;
+          border-bottom: 1px solid #e5e5e5;
         }
       }
 
       span {
         font-size: 1.4rem;
         margin: 0 1.4rem 0 0;
+        color: var(--primary-dark);
+        font-weight: 500;
       }
     }
 
