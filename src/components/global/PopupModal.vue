@@ -2,7 +2,7 @@
   <Teleport to="body">
     <Transition name="fade">
       <div class="popup-modal" v-if="isVisible">
-          <slot></slot>
+        <slot></slot>
       </div>
     </Transition>
   </Teleport>
@@ -29,9 +29,26 @@
 </script>
 
 <style scoped>
-  .fade-enter,
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s ease;
+  }
+  .fade-enter-from,
   .fade-leave-to {
     opacity: 0;
+  }
+
+  .fade-enter-active {
+    animation: fadeIn 0.3s;
+  }
+
+  @keyframes fadeIn {
+    from {
+      transform: translateY(4rem);
+    }
+    to {
+      transform: translateY(0);
+    }
   }
 
   .popup-modal {

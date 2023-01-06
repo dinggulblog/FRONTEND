@@ -140,6 +140,7 @@
     </div>
   </div>
   <Dialog ref="Dialog"></Dialog>
+  <ToastMessage ref="ToastMessage"></ToastMessage>
 </template>
 
 <script>
@@ -166,6 +167,7 @@
       let canLeavePage = true
       const isMobile = useMedia('only screen and (max-width: 767px)')
       const Dialog = ref(null)
+      const ToastMessage = ref(null)
       const plugins = ref([{ plugin: MarkdownEmoji }])
       const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
 
@@ -218,6 +220,10 @@
         postState.isPublic = Boolean(state)
       }
 
+      const onToastMessage = (type, message) => {
+        ToastMessage.value.open(type, message)
+      }
+
       const onUpdateDraft = async (formData = new FormData()) => {
         if (!postState.menu) return
 
@@ -228,7 +234,12 @@
           ? await dispatch('draft/updateDraft', { draftId, payload: formData })
           : await dispatch('draft/createDraft', formData)
 
+        if (success) {
+          onToastMessage('success', '임시저장 되었습니다.')
+        } else onToastMessage('error', '임시저장에 실패하였습니다')
+
         if (draft) postState.draftId = draft._id
+
         return { success, images }
       }
 
@@ -326,9 +337,7 @@
         }
       }
 
-      const autoSave = route.query.id
-        ? setInterval(onUpdatePost, 1000 * 60 * 10)
-        : setInterval(onUpdateDraft, 1000 * 60 * 10)
+      const autoSave = route.query.id ? setInterval(onUpdatePost, 1000 * 60 * 10) : setInterval(onUpdateDraft, 1000 * 5)
 
       onBeforeMount(() => {
         const { post } = state.post
@@ -380,6 +389,7 @@
       return {
         isMobile,
         Dialog,
+        ToastMessage,
         plugins,
         IMAGE_URL,
         menuState,
@@ -396,6 +406,7 @@
         onClearImages,
         onDeleteImage,
         onSelectImage,
+        onToastMessage,
       }
     },
   })

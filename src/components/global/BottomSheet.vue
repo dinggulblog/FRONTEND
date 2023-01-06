@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <div class="popup-modal" v-if="isVisible">
+    <div class="bottom-sheet" v-if="isVisible">
       <div class="window">
         <ul>
           <slot></slot>
@@ -34,13 +34,30 @@
   }
 </script>
 
-<style lang="scss" rel="stylesheet/scss">
-  .fade-enter,
+<style lang="scss" rel="stylesheet/scss" scoped>
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s ease;
+  }
+  .fade-enter-from,
   .fade-leave-to {
     opacity: 0;
   }
 
-  .popup-modal {
+  .fade-enter-active {
+    animation: fadeIn 0.3s;
+  }
+
+  @keyframes fadeIn {
+    from {
+      transform: translateY(4rem);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .bottom-sheet {
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     position: fixed;

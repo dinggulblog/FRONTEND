@@ -6,6 +6,7 @@ import router from './router'
 import store from './store'
 import setupInterceptors from './services/axios.interceptors'
 import Dialog from './components/global/Dialog.vue'
+import ToastMessage from './components/global/ToastMessage.vue'
 import Button from './components/global/Button.vue'
 import Ico from './components/global/Ico.vue'
 
@@ -17,6 +18,7 @@ app.use(store)
 app.use(router)
 app.use(VueDOMPurifyHTML)
 app.component('Dialog', Dialog)
+app.component('ToastMessage', ToastMessage)
 app.component('Button', Button)
 app.component('Ico', Ico)
 app.mount('#app')

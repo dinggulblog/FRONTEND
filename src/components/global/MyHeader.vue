@@ -1,7 +1,6 @@
 <template>
   <div class="container_bar">
     <div class="bar">
-
       <div class="wrap_left">
         <Button
           :class="isMobile ? 'btn_m-toggle' : 'btn_search'"
@@ -34,7 +33,9 @@
             <div class="auth_items dropdown_items">
               <ul>
                 <li><span @click="$refs.ACCOUNT_EL.open('update')">Account</span></li>
-                <li><router-link :to="{ name: 'profile', params: { nickname: profile.nickname } }">Profile</router-link></li>
+                <li>
+                  <router-link :to="{ name: 'profile', params: { nickname: profile.nickname } }">Profile</router-link>
+                </li>
                 <li><span @click="onLogout">Logout</span></li>
               </ul>
             </div>
@@ -54,21 +55,26 @@
     </div>
   </div>
 
-  <div class="container_gnb">
-    <div class="gnb">
-      <Navigation
-        @toggleGnbVisible="onToggleGnbVisible"
-        @toggleSearchVisible="onToggleSearchVisible"
-        @close="onClose"
-        @openLoginModal="$refs.ACCOUNT_EL.open('login')"
-        @openAccountModal="$refs.ACCOUNT_EL.open('update')"
-      />
+  <transition name="gnb_fade">
+    <div class="container_gnb" v-if="gnbState.display">
+      <div class="gnb">
+        <Navigation
+          @toggleGnbVisible="onToggleGnbVisible"
+          @toggleSearchVisible="onToggleSearchVisible"
+          @close="onClose"
+          @openLoginModal="$refs.ACCOUNT_EL.open('login')"
+          @openAccountModal="$refs.ACCOUNT_EL.open('update')"
+          ref="GNB_EL"
+        />
+      </div>
     </div>
-  </div>
+  </transition>
 
-  <div class="container_searchForm">
-    <SearchForm />
-  </div>
+  <transition name="search_fade">
+    <div class="container_searchForm" v-if="searchState.display">
+      <SearchForm />
+    </div>
+  </transition>
 
   <Account ref="ACCOUNT_EL"></Account>
 </template>
@@ -88,27 +94,28 @@
       Navigation,
       SearchForm,
       AuthorSlot,
-      Account
+      Account,
     },
     setup() {
       const { state, dispatch } = useStore()
 
       const ACCOUNT_EL = ref(null)
-      const isMobile = useMedia('only screen and (max-width: 1023px)')
+      const GNB_EL = ref(null)
+      const isMobile = useMedia('only screen and (max-width: 1199px)')
       const isLogin = computed(() => state.auth.isLogin)
 
       const profile = reactive({
         nickname: computed(() => state.auth.profile.nickname),
-        avatar: computed(() => state.auth.profile.avatar)
+        avatar: computed(() => state.auth.profile.avatar),
       })
-      
+
       const gnbState = reactive({
         isOpen: false,
-        display: computed(() => !isMobile.value ? 'flex' : gnbState.isOpen ? 'flex' : 'none')
+        display: computed(() => (!isMobile.value ? true : gnbState.isOpen ? true : false)),
       })
       const searchState = reactive({
         isOpen: false,
-        display: computed(() => searchState.isOpen ? 'flex' : 'none')
+        display: computed(() => (searchState.isOpen ? true : false)),
       })
 
       const onLogout = async () => {
@@ -130,12 +137,97 @@
         searchState.isOpen = !searchState.isOpen
       }
 
-      return { LOGO, ACCOUNT_EL, isMobile, isLogin, profile, gnbState, searchState, onLogout, onClose, onToggleGnbVisible, onToggleSearchVisible }
+      return {
+        LOGO,
+        ACCOUNT_EL,
+        GNB_EL,
+        isMobile,
+        isLogin,
+        profile,
+        gnbState,
+        searchState,
+        onLogout,
+        onClose,
+        onToggleGnbVisible,
+        onToggleSearchVisible,
+      }
     },
   }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
+  /* gnb fade */
+  .gnb_fade-enter-active,
+  .gnb_fade-leave-active {
+    transition: opacity 0.5s ease;
+  }
+  .gnb_fade-enter-from,
+  .gnb_fade-leave-to {
+    opacity: 0;
+  }
+
+  .gnb_fade-enter-active {
+    animation: gnbfadeIn 0.3s;
+  }
+
+  .gnb_fade-leave-active {
+    animation: gnbfadeOut 0.3s;
+  }
+
+  @keyframes gnbfadeIn {
+    from {
+      transform: translateX(-4rem);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes gnbfadeOut {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-4rem);
+    }
+  }
+
+  /* search fade */
+
+  .search_fade-enter-active,
+  .search_fade-leave-active {
+    transition: opacity 0.5s ease;
+  }
+  .search_fade-enter-from,
+  .search_fade-leave-to {
+    opacity: 0;
+  }
+
+  .search_fade-enter-active {
+    animation: searchfadeIn 0.3s;
+  }
+
+  .search_fade-leave-active {
+    animation: searchfadeOut 0.3s;
+  }
+
+  @keyframes searchfadeIn {
+    from {
+      transform: translateY(-4rem);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes searchfadeOut {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-4rem);
+    }
+  }
   .container_bar {
     display: flex;
     justify-content: center;
@@ -271,17 +363,19 @@
   }
 
   .container_gnb {
-    display: v-bind('gnbState.display');
+    display: flex;
     justify-content: center;
     position: relative;
     z-index: 3;
     width: 100%;
     box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
 
-    @include mobile-tablet {
-      display: v-bind('gnbState.display');
+    @include mobile_all {
+      display: flex;
       justify-content: flex-start;
       box-shadow: 0 0;
+      position: fixed;
+      top: 0;
     }
 
     .gnb {
@@ -291,25 +385,19 @@
       height: 4.8rem;
       background-color: #fff;
 
-      @include mobile {
-        width: calc(100% - 4rem);
-        margin: 0 2rem;
-      }
-
-      @include mobile-tablet {
+      @include mobile_all {
         width: auto;
-        margin: 0;
+        height: auto;
       }
 
-      @include tablet_landscape {
-        width: calc(100% - 6.4rem);
-        margin: 0 3.2rem;
+      @include mobile {
+        width: 100%;
       }
     }
   }
 
   .container_searchForm {
-    display: v-bind('searchState.display');
+    display: flex;
     justify-content: center;
     position: absolute;
     top: 0;

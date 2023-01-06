@@ -14,11 +14,13 @@
   <div class="posts">
     <div>
       <ul :id="type" ref="POST_EL">
-        <template v-for="[key, value] in posts" :key="key">
-          <template v-for="post in value" :key="post._id">
-            <PostSlot :type="type" :post="post" @commitPosts="onCommitPosts"></PostSlot>
+        <transition-group name="fade" @before-enter="beforeEnter">
+          <template v-for="[key, value] in posts" :key="key">
+            <template v-for="(post, index) in value" :key="post._id">
+              <PostSlot :type="type" :post="post" @commitPosts="onCommitPosts" :data-index="index"></PostSlot>
+            </template>
           </template>
-        </template>
+        </transition-group>
         <div v-show="type !== 'slide'" ref="TRIGGER_EL" style="width: 100%">이게 보이면 게시물 더 받아오기</div>
       </ul>
     </div>
@@ -51,8 +53,8 @@
 
 <script setup>
   import { defineProps, ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-  import { useStore } from 'vuex';
-  import { useMedia } from '../../common/mediaQuery';
+  import { useStore } from 'vuex'
+  import { useMedia } from '../../common/mediaQuery'
   import PostSlot from '../slots/PostSlot.vue'
 
   const props = defineProps({
@@ -71,7 +73,7 @@
   const options = {
     threshold: 1.0,
   }
-  
+
   let nowItem = 1
   let limit = 4
   const page = ref(0)
@@ -82,52 +84,54 @@
   const isShowTrigger = ref(false)
 
   const query = reactive({
-    limit: limit * 2,
-    menu: computed(() => state.menu.currentMenus?.map(menu => menu._id)),
-    skip: computed(() => page.value * 4),
+    limit: isMobile.value ? limit : limit * 2,
+    menu: computed(() => state.menu.currentMenus?.map((menu) => menu._id)),
+    skip: computed(() => (isMobile.value ? page.value * 2 : page.value * 4)),
     category: computed(() => props.category),
     hasThumbnail: computed(() => props.type === 'slide'),
   })
 
+  const beforeEnter = (el) => {
+    el.style.transitionDelay = 200 * parseInt(el.dataset.index, 10) + 'ms'
+  }
+
   const onCommitPosts = () => {
     commit('post/SET_POSTS', posts.value)
   }
-  
-  const onUpdatePage = (updatePage) => {
+
+  const onUpdatePage = async (updatePage) => {
     page.value = updatePage
     if (updatePage % 2 === 0) getPosts({ payload: query, currentPage: updatePage })
   }
 
   const nextSlide = async () => {
     if (page.value + 1 === maxPage.value || !POST_EL.value) return
-
-    nowItem = isMobile ? nowItem + limit / 2 : nowItem + limit
-    const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left
-    POST_EL.value.scrollTo({ left: x, behavior: 'smooth' })
-
+    nowItem = isMobile.value ? nowItem + limit / 2 : nowItem + limit
+    const parentX = POST_EL.value.getBoundingClientRect()?.left
+    const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left - parentX
+    POST_EL.value.scrollBy({ left: x, behavior: 'smooth' })
     onUpdatePage(page.value + 1)
   }
 
   const prevSlide = async () => {
     if (page.value === 0 || !POST_EL.value) return
-
-    nowItem = isMobile ? nowItem - limit / 2 : nowItem - limit
-    const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left
-    POST_EL.value.scrollTo({ left: x, behavior: 'smooth' })
-
+    nowItem = isMobile.value ? nowItem - limit / 2 : nowItem - limit
+    const parentX = POST_EL.value.getBoundingClientRect()?.left
+    const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left - parentX
+    POST_EL.value.scrollBy({ left: x, behavior: 'smooth' })
     onUpdatePage(page.value - 1)
   }
 
   const getPosts = async ({ payload, currentPage }) => {
     const { success, posts: newPosts, maxPage: newMaxPage } = await dispatch('post/getPosts', payload)
-
+    console.log(newPosts, newMaxPage)
     if (success && Array.isArray(newPosts)) {
-      maxPage.value = newMaxPage === 1 && newPosts.length <= limit ? newMaxPage : newMaxPage * 2
+      maxPage.value = newMaxPage
       posts.value.set(currentPage + 1, newPosts.slice(0, limit))
       posts.value.set(currentPage + 2, newPosts.slice(limit))
     }
   }
-  
+
   const callback = (entries, observer) => {
     entries.forEach(async (entry) => {
       // TRIGGER_EL.value가 보이지 않는다면 retrun
@@ -143,7 +147,7 @@
 
   const observer = new IntersectionObserver(callback, options)
 
-  await getPosts({ payload: query, currentPage: page.value })
+  await getPosts({ payload: query, currentPage: 0 })
 
   watch(
     () => [query.menu, props.category],
@@ -164,6 +168,28 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s ease;
+  }
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  .fade-enter-active {
+    animation: fadeIn 0.3s;
+  }
+
+  @keyframes fadeIn {
+    from {
+      transform: translateY(4rem);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
   .posts {
     position: relative;
 
@@ -243,11 +269,11 @@
       display: none;
     }
 
-    & > li {
+    li {
       margin: 0 2.4rem 0 0;
     }
 
-    & > li:last-child {
+    li:nth-last-child(2) {
       margin: 0;
     }
   }

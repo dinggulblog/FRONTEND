@@ -1,53 +1,58 @@
 <template>
-  <component :is="type">
-    <template #thumbnail>
-      <div v-if="type !== 'list' || (type === 'list' && post.thumbnail)" class="thumbnail">
-        <router-link :to="{ name: 'post', query: { id: post._id } }" @click="$emit('commitPosts')">
-          <img :src="post.thumbnail ? `${IMAGE_URL}${post.thumbnail?.serverFileName}` : DEFAULT_THUMBNAIL" />
+    <component :is="type">
+      <template #thumbnail>
+        <div v-if="type !== 'list' || (type === 'list' && post.thumbnail)" class="thumbnail">
+          <router-link :to="{ name: 'post', query: { id: post._id } }" @click="$emit('commitPosts')">
+            <img :src="post.thumbnail ? `${IMAGE_URL}${post.thumbnail?.serverFileName}` : DEFAULT_THUMBNAIL" />
+          </router-link>
+        </div>
+      </template>
+
+      <template #num>
+        <span class="number">{{ post.postNum }}</span>
+      </template>
+
+      <template #title>
+        <router-link :to="{ name: 'post', query: { id: post._id } }" @click="$emit('commitPosts')">{{
+          post.title
+        }}</router-link>
+      </template>
+
+      <template #lock_ico>
+        <span class="info_ico" v-if="!post.isPublic">
+          <Ico :size="'sm'" :svg="'lock'" :customColor="type === 'slide' ? '#fff' : 'var(--list_info)'" />
+        </span>
+      </template>
+
+      <template #summary>
+        <p>{{ markdownText(post.content) }}</p>
+      </template>
+
+      <template #createdAt>
+        <span>{{ dayjs(post.createdAt).format('YYYY. M. D') }}</span>
+      </template>
+
+      <template #comment_count>
+        <router-link
+          :to="{ name: 'post', query: { id: post._id }, params: { quickMove: true } }"
+          @click="$emit('commitPosts')"
+        >
+          <span class="info_ico"><Ico :size="'sm'" :svg="'comment'" /></span>
+          <span>{{ post.commentCount }}</span>
         </router-link>
-      </div>
-    </template>
+      </template>
 
-    <template #num>
-      <span class="number">{{ post.postNum }}</span>
-    </template>
-
-    <template #title>
-      <router-link :to="{ name: 'post', query: { id: post._id } }" @click="$emit('commitPosts')">{{ post.title }}</router-link>
-    </template>
-
-    <template #lock_ico>
-      <span class="info_ico" v-if="!post.isPublic">
-        <Ico :size="'sm'" :svg="'lock'" :customColor="type === 'slide' ? '#fff' : 'var(--list_info)'" />
-      </span>
-    </template>
-
-    <template #summary>
-      <p>{{ markdownText(post.content) }}</p>
-    </template>
-
-    <template #createdAt>
-      <span>{{ dayjs(post.createdAt).format('YYYY. M. D') }}</span>
-    </template>
-
-    <template #comment_count>
-      <router-link :to="{ name: 'post', query: { id: post._id }, params: { quickMove: true } }" @click="$emit('commitPosts')">
-        <span class="info_ico"><Ico :size="'sm'" :svg="'comment'" /></span>
-        <span>{{ post.commentCount }}</span>
-      </router-link>
-    </template>
-
-    <template #like_count>
-      <span class="info_ico" ref="LIKE_EL">
-        <Ico
-          :size="'sm'"
-          :svg="post.liked ? 'like-fill' : 'like'"
-          :customColor="post.liked ? (type === 'slide' ? 'var(--likeActive-dark)' : 'var(--likeActive)') : ''"
-        />
-      </span>
-      <span>{{ post.likeCount }}</span>
-    </template>
-  </component>
+      <template #like_count>
+        <span class="info_ico" ref="LIKE_EL">
+          <Ico
+            :size="'sm'"
+            :svg="post.liked ? 'like-fill' : 'like'"
+            :customColor="post.liked ? (type === 'slide' ? 'var(--likeActive-dark)' : 'var(--likeActive)') : ''"
+          />
+        </span>
+        <span>{{ post.likeCount }}</span>
+      </template>
+    </component>
 </template>
 
 <script>
@@ -96,4 +101,5 @@
   }
 </script>
 
-<style lang="scss" rel="stylesheet/scss"></style>
+<style lang="scss" rel="stylesheet/scss" scoped>
+</style>

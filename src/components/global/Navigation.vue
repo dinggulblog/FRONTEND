@@ -88,12 +88,10 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   .nav {
-    @include mobile-tablet {
+    @include mobile_all {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      position: fixed;
-      top: 0;
       width: 32rem;
       height: 100vh;
       padding: 4.8rem 4.8rem;
@@ -106,10 +104,6 @@
       button {
         font-size: 1.6rem;
       }
-    }
-
-    @include tablet_landscape {
-      width: 100%;
     }
 
     @include mobile {
@@ -136,7 +130,7 @@
     .m_menu_close {
       display: none;
 
-      @include mobile-tablet {
+      @include mobile_all {
         display: flex;
         justify-content: flex-end;
         width: 100%;
@@ -156,7 +150,7 @@
     .m_menu_login {
       display: none;
 
-      @include mobile-tablet {
+      @include mobile_all {
         display: block;
         width: 100%;
         padding: 4.8rem 0;
@@ -172,7 +166,7 @@
     .wrap_auth {
       display: none;
 
-      @include mobile-tablet {
+      @include mobile_all {
         display: flex;
         flex-direction: column;
         width: 100%;
@@ -225,7 +219,7 @@
           width: 100%;
         }
 
-        @include mobile-tablet {
+        @include mobile_all {
           flex-direction: column;
         }
       }
@@ -236,7 +230,7 @@
         align-items: center;
         width: calc(100% / 4);
 
-        @include mobile-tablet {
+        @include mobile_all {
           display: flex;
           flex-direction: column;
           justify-content: flex-start;
@@ -251,7 +245,7 @@
           z-index: 3;
           padding: 0.8rem;
 
-          @include mobile-tablet {
+          @include mobile_all {
             padding: 0;
           }
         }
@@ -261,11 +255,7 @@
           padding: calc(3.2rem + 0.8rem) 0 0;
           border-radius: 0 0 3.2rem 3.2rem;
 
-          @include tablet_landscape {
-            padding: calc(3.4rem + 0.8rem) 0 0;
-          }
-
-          @include mobile-tablet {
+          @include mobile_all {
             opacity: 1;
             position: relative;
             top: 0;
@@ -286,7 +276,7 @@
             box-shadow: 0 0.2rem 2rem rgba(0, 0, 0, 0.16);
             border-radius: 0 0 3.2rem 3.2rem;
 
-            @include mobile-tablet {
+            @include mobile_all {
               padding: 0 0 0 3.2rem;
               background-color: transparent;
               box-shadow: 0 0;
@@ -300,7 +290,7 @@
               width: 100%;
               height: 6.4rem;
 
-              @include mobile-tablet {
+              @include mobile_all {
                 display: block;
                 height: auto;
                 margin: 0 0 3.2rem 0;
@@ -309,14 +299,14 @@
               a {
                 padding: 1.2rem;
 
-                @include mobile-tablet {
+                @include mobile_all {
                   padding: 0;
                 }
               }
 
               &:hover {
                 background-color: #ededed;
-                @include mobile-tablet {
+                @include mobile_all {
                   background-color: transparent;
                 }
               }
@@ -324,7 +314,7 @@
               &:last-child {
                 border-radius: 0 0 3.2rem 3.2rem;
 
-                @include mobile-tablet {
+                @include mobile_all {
                   margin-bottom: 0;
                   border-radius: 0;
                 }
@@ -343,7 +333,7 @@
           height: 1.2rem;
           background-color: var(--border-dark);
 
-          @include mobile-tablet {
+          @include mobile_all {
             display: none;
           }
         }
@@ -354,7 +344,7 @@
         flex-direction: row;
 
         &::before {
-          @include mobile-tablet {
+          @include mobile_all {
             counter-increment: number 1;
             content: counter(number, decimal-leading-zero);
             margin: 0 3.2rem 0 0;
