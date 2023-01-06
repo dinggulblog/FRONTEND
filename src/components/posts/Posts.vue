@@ -14,7 +14,12 @@
   <div class="posts">
     <div>
       <ul :id="type" ref="POST_EL">
-        <transition-group name="fade" @before-enter="beforeEnter">
+        <transition-group
+          name="fade"
+          @before-enter="beforeEnter"
+          @after-enter="afterEnter"
+          @enter-cancelled="afterEnter"
+        >
           <template v-for="[key, value] in posts" :key="key">
             <template v-for="(post, index) in value" :key="post._id">
               <PostSlot :type="type" :post="post" @commitPosts="onCommitPosts" :data-index="index"></PostSlot>
@@ -95,6 +100,10 @@
     el.style.transitionDelay = 200 * parseInt(el.dataset.index, 10) + 'ms'
   }
 
+  const afterEnter = (el) => {
+    el.style.transitionDelay = ''
+  }
+
   const onCommitPosts = () => {
     commit('post/SET_POSTS', posts.value)
   }
@@ -171,6 +180,10 @@
   .fade-enter-active,
   .fade-leave-active {
     transition: opacity 0.5s ease;
+  }
+
+  .fade-leave-active {
+    transition: opacity 0s;
   }
   .fade-enter-from,
   .fade-leave-to {
