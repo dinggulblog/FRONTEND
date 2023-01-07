@@ -80,14 +80,14 @@
   import { defineComponent, ref, computed, watch, onBeforeUpdate } from 'vue'
   import { useRouter } from 'vue-router'
   import { useStore } from 'vuex'
-  import { debounce } from '../../common/util.js'
+  import { debounce } from '../common/util.js'
   import dayjs from 'dayjs'
   import Markdown from 'vue3-markdown-it'
   import MarkdownEmoji from 'markdown-it-emoji'
-  import ActionSlot from '../slots/ActionSlot.vue'
-  import AuthorSlot from '../slots/AuthorSlot.vue'
-  import PostInfoSlot from '../slots/PostInfoSlot.vue'
-  import DEFAULT_AVATAR_64 from '../../assets/default_avatar_64.webp'
+  import ActionSlot from './slotdata/ActionSlot.vue'
+  import AuthorSlot from './slotdata/AuthorSlot.vue'
+  import PostInfoSlot from './slotdata/PostInfoSlot.vue'
+  import DEFAULT_AVATAR_64 from '../assets/default_avatar_64.webp'
 
   export default defineComponent({
     components: {
@@ -110,7 +110,6 @@
       const { push } = useRouter()
       const { state, dispatch } = useStore()
 
-      const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
       const plugins = ref([{ plugin: MarkdownEmoji }])
 
       const liked = ref(false)
@@ -166,7 +165,6 @@
         likeCount,
         prevPost,
         nextPost,
-        IMAGE_URL,
         DROPBOX_SLOT_EL,
         DEFAULT_AVATAR_64,
         onAction,

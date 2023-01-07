@@ -29,7 +29,7 @@
 </template>
 
 <script>
-  import Info from '../posts/Info.vue'
+  import Info from '../slots/Info.vue'
   import AuthorSlot from './AuthorSlot.vue'
   import dayjs from 'dayjs'
 

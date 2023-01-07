@@ -15,7 +15,7 @@
 </template>
 
 <script>
-  import PopupModal from './PopupModal.vue'
+  import PopupModal from '../slots/PopupModal.vue'
 
   export default {
     name: 'Dialog',

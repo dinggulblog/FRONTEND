@@ -3,7 +3,7 @@
       <template #thumbnail>
         <div v-if="type !== 'list' || (type === 'list' && post.thumbnail)" class="thumbnail">
           <router-link :to="{ name: 'post', query: { id: post._id } }" @click="$emit('commitPosts')">
-            <img :src="post.thumbnail ? `${IMAGE_URL}${post.thumbnail?.serverFileName}` : DEFAULT_THUMBNAIL" />
+            <img :src="post.thumbnail ? post.thumbnail : DEFAULT_THUMBNAIL" />
           </router-link>
         </div>
       </template>
@@ -59,9 +59,9 @@
   import { onMounted, ref } from 'vue'
   import markdownText from 'markdown-to-text'
   import dayjs from 'dayjs'
-  import card from '../posts/Card.vue'
-  import list from '../posts/List.vue'
-  import slide from '../posts/Slide.vue'
+  import card from '../slots/Card.vue'
+  import list from '../slots/List.vue'
+  import slide from '../slots/Slide.vue'
   import DEFAULT_THUMBNAIL from '../../assets/default_thumbnail.webp'
 
   export default {
@@ -84,7 +84,6 @@
     },
     setup(props) {
       const LIKE_EL = ref(null)
-      const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
 
       onMounted(() => {
         if (props.post.liked) LIKE_EL.value?.classList?.add('is-like')
@@ -94,7 +93,6 @@
         markdownText,
         dayjs,
         LIKE_EL,
-        IMAGE_URL,
         DEFAULT_THUMBNAIL,
       }
     },

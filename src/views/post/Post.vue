@@ -14,8 +14,8 @@
   import { defineComponent, ref, computed, watch, onBeforeMount, onUnmounted } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
   import { useStore } from 'vuex'
-  import Post from '../../components/posts/Post.vue'
-  import Comments from '../../components/posts/Comments.vue'
+  import Post from '../../components/Post.vue'
+  import Comments from '../../components/Comments.vue'
 
   export default defineComponent({
     name: 'post',

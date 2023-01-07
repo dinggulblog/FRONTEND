@@ -5,15 +5,15 @@
       <span class="category">{{ category }}</span>
     </div>
     <div class="slide_page">
-      <span class="nowPage">{{ page + 1 }}</span>
-      <span class="maxPage">{{ maxPage || 1 }}</span>
+      <span class="nowPage">{{ page }}</span>
+      <span class="maxPage">{{ maxPage }}</span>
     </div>
   </div>
 
   <!-- List of Posts -->
   <div class="posts">
-    <div>
-      <ul :id="type" ref="POST_EL">
+    <ul style="overflow: hidden">
+      <div :id="type" ref="POST_EL">
         <transition-group
           name="fade"
           @before-enter="beforeEnter"
@@ -22,18 +22,25 @@
         >
           <template v-for="[key, value] in posts" :key="key">
             <template v-for="(post, index) in value" :key="post._id">
-              <PostSlot :type="type" :post="post" @commitPosts="onCommitPosts" :data-index="index"></PostSlot>
+              <PostSlot
+                :type="type"
+                :post="post"
+                :data-index="index"
+                :page-index="key"
+                @commitPosts="onCommitPosts"
+              ></PostSlot>
             </template>
           </template>
         </transition-group>
-        <div v-show="type !== 'slide'" ref="TRIGGER_EL" style="width: 100%">이게 보이면 게시물 더 받아오기</div>
-      </ul>
-    </div>
+      </div>
+    </ul>
+
+    <div v-show="type !== 'slide'" ref="TRIGGER_EL" style="width: 100%">이게 보이면 게시물 더 받아오기</div>
 
     <!-- Slide buttons -->
     <div v-if="type === 'slide'" class="wrap_btn_slidePage">
       <Button
-        v-show="page !== 0"
+        v-show="page !== 1"
         class="btn_prev"
         size="md"
         svg="arrow-left"
@@ -43,7 +50,7 @@
         @click="prevSlide"
       />
       <Button
-        v-show="maxPage > page + 1"
+        v-show="maxPage > page"
         class="btn_next"
         size="md"
         svg="arrow-right"
@@ -57,10 +64,10 @@
 </template>
 
 <script setup>
-  import { defineProps, ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
+  import { defineProps, ref, reactive, computed, watch, onMounted, onBeforeUnmount, onUnmounted } from 'vue'
   import { useStore } from 'vuex'
-  import { useMedia } from '../../common/mediaQuery'
-  import PostSlot from '../slots/PostSlot.vue'
+  import { useMedia } from '../common/mediaQuery'
+  import PostSlot from './slotdata/PostSlot.vue'
 
   const props = defineProps({
     type: {
@@ -74,24 +81,26 @@
     },
   })
   const { state, commit, dispatch } = useStore()
-  const isMobile = useMedia('only screen and (max-width: 1023px)')
+  const isAllMobile = useMedia('only screen and (max-width: 1199px)')
+  const isTablet = useMedia('only screen and (max-width: 1023px)')
+  const isMobile = useMedia('only screen and (max-width: 767px)')
   const options = {
     threshold: 1.0,
   }
 
-  let nowItem = 1
-  let limit = 4
-  const page = ref(0)
+  let limit = isAllMobile.value ? 2 : 4
+
+  const page = ref(1)
   const maxPage = ref(1)
   const posts = ref(new Map())
+
   const POST_EL = ref(null)
   const TRIGGER_EL = ref(null)
-  const isShowTrigger = ref(false)
 
   const query = reactive({
-    limit: isMobile.value ? limit : limit * 2,
+    limit: limit,
     menu: computed(() => state.menu.currentMenus?.map((menu) => menu._id)),
-    skip: computed(() => (isMobile.value ? page.value * 2 : page.value * 4)),
+    skip: computed(() => (page.value === 1 ? 0 : isAllMobile.value ? page.value * 2 : page.value * 4)),
     category: computed(() => props.category),
     hasThumbnail: computed(() => props.type === 'slide'),
   })
@@ -108,62 +117,74 @@
     commit('post/SET_POSTS', posts.value)
   }
 
-  const onUpdatePage = async (updatePage) => {
+  const onUpdatePage = (updatePage) => {
     page.value = updatePage
-    if (updatePage % 2 === 0) getPosts({ payload: query, currentPage: updatePage })
   }
 
-  const nextSlide = async () => {
-    if (page.value + 1 === maxPage.value || !POST_EL.value) return
-    nowItem = isMobile.value ? nowItem + limit / 2 : nowItem + limit
-    const parentX = POST_EL.value.getBoundingClientRect()?.left
-    const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left - parentX
-    POST_EL.value.scrollBy({ left: x, behavior: 'smooth' })
+  const nextSlide = () => {
+    if (page.value === maxPage.value || !POST_EL.value) return
+    const target = POST_EL.value.querySelector(`li[page-index="${page.value + 1}"]`)
+    const parent = POST_EL.value.getBoundingClientRect()?.left
+    const x = target?.getBoundingClientRect()?.left - parent
+    //POST_EL.value.scrollTo({ left: x * page.value, behavior: 'smooth' })
+    POST_EL.value.style.transform = `translateX(-${x}px)`
+    POST_EL.value.style.transition = 'all 0.3s'
     onUpdatePage(page.value + 1)
   }
 
-  const prevSlide = async () => {
-    if (page.value === 0 || !POST_EL.value) return
-    nowItem = isMobile.value ? nowItem - limit / 2 : nowItem - limit
-    const parentX = POST_EL.value.getBoundingClientRect()?.left
-    const x = POST_EL.value.children.item(nowItem)?.getBoundingClientRect()?.left - parentX
-    POST_EL.value.scrollBy({ left: x, behavior: 'smooth' })
+  const prevSlide = () => {
+    if (page.value === 1 || !POST_EL.value) return
+    const target = POST_EL.value.querySelector(`li[page-index="${page.value - 1}"]`)
+    const parent = POST_EL.value.getBoundingClientRect()?.left
+    const x = target?.getBoundingClientRect()?.left - parent
+    //POST_EL.value.scrollBy({ left: x, behavior: 'smooth' })
+    POST_EL.value.style.transform = `translateX(-${x}px)`
+    POST_EL.value.style.transition = 'all 0.3s'
     onUpdatePage(page.value - 1)
   }
 
-  const getPosts = async ({ payload, currentPage }) => {
-    const { success, posts: newPosts, maxPage: newMaxPage } = await dispatch('post/getPosts', payload)
-    console.log(newPosts, newMaxPage)
-    if (success && Array.isArray(newPosts)) {
-      maxPage.value = newMaxPage
-      posts.value.set(currentPage + 1, newPosts.slice(0, limit))
-      posts.value.set(currentPage + 2, newPosts.slice(limit))
+  const getPosts = async (page) => {
+    const { success, posts: newPosts, maxPage: newMaxPage } = await dispatch('post/getPosts', query)
+    if (!success) throw new Error('게시물을 받아오는 도중 에러가 발생하였습니다.')
+
+    maxPage.value = newMaxPage ? newMaxPage : maxPage.value
+
+    if (page === 1) {
+      posts.value.set(page, newPosts.slice(0, limit))
+      posts.value.set(page + 1, newPosts.slice(limit))
+    } else {
+      posts.value.set(page + 1, newPosts.slice(0, limit))
     }
+    console.log(posts.value)
   }
 
   const callback = (entries, observer) => {
     entries.forEach(async (entry) => {
-      // TRIGGER_EL.value가 보이지 않는다면 retrun
-      if (!entry.isIntersecting) {
-        return
-      }
-      // TRIGGER_EL.value가 보였다면 page+2(page가 1일때만 +1)
-      isShowTrigger.value = true
-      onUpdatePage(page.value + 2)
-      isShowTrigger.value = false
+      if (!entry.isIntersecting) return // TRIGGER_EL.value가 보이지 않는다면 retrun
+
+      onUpdatePage(page.value + 1) // TRIGGER_EL.value가 보였다면 page+2(page가 1일때만 +1)
     })
   }
 
   const observer = new IntersectionObserver(callback, options)
 
-  await getPosts({ payload: query, currentPage: 0 })
+  const stop = watch(page, (newPage, prevPage) => {
+    if (newPage === 1 || newPage > prevPage) getPosts(newPage)
+  })
+
+  watch([isAllMobile, isTablet, isMobile], () => {
+    const target = POST_EL.value.querySelector(`li[page-index="${page.value}"]`)
+    const parent = POST_EL.value.getBoundingClientRect()?.left
+    const x = target?.getBoundingClientRect()?.left - parent
+    POST_EL.value.style.transform = `translateX(-${x}px)`
+  })
 
   watch(
     () => [query.menu, props.category],
     () => {
       window.scrollTo({ left: 0, top: 0, behavior: 'smooth' })
       posts.value.clear()
-      onUpdatePage(0)
+      onUpdatePage(1)
     }
   )
 
@@ -171,9 +192,15 @@
     observer.observe(TRIGGER_EL.value)
   })
 
+  onBeforeUnmount(() => {
+    stop()
+  })
+
   onUnmounted(() => {
     observer.disconnect()
   })
+
+  await getPosts(1)
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
@@ -269,14 +296,12 @@
   #slide {
     display: flex;
     flex-direction: row;
-    overflow-x: auto;
-    margin: 0 0 9.6rem;
+    margin: 0 0 0rem;
     -ms-overflow-style: none;
     overflow: -moz-scrollbars-none;
     scrollbar-width: none;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
 
     &::-webkit-scrollbar {
       display: none;
@@ -285,15 +310,11 @@
     li {
       margin: 0 2.4rem 0 0;
     }
-
-    li:nth-last-child(2) {
-      margin: 0;
-    }
   }
 
   .wrap_slide_toolbar {
     display: flex;
-    margin: 0 0 4rem;
+    margin: 6.4rem 0 4rem;
 
     .slide_category,
     .slide_page {

@@ -119,7 +119,7 @@
   import { useStore } from 'vuex'
   import ActionSlot from './ActionSlot.vue'
   import CommentInfoSlot from './CommentInfoSlot.vue'
-  import CommentEditor from '../posts/CommentEditor.vue'
+  import CommentEditor from '../CommentEditor.vue'
   import comment from '../../store/modules/comment'
 
   export default {

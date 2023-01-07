@@ -21,7 +21,7 @@
 <script>
   import { defineComponent } from 'vue'
   import CommentEditor from './CommentEditor.vue'
-  import CommentSlot from '../slots/CommentSlot.vue'
+  import CommentSlot from './slotdata/CommentSlot.vue'
 
   export default defineComponent({
     components: {

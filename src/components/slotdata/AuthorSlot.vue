@@ -3,7 +3,7 @@
     <template #avatar>
       <img
         class="avatar"
-        :src="avatar ? `${IMAGE_URL}${avatar.serverFileName}` : DEFAULT_AVATAR_192"
+        :src="avatar ? avatar.thumbnail : DEFAULT_AVATAR_192"
         alt="profile_avatar"
       />
     </template>
@@ -42,8 +42,8 @@
 </template>
 
 <script>
-  import { reactive, ref, toRefs } from 'vue'
-  import Author from '../posts/Author.vue'
+  import { reactive, toRefs } from 'vue'
+  import Author from '../slots/Author.vue'
   import DEFAULT_AVATAR_192 from '../../assets/default_avatar_192.webp'
   import DEFAULT_AVATAR_64 from '../../assets/default_avatar_64.webp'
   
@@ -63,14 +63,11 @@
     },
     emits: ['updateAvatar', 'updateGreetings', 'resetAvatar'],
     setup(props) {
-      const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
-
       const { avatar, nickname, greetings } = toRefs(props.profile)
 
       return {
         DEFAULT_AVATAR_192,
         DEFAULT_AVATAR_64,
-        IMAGE_URL,
         avatar,
         nickname,
         greetings,

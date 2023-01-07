@@ -123,8 +123,8 @@
   import { useStore } from 'vuex'
   import { Form } from 'vee-validate'
   import * as Yup from 'yup'
-  import TextInput from '../../components/TextInput.vue'
-  import PopupModal from '../../components/global/PopupModal.vue'
+  import TextInput from '../ui/TextInput.vue'
+  import PopupModal from '../slots/PopupModal.vue'
 
   export default {
     name: 'account',

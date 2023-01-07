@@ -7,8 +7,8 @@ import store from './store'
 import setupInterceptors from './services/axios.interceptors'
 import Dialog from './components/global/Dialog.vue'
 import ToastMessage from './components/global/ToastMessage.vue'
-import Button from './components/global/Button.vue'
-import Ico from './components/global/Ico.vue'
+import Button from './components/ui/Button.vue'
+import Ico from './components/ui/Ico.vue'
 
 config() // dotenv config
 setupInterceptors(store) // create axios instance

@@ -62,7 +62,7 @@
 <script>
   import { computed, reactive } from 'vue'
   import { useStore } from 'vuex'
-  import AuthorSlot from '../slots/AuthorSlot.vue'
+  import AuthorSlot from '../slotdata/AuthorSlot.vue'
 
   export default {
     components: {

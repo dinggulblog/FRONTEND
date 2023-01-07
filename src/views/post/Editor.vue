@@ -150,7 +150,7 @@
   import { useMedia } from '../../common/mediaQuery'
   import Markdown from 'vue3-markdown-it'
   import MarkdownEmoji from 'markdown-it-emoji'
-  import Toggle from '../../components/global/Toggle.vue'
+  import Toggle from '../../components/ui/Toggle.vue'
   import 'highlight.js/styles/atom-one-dark.css'
 
   export default defineComponent({
