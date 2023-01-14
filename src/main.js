@@ -14,11 +14,12 @@ config() // dotenv config
 setupInterceptors(store) // create axios instance
 
 const app = createApp(App)
+
 app.use(store)
-app.use(router)
-app.use(VueDOMPurifyHTML)
-app.component('Dialog', Dialog)
-app.component('ToastMessage', ToastMessage)
-app.component('Button', Button)
-app.component('Ico', Ico)
-app.mount('#app')
+  .use(router)
+  .use(VueDOMPurifyHTML)
+  .component('Dialog', Dialog)
+  .component('ToastMessage', ToastMessage)
+  .component('Button', Button)
+  .component('Ico', Ico)
+  .mount('#app')

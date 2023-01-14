@@ -3,7 +3,7 @@
     <template #avatar>
       <img
         class="avatar"
-        :src="avatar ? avatar.thumbnail : DEFAULT_AVATAR_192"
+        :src="avatar?.thumbnail ?? DEFAULT_AVATAR_192"
         alt="profile_avatar"
       />
     </template>

@@ -14,11 +14,11 @@
 
     <template #comment_count>
       <li>
-        <span class="child_count">답글 {{ comment?.childComments?.length ?? 0 }}개</span>
+        <span class="child_count">답글 {{ comment?.childCommentCount ?? 0 }}개</span>
       </li>
     </template>
 
-    <template #is-public v-if="!comment?.isPublic">
+    <template #is-public v-if="!comment.isPublic">
       <li>
         <span class="info_ico">
           <Ico :svg="'lock'" :size="'sm'"></Ico>
@@ -43,9 +43,10 @@
       comment: {
         type: Object,
         required: true,
+        default: () => ({})
       },
     },
-    setup(props) {
+    setup() {
       return { dayjs }
     },
   }

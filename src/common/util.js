@@ -16,3 +16,18 @@ export const throttle = (callback, limit = 300) => {
     }
   }
 }
+
+export const searchParentComment = (parentComment, parentId = null) => {
+  const { _id, childComments } = parentComment
+        
+  if (_id === parentId) {
+    return parentComment
+  }
+  else if (Array.isArray(childComments)) {
+    let result = null
+    childComments.forEach(childComment => result = searchParentComment(childComment, parentId))
+    return result
+  }
+
+  return null
+}

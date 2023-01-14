@@ -1,5 +1,5 @@
 <template>
-  <button class="btn" type="button" :style="customState" @click="$emit('onClick')" ref="BTN_EL">
+  <button class="btn" type="button" :style="customState" @click="onClick" ref="BTN_EL">
     <Ico :svg="svg" :size="size" :customColor="customColor"></Ico>
     {{ content }}
   </button>
@@ -7,6 +7,7 @@
 
 <script>
   import { computed, ref } from 'vue'
+  import { throttle } from '../../common/util.js'
   import Ico from './Ico.vue'
 
   export default {
@@ -63,7 +64,7 @@
         default: false,
       },
     },
-    setup(props) {
+    setup(props, { emit }) {
       const svgPath = ref(null)
 
       const state = computed(() => ({
@@ -87,7 +88,10 @@
         fontSize: props.customFontSize ?? '',
       }))
 
+      const onClick = throttle(() => emit('onClick'), 250)
+
       return {
+        onClick,
         svgPath,
         state,
         customState,

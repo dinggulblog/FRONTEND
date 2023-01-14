@@ -5,71 +5,70 @@
       <span class="category">{{ category }}</span>
     </div>
     <div class="slide_page">
-      <span class="nowPage">{{ page }}</span>
-      <span class="maxPage">{{ maxPage }}</span>
+      <span class="nowPage">{{ curPage }}</span>
+      <span class="maxPage">{{ slicedMaxPage }}</span>
     </div>
   </div>
 
   <!-- List of Posts -->
   <div class="posts">
-    <ul style="overflow: hidden">
-      <div :id="type" ref="POST_EL">
+    <ul>
+      <div :id="type" ref="POST_EL" style="overflow-x: auto">
         <transition-group
           name="fade"
           @before-enter="beforeEnter"
           @after-enter="afterEnter"
           @enter-cancelled="afterEnter"
         >
-          <template v-for="[key, value] in posts" :key="key">
-            <template v-for="(post, index) in value" :key="post._id">
-              <PostSlot
-                :type="type"
-                :post="post"
-                :data-index="index"
-                :page-index="key"
-                @commitPosts="onCommitPosts"
-              ></PostSlot>
-            </template>
+          <template v-for="(post, index) in posts" :key="index">
+            <PostSlot :type="type" :post="post" :data-index="index" @commitPosts="onCommitPosts"></PostSlot>
           </template>
         </transition-group>
+        <div
+          ref="TRIGGER_EL"
+          :style="type !== 'slide' ? { width: '100%' } : { width: '0', left: '-30px' }"
+          style="height: 0; position: relative"
+        ></div>
       </div>
     </ul>
-
-    <div v-show="type !== 'slide'" ref="TRIGGER_EL" style="width: 100%">이게 보이면 게시물 더 받아오기</div>
 
     <!-- Slide buttons -->
     <div v-if="type === 'slide'" class="wrap_btn_slidePage">
       <Button
-        v-show="page !== 1"
+        v-show="curPage !== 1"
         class="btn_prev"
         size="md"
         svg="arrow-left"
         bgColor="primary"
         customColor="#fff"
         customPadding="0"
-        @click="prevSlide"
+        @onClick="prevSlide"
       />
       <Button
-        v-show="maxPage > page"
+        v-show="curPage < slicedMaxPage"
         class="btn_next"
         size="md"
         svg="arrow-right"
         bgColor="primary"
         customColor="#fff"
         customPadding="0"
-        @click="nextSlide"
+        @onClick="nextSlide"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-  import { defineProps, ref, reactive, computed, watch, onMounted, onBeforeUnmount, onUnmounted } from 'vue'
+  import { defineProps, ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
   import { useStore } from 'vuex'
   import { useMedia } from '../common/mediaQuery'
   import PostSlot from './slotdata/PostSlot.vue'
 
   const props = defineProps({
+    menu: {
+      type: Array,
+      default: () => [],
+    },
     type: {
       type: String,
       default: 'list',
@@ -79,34 +78,47 @@
       type: String,
       default: '전체',
     },
+    filter: {
+      type: String,
+      required: false,
+      validator: (value) => ['like', 'comment'].includes(value),
+    },
+    userId: {
+      type: String,
+      required: false,
+    },
   })
-  const { state, commit, dispatch } = useStore()
-  const isAllMobile = useMedia('only screen and (max-width: 1199px)')
-  const isTablet = useMedia('only screen and (max-width: 1023px)')
-  const isMobile = useMedia('only screen and (max-width: 767px)')
-  const options = {
-    threshold: 1.0,
-  }
-
-  let limit = isAllMobile.value ? 2 : 4
-
-  const page = ref(1)
-  const maxPage = ref(1)
-  const posts = ref(new Map())
+  const { commit, dispatch } = useStore()
+  const isMobile = useMedia('only screen and (max-width: 1199px)')
 
   const POST_EL = ref(null)
   const TRIGGER_EL = ref(null)
 
+  const posts = ref([])
+  const page = ref(1)
+  const curPage = ref(1)
+  const maxPage = ref(1)
+  const typeLimit = computed(() => (props.type === 'slide' ? 4 : 6))
+  const limit = computed(() => (isMobile.value ? typeLimit.value : typeLimit.value * 2))
+  const slicedMaxPage = computed(() => Math.ceil(maxPage.value / (limit.value / 2)))
+
+  const skip = computed(() => (page.value === 1 ? 0 : page.value * (limit.value / 2)))
+  const menu = computed(() => props.menu.map(({ _id }) => _id))
+  const category = computed(() => props.category)
+  const hasThumbnail = computed(() => props.type === 'slide')
+
   const query = reactive({
-    limit: limit,
-    menu: computed(() => state.menu.currentMenus?.map((menu) => menu._id)),
-    skip: computed(() => (page.value === 1 ? 0 : isAllMobile.value ? page.value * 2 : page.value * 4)),
-    category: computed(() => props.category),
-    hasThumbnail: computed(() => props.type === 'slide'),
+    limit,
+    skip,
+    menu,
+    category,
+    hasThumbnail,
+    filter: computed(() => props.filter),
+    userId: computed(() => props.userId),
   })
 
   const beforeEnter = (el) => {
-    el.style.transitionDelay = 200 * parseInt(el.dataset.index, 10) + 'ms'
+    el.style.transitionDelay = 150 * parseInt(el.dataset.index % limit.value, 10) + 'ms'
   }
 
   const afterEnter = (el) => {
@@ -118,82 +130,106 @@
   }
 
   const onUpdatePage = (updatePage) => {
+    if (maxPage.value < updatePage) return
     page.value = updatePage
   }
 
+  const onUpdateCurrentPage = (updatePage) => {
+    if (maxPage.value < updatePage) return
+    curPage.value = updatePage
+  }
+
+  const slide = (element, index) => {
+    if (!element) return
+
+    const target = element?.querySelector(`li[data-index="${index}"]`)
+    //const parent = element?.getBoundingClientRect()?.left
+
+    if (target) {
+      //const x = target.getBoundingClientRect().left - parent
+      target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'end' })
+      //element.style.transform = `translateX(-${x}px)`
+      //element.style.transition = 'all 0.3s'
+    }
+  }
+
   const nextSlide = () => {
-    if (page.value === maxPage.value || !POST_EL.value) return
-    const target = POST_EL.value.querySelector(`li[page-index="${page.value + 1}"]`)
-    const parent = POST_EL.value.getBoundingClientRect()?.left
-    const x = target?.getBoundingClientRect()?.left - parent
-    //POST_EL.value.scrollTo({ left: x * page.value, behavior: 'smooth' })
-    POST_EL.value.style.transform = `translateX(-${x}px)`
-    POST_EL.value.style.transition = 'all 0.3s'
-    onUpdatePage(page.value + 1)
+    if (curPage.value === slicedMaxPage.value) return
+
+    onUpdateCurrentPage(curPage.value + 1)
+    const index = curPage.value * (limit.value / 2) - 1
+    slide(POST_EL.value, posts.value.length - 1 < index ? posts.value.length - 1 : index)
+    //getPosts(page.value)
   }
 
   const prevSlide = () => {
-    if (page.value === 1 || !POST_EL.value) return
-    const target = POST_EL.value.querySelector(`li[page-index="${page.value - 1}"]`)
-    const parent = POST_EL.value.getBoundingClientRect()?.left
-    const x = target?.getBoundingClientRect()?.left - parent
-    //POST_EL.value.scrollBy({ left: x, behavior: 'smooth' })
-    POST_EL.value.style.transform = `translateX(-${x}px)`
-    POST_EL.value.style.transition = 'all 0.3s'
-    onUpdatePage(page.value - 1)
+    if (curPage.value === 1) return
+
+    onUpdateCurrentPage(curPage.value - 1)
+    const index = curPage.value * (limit.value / 2) - 1
+    slide(POST_EL.value, posts.value.length - 1 < index ? posts.value.length - 1 : index)
   }
 
-  const getPosts = async (page) => {
-    const { success, posts: newPosts, maxPage: newMaxPage } = await dispatch('post/getPosts', query)
-    if (!success) throw new Error('게시물을 받아오는 도중 에러가 발생하였습니다.')
+  const getPosts = async (newPage) => {
+    if (newPage === 1 || newPage % 2 === 0) {
+      const { success, posts: newPosts, maxPage: newMaxPage } = await dispatch('post/getPosts', query)
+      if (!success) throw new Error('게시물을 받아오는 도중 에러가 발생하였습니다.')
 
-    maxPage.value = newMaxPage ? newMaxPage : maxPage.value
-
-    if (page === 1) {
-      posts.value.set(page, newPosts.slice(0, limit))
-      posts.value.set(page + 1, newPosts.slice(limit))
-    } else {
-      posts.value.set(page + 1, newPosts.slice(0, limit))
+      maxPage.value = newMaxPage || maxPage.value
+      newPage === 1
+        ? posts.value.splice(0, limit.value, ...newPosts)
+        : posts.value.splice(newPage * (limit.value / 2), limit.value, ...newPosts)
     }
-    console.log(posts.value)
   }
 
   const callback = (entries, observer) => {
-    entries.forEach(async (entry) => {
-      if (!entry.isIntersecting) return // TRIGGER_EL.value가 보이지 않는다면 retrun
+    entries.forEach((entry) => {
+      // TRIGGER_EL.value가 보이지 않는다면 retrun
+      if (!entry.isIntersecting) return
 
-      onUpdatePage(page.value + 1) // TRIGGER_EL.value가 보였다면 page+2(page가 1일때만 +1)
+      console.log('아ㅣ무말')
+
+      onUpdatePage(page.value === 1 ? page.value + 1 : page.value + 2)
+      getPosts(page.value)
     })
   }
 
-  const observer = new IntersectionObserver(callback, options)
-
-  const stop = watch(page, (newPage, prevPage) => {
-    if (newPage === 1 || newPage > prevPage) getPosts(newPage)
-  })
-
-  watch([isAllMobile, isTablet, isMobile], () => {
-    const target = POST_EL.value.querySelector(`li[page-index="${page.value}"]`)
-    const parent = POST_EL.value.getBoundingClientRect()?.left
-    const x = target?.getBoundingClientRect()?.left - parent
-    POST_EL.value.style.transform = `translateX(-${x}px)`
-  })
+  const observer = new IntersectionObserver(callback, { threshold: 1.0 })
 
   watch(
-    () => [query.menu, props.category],
+    isMobile,
+    (newIsMobile, prevIsMobile) => {
+      if (newIsMobile && !prevIsMobile) {
+        // PC -> Mobile로 갈 때
+        onUpdatePage(page.value * 2 - 1)
+        onUpdateCurrentPage(curPage.value * 2 - 1)
+      } else if (!newIsMobile && prevIsMobile) {
+        // Mobile -> PC로 갈 때
+        posts.value = []
+        onUpdatePage(1)
+        onUpdateCurrentPage(1)
+        getPosts(1)
+      }
+
+      const index = curPage.value * (limit.value / 2) - 1
+      slide(POST_EL.value, posts.value.length - 1 < index ? posts.value.length - 1 : index)
+    },
+    { flush: 'post' }
+  )
+
+  watch(
+    () => [props.menu, props.category, props.filter],
     () => {
       window.scrollTo({ left: 0, top: 0, behavior: 'smooth' })
-      posts.value.clear()
+      posts.value = []
       onUpdatePage(1)
+      onUpdateCurrentPage(1)
+      getPosts(1)
     }
   )
 
   onMounted(() => {
     observer.observe(TRIGGER_EL.value)
-  })
-
-  onBeforeUnmount(() => {
-    stop()
   })
 
   onUnmounted(() => {
@@ -303,12 +339,12 @@
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
 
-    &::-webkit-scrollbar {
-      display: none;
-    }
-
     li {
       margin: 0 2.4rem 0 0;
+    }
+
+    li:last-child {
+      margin: 0;
     }
   }
 

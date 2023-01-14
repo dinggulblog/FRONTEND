@@ -1,5 +1,7 @@
 <template>
   <div class="profile">
+
+    <!-- Profile -->
     <form v-on:submit.prevent="submitForm">
       <div class="wrap_author">
         <AuthorSlot
@@ -10,56 +12,42 @@
           @updateGreetings="updateGreetings"
         >
         </AuthorSlot>
-        <div class="wrap_btn-edit" v-if="profileState.nickname === profile.nickname">
+        <div class="wrap_btn-edit" v-if="profileState.nickname === myProfile.nickname">
           <button class="btn_edit" @click="displayState.state === 'edit' ? onUpdateGreetings() : onChangeState('edit')">
-            {{ displayState.button.toUpperCase() }}
+            {{ displayState.state === 'edit' ? '편집 완료' : '기본 정보 편집' }}
           </button>
         </div>
       </div>
     </form>
 
+    <!-- Tab menu -->
     <div class="wrap_tab">
       <ul class="tab">
-        <li
-          @click="onChangeTab('introduce')"
-          :style="[
-            displayState.tab === 'introduce' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '',
-          ]"
-        >
-          소개글
-        </li>
-        <li
-          @click="onChangeTab('like')"
-          :style="[displayState.tab === 'like' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '']"
-        >
-          좋아요한 게시글
-        </li>
-        <li
-          @click="onChangeTab('comment')"
-          :style="[
-            displayState.tab === 'comment' ? { borderColor: 'var(--secondary)', color: 'var(--secondary)' } : '',
-          ]"
-        >
-          댓글단 게시글
-        </li>
+        <li 
+          v-for="tab in tabs"
+          :key="tab.name"
+          :class="tab.name === displayState.tab ? 'isActive' : ''"
+          @click="onChangeTab(tab.name)"
+        >{{ tab.content }}</li>
       </ul>
     </div>
 
-    <div v-if="displayState.tab === 'introduce'" class="introduce">
+    <!-- Tab content - Introduce -->
+    <div v-if="displayState.tab === 'intro'" class="introduce">
       <span v-if="displayState.state === 'introEdit'">
-        <QuillEditor theme="snow" v-model:content="profileState.introduce" contentType="html" />
+        <QuillEditor v-model:content="profileState.introduce" contentType="html" :options="options" />
       </span>
 
       <div
-        class="content_intro"
         v-else
+        class="content_intro"
         v-dompurify-html="profileState.introduce ? profileState.introduce : '작성된 소개글이 없습니다.'"
       ></div>
 
       <Button
+        v-if="profileState.nickname === myProfile.nickname"
         class="btn_edit_introduce"
-        v-if="profileState.nickname === profile.nickname"
-        :content="displayState.introButton"
+        :content="displayState.state === 'introEdit' ? '편집 완료' : '소개글 편집'"
         :size="'sm'"
         :rounded="true"
         :bgColor="'primary-dark'"
@@ -68,20 +56,29 @@
       ></Button>
     </div>
 
-    <Posts v-else type="list"></Posts>
+    <!-- Tab content - Posts -->
+    <Suspense v-else>
+      <template #default>
+        <Posts :filter="displayState.tab" :userId="profileState._id" />
+      </template>
+
+      <template #fallback>
+        <span>게시물 로딩 중...</span>
+      </template>
+    </Suspense>
   </div>
 </template>
 
 <script>
-  import { onBeforeMount, computed, reactive } from 'vue'
-  import { useRoute } from 'vue-router'
+  import { defineComponent, onBeforeMount, inject, ref, reactive, computed } from 'vue'
+  import { useRouter } from 'vue-router'
   import { useStore } from 'vuex'
   import { QuillEditor } from '@vueup/vue-quill'
   import AuthorSlot from '../../components/slotdata/AuthorSlot.vue'
   import Posts from '../../components/Posts.vue'
   import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
-  export default {
+  export default defineComponent({
     name: 'profile',
     components: {
       QuillEditor,
@@ -89,30 +86,47 @@
       Posts,
     },
     setup() {
-      const route = useRoute()
-      const { state, dispatch, commit } = useStore()
+      const { go, currentRoute: route } = useRouter()
+      const { state, dispatch } = useStore()
 
-      const displayState = reactive({
-        state: 'view',
-        button: computed(() => (displayState.state === 'edit' ? '편집 완료' : '기본 정보 편집')),
-        introButton: computed(() => (displayState.state === 'introEdit' ? '편집 완료' : '소개글 편집')),
-        tab: 'introduce',
-        alignItems: computed(() => (displayState.state === 'edit' ? 'flex-start' : 'center')),
+      const TOAST_EL = inject('TOAST_EL')
+      const tabs = ref([
+        { name: 'intro', content: '소개글' },
+        { name: 'like', content: '좋아요 한 게시물' },
+        { name: 'comment', content: '댓글 단 게시물' }
+      ])
+      const options = ref({
+        theme: 'snow',
+        placeholder: '소개글을 작성해 주세요.',
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline', 'strike'],
+            ['blockquote', 'code-block'],
+            [{ size: ['small', false, 'large', 'huge'] }],
+            [{ header: [1, 2, 3, 4, 5, 6, false] }],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ color: [] }, { background: [] }],
+            [{ 'align': [] }],
+            ['clean']
+          ]
+        }
       })
 
       const profileState = reactive({
-        nickname: route.params.nickname,
+        nickname: route.value.params.nickname,
         _id: '',
         avatar: '',
         greetings: '',
         introduce: '',
       })
 
-      const profile = computed(() => state.auth.profile)
-      const posts = computed(() => state.post.posts)
-      const page = computed(() => state.post.page)
-      const maxPage = computed(() => state.post.maxPage)
-      const limit = computed(() => state.post.limit)
+      const displayState = reactive({
+        tab: 'intro',
+        state: 'view'
+      })
+
+      const myProfile = computed(() => state.auth.profile)
+      const alignItems = computed(() => (displayState.state === 'edit' ? 'flex-start' : 'center'))
 
       const onChangeState = (state) => {
         displayState.state = state
@@ -120,28 +134,27 @@
 
       const onChangeTab = (tab) => {
         displayState.tab = tab
-        if (tab === 'like' || tab === 'comment') getPosts(tab)
       }
 
-      const onUpdatePage = (page) => commit('post/SET_PAGE', page)
-
       const onUpdateAvatar = async (event) => {
+        if (myProfile.value.nickname !== profileState.nickname) return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
+
         const formData = new FormData()
         formData.append('avatar', event.target.files[0])
-        const { success, profile } = await dispatch('auth/updateProfileAvatar', {
-          nickname: profileState.nickname,
-          payload: formData,
-        })
 
-        if (!success) return
+        const { success, profile } = await dispatch('auth/updateProfileAvatar', { nickname: profileState.nickname, payload: formData })
+
+        if (!success) return TOAST_EL.value.open('error', '아바타 업데이트 도중 에러가 발생하였습니다.')
 
         profileState.avatar = profile.avatar
       }
 
       const resetAvatar = async () => {
-        const { success, profile } = await dispatch('auth/deleteProfileAvatar', { nickname: profileState.nickname })
+        if (myProfile.value.nickname !== profileState.nickname) return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
 
-        if (!success) return
+        const { success } = await dispatch('auth/deleteProfileAvatar', { nickname: profileState.nickname })
+
+        if (!success) return TOAST_EL.value.open('error', '아바타 업데이트 도중 에러가 발생하였습니다.')
 
         profileState.avatar = null
       }
@@ -151,7 +164,7 @@
       }
 
       const onUpdateGreetings = async () => {
-        if (profileState.greetings.length > 150) return alert('글자 수 제한을 초과하였습니다. (최대 150자까지 허용)')
+        if (profileState.greetings.length > 150) return TOAST_EL.value.open('error', '글자 수 제한을 초과하였습니다. (최대 150자까지 허용)')
         const { success, profile } = await dispatch('auth/updateProfile', {
           nickname: profileState.nickname,
           payload: { greetings: profileState.greetings },
@@ -177,23 +190,11 @@
         onChangeState('view')
       }
 
-      const getPosts = async (filter) => {
-        await dispatch('post/getPosts', {
-          auth: false,
-          payload: {
-            filter,
-            page: page.value,
-            limit: limit.value,
-            userId: profileState._id,
-          },
-        })
-      }
-
       onBeforeMount(async () => {
-        if (profileState.nickname) {
+        if (route.value.params.nickname) {
           const { success, profile } = await dispatch('auth/getProfile', { nickname: profileState.nickname })
 
-          if (!success) return
+          if (!success) return go(-1)
 
           profileState._id = profile._id
           profileState.avatar = profile.avatar
@@ -203,15 +204,14 @@
       })
 
       return {
-        profile,
-        posts,
-        page,
-        maxPage,
+        tabs,
+        options,
+        myProfile,
         profileState,
         displayState,
+        alignItems,
         onChangeState,
         onChangeTab,
-        onUpdatePage,
         onUpdateAvatar,
         resetAvatar,
         updateGreetings,
@@ -219,7 +219,7 @@
         onUpdateIntroduce,
       }
     },
-  }
+  })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
@@ -228,8 +228,8 @@
       position: relative;
       margin: 0 0 4.8rem;
 
-      &::v-deep .author {
-        align-items: v-bind('displayState.alignItems');
+      &:deep(.author) {
+        align-items: v-bind('alignItems');
 
         @include mobile {
           align-items: center;
@@ -330,6 +330,11 @@
 
           &:last-child {
             margin: 0;
+          }
+
+          &.isActive {
+            border-color: var(--secondary);
+            color: var(--secondary);
           }
         }
 

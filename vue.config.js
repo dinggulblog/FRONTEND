@@ -1,6 +1,8 @@
+const { defineConfig } = require('@vue/cli-service')
 const path = require('path')
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
-module.exports = {
+module.exports = defineConfig({
   outputDir: path.resolve('../backend/public'),
   css: {
     loaderOptions: {
@@ -12,4 +14,14 @@ module.exports = {
       },
     },
   },
-}
+  configureWebpack: {
+    plugins: [
+      new NodePolyfillPlugin()
+    ],
+    resolve: {
+      fallback: {
+        'fs': false
+      }
+    }
+  },
+})

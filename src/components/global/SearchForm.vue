@@ -10,16 +10,9 @@
 </template>
 
 <script>
-  import { useStore } from 'vuex'
-  import { useRoute } from 'vue-router'
-
   export default {
-    name: 'navigation',
     setup() {
-      const { getters } = useStore()
-      const route = useRoute() // route는 computed 속성이라서 path나 params에 computed 안묶어도 됌
-
-      return { getters }
+      return {}
     },
   }
 </script>

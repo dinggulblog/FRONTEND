@@ -1,5 +1,5 @@
 <template>
-  <popup-modal ref="popup">
+  <PopupModal ref="POPUP_EL">
     <div id="dialog">
       <div class="massage">
         <h2>{{ title }}</h2>
@@ -11,54 +11,48 @@
         <button @click="_confirm">{{ okButton }}</button>
       </div>
     </div>
-  </popup-modal>
+  </PopupModal>
 </template>
 
-<script>
-  import PopupModal from '../slots/PopupModal.vue'
+<script setup>
+import { defineExpose, ref } from 'vue'
+import PopupModal from '../slots/PopupModal.vue'
 
-  export default {
-    name: 'Dialog',
-    components: {
-      PopupModal,
-    },
-    data: () => ({
-      title: undefined,
-      message: undefined,
-      okButton: 'Sure',
-      cancelButton: 'Cancle',
+const POPUP_EL = ref(null)
+const title = ref(null) 
+const message = ref(null)
+const okButton = ref('OK')
+const cancelButton = ref('Cancel')
 
-      resolvePromise: undefined,
-      rejectPromise: undefined,
-    }),
+let resolvePromise = undefined
+let rejectPromise = undefined
 
-    methods: {
-      show(opts = {}) {
-        this.title = opts.title
-        this.message = opts.message
-        if (opts.cancelButton) {
-          this.okButton = opts.okButton
-          this.cancelButton = opts.cancelButton
-        }
-        this.$refs.popup.open()
+const show = (opts = {}) => {
+  title.value = opts.title
+  message.value = opts.message
 
-        return new Promise((resolve, reject) => {
-          this.resolvePromise = resolve
-          this.rejectPromise = reject
-        })
-      },
+  cancelButton.value = opts.cancelButton ? opts.cancelButton : cancelButton.value
+  okButton.value = opts.okButton ? opts.okButton : okButton.value
 
-      _confirm() {
-        this.$refs.popup.close()
-        this.resolvePromise(true)
-      },
+  POPUP_EL.value.open()
 
-      _cancel() {
-        this.$refs.popup.close()
-        this.resolvePromise(false)
-      },
-    },
-  }
+  return new Promise((resolve, reject) => {
+    resolvePromise = resolve
+    rejectPromise = reject
+  })
+}
+
+const _confirm = () => {
+  POPUP_EL.value.close()
+  resolvePromise(true)
+}
+
+const _cancel = () => {
+  POPUP_EL.value.close()
+  resolvePromise(false)
+}
+
+defineExpose({ show })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

@@ -1,18 +1,32 @@
 <template>
-  <Post v-if="post" :profile="profile" :post="post" @onDeletePost="onDeletePost" />
-  <Comments
-    :comments="comments"
-    :commentCount="commentCount"
-    :profile="profile"
-    :post="post"
-    @onDeleteComment="onDeleteComment"
+  <Post 
+    v-if="post" 
+    :post="post" 
+    @deletePost="onDeletePost" 
+    @updateLike="onUpdateLike"
   />
-  <Dialog ref="Dialog"></Dialog>
+
+  <Suspense>
+    <template #default>
+      <Comments
+        v-if="post"
+        :postId="postId"
+        :author="author"
+        :userId="userId"
+        :comments="comments"
+        :commentCount="commentCount"
+        :quickMove="Boolean(quickMove)"
+      />
+    </template>
+    <template #fallback>
+      댓글 로딩 중...
+    </template>
+  </Suspense>
 </template>
 
 <script>
-  import { defineComponent, ref, computed, watch, onBeforeMount, onUnmounted } from 'vue'
-  import { useRouter, useRoute } from 'vue-router'
+  import { defineComponent, inject, computed, watch, onUnmounted } from 'vue'
+  import { useRouter } from 'vue-router'
   import { useStore } from 'vuex'
   import Post from '../../components/Post.vue'
   import Comments from '../../components/Comments.vue'
@@ -24,78 +38,77 @@
       Comments,
     },
     props: {
+      postId: {
+        type: String,
+        required: true,
+        default: ''
+      },
       quickMove: {
         type: [Boolean, String],
+        required: false,
         default: false,
       },
     },
     setup(props) {
-      const route = useRoute()
-      const { push } = useRouter()
+      const { go } = useRouter()
       const { state, dispatch, commit } = useStore()
 
-      const Dialog = ref(null)
+      const DIALOG_EL = inject('DIALOG_EL')
+      const TOAST_EL = inject('TOAST_EL')
 
-      const profile = computed(() => state.auth.profile)
       const post = computed(() => state.post.post)
+      const author = computed(() => state.post.post?.author?._id)
+      const userId = computed(() => state.auth.id)
       const comments = computed(() => state.comment.comments)
       const commentCount = computed(() => Number(state.comment.commentCount))
 
-      const onDeletePost = async () => {
-        if (post.value.author._id !== profile.value._id) return alert('본인 소유의 게시물만 삭제가 가능합니다.')
+      const onUpdateLike = async () => {
+        const { success, error } = !post.value.liked
+          ? await dispatch('post/updateLike', { postId: post.value._id })
+          : await dispatch('post/deleteLike', { postId: post.value._id })
+        
+        if (!success) TOAST_EL.value.open('error', error)
+      }
 
-        const ok = await Dialog.value.show({
+      const onDeletePost = async () => {
+        const ok = await DIALOG_EL.value.show({
           title: '게시물 삭제',
           message: '게시물을 삭제하시겠습니까?\n한번 삭제된 게시물은 되돌릴 수 없습니다.',
         })
-        if (ok) await dispatch('post/deletePost', post.value._id)
-      }
-
-      const onDeleteComment = async (comment) => {
-        if (comment.commenter._id !== profile.value._id) return alert('본인 댓글만 삭제가 가능합니다.')
-
-        const ok = await Dialog.value.show({
-          title: '댓글 삭제',
-          message: '해당 댓글을 삭제하시겠습니까?\n한번 삭제된 댓글은 되돌릴 수 없습니다.',
-        })
-        if (ok) await dispatch('comment/deleteComment', { postId: post.value._id, id: comment._id })
+        if (ok) {
+          const { success, error } = await dispatch('post/deletePost', { postId: post.value._id, authorId: post.value?.author?._id })
+          if (!success) TOAST_EL.value.open('error', error)
+        }
       }
 
       watch(
-        () => route.query.id,
+        () => props.postId,
         async () => {
-          if (route.query.id) {
-            await dispatch('post/getPost', route.query.id)
-            await dispatch('comment/getComments', route.query.id)
-          }
+          const { success, error } = await dispatch('post/getPost', { postId: props.postId })
+          if (success) return
+
+          alert(error)
+          go(-1)
         },
-        { immediate: true }
+        { immediate: true, flush: 'post' }
       )
 
-      onBeforeMount(async () => {
-        if (Boolean(props.quickMove && comments.value)) {
-          const y = document.querySelector('.comments').offsetTop - document.querySelector('#header').offsetHeight - 32
-          window.scrollTo({ top: y, behavior: 'smooth' })
-        } else {
-          window.scrollTo({ top: 0, behavior: 'smooth' })
-        }
-      })
-
       onUnmounted(() => {
-        commit('post/SET_POST', new Object())
+        commit('post/SET_POST', null)
       })
 
       return {
-        Dialog,
-        profile,
         post,
+        author,
+        userId,
         comments,
         commentCount,
-        onDeletePost,
-        onDeleteComment,
+        onUpdateLike,
+        onDeletePost
       }
     },
   })
 </script>
 
-<style lang="scss" rel="stylesheet/scss" scoped></style>
+<style lang="scss" rel="stylesheet/scss" scoped>
+</style>

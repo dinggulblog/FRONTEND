@@ -13,20 +13,22 @@ module.exports = {
     'no-unused-vars': 0,
     'no-extra-boolean-cast': 0,
     'no-mixed-spaces-and-tabs': 0,
+    'vue/custom-event-name-casing': 'off',
     'vetur.validation.template': 0,
     'vetur.validation.script': 0,
-    'vetur.validation.style': 0,
-    /*
-    indent: ['off'],
-    semi: ['off'],
-    'vue/no-multiple-template-root': 'off',
-    'no-multi-spaces': 0,
-    'no-useless-escape': 0,
-    'no-trailing-spaces': 0,
-    'no-multiple-empty-lines': 0,
-    'eol-last': 0,
-    'keyword-spacing': 0,
-    'space-before-function-paren': 0,
-    */
+    'vetur.validation.style': 0
   },
 }
+
+/*
+  indent: ['off'],
+  semi: ['off'],
+  'vue/no-multiple-template-root': 'off',
+  'no-multi-spaces': 0,
+  'no-useless-escape': 0,
+  'no-trailing-spaces': 0,
+  'no-multiple-empty-lines': 0,
+  'eol-last': 0,
+  'keyword-spacing': 0,
+  'space-before-function-paren': 0,
+*/

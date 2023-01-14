@@ -2,7 +2,7 @@
     <component :is="type">
       <template #thumbnail>
         <div v-if="type !== 'list' || (type === 'list' && post.thumbnail)" class="thumbnail">
-          <router-link :to="{ name: 'post', query: { id: post._id } }" @click="$emit('commitPosts')">
+          <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">
             <img :src="post.thumbnail ? post.thumbnail : DEFAULT_THUMBNAIL" />
           </router-link>
         </div>
@@ -13,7 +13,7 @@
       </template>
 
       <template #title>
-        <router-link :to="{ name: 'post', query: { id: post._id } }" @click="$emit('commitPosts')">{{
+        <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">{{
           post.title
         }}</router-link>
       </template>
@@ -34,7 +34,7 @@
 
       <template #comment_count>
         <router-link
-          :to="{ name: 'post', query: { id: post._id }, params: { quickMove: true } }"
+          :to="{ name: 'post', params: { postId: post._id, quickMove: true } }"
           @click="$emit('commitPosts')"
         >
           <span class="info_ico"><Ico :size="'sm'" :svg="'comment'" /></span>

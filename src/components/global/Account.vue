@@ -80,7 +80,7 @@
                 name="nickname"
                 type="text"
                 label="닉네임"
-                :value="user?.email"
+                :value="user?.nickname"
                 :placeholder="user?.nickname"
                 spellcheck="false"
                 success-message="사용할 수 있는 닉네임입니다."

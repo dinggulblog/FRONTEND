@@ -1,11 +1,16 @@
+import { searchParentComment } from '../../common/util.js' 
 import axios from '../../services/axios'
 
 const state = () => ({
   comments: [],
-  commentCount: 1,
+  commentCount: 0,
 })
 
-const getters = {}
+const getters = {
+  getParentComment: (state) => (parentId) => {
+    return state.comments.find(comment => searchParentComment(comment, parentId))
+  }
+}
 
 const actions = {
   // params: String (post ID)
@@ -16,9 +21,9 @@ const actions = {
       
       commit('SET_COMMENTS', { comments, commentCount })
 
-      return { success }
+      return { success, error: null }
     } catch (err) {
-      return { success: false }
+      return { success: false, error: err?.response?.data?.message || err.message }
     }
   },
 
@@ -29,7 +34,7 @@ const actions = {
       
       if (success) await actions.getComments({ commit }, postId)
     } catch (err) {
-      return { success: false }
+      return { success: false, error: err?.response?.data?.message || err.message }
     }
   },
 
@@ -40,18 +45,22 @@ const actions = {
 
       if (success) await actions.getComments({ commit }, postId)
     } catch (err) {
-      return { success: false }
+      return { success: false, error: err?.response?.data?.message || err.message }
     }
   },
 
   // params: Object (post ID, comment ID)
-  async deleteComment({ commit }, { id, postId }) {
+  async deleteComment({ rootState, commit }, { id, postId, commenterId }) {
     try {
+      if (!id || !postId) throw new Error(`${id ? '게시물' : '댓글'}을 찾을 수 없습니다.`)
+      if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
+      if (rootState.auth.id !== commenterId) throw new Error('본인 댓글만 삭제가 가능합니다.')
+
       const { data: { success } } = await axios.delete(`v1/comments/${postId}/${id}`)
 
       if (success) await actions.getComments({ commit }, postId)
     } catch (err) {
-      return { success: false }
+      return { success: false, error: err?.response?.data?.message || err.message }
     }
   },
 }

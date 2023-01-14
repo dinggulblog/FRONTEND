@@ -49,7 +49,7 @@
       </div>
       <div class="content">
         <p>
-          <span class="receiver" v-if="comment.parentComment">@ {{ myParentComment?.commenter?.nickname }}</span>
+          <span v-if="comment.parentComment" class="receiver">@ {{ parentComment?.commenter?.nickname }}</span>
           <span v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</span>
           <span v-else>{{ comment.content }}</span>
         </p>
@@ -67,7 +67,7 @@
       </div>
       <CommentEditor
         v-if="isVisible.commentEditor"
-        :post="post"
+        :postId="postId"
         :comment="comment"
         :isUpdate="isUpdate"
         @closeEditor="onCloseEditor"
@@ -76,15 +76,17 @@
 
     <ul class="comment_childItem" v-if="comment.childComments && isVisible.childComments">
       <CommentSlot
-        v-for="child in comment.childComments"
-        :key="child._id"
-        :comment="child"
-        :post="post"
-        :isAuthorized="isAuthorized"
+        v-for="childComment in comment.childComments"
+        :key="childComment._id"
+        :comment="childComment"
+        :postId="postId"
+        :author="author"
+        :userId="userId"
       />
     </ul>
   </li>
 
+  <!-- Non-active Comment -->
   <li class="not-is-acitve" v-else>
     <div class="content">
       <p>** 해당 댓글은 삭제된 댓글입니다 **</p>
@@ -104,23 +106,23 @@
 
     <ul class="comment_childItem" v-if="comment.childComments && isVisible.childComments">
       <CommentSlot
-        v-for="child in comment.childComments"
-        :key="child._id"
-        :comment="child"
-        :post="post"
-        :isAuthorized="isAuthorized"
+        v-for="childComment in comment.childComments"
+        :key="childComment._id"
+        :comment="childComment"
+        :postId="postId"
+        :author="author"
+        :userId="userId"
       />
     </ul>
   </li>
 </template>
 
 <script>
-  import { onBeforeMount, ref, computed, reactive } from 'vue'
+  import { ref, reactive, computed, inject } from 'vue'
   import { useStore } from 'vuex'
-  import ActionSlot from './ActionSlot.vue'
   import CommentInfoSlot from './CommentInfoSlot.vue'
   import CommentEditor from '../CommentEditor.vue'
-  import comment from '../../store/modules/comment'
+  import ActionSlot from './ActionSlot.vue'
 
   export default {
     name: 'CommentSlot',
@@ -133,32 +135,52 @@
       comment: {
         type: Object,
         required: true,
+        default: () => ({})
       },
-      post: {
-        type: Object,
+      postId: {
+        type: String,
         required: true,
+        default: ''
       },
-      isAuthorized: {
-        type: Boolean,
+      author: {
+        type: String,
         required: true,
+        default: ''
+      },
+      userId: {
+        type: String,
+        required: false,
+        default: ''
       },
     },
-    emits: ['onDeleteComment'],
-    setup(props, { emit }) {
-      const { state } = useStore()
+    setup(props) {
+      const { getters, dispatch } = useStore()
 
-      const comments = computed(() => state.comment.comments)
-      const isUpdate = ref(false)
-      const myParentComment = ref(null)
+      const DIALOG_EL = inject('DIALOG_EL')
+      const TOAST_EL = inject('TOAST_EL')
       const ACTION_SLOT_EL = ref(null)
 
+      const isUpdate = ref(false)
       const isVisible = reactive({
         commentEditor: false,
         childComments: false,
       })
+      const isAuthorized = computed(() => props.comment?.isPublic || props.author === props.userId || props.comment?.commenter?._id === props.userId)
+      const parentComment = computed(() => getters['comment/getParentComment'](props.comment?.parentComment))
 
       const onAction = () => {
         ACTION_SLOT_EL.value.onToggle()
+      }
+
+      const onDeleteComment = async () => {
+        const ok = await DIALOG_EL.value.show({
+          title: '댓글 삭제',
+          message: '해당 댓글을 삭제하시겠습니까?\n한번 삭제된 댓글은 되돌릴 수 없습니다.',
+        })
+        if (ok) {
+          const { success, error } = await dispatch('comment/deleteComment', { id: props.comment._id, postId: props.postId, commenterId: props.userId })
+          if (!success) TOAST_EL.value.open('error', error)
+        }
       }
 
       const onCreateEditor = () => {
@@ -183,50 +205,28 @@
         isVisible.childComments = false
       }
 
-      const onDeleteComment = () => {
-        emit('onDeleteComment', props.comment)
-      }
-
       const onCopyComment = async () => {
         try {
           await navigator.clipboard.writeText(props.comment.content)
-          alert('댓글 내용이 복사되었습니다')
+          TOAST_EL.value.open('success', '댓글 내용이 복사되었습니다')
         } catch (err) {
-          alert('댓글 내용 복사에 실패하였습니다.')
+          TOAST_EL.value.open('error', '댓글 내용 복사에 실패하였습니다.')
         }
       }
-
-      // comment => 원본 트리 배열
-      // id => props comment의 parentComment ID
-      const searchParentComment = (comment, id = null) => {
-        if (comment._id === id) {
-          return comment
-        } else if (Array.isArray(comment.childComments)) {
-          let result = null
-          for (const childComment of comment.childComments) {
-            result = searchParentComment(childComment, id)
-          }
-          return result
-        }
-        return null
-      }
-
-      onBeforeMount(() => {
-        myParentComment.value = comments.value.find((comment) => searchParentComment(comment, props.comment.parentComment))
-      })
 
       return {
         ACTION_SLOT_EL,
-        isVisible,
         isUpdate,
-        myParentComment,
+        isVisible,
+        isAuthorized,
+        parentComment,
         onAction,
+        onDeleteComment,
         onCreateEditor,
         onUpdateEditor,
         onCloseEditor,
         onDisplayChildComment,
         onHiddenChildComment,
-        onDeleteComment,
         onCopyComment,
       }
     },

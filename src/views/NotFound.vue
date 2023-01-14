@@ -8,8 +8,6 @@
 
 <script>
 export default {
-  name: 'NotFound',
-  setup() {
-  }
+  name: 'notfound',
 }
 </script>

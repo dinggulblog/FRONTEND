@@ -16,25 +16,35 @@
       <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
     </div>
   </div>
+
+  <Dialog ref="DIALOG_EL"></Dialog>
+  <ToastMessage ref="TOAST_EL"></ToastMessage>
 </template>
 
 <script>
-  import MyHeader from './components/global/MyHeader.vue'
-  import { computed } from 'vue'
+  import { defineComponent, ref, computed, provide } from 'vue'
   import { useStore } from 'vuex'
+  import MyHeader from './components/global/MyHeader.vue'
 
-  export default {
+  export default defineComponent({
     name: 'app',
     components: {
       MyHeader,
     },
     setup() {
       const { state } = useStore()
+
+      const DIALOG_EL = ref(null)
+      const TOAST_EL = ref(null)
+
       const isLogin = computed(() => state.auth.isLogin)
 
-      return { isLogin }
+      provide('DIALOG_EL', DIALOG_EL)
+      provide('TOAST_EL', TOAST_EL)
+
+      return { DIALOG_EL, TOAST_EL, isLogin }
     },
-  }
+  })
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
@@ -202,6 +212,10 @@
   input,
   button {
     font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+  }
+
+  #root {
+    overflow-x: hidden;
   }
 
   #header {

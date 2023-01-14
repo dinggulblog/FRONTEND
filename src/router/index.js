@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { getItemWithTTL } from '../common/localStorage'
+import { getItem, getItemWithTTL } from '../common/localStorage'
 import store from '../store/index'
 import Home from '../views/Home.vue'
 import NotFound from '../views/NotFound.vue'
@@ -15,8 +15,8 @@ const routes = [
   { path: '/auth/profile/:nickname', name: 'profile', component: Profile, meta: { title: 'Profile', requiredAuth: false } },
   { path: '/editor', name: 'editor', component: Editor, meta: { title: 'Editor', requiredAuth: true } },
   { path: '/posts/:main/:sub?', name: 'posts', component: Posts, props: true, meta: { title: 'Posts' } },
-  { path: '/posts', name: 'post', component: Post, props: true, meta: { title: 'Post' } },
-  { path: '/:catchAll(.*)+', component: NotFound, meta: { title: 'NotFoundError 404!' } },
+  { path: '/post/:postId', name: 'post', component: Post, props: true, meta: { title: 'Post' } },
+  { path: '/:catchAll(.*)+', name:'notfound', component: NotFound, meta: { title: 'NotFoundError 404!' } },
 ]
 
 const router = createRouter({
@@ -27,6 +27,8 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   document.title = to.meta?.title ?? 'DINGGUL'
 
+  const isLogin = getItemWithTTL('isLogin', false)
+
   if (to.name === 'posts') {
     store.commit('menu/SET_CURRENT_MENUS', { main: to.params.main, sub: to.params.sub })
     store.commit('menu/SET_CATEGORY', '전체')
@@ -36,8 +38,9 @@ router.beforeEach(async (to, from, next) => {
     await store.dispatch('menu/getMenus')
   }
 
-  if (getItemWithTTL('isLogin', false) && (!store.state.auth.user?._id || !store.state.auth.profile?._id)) {
-    await store.dispatch('auth/getAccount')
+  if (isLogin && !store.state.auth.id) {
+    const profile = getItem('profile', null)
+    profile ? store.commit('auth/SET_PROFILE', profile) : await store.dispatch('auth/getAccount')
   }
 
   if (to.meta.requiredAuth && !store.state.auth.user?._id) {

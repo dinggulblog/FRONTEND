@@ -1,7 +1,8 @@
 <template>
-  <div class="post" v-if="post._id">
+  <div class="post" v-if="post">
     <div class="wrap_header">
       <div class="wrap_left">
+        <!-- Post Title -->
         <div class="wrap_title">
           <div class="title">
             <h2>{{ post.title }}</h2>
@@ -11,6 +12,7 @@
           </div>
         </div>
 
+        <!-- Post Info -->
         <div class="wrap_info">
           <PostInfoSlot :post="post" />
         </div>
@@ -18,21 +20,18 @@
       <div class="wrap_right">
         <Button
           class="btn_dropbox"
-          tabindex="-1"
-          :size="'sm'"
-          :svg="'more'"
+          size="sm"
+          svg="more"
           :customColor="`var(--list_info)`"
           :customPadding="'0'"
           @click="onAction"
         />
 
-        <ActionSlot
-          ref="DROPBOX_SLOT_EL"
-          :dropboxItems="{ '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }"
-        />
+        <ActionSlot ref="DROPBOX_SLOT_EL" :dropboxItems="{ '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }"/>
       </div>
     </div>
 
+    <!-- Post Content -->
     <div class="content">
       <markdown
         class="markdown"
@@ -44,15 +43,17 @@
       />
     </div>
 
+    <!-- Post Likes -->
     <div class="wrap_like">
       <div class="liked_count">
-        <span class="like_ico" @click="onChangeLike">
-          <Ico :size="'lg'" :svg="'like-fill'" :customColor="!liked ? '#ddd' : 'var(--likeActive)'" />
+        <span class="like_ico" @click="onUpdateLike">
+          <Ico :size="'lg'" :svg="'like-fill'" :customColor="!post.liked ? '#ddd' : 'var(--likeActive)'" />
         </span>
-        <span>{{ likeCount ? likeCount : '0' }}</span>
+        <span>{{ post.likeCount }}</span>
       </div>
     </div>
 
+    <!-- Author Profile -->
     <div class="wrap_author">
       <AuthorSlot :profile="post.author" />
       <router-link :to="{ name: 'profile', params: { nickname: post.author.nickname } }" class="a_link">
@@ -60,8 +61,9 @@
       </router-link>
     </div>
 
+    <!-- Link to another Post -->
     <div class="wrap_link">
-      <div v-for="linkedPost in post.linkedPosts" :key="linkedPost" class="link">
+      <div v-for="linkedPost in post.linkedPosts" :key="linkedPost?._id" class="link">
         <span v-if="linkedPost.rel === 'prev'">이전글</span>
         <span v-else>다음글</span>
         <Button
@@ -76,106 +78,58 @@
   </div>
 </template>
 
-<script>
-  import { defineComponent, ref, computed, watch, onBeforeUpdate } from 'vue'
-  import { useRouter } from 'vue-router'
-  import { useStore } from 'vuex'
-  import { debounce } from '../common/util.js'
-  import dayjs from 'dayjs'
-  import Markdown from 'vue3-markdown-it'
-  import MarkdownEmoji from 'markdown-it-emoji'
-  import ActionSlot from './slotdata/ActionSlot.vue'
-  import AuthorSlot from './slotdata/AuthorSlot.vue'
-  import PostInfoSlot from './slotdata/PostInfoSlot.vue'
-  import DEFAULT_AVATAR_64 from '../assets/default_avatar_64.webp'
+<script setup>
+import { defineProps, defineEmits, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { throttle } from '../common/util.js'
+import Markdown from 'vue3-markdown-it'
+import MarkdownEmoji from 'markdown-it-emoji'
+import ActionSlot from './slotdata/ActionSlot.vue'
+import AuthorSlot from './slotdata/AuthorSlot.vue'
+import PostInfoSlot from './slotdata/PostInfoSlot.vue'
 
-  export default defineComponent({
-    components: {
-      Markdown,
-      ActionSlot,
-      AuthorSlot,
-      PostInfoSlot,
-    },
-    props: {
-      post: {
-        type: Object,
-        required: true,
-      },
-      profile: {
-        type: Object,
-        required: true,
-      },
-    },
-    setup(props, { emit }) {
-      const { push } = useRouter()
-      const { state, dispatch } = useStore()
+const props = defineProps({
+  post: {
+    type: Object,
+    required: true,
+    default: () => ({})
+  }
+})
+const emits = defineEmits(['updateLike', 'deletePost'])
 
-      const plugins = ref([{ plugin: MarkdownEmoji }])
+const { push } = useRouter()
 
-      const liked = ref(false)
-      const likes = computed(() => state.post.likes)
-      const likeCount = computed(() => state.post.likeCount)
+const plugins = ref([{ plugin: MarkdownEmoji }])
+const DROPBOX_SLOT_EL = ref(null)
 
-      const prevPost = ref(null)
-      const nextPost = ref(null)
+const onAction = () => {
+  if (DROPBOX_SLOT_EL.value) DROPBOX_SLOT_EL.value.onToggle()
+}
 
-      const DROPBOX_SLOT_EL = ref(null)
+const onUpdateLike = throttle(() => {
+  emits('updateLike')
+}, 500)
 
-      const onAction = () => {
-        DROPBOX_SLOT_EL.value.onToggle()
-      }
+const onUpdatePost = () => {
+  if (props.post._id) push({ name: 'editor', query: { id: props.post._id } })
+}
 
-      const onChangeLike = debounce(async () => {
-        if (!props.profile._id) return alert('로그인 후 이용 가능합니다.')
+const onDeletePost = () => {
+  emits('deletePost')
+}
 
-        if (!liked.value) await dispatch('post/updateLike', { postId: props.post._id, userId: props.profile._id })
-        else await dispatch('post/deleteLike', { postId: props.post._id, userId: props.profile._id })
-      }, 200)
+const onPushPost = (postId) => {
+  if (postId) push({ name: 'post', query: { id: postId } })
+}
 
-      const onUpdatePost = () => {
-        if (props.post._id) push({ name: 'editor', query: { id: props.post._id } })
-      }
-
-      const onDeletePost = () => {
-        if (props.post._id) emit('onDeletePost')
-      }
-
-      const onPushPost = (postId) => {
-        if (postId) push({ name: 'post', query: { id: postId } })
-      }
-
-      const onCopyLink = async () => {
-        try {
-          await navigator.clipboard.writeText(window.location.href)
-          alert('클립보드에 복사되었습니다')
-        } catch (err) {
-          alert('링크 복사에 실패하였습니다.')
-        }
-      }
-
-      onBeforeUpdate(() => {
-        if (likes.value) liked.value = likes.value.some((likedUserId) => likedUserId === props.profile._id)
-      })
-
-      return {
-        dayjs,
-        plugins,
-        liked,
-        likes,
-        likeCount,
-        prevPost,
-        nextPost,
-        DROPBOX_SLOT_EL,
-        DEFAULT_AVATAR_64,
-        onAction,
-        onChangeLike,
-        onUpdatePost,
-        onDeletePost,
-        onPushPost,
-        onCopyLink,
-      }
-    },
-  })
+const onCopyLink = async () => {
+  try {
+    await navigator.clipboard.writeText(window.location.href)
+    alert('클립보드에 복사되었습니다')
+  } catch {
+    alert('링크 복사에 실패하였습니다.')
+  }
+}    
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
@@ -309,7 +263,7 @@
     .wrap_author {
       position: relative;
 
-      &::v-deep .author {
+      &:deep(.author)  {
         .wrap_avatar {
           .avatar {
             width: 9.6rem;

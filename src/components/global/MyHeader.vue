@@ -309,7 +309,7 @@
             align-items: center;
             margin: 0 0 0 4.8rem;
 
-            &::v-deep .author {
+            &:deep(.author) {
               flex-direction: row-reverse;
 
               .wrap_avatar {

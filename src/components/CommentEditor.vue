@@ -33,12 +33,15 @@
       Toggle,
     },
     props: {
-      post: {
-        type: Object,
-        required: true,
+      postId: {
+        type: String,
+        default: ''
       },
       comment: {
         type: Object,
+      },
+      isUpdate: {
+        type: Boolean,
       },
       isAuthorized: {
         type: Boolean,
@@ -46,9 +49,6 @@
       placeholderText: {
         type: String,
         default: '코멘트를 작성해보세요',
-      },
-      isUpdate: {
-        type: Boolean,
       },
     },
     setup(props, { emit }) {
@@ -70,7 +70,7 @@
 
       const onCreateComment = async () => {
         await dispatch('comment/createComment', {
-          postId: props.post._id,
+          postId: props.postId,
           parentId: props.comment ? props.comment._id : '',
           content: content.value,
           isPublic: isPublic.value,
@@ -82,7 +82,7 @@
       const onUpdateComment = async () => {
         await dispatch('comment/updateComment', {
           id: props.comment._id,
-          postId: props.post._id,
+          postId: props.postId,
           content: content.value,
           isPublic: isPublic.value,
         })

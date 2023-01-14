@@ -7,7 +7,6 @@ const state = () => ({
 const getters = {}
 
 const actions = {
-  // params: X
   async getDraft({ commit }) {
     try {
       const { data } = await axios.get('v1/drafts')
@@ -15,9 +14,9 @@ const actions = {
 
       commit('SET_DRAFT', draft)
       
-      return { success, draft }
+      return { success, draft, error: null }
     } catch (err) {
-      return { success: false, error: '임시 저장 게시물을 불러오는데 실패하였습니다.' }
+      return { success: false, draft: null, error: err?.response?.data?.message ?? err.message }
     }
   },
 
@@ -28,9 +27,9 @@ const actions = {
 
       commit('SET_DRAFT', draft)
 
-      return { success, draft, images }
+      return { success, draft, images, error: null }
     } catch (err) {
-      return { success: false, draft: null, images: null, error: '임시 저장을 실패하였습니다.' }
+      return { success: false, draft: null, images: null, error: err?.response?.data?.message ?? err.message }
     }
   },
 
@@ -42,9 +41,9 @@ const actions = {
 
       commit('SET_DRAFT', draft)
 
-      return { success, draft, images }
+      return { success, draft, images, error: null }
     } catch (err) {
-      return { success: false, draft: null, images: null, error: '임시 저장을 실패하였습니다.' }
+      return { success: false, draft: null, images: null, error: err?.response?.data?.message ?? err.message }
     }
   },
 
@@ -53,9 +52,9 @@ const actions = {
     try {
       const { data: { success } } = await axios.delete(`v1/drafts/${payload}`)
       
-      return { success }
+      return { success, error: null }
     } catch (err) {
-      return { success: false }
+      return { success: false, error: err?.response?.data?.message ?? err.message }
     }
   },
 
@@ -63,7 +62,7 @@ const actions = {
     try {
       const { data: { success } } = await axios.delete(`v1/drafts/${draftId}/file`, { data: { image: imageId } })
 
-      return { success }
+      return { success, error: null }
     } catch (err) {
       return { success: false, error: '파일 삭제를 실패하였습니다.' }
     }

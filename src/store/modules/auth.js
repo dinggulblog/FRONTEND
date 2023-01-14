@@ -3,6 +3,7 @@ import axios from '../../services/axios'
 import router from '../../router'
 
 const state = () => ({
+  id: null,
   user: getItem('user', {}),
   profile: getItem('profile', {}),
   isLogin: getItemWithTTL('isLogin', false),
@@ -20,10 +21,10 @@ const actions = {
       if (!success) throw new Error('로그인에 실패하였습니다.')
 
       commit('SET_LOGIN')
+
       return await actions.getAccount({ commit })
     } catch (err) {
-      alert(err?.response?.data?.message || err?.message)
-      return { success: false }
+      return { success: false, error: err?.response?.data?.message || err.message }
     }
   },
 
@@ -71,12 +72,14 @@ const actions = {
       const { data } = await axios.get('v1/users/account')
       const { success, data: { user, profile } } = data
 
-      if (!success || !user || !profile) throw new Error('계정 받아오기에 실패하였습니다.\n다시 로그인 해 주세요.')
+      if (!success) throw new Error('계정 받아오기에 실패하였습니다.\n다시 로그인 해 주세요.')
 
       commit('SET_USER', user)
       commit('SET_PROFILE', profile)
+
       return { success }
     } catch (err) {
+      commit('UNSET_USER')
       return { success: false }
     }
   },
@@ -178,6 +181,7 @@ const mutations = {
   },
 
   SET_PROFILE(state, profile) {
+    state.id = profile._id
     state.profile = profile
     setItem('profile', state.profile)
   },

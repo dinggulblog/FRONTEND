@@ -45,15 +45,17 @@ const mutations = {
   },
 
   SET_CURRENT_MENUS(state, { main, sub }) {
-    if (!sub) {
-      state.currentMenus = state.menus[main]
-    } else {
-      state.currentMenus = state.menus[main]?.filter((subMenus) => subMenus.sub === sub)
-    }
+    if (!state.menus || typeof state.menus !== 'object') return
+    
+    const subMenus = state.menus[main]
 
-    if (Array.isArray(state.currentMenus)) {
+    if (Array.isArray(subMenus)) {
+      state.currentMenus = sub
+        ? subMenus.filter((menu) => menu.sub === sub)
+        : subMenus;
+    
       state.type = state.currentMenus.length === 1 ? state.currentMenus[0]?.type : 'list'
-      state.categories = [...new Set(state.currentMenus.flatMap((menu) => menu.categories))]
+      state.categories = [...new Set(state.currentMenus.flatMap(({ categories }) => categories))]
     }
   },
 }

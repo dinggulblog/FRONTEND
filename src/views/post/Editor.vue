@@ -2,6 +2,8 @@
   <div class="editor">
     <div class="wrap_select_toggle">
       <div class="select">
+
+        <!-- Main menu select box -->
         <div class="main">
           <select required @change="onChangeMainMenu">
             <option selected disabled hidden value="">main menu</option>
@@ -9,6 +11,7 @@
           </select>
         </div>
 
+        <!-- Sub menu select box -->
         <div class="sub">
           <select required :disabled="!menuState.mainMenus.length" @change="onChangeSubMenu">
             <option selected disabled hidden value="">sub menu</option>
@@ -16,6 +19,7 @@
           </select>
         </div>
 
+        <!-- Category select box -->
         <div class="category">
           <select :disabled="!menuState.subMenu.categories" @change="onChangeCategory">
             <option selected disabled hidden value="">category</option>
@@ -26,11 +30,13 @@
         </div>
       </div>
 
+      <!-- Public scope toggle button -->
       <div class="wrap_toggle">
         <Toggle :isPublic="postState.isPublic" @updateIsPublic="onChangeIsPublic" />
       </div>
     </div>
 
+    <!-- Title and File button -->
     <div class="wrap_title_file-add-btn">
       <div class="title">
         <input
@@ -54,6 +60,7 @@
       </div>
     </div>
 
+    <!-- Content -->
     <div class="content">
       <textarea
         id="content-el"
@@ -71,6 +78,7 @@
       />
     </div>
 
+    <!-- Images -->
     <div class="images" v-if="fileState.files.length">
       <ul>
         <li v-for="(file, index) in fileState.files" :key="file.serverFileName">
@@ -88,6 +96,7 @@
       </ul>
     </div>
 
+    <!-- Buttons -->
     <div class="wrap_btns">
       <div class="wrap_image_btns">
         <Button
@@ -126,7 +135,7 @@
         @onClick="onChangeCanLeavePage(true), onUpdatePost()"
       ></Button>
 
-      <!--
+      <!-- Loading progress -->
       <div class="wrap_right">
         <div class="wrap_isLoading">
           <Transition name="isLoading">
@@ -136,15 +145,13 @@
           </Transition>
         </div>
       </div>
-      -->
+      
     </div>
   </div>
-  <Dialog ref="Dialog"></Dialog>
-  <ToastMessage ref="ToastMessage"></ToastMessage>
 </template>
 
 <script>
-  import { defineComponent, ref, reactive, computed, onBeforeMount, onMounted, onUnmounted } from 'vue'
+  import { defineComponent, inject, ref, reactive, computed, watch, onBeforeMount, onMounted, onUnmounted } from 'vue'
   import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
   import { useStore } from 'vuex'
   import { useMedia } from '../../common/mediaQuery'
@@ -162,14 +169,20 @@
     setup() {
       const route = useRoute()
       const { go, push } = useRouter()
-      const { state, commit, dispatch } = useStore()
+      const { state, dispatch } = useStore()
+
+      const DIALOG_EL = inject('DIALOG_EL')
+      const TOAST_EL = inject('TOAST_EL')
 
       let canLeavePage = true
       const isMobile = useMedia('only screen and (max-width: 767px)')
-      const Dialog = ref(null)
-      const ToastMessage = ref(null)
+
       const plugins = ref([{ plugin: MarkdownEmoji }])
       const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
+
+      const temp = ref(false)
+      const postId = ref(null)
+      const draftId = ref(null)
 
       const menuState = reactive({
         isLoading: computed(() => state.loading.isLoading),
@@ -180,23 +193,20 @@
       })
 
       const postState = reactive({
-        postId: '',
-        draftId: '',
         menu: '',
         title: '',
         content: '',
         category: '기타',
         isPublic: true,
-        images: computed(() => fileState.files.map((file) => file._id)),
+        images: computed(() => fileState.files.map(({ _id }) => _id)),
         thumbnail: computed(() => fileState.fileId),
       })
 
       const fileState = reactive({
-        tempFiles: new FormData(),
         files: [],
         fileId: '',
         fileName: '',
-        fileUrl: 'http://localhost:3000/uploads/',
+        fileUrl: IMAGE_URL.value,
         fileIndex: 0,
       })
 
@@ -220,55 +230,49 @@
         postState.isPublic = Boolean(state)
       }
 
-      const onToastMessage = (type, message) => {
-        ToastMessage.value.open(type, message)
-      }
-
       const onUpdateDraft = async (formData = new FormData()) => {
-        if (!postState.menu) return
+        if (!postState.menu) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
 
-        const { draftId, postId, ...payload } = postState
+        const { ...payload } = postState
         Object.keys(payload).forEach((key) => formData.append(key, payload[key]))
 
-        const { success, draft, images } = draftId
-          ? await dispatch('draft/updateDraft', { draftId, payload: formData })
+        const { success, draft, images } = draftId.value
+          ? await dispatch('draft/updateDraft', { draftId: draftId.value, payload: formData })
           : await dispatch('draft/createDraft', formData)
 
-        if (success) {
-          onToastMessage('success', '임시저장 되었습니다.')
-        } else onToastMessage('error', '임시저장에 실패하였습니다')
+        success ? TOAST_EL.value.open('success', '임시저장 되었습니다.') : TOAST_EL.value.open('error', '임시저장에 실패하였습니다')
 
-        if (draft) postState.draftId = draft._id
+        draftId.value = draft?._id
 
         return { success, images }
       }
 
       const onUpdatePost = async () => {
-        if (!postState.menu) return alert('게시글을 삽입할 메뉴를 선택해야 합니다.')
+        if (!postState.menu) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
 
-        const { draftId, postId, ...payload } = postState
-        const { success, post } = postId
+        const { ...payload } = postState
+        const { success, post } = postId.value
           ? await dispatch('post/updatePost', { postId, payload })
           : await dispatch('post/createPost', payload)
 
         if (success && canLeavePage) {
-          push({ name: 'post', query: { id: post._id } })
+          push({ name: 'post', params: { postId: post._id } })
         }
       }
 
       const onUploadImages = async (event) => {
         if (!event.target.files.length) return
-        if (!postState.menu) return alert('게시글을 삽입할 메뉴를 선택해야 합니다.')
+        if (!postState.menu) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
 
         const formData = new FormData()
         Object.values(event.target.files).forEach((file) => formData.append('images', file))
 
-        const { success, images } = postState.postId
-          ? await dispatch('post/updatePost', { postId: postState.postId, payload: formData })
+        const { success, images } = postId.value
+          ? await dispatch('post/updatePost', { postId: postId.value, payload: formData })
           : await onUpdateDraft(formData)
 
-        if (success && images) {
-          fileState.files = fileState.files.concat(images)
+        if (success && Array.isArray(images)) {
+          fileState.files.push(...images)
           onSelectImage(fileState.files[0], 0)
         }
       }
@@ -276,21 +280,20 @@
       const onDeleteImage = async (file) => {
         if (!file?._id) return
 
-        const { success } = postState.postId
-          ? await dispatch('post/deleteFile', { postId: postState.postId, imageId: file._id })
-          : await dispatch('draft/deleteFile', { draftId: postState.draftId, imageId: file._id })
+        const { success } = postId.value
+          ? await dispatch('post/deleteFile', { postId: postId.value, imageId: file._id })
+          : await dispatch('draft/deleteFile', { draftId: draftId.value, imageId: file._id })
 
-        const idx = fileState.files.indexOf(file)
-        if (success && idx !== -1) fileState.files = fileState.files.filter((file, index) => index !== idx)
+        const idx = fileState.files.findIndex(({ _id }) => _id === file._id)
+        if (success && idx !== -1) fileState.files = fileState.files.filter((f, index) => index !== idx)
       }
 
       const onSelectImage = (file, index) => {
-        if (file) {
-          fileState.fileId = file._id
-          fileState.fileName = file.serverFileName
-          fileState.fileUrl = fileState.fileUrl + fileState.fileName
-          fileState.fileIndex = index
-        }
+        if (!file) return
+        fileState.fileId = file._id
+        fileState.fileName = file.serverFileName
+        fileState.fileUrl = fileState.fileUrl + fileState.fileName
+        fileState.fileIndex = index
       }
 
       const onInsertImage = () => {
@@ -318,11 +321,11 @@
         }
       }
 
-      const setInitData = (post, temp = false) => {
+      const setInitData = (post = {}, temp = false) => {
         const { _id, menu, category, title, content, isPublic, images, thumbnail } = post
 
-        if (temp) postState.draftId = _id
-        else postState.postId = _id
+        if (temp) draftId.value = _id
+        else postId.value = _id
 
         postState.menu = menu
         postState.title = title
@@ -331,52 +334,67 @@
         postState.isPublic = isPublic
         fileState.files = Array.isArray(images) ? images : []
 
-        const idx = fileState.files.findIndex((file) => file._id === thumbnail)
+        const idx = fileState.files.findIndex(({ _id }) => _id === thumbnail)
         if (thumbnail && idx !== -1) {
           onSelectImage(fileState.files[idx], idx)
         }
       }
 
-      const autoSave = route.query.id ? setInterval(onUpdatePost, 1000 * 60 * 10) : setInterval(onUpdateDraft, 1000 * 5)
+      const autoSave = route.query.id ? setInterval(onUpdatePost, 1000 * 60 * 5) : setInterval(onUpdateDraft, 1000 * 60 * 5)
 
-      onBeforeMount(() => {
-        const { post } = state.post
-        const { draft } = state.draft
+      watch(
+        () => postState.menu,
+        () => {
+          const { menu, category } = postState
 
+          if (menu) {
+            const { main, sub } = Object.keys(menuState.menus).reduce((acc, key) => {
+              const searchedMenu = menuState.menus[key].find(({ _id }) => _id === menu)
+              if (searchedMenu) acc = { ...searchedMenu }
+              return acc
+            }, {})
+            
+            if (main) {
+              document.body.querySelector('div.main select').value = main
+              menuState.mainMenus = menuState.menus[main]
+            }
+            if (sub) {
+              document.body.querySelector('div.sub select').value = sub
+              menuState.subMenu = menuState.mainMenus.find((menu) => menu.sub === sub)
+            }
+            if (category) document.body.querySelector('div.category select').value = category
+          }
+        },
+        { flush: 'post' }
+      )
+
+      onBeforeMount(async () => {
         if (route.query.id) {
-          if (post._id) setInitData(post)
-          else if (draft._id) setInitData(draft, true)
-          else go(-1)
+          if (state.post.post) return setInitData(state.post.post)
+
+          const { success, post, error } = await dispatch('post/getPost', { postId: route.query.id })
+          if (!success) {
+            alert(error)
+            return go(-1)
+          }
+
+          setInitData(post)
         }
       })
 
       onMounted(() => {
         window.addEventListener('beforeunload', unloadEvent)
-        const { menu, category } = postState
-
-        if (menu) {
-          const { main, sub } = state.menu.menus.find((m) => m._id === menu)
-
-          document.body.querySelector('div.main select').value = main
-          menuState.mainMenus = menuState.menus[main]
-
-          document.body.querySelector('div.sub select').value = sub
-          menuState.subMenu = menuState.mainMenus.find((menu) => menu.sub === sub)
-
-          if (category) document.body.querySelector('div.category select').value = category
-        }
       })
 
       onUnmounted(async () => {
         window.removeEventListener('beforeunload', unloadEvent)
         clearInterval(autoSave)
-        commit('draft/SET_DRAFT', {})
       })
 
       onBeforeRouteLeave(async (to, from, next) => {
         if (canLeavePage) next()
         else {
-          const ok = await Dialog.value.show({
+          const ok = await DIALOG_EL.value.show({
             title: '현재 페이지에서 나가시겠습니까?',
             message: '임시 저장되지 않은 내용은 사라집니다.',
             okButton: '나가기',
@@ -387,10 +405,8 @@
       })
 
       return {
-        isMobile,
-        Dialog,
-        ToastMessage,
         plugins,
+        isMobile,
         IMAGE_URL,
         menuState,
         postState,
@@ -406,7 +422,6 @@
         onClearImages,
         onDeleteImage,
         onSelectImage,
-        onToastMessage,
       }
     },
   })

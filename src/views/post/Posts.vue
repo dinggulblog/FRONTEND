@@ -14,10 +14,10 @@
 
   <Suspense v-else>
     <template #default>
-      <Posts v-if="type !== 'slide'" :type="type" :category="category" />
+      <Posts v-if="type !== 'slide'" :menu="currentMenus" :type="type" :category="category" />
       <ul v-else class="ul_slide">
         <li v-for="category in categories" :key="category">
-          <Posts :type="type" :category="category" />
+          <Posts :menu="currentMenus" :type="type" :category="category" />
         </li>
       </ul>
     </template>
@@ -29,13 +29,13 @@
 </template>
 
 <script>
-  import { ref, onErrorCaptured } from 'vue'
+  import { defineComponent, ref, onErrorCaptured } from 'vue'
   import { useStore } from 'vuex'
   import { mapState } from '../../common/vuex-helper.js'
   import Posts from '../../components/Posts.vue'
   import Toolbar from '../../components/Toolbar.vue'
 
-  export default {
+  export default defineComponent({
     name: 'posts',
     components: {
       Posts,
@@ -52,7 +52,7 @@
     },
     setup() {
       const { commit } = useStore()
-      const { type, category, categories } = mapState('menu')
+      const { type, category, categories, currentMenus } = mapState('menu')
 
       const error = ref(null)
 
@@ -69,9 +69,9 @@
         return true
       })
 
-      return { type, category, categories, error, onUpdateType, onUpdateCategory }
+      return { type, category, categories, currentMenus, error, onUpdateType, onUpdateCategory }
     },
-  }
+  })
 </script>
 
 <style lang="scss" rel="stylesheet/scss">

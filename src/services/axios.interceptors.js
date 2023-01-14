@@ -3,7 +3,6 @@ import axiosInstance from './axios'
 const setup = (store) => {
   axiosInstance.interceptors.request.use(
     (config) => {
-
       store.commit('loading/SET_LOADING', true)
 
       if (config.url.endsWith('account') && config.method.toLowerCase() === 'post') {
@@ -45,7 +44,7 @@ const setup = (store) => {
       Message: ${error?.response?.data?.message}
       Success: ${error?.response?.data?.success}
       `)
-      
+
       if (!originalConfig.url.endsWith('auth') && error.response) {
         // 419 Error response => Refresh token was expired OR not exist => Logout
         if (error.response.status === 419) {
