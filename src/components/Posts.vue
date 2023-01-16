@@ -4,16 +4,16 @@
     <div class="slide_category">
       <span class="category">{{ category }}</span>
     </div>
-    <div class="slide_page">
-      <span class="nowPage">{{ curPage }}</span>
-      <span class="maxPage">{{ slicedMaxPage }}</span>
+    <div class="slide_page" v-if="!isAllMobileDevice">
+      <span class="nowPage">{{ slidePage }}</span>
+      <span class="maxPage">{{ slideMaxPage }}</span>
     </div>
   </div>
 
   <!-- List of Posts -->
   <div class="posts">
     <ul>
-      <div :id="type" ref="POST_EL" style="overflow-x: auto">
+      <div :id="type" ref="POST_EL">
         <transition-group
           name="fade"
           @before-enter="beforeEnter"
@@ -24,19 +24,15 @@
             <PostSlot :type="type" :post="post" :data-index="index" @commitPosts="onCommitPosts"></PostSlot>
           </template>
         </transition-group>
-        <div
-          ref="TRIGGER_EL"
-          :style="type !== 'slide' ? { width: '100%' } : { width: '0', left: '-30px' }"
-          style="height: 0; position: relative"
-        ></div>
+        <div class="observer" ref="TRIGGER_EL"></div>
       </div>
     </ul>
 
     <!-- Slide buttons -->
     <div v-if="type === 'slide'" class="wrap_btn_slidePage">
       <Button
-        v-show="curPage !== 1"
-        class="btn_prev"
+        v-show="slidePage !== 1 && !isAllMobileDevice"
+        class="btn_old"
         size="md"
         svg="arrow-left"
         bgColor="primary"
@@ -45,7 +41,7 @@
         @onClick="prevSlide"
       />
       <Button
-        v-show="curPage < slicedMaxPage"
+        v-show="slidePage < slideMaxPage && !isAllMobileDevice"
         class="btn_next"
         size="md"
         svg="arrow-right"
@@ -89,33 +85,106 @@
     },
   })
   const { commit, dispatch } = useStore()
-  const isMobile = useMedia('only screen and (max-width: 1199px)')
+  const isAllMobileDevice = ref(false)
+  //const isAllMobile = useMedia('only screen and (max-width: 1199px)')
+  const isDesktop = useMedia('(min-width: 1200px)')
+  const isTabletLandScape = useMedia('(min-width: 1024px) and (max-width: 1199px)')
+  const isTablet = useMedia('(min-width: 768px) and (max-width: 1023px)')
+  const isMobile = useMedia('(min-width: 0px) and (max-width: 767px)')
 
   const POST_EL = ref(null)
   const TRIGGER_EL = ref(null)
 
-  const posts = ref([])
-  const page = ref(1)
-  const curPage = ref(1)
-  const maxPage = ref(1)
-  const typeLimit = computed(() => (props.type === 'slide' ? 4 : 6))
-  const limit = computed(() => (isMobile.value ? typeLimit.value : typeLimit.value * 2))
-  const slicedMaxPage = computed(() => Math.ceil(maxPage.value / (limit.value / 2)))
+  const posts = ref([]) // 게시물 배열
+  const page = ref(1) // 현재까지 받아온 페이지
+  const maxCount = ref(1) // 전체 게시물 갯수
 
-  const skip = computed(() => (page.value === 1 ? 0 : page.value * (limit.value / 2)))
+  const limit = computed(() => (props.type === 'slide' ? 8 : 12)) // 한 번의 요청에 받아올 게시물 갯수
+  const maxPage = computed(() => Math.ceil(maxCount.value / limit.value)) // 요청 가능한 페이지의 상한값
+  const skip = computed(() => (page.value - 1) * limit.value)
   const menu = computed(() => props.menu.map(({ _id }) => _id))
   const category = computed(() => props.category)
   const hasThumbnail = computed(() => props.type === 'slide')
 
+  /* Slide 변수 */
+  const slidePage = ref(1) // 현재 보고 있는 페이지
+  const slideLimit = computed(() => (isDesktop.value ? limit.value / 2 : limit.value / 4)) // 한 번의 슬라이드에 넘길 게시물 갯수
+  const slideMaxPage = computed(() => Math.ceil(maxCount.value / slideLimit.value)) // 슬라이드 가능한 페이지 상한값
+  /* Slide 변수 끝 */
+
+  // 게시물 요청 쿼리
   const query = reactive({
     limit,
     skip,
     menu,
     category,
-    hasThumbnail,
+    hasThumbnail: false,
     filter: computed(() => props.filter),
     userId: computed(() => props.userId),
   })
+
+  const getDevice = () => {
+    isAllMobileDevice.value =
+      navigator.userAgent.match(
+        /Android|Mobile|iP(hone|od|ad)|BlackBerry|I EMobile|Kindle|NetFront|Silk-Accelerated|(hpw|web)OS|Fennec|Minimo|Opera M(obi|ini)|Blazer|Dolfin|Dolphin|Skyfire|Zune/
+      ) === null
+        ? false
+        : true
+    if (isAllMobileDevice.value) {
+      POST_EL.value.style.overflowX = 'auto'
+    }
+  }
+
+  const onUpdatePage = (updatePage) => {
+    if (maxPage.value < updatePage) return
+    page.value = updatePage
+    getPosts(page.value)
+  }
+
+  const onUpdateSlidePage = (updatePage) => {
+    if (slideMaxPage.value < updatePage) return
+    slidePage.value = updatePage
+  }
+
+  const slide = (element, index, align = 'end') => {
+    if (!element) return
+
+    const target = element.querySelector(`li[data-index="${index}"]`)
+    //if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: align })
+
+    if (!target) return
+    const parent = element?.getBoundingClientRect()?.left
+    const x = target.getBoundingClientRect().left - parent
+    element.style.transform = `translateX(-${x}px)`
+    element.style.transition = 'all 0.3s'
+  }
+
+  // Slide index is - (0) 4 8 12 ...
+  const nextSlide = () => {
+    if (slidePage.value === slideMaxPage.value) return
+
+    onUpdateSlidePage(slidePage.value + 1)
+    const index = (slidePage.value - 1) * slideLimit.value
+    const lastIndex = posts.value.length - 1
+    slide(POST_EL.value, lastIndex < index ? lastIndex : index)
+  }
+
+  // Slide index is - ... 12, 8, 4, 0
+  const prevSlide = () => {
+    if (slidePage.value === 1) return
+
+    onUpdateSlidePage(slidePage.value - 1)
+    const index = (slidePage.value - 1) * slideLimit.value
+    slide(POST_EL.value, index, 'start')
+  }
+
+  const getPosts = async (getPage) => {
+    const { success, posts: newPosts, maxCount: newMaxCount } = await dispatch('post/getPosts', query)
+    if (!success) throw new Error('게시물을 받아오는 도중 에러가 발생하였습니다.')
+
+    maxCount.value = newMaxCount || maxCount.value
+    posts.value.splice((getPage - 1) * limit.value, limit.value, ...newPosts)
+  }
 
   const beforeEnter = (el) => {
     el.style.transitionDelay = 150 * parseInt(el.dataset.index % limit.value, 10) + 'ms'
@@ -129,90 +198,44 @@
     commit('post/SET_POSTS', posts.value)
   }
 
-  const onUpdatePage = (updatePage) => {
-    if (maxPage.value < updatePage) return
-    page.value = updatePage
-  }
-
-  const onUpdateCurrentPage = (updatePage) => {
-    if (maxPage.value < updatePage) return
-    curPage.value = updatePage
-  }
-
-  const slide = (element, index) => {
-    if (!element) return
-
-    const target = element?.querySelector(`li[data-index="${index}"]`)
-    //const parent = element?.getBoundingClientRect()?.left
-
-    if (target) {
-      //const x = target.getBoundingClientRect().left - parent
-      target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'end' })
-      //element.style.transform = `translateX(-${x}px)`
-      //element.style.transition = 'all 0.3s'
-    }
-  }
-
-  const nextSlide = () => {
-    if (curPage.value === slicedMaxPage.value) return
-
-    onUpdateCurrentPage(curPage.value + 1)
-    const index = curPage.value * (limit.value / 2) - 1
-    slide(POST_EL.value, posts.value.length - 1 < index ? posts.value.length - 1 : index)
-    //getPosts(page.value)
-  }
-
-  const prevSlide = () => {
-    if (curPage.value === 1) return
-
-    onUpdateCurrentPage(curPage.value - 1)
-    const index = curPage.value * (limit.value / 2) - 1
-    slide(POST_EL.value, posts.value.length - 1 < index ? posts.value.length - 1 : index)
-  }
-
-  const getPosts = async (newPage) => {
-    if (newPage === 1 || newPage % 2 === 0) {
-      const { success, posts: newPosts, maxPage: newMaxPage } = await dispatch('post/getPosts', query)
-      if (!success) throw new Error('게시물을 받아오는 도중 에러가 발생하였습니다.')
-
-      maxPage.value = newMaxPage || maxPage.value
-      newPage === 1
-        ? posts.value.splice(0, limit.value, ...newPosts)
-        : posts.value.splice(newPage * (limit.value / 2), limit.value, ...newPosts)
-    }
-  }
-
   const callback = (entries, observer) => {
     entries.forEach((entry) => {
       // TRIGGER_EL.value가 보이지 않는다면 retrun
       if (!entry.isIntersecting) return
 
-      console.log('아ㅣ무말')
-
-      onUpdatePage(page.value === 1 ? page.value + 1 : page.value + 2)
-      getPosts(page.value)
+      onUpdatePage(page.value + 1)
     })
   }
 
   const observer = new IntersectionObserver(callback, { threshold: 1.0 })
 
   watch(
-    isMobile,
-    (newIsMobile, prevIsMobile) => {
-      if (newIsMobile && !prevIsMobile) {
+    isDesktop,
+    (newIsDesktop, oldIsDesktop) => {
+      if (!newIsDesktop && oldIsDesktop) {
         // PC -> Mobile로 갈 때
-        onUpdatePage(page.value * 2 - 1)
-        onUpdateCurrentPage(curPage.value * 2 - 1)
-      } else if (!newIsMobile && prevIsMobile) {
+        onUpdateSlidePage(slidePage.value * 2 - 1)
+        const index = (slidePage.value - 1) * slideLimit.value
+        slide(POST_EL.value, index)
+      } else if (newIsDesktop) {
         // Mobile -> PC로 갈 때
-        posts.value = []
-        onUpdatePage(1)
-        onUpdateCurrentPage(1)
-        getPosts(1)
+        onUpdateSlidePage(Math.ceil(slidePage.value / 2))
+        const index = (slidePage.value - 1) * slideLimit.value
+        slide(POST_EL.value, index)
       }
+    },
+    { flush: 'post' }
+  )
 
-      const index = curPage.value * (limit.value / 2) - 1
-      slide(POST_EL.value, posts.value.length - 1 < index ? posts.value.length - 1 : index)
+  watch(
+    [isTabletLandScape, isTablet, isMobile],
+    ([newIsTabletLandScape, newIsTablet, newIsMobile], [oldIsTabletLandScape, oldIsTablet, oldIsMobile]) => {
+      if (newIsTabletLandScape || newIsTablet || newIsMobile) {
+        // Mobile 안에서 바뀔 떄
+        const index = (slidePage.value - 1) * slideLimit.value
+        console.log(index)
+        slide(POST_EL.value, index)
+      }
     },
     { flush: 'post' }
   )
@@ -223,12 +246,13 @@
       window.scrollTo({ left: 0, top: 0, behavior: 'smooth' })
       posts.value = []
       onUpdatePage(1)
-      onUpdateCurrentPage(1)
-      getPosts(1)
+      onUpdateSlidePage(1)
     }
   )
 
   onMounted(() => {
+    getDevice()
+    console.log(isAllMobileDevice.value)
     observer.observe(TRIGGER_EL.value)
   })
 
@@ -269,6 +293,15 @@
   .posts {
     position: relative;
 
+    ul {
+      overflow: hidden;
+
+      .obsever {
+        width: 100%;
+        height: 0;
+      }
+    }
+
     .wrap_btn_slidePage {
       position: absolute;
       top: 0;
@@ -277,7 +310,7 @@
       display: flex;
       align-items: center;
 
-      .btn_prev,
+      .btn_old,
       .btn_next {
         border-radius: 50%;
         width: 3.2rem;
@@ -289,7 +322,7 @@
         z-index: 10;
       }
 
-      .btn_prev {
+      .btn_old {
         left: -1.6rem;
       }
 
@@ -334,16 +367,19 @@
     flex-direction: row;
     margin: 0 0 0rem;
     -ms-overflow-style: none;
-    overflow: -moz-scrollbars-none;
     scrollbar-width: none;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera*/
+    }
 
     li {
       margin: 0 2.4rem 0 0;
     }
 
-    li:last-child {
+    li:last-of-type {
       margin: 0;
     }
   }

@@ -3,7 +3,7 @@
 
     <CommentEditor :postId="postId" />
 
-    <div class="comments">
+    <div class="comments" ref="COMMENTS_EL">
       <h2>댓글 {{ commentCount }}개</h2>
       <ul class="comment_items">
         <CommentSlot
@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted } from 'vue'
+import { defineProps, ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import CommentEditor from './CommentEditor.vue'
 import CommentSlot from './slotdata/CommentSlot.vue'
@@ -58,14 +58,13 @@ const props = defineProps({
 
 const { dispatch } = useStore()
 
+const COMMENTS_EL = ref(null)
+
 await dispatch('comment/getComments', props.postId)
 
 onMounted(() => {
-  if (props.quickMove) {
-    const y = document.body.querySelector('.comments').offsetTop - document.querySelector('#header').offsetHeight
-    window.scrollTo({ top: y, behavior: 'smooth' }) 
-  } else {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  if (props.quickMove && COMMENTS_EL.value) {
+    COMMENTS_EL.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 })
 </script>

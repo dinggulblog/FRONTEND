@@ -4,6 +4,7 @@
         <div v-if="type !== 'list' || (type === 'list' && post.thumbnail)" class="thumbnail">
           <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">
             <img :src="post.thumbnail ? post.thumbnail : DEFAULT_THUMBNAIL" />
+            {{ post.postNum }}
           </router-link>
         </div>
       </template>

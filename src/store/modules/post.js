@@ -41,11 +41,11 @@ const actions = {
   async getPosts({ commit }, payload) {
     try {
       const { data } = await axios.get('v1/posts', { params: payload, paramsSerializer: (params) => stringify(params) })
-      const { success, data: { posts, maxPage } } = data
+      const { success, data: { posts, maxCount } } = data
 
-      return { success, posts, maxPage, error: null }
+      return { success, posts, maxCount, error: null }
     } catch (err) {
-      return { success: false, posts: [], maxPage: 1, error: err?.response?.data?.message || err.message }
+      return { success: false, posts: [], maxCount: null, error: err?.response?.data?.message || err.message }
     }
   },
 
