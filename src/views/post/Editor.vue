@@ -183,6 +183,7 @@
       const temp = ref(false)
       const postId = ref(null)
       const draftId = ref(null)
+      const authorId = ref(null)
 
       const menuState = reactive({
         isLoading: computed(() => state.loading.isLoading),
@@ -251,13 +252,15 @@
         if (!postState.menu) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
 
         const { ...payload } = postState
-        const { success, post } = postId.value
-          ? await dispatch('post/updatePost', { postId, payload })
+        const { success, post, error } = postId.value
+          ? await dispatch('post/updatePost', { postId: postId.value, authorId: authorId.value, payload })
           : await dispatch('post/createPost', payload)
 
         if (success && canLeavePage) {
-          push({ name: 'post', params: { postId: post._id } })
+          return push({ name: 'post', params: { postId: post._id } })
         }
+
+        TOAST_EL.value.open('error', error)
       }
 
       const onUploadImages = async (event) => {
@@ -267,14 +270,17 @@
         const formData = new FormData()
         Object.values(event.target.files).forEach((file) => formData.append('images', file))
 
-        const { success, images } = postId.value
-          ? await dispatch('post/updatePost', { postId: postId.value, payload: formData })
+        const { success, images, error } = postId.value
+          ? await dispatch('post/updatePost', { postId: postId.value, authorId: authorId.value, payload: formData })
           : await onUpdateDraft(formData)
 
         if (success && Array.isArray(images)) {
           fileState.files.push(...images)
           onSelectImage(fileState.files[0], 0)
+          return
         }
+
+        TOAST_EL.value.open('error', error)
       }
 
       const onDeleteImage = async (file) => {
@@ -322,11 +328,12 @@
       }
 
       const setInitData = (post = {}, temp = false) => {
-        const { _id, menu, category, title, content, isPublic, images, thumbnail } = post
+        const { _id, author, menu, category, title, content, isPublic, images, thumbnail } = post
 
         if (temp) draftId.value = _id
         else postId.value = _id
 
+        authorId.value = author._id
         postState.menu = menu
         postState.title = title
         postState.content = content

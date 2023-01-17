@@ -14,7 +14,7 @@
   <div class="posts">
     <ul>
       <div :id="type" ref="POST_EL">
-        <transition-group
+        <TransitionGroup
           name="fade"
           @before-enter="beforeEnter"
           @after-enter="afterEnter"
@@ -23,7 +23,7 @@
           <template v-for="(post, index) in posts" :key="index">
             <PostSlot :type="type" :post="post" :data-index="index" @commitPosts="onCommitPosts"></PostSlot>
           </template>
-        </transition-group>
+        </TransitionGroup>
         <Observer v-model:page="page" @updatePage="onUpdatePage"></Observer>
       </div>
     </ul>

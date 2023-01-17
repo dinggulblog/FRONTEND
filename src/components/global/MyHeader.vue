@@ -55,7 +55,7 @@
     </div>
   </div>
 
-  <transition name="gnb_fade">
+  <Transition name="gnb_fade">
     <div class="container_gnb" v-if="gnbState.display">
       <div class="gnb">
         <Navigation
@@ -68,13 +68,14 @@
         />
       </div>
     </div>
-  </transition>
+  </Transition>
+  
 
-  <transition name="search_fade">
+  <Transition name="search_fade">
     <div class="container_searchForm" v-if="searchState.display">
       <SearchForm />
     </div>
-  </transition>
+  </Transition>
 
   <Account ref="ACCOUNT_EL"></Account>
 </template>
@@ -157,8 +158,7 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   /* gnb fade */
-  .gnb_fade-enter-active,
-  .gnb_fade-leave-active {
+  .gnb_fade-enter-active {
     transition: opacity 0.5s ease;
   }
   .gnb_fade-enter-from,

@@ -119,7 +119,7 @@ const onDeletePost = () => {
 }
 
 const onPushPost = (postId) => {
-  if (postId) push({ name: 'post', query: { id: postId } })
+  if (postId) push({ name: 'post', params: { id: postId } })
 }
 
 const onCopyLink = async () => {
