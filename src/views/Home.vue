@@ -12,7 +12,7 @@
       </Suspense>
     </div>
 
-    <h2 class="h2_recent_review_sol">Recent Review Posts by Sol</h2>
+    <h2 class="h2_recent_review_sol">Recent Review Posts by SOL</h2>
     <Suspense>
       <template #default>
         <Posts :menu="slideSolMenu" :type="'slide'" :recent="true" />
@@ -22,7 +22,7 @@
       </template>
     </Suspense>
 
-    <h2 class="h2_recent_review_ming">Recent Review Posts by Sol</h2>
+    <h2 class="h2_recent_review_ming">Recent Review Posts by SOL</h2>
     <Suspense>
       <template #default>
         <Posts :menu="slideSolMenu" :type="'slide'" :recent="true" />
@@ -74,6 +74,7 @@
 
     h2 {
       margin: 6.4rem 0 3.2rem 0;
+      color: var(--primary-dark);
 
       &:first-child {
         margin: 0 0 3.2rem 0;
@@ -85,7 +86,7 @@
       flex-wrap: wrap;
     }
 
-    &:deep(.list_item) {
+    &:deep(.recent_item) {
       width: 56.4rem;
       margin-right: 2.4rem;
 

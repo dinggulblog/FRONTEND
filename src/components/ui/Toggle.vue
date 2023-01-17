@@ -1,6 +1,7 @@
 <template>
   <div class="toggle">
     <Ico
+      class="ico_toggle"
       :svg="isPublic ? 'toggle' : 'toggle-fill'"
       :size="'xl'"
       :customColor="isPublic ? '#E6E6E6' : 'var(--secondary)'"
@@ -33,9 +34,14 @@
 <style lang="scss" rel="stylesheet/scss" scoped>
   .toggle {
     display: flex;
-    align-items: center;
     cursor: pointer;
+    align-items: center;
     user-select: none;
+    line-height: 1.5;
+
+    .ico_toggle {
+      transition: all 0.3s;
+    }
 
     span {
       font-size: 1.2rem;

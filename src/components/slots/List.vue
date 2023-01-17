@@ -1,9 +1,5 @@
 <template>
   <li class="list_item">
-    <div class="num">
-      <slot name="num"></slot>
-      <div class="num_border"></div>
-    </div>
     <div class="wrap_contents">
       <div class="contents">
         <div class="title">
@@ -31,8 +27,7 @@
   </li>
 </template>
 
-<script>
-</script>
+<script></script>
 
 <style lang="scss" rel="stylesheet/scss">
   @import '../../scss/list.scss';

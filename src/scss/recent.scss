@@ -1,4 +1,4 @@
-.list_item {
+.recent_item {
   margin: 0 0 3.2rem;
 
   .wrap_contents {
@@ -19,7 +19,6 @@
           font-size: 1.4rem;
           color: var(--secondary-dark);
           text-decoration: underline;
-          letter-spacing: 0.2rem;
         }
       }
 
@@ -50,10 +49,10 @@
         height: calc(2rem * 2);
 
         p {
-          width: 100%;
+          width: 80%;
           display: -webkit-box;
           -webkit-box-orient: vertical;
-          -webkit-line-clamp: 2;
+          -webkit-line-clamp: 1;
           overflow: hidden;
           line-height: 2rem;
           font-size: 1.4rem;
@@ -68,7 +67,7 @@
       .wrap_info {
         display: flex;
         align-items: center;
-        margin: 0.8rem 0 0;
+        margin: 1.2rem 0 0;
 
         div {
           .info_ico {

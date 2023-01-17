@@ -1,10 +1,9 @@
 <template>
-  <li class="list_item">
+  <li class="recent_item">
     <div class="wrap_contents">
       <slot name="thumbnail"></slot>
 
       <div class="contents">
-
         <div class="category">
           <slot name="category"></slot>
         </div>

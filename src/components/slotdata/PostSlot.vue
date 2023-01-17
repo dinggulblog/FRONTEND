@@ -4,8 +4,11 @@
       <div v-if="type !== 'list' || (type === 'list' && post.thumbnail)" class="thumbnail">
         <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">
           <img :src="post.thumbnail ? post.thumbnail : DEFAULT_THUMBNAIL" />
-          {{ post.postNum }}
         </router-link>
+
+        <div class="ico_like" v-if="post.liked">
+          <Ico :size="'md'" :svg="'like-fill'" :customColor="'var(--likeActive-dark)'" />
+        </div>
       </div>
     </template>
 
@@ -39,20 +42,12 @@
 
     <template #comment_count>
       <router-link :to="{ name: 'post', params: { postId: post._id, quickMove: true } }" @click="$emit('commitPosts')">
-        <span class="info_ico"><Ico :size="'sm'" :svg="'comment'" /></span>
-        <span>{{ post.commentCount }}</span>
+        댓글 {{ post.commentCount }}
       </router-link>
     </template>
 
     <template #like_count>
-      <span class="info_ico" ref="LIKE_EL">
-        <Ico
-          :size="'sm'"
-          :svg="post.liked ? 'like-fill' : 'like'"
-          :customColor="post.liked ? (type === 'slide' ? 'var(--likeActive-dark)' : 'var(--likeActive)') : ''"
-        />
-      </span>
-      <span>{{ post.likeCount }}</span>
+      <span>좋아요 {{ post.likeCount }}</span>
     </template>
   </component>
 </template>

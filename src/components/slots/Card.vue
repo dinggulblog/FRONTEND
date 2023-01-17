@@ -3,10 +3,7 @@
     <div class="wrap_item">
       <slot name="thumbnail"></slot>
 
-      <div class="wrap_num_title">
-        <div class="num">
-          <slot name="num"></slot>
-        </div>
+      <div class="wrap_title">
         <div class="title">
           <slot name="title"></slot>
         </div>
@@ -17,17 +14,14 @@
       </div>
 
       <div class="wrap_info">
-        <div class="wrap_left">
-          <div class="createdAt">
-            <slot name="createdAt"></slot>
-          </div>
+        <div class="createdAt">
+          <slot name="createdAt"></slot>
         </div>
-
-        <div class="wrap_right">
-          <div class="wrap_comment_like">
-            <div class="wrap_comment_count">
-              <slot name="comment_count"></slot>
-            </div>
+        <div class="wrap_comment_like">
+          <div class="comment_count">
+            <slot name="comment_count"></slot>
+          </div>
+          <div class="like_count">
             <slot name="like_count"></slot>
           </div>
         </div>
@@ -36,8 +30,7 @@
   </li>
 </template>
 
-<script>
-</script>
+<script></script>
 
 <style lang="scss" rel="stylesheet/scss">
   @import '../../scss/card.scss';

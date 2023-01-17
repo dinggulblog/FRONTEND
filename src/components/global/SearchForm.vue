@@ -3,7 +3,8 @@
     <div class="searchForm">
       <input class="searchForm__text" type="text" :placeholder="'검색어를 입력해주세요'" />
       <div class="searchForm__btn">
-        <Button class="btn_search" :size="'md'" :svg="'search'" :customColor="'#fff'" :customPadding="'0'"> </Button>
+        <Button class="btn_search" :size="'md'" :svg="'search'" :customColor="'var(--primary)'" :customPadding="'0'">
+        </Button>
       </div>
     </div>
   </div>
@@ -40,7 +41,7 @@
     }
 
     .searchForm {
-      border-bottom: 1px solid #fff;
+      border-bottom: 1px solid var(--primary);
       width: 100%;
       display: flex;
 
@@ -59,16 +60,7 @@
       input {
         font-size: 2.4rem;
         font-weight: 300;
-        color: #fff;
-      }
-
-      i {
-        font-size: 1.8rem;
-        color: #fff;
-
-        @include mobile_all {
-          font-size: 2.4rem;
-        }
+        color: var(--primary);
       }
     }
   }

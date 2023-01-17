@@ -27,7 +27,10 @@
           @click="onAction"
         />
 
-        <ActionSlot ref="DROPBOX_SLOT_EL" :dropboxItems="{ '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }"/>
+        <ActionSlot
+          ref="DROPBOX_SLOT_EL"
+          :dropboxItems="{ '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }"
+        />
       </div>
     </div>
 
@@ -79,57 +82,57 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { throttle } from '../common/util.js'
-import Markdown from 'vue3-markdown-it'
-import MarkdownEmoji from 'markdown-it-emoji'
-import ActionSlot from './slotdata/ActionSlot.vue'
-import AuthorSlot from './slotdata/AuthorSlot.vue'
-import PostInfoSlot from './slotdata/PostInfoSlot.vue'
+  import { defineProps, defineEmits, ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import { throttle } from '../common/util.js'
+  import Markdown from 'vue3-markdown-it'
+  import MarkdownEmoji from 'markdown-it-emoji'
+  import ActionSlot from './slotdata/ActionSlot.vue'
+  import AuthorSlot from './slotdata/AuthorSlot.vue'
+  import PostInfoSlot from './slotdata/PostInfoSlot.vue'
 
-const props = defineProps({
-  post: {
-    type: Object,
-    required: true,
-    default: () => ({})
+  const props = defineProps({
+    post: {
+      type: Object,
+      required: true,
+      default: () => ({}),
+    },
+  })
+  const emits = defineEmits(['updateLike', 'deletePost'])
+
+  const { push } = useRouter()
+
+  const plugins = ref([{ plugin: MarkdownEmoji }])
+  const DROPBOX_SLOT_EL = ref(null)
+
+  const onAction = () => {
+    if (DROPBOX_SLOT_EL.value) DROPBOX_SLOT_EL.value.onToggle()
   }
-})
-const emits = defineEmits(['updateLike', 'deletePost'])
 
-const { push } = useRouter()
+  const onUpdateLike = throttle(() => {
+    emits('updateLike')
+  }, 500)
 
-const plugins = ref([{ plugin: MarkdownEmoji }])
-const DROPBOX_SLOT_EL = ref(null)
-
-const onAction = () => {
-  if (DROPBOX_SLOT_EL.value) DROPBOX_SLOT_EL.value.onToggle()
-}
-
-const onUpdateLike = throttle(() => {
-  emits('updateLike')
-}, 500)
-
-const onUpdatePost = () => {
-  if (props.post._id) push({ name: 'editor', query: { id: props.post._id } })
-}
-
-const onDeletePost = () => {
-  emits('deletePost')
-}
-
-const onPushPost = (postId) => {
-  if (postId) push({ name: 'post', params: { id: postId } })
-}
-
-const onCopyLink = async () => {
-  try {
-    await navigator.clipboard.writeText(window.location.href)
-    alert('클립보드에 복사되었습니다')
-  } catch {
-    alert('링크 복사에 실패하였습니다.')
+  const onUpdatePost = () => {
+    if (props.post._id) push({ name: 'editor', query: { id: props.post._id } })
   }
-}    
+
+  const onDeletePost = () => {
+    emits('deletePost')
+  }
+
+  const onPushPost = (postId) => {
+    if (postId) push({ name: 'post', params: { postId: postId } })
+  }
+
+  const onCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      alert('클립보드에 복사되었습니다')
+    } catch {
+      alert('링크 복사에 실패하였습니다.')
+    }
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
@@ -263,7 +266,7 @@ const onCopyLink = async () => {
     .wrap_author {
       position: relative;
 
-      &:deep(.author)  {
+      &:deep(.author) {
         .wrap_avatar {
           .avatar {
             width: 9.6rem;

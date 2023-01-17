@@ -139,7 +139,7 @@ const actions = {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
       
-      const { data: { success } } = await axios.delete(`v1/posts/${postId}/file`, { data: imageId })
+      const { data: { success } } = await axios.delete(`v1/posts/${postId}/file`, { data: { image: imageId } })
 
       return { success, error: null }
     } catch (err) {

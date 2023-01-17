@@ -14,17 +14,20 @@
   <div class="posts">
     <ul>
       <div :id="type" ref="POST_EL">
-        <TransitionGroup
-          name="fade"
-          @before-enter="beforeEnter"
-          @after-enter="afterEnter"
-          @enter-cancelled="afterEnter"
-        >
-          <template v-for="(post, index) in posts" :key="index">
-            <PostSlot :type="type" :post="post" :data-index="index" @commitPosts="onCommitPosts"></PostSlot>
-          </template>
-        </TransitionGroup>
-        <Observer v-model:page="page" @updatePage="onUpdatePage"></Observer>
+        <template v-if="posts.length">
+          <TransitionGroup
+            name="fade"
+            @before-enter="beforeEnter"
+            @after-enter="afterEnter"
+            @enter-cancelled="afterEnter"
+          >
+            <template v-for="(post, index) in posts" :key="index">
+              <PostSlot :type="type" :post="post" :data-index="index" @commitPosts="onCommitPosts"></PostSlot>
+            </template>
+          </TransitionGroup>
+          <Observer v-model:page="page" @updatePage="onUpdatePage"></Observer>
+        </template>
+        <p v-else class="empty_posts">no posts yet</p>
       </div>
     </ul>
 
@@ -299,11 +302,19 @@
 
     .wrap_btn_slidePage {
       position: absolute;
-      top: 0;
+      top: -3.5rem;
       width: 100%;
       height: 100%;
       display: flex;
       align-items: center;
+
+      @include tablet {
+        top: -4.5rem;
+      }
+
+      @include mobile {
+        top: -8rem;
+      }
 
       .btn_old,
       .btn_next {
@@ -325,6 +336,12 @@
         margin-left: auto;
         left: 1.6rem;
       }
+    }
+
+    .empty_posts {
+      font-size: 1.4rem;
+      color: var(--text-light);
+      text-transform: capitalize;
     }
   }
 

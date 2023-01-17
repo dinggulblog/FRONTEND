@@ -6,7 +6,7 @@
           :class="isMobile ? 'btn_m-toggle' : 'btn_search'"
           size="md"
           :svg="isMobile ? 'menu' : searchState.isOpen ? 'close' : 'search'"
-          customColor="#fff"
+          customColor="#a5a5a5"
           customPadding="0"
           @click="isMobile ? onToggleGnbVisible() : onToggleSearchVisible()"
         >
@@ -25,9 +25,6 @@
         </span>
 
         <div class="wrap_auth" v-else-if="!isMobile && profile.nickname">
-          <router-link :to="{ name: 'editor' }" class="a_create">
-            <Ico size="md" svg="create" />
-          </router-link>
           <div class="auth dropdown">
             <AuthorSlot :profile="profile" />
             <div class="auth_items dropdown_items">
@@ -47,7 +44,7 @@
           class="btn_search"
           size="md"
           :svg="searchState.isOpen ? 'close' : 'search'"
-          customColor="#fff"
+          customColor="#a5a5a5"
           customPadding="0"
           @click="onToggleSearchVisible"
         />
@@ -69,7 +66,6 @@
       </div>
     </div>
   </Transition>
-  
 
   <Transition name="search_fade">
     <div class="container_searchForm" v-if="searchState.display">
@@ -88,7 +84,7 @@
   import SearchForm from './SearchForm.vue'
   import AuthorSlot from '../slotdata/AuthorSlot.vue'
   import Account from './Account.vue'
-  import LOGO from '../../assets/logo.webp'
+  import LOGO from '../../assets/logo.png'
 
   export default {
     components: {
@@ -235,7 +231,6 @@
     position: relative;
     z-index: 5;
     width: 100%;
-    background: var(--primary);
 
     .bar {
       display: flex;
@@ -246,7 +241,7 @@
       height: 6.4rem;
       margin: 0 2.4rem;
       font-size: 1.4rem;
-      color: #fff;
+      color: var(--text-light);
 
       @include mobile_all {
         font-size: 1.6rem;
@@ -268,7 +263,7 @@
       }
 
       a {
-        color: #fff;
+        color: var(--text-light);
       }
 
       .logo {
@@ -368,7 +363,7 @@
     position: relative;
     z-index: 3;
     width: 100%;
-    box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.16);
+    border-top: 1px solid #e5e5e5;
 
     @include mobile_all {
       display: flex;
@@ -382,7 +377,7 @@
       display: flex;
       align-items: center;
       width: calc(120rem - 4.8rem);
-      height: 4.8rem;
+      height: 6.4rem;
       background-color: #fff;
 
       @include mobile_all {
@@ -405,6 +400,6 @@
     width: 100%;
     height: 16rem;
     margin: 6.4rem 0 0 0;
-    background: var(--primary);
+    background: #fff;
   }
 </style>

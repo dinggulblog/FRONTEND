@@ -1,137 +1,125 @@
 .slide_item {
-  .wrap_thumnail {
-    position: relative;
-    z-index: 9;
-    transition: box-shadow 0.25s ease-in 0s, transform 0.25s ease-in 0s;
+  position: relative;
+  z-index: 9;
+  transition: box-shadow 0.25s ease-in 0s, transform 0.25s ease-in 0s;
 
-    &:hover .wrap_hover {
-      visibility: visible;
-      opacity: 1;
-      transition: all 0.2s ease-in;
-    }
+  .thumbnail {
+    img {
+      width: 27rem;
+      height: 20.8rem;
+      object-fit: cover;
+      border-radius: 0.8rem;
 
-    .thumbnail {
-      img {
-        width: 27rem;
-        height: 20.8rem;
-        object-fit: cover;
-        border-radius: 0.8rem;
+      @include tablet {
+        width: 22.2rem;
+      }
 
-        @include tablet {
-          width: 22.2rem;
-        }
-
-        @include mobile {
-          width: 15.2rem;
-          height: 15.2rem;
-        }
+      @include mobile {
+        width: 15.2rem;
+        height: 15.2rem;
       }
     }
 
-    .wrap_hover {
-      visibility: hidden;
+    .ico_like {
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 2rem;
+      right: 2rem;
+    }
+  }
+
+  .wrap_title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 1.7rem 0 0;
+    font-size: 1.6rem;
+
+    .title {
       display: flex;
+      align-items: center;
+      width: 85%;
+
+      a {
+        color: var(--list_title);
+        overflow: hidden;
+        white-space: normal;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        white-space: pre-wrap;
+        width: 95%;
+      }
+
+      .info_ico {
+        margin: 0 0 0 1.2rem;
+        color: var(--list_info);
+      }
+    }
+  }
+
+  .wrap_info {
+    display: flex;
+    line-height: 1.5;
+    width: 100%;
+    margin: 2rem 0 0;
+
+    @include mobile_all {
+      font-size: 1.4rem;
+    }
+
+    @include tablet {
+      margin: 3.2rem 0 0;
+    }
+
+    @include tablet_landscape {
+      margin: 3.2rem 0 0;
+    }
+
+    @include mobile {
+      margin: 3.2rem 0 0;
       flex-direction: column;
-      justify-content: center;
-      padding: 2.4rem;
-      border-radius: 3.2rem 0 3.2rem 0;
-      background-color: rgba(58, 58, 58, 0.25);
-      opacity: 0;
-      width: 100%;
-      height: 100%;
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px) brightness(100%);
-      color: #fff;
-      transition: all 0.2s ease-out;
-      cursor: pointer;
-      pointer-events: none;
+    }
 
-      .wrap_info_is-private_createdAt {
-        display: flex;
+    span,
+    a {
+      font-size: 1.2rem;
+      color: var(--list_info);
+    }
 
-        .wrap_left {
-          width: 50%;
-        }
+    .wrap_comment_like {
+      display: flex;
 
-        .wrap_right {
-          width: 50%;
-          display: flex;
-          justify-content: flex-end;
+      @include mobile {
+        margin: 1.2rem 0 0;
+      }
+    }
 
-          .createdAt {
-            font-size: 1.2rem;
-          }
-        }
+    .createdAt {
+      &::after {
+        content: '•';
+        margin: 0 1.2rem;
+        color: var(--list_info);
       }
 
-      .title {
-        margin: 4rem 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0 3.2rem;
-        min-height: 4.8rem;
-        @include mobile {
-          margin: 1.6rem 0;
-          padding: 0;
-        }
-
-        a {
-          font-size: 1.6rem;
-          color: #fff;
-          font-family: 'Noto Sans KR';
-          overflow: hidden;
-          white-space: normal;
-          text-overflow: ellipsis;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          white-space: pre-wrap;
-
-          @include mobile {
-            -webkit-line-clamp: 1;
-          }
+      @include mobile {
+        &::after {
+          display: none;
         }
       }
+    }
 
-      .wrap_info_comment_like {
-        display: flex;
+    .like_count {
+      display: flex;
+      align-items: center;
+      margin: 0 0 0 1.6rem;
 
-        .wrap_left {
-          width: 50%;
-
-          .like_count {
-            display: flex;
-            align-items: center;
-
-            span {
-              font-size: 1.4rem;
-            }
-          }
-        }
-
-        .wrap_right {
-          width: 50%;
-          display: flex;
-          justify-content: flex-end;
-
-          .comment_count a {
-            display: flex;
-            align-items: center;
-            color: #fff;
-            pointer-events: auto;
-
-            span {
-              font-size: 1.4rem;
-            }
-          }
-        }
-
-        .info_ico {
-          margin: 0 0.8rem 0 0;
+      @include mobile {
+        margin: 0 1.2rem 0 0;
+        &::before {
+          content: '•';
+          margin: 0 1.2rem 0;
+          color: var(--list_info);
         }
       }
     }

@@ -4,9 +4,7 @@
       <div class="breadcrumb">
         <ul>
           <li>
-            <router-link :to="{ name: 'home' }">
-              <Ico :size="'md'" :svg="'home'" />
-            </router-link>
+            <router-link :to="{ name: 'home' }">home</router-link>
           </li>
           <li>
             <router-link :to="{ name: 'posts', params: { main } }">
@@ -146,7 +144,6 @@
           align-items: center;
 
           li {
-            margin-right: 1rem;
             display: flex;
             align-items: center;
 
@@ -154,28 +151,19 @@
               color: var(--text-light);
               letter-spacing: 0.04rem;
               text-transform: uppercase;
-              font-weight: 500;
+              font-weight: 400;
             }
-          }
 
-          li:first-child {
-            i {
-              margin-right: 0;
-              margin-top: 0.3rem;
+            &:not(:last-child)::after {
+              content: '〉';
+              margin: 0 1.4rem 0 1.8rem;
+              color: var(--list_info);
             }
-          }
 
-          li:last-child {
-            a {
+            &:last-child a {
               color: var(--primary-dark);
+              text-decoration: underline;
             }
-          }
-
-          li:not(:first-child)::before {
-            margin-right: 1rem;
-            width: 24px;
-            height: 24px;
-            content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d0d0d0'><path d='M13.2,12L7.6,6.4l1.6-1.6l7.2,7.2l-7.2,7.2l-1.6-1.6L13.2,12z' /></svg>");
           }
         }
       }

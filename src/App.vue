@@ -10,9 +10,17 @@
       </div>
     </div>
 
-    <div id="footer">copyright SOL & MING all rights reserved</div>
+    <div id="footer">
+      <div class="wrap_contents">
+        <p class="links">
+          <a href="https://github.com/dinggulblog" target="_blank">
+            dinggul project github <Ico size="lg" svg="github" class="ico_link" />
+          </a>
+        </p>
+      </div>
+    </div>
 
-    <div class="m-createBtn" v-if="isLogin">
+    <div class="btn_create" v-if="isLogin">
       <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
     </div>
   </div>
@@ -54,10 +62,10 @@
   @import url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff');
 
   :root {
-    --primary: #c3d3de;
-    --primary-dark: #aec4d4;
-    --secondary: #c5c3de;
-    --secondary-dark: #b4b1d5;
+    --primary: #9496e1;
+    --primary-dark: #9496e1;
+    --secondary: #9496e1;
+    --secondary-dark: #9496e1;
 
     --likeActive: #f3c7c7;
     --likeActive-dark: #ff6d6d;
@@ -103,8 +111,6 @@
 
     // posts, post icons
 
-    --Ico-comment: 'M9.6,0.3h4.8c5.3,0,9.6,4.3,9.6,9.6s-4.3,9.6-9.6,9.6v4.2C8.4,21.3,0,17.7,0,9.9C0,4.6,4.3,0.3,9.6,0.3z M12,17.1h2.4  c4,0,7.2-3.2,7.2-7.2s-3.2-7.2-7.2-7.2H9.6c-4,0-7.2,3.2-7.2,7.2c0,4.3,3,7.2,9.6,10.2V17.1z';
-    --Ico-like: 'M12,2.7c2.8-2.5,7.2-2.4,9.9,0.3c2.7,2.7,2.8,7.1,0.3,9.9L12,23.1L1.8,12.9C-0.7,10.1-0.6,5.7,2.1,3C4.8,0.3,9.2,0.2,12,2.7  z M20.2,4.7c-1.8-1.8-4.7-1.9-6.6-0.2L12,6l-1.6-1.4C8.5,2.8,5.6,2.9,3.8,4.7C2,6.5,1.9,9.4,3.6,11.3l8.4,8.4l8.4-8.4  C22.1,9.4,22,6.5,20.2,4.7z';
     --Ico-like-fill: 'M12,2.7c2.8-2.5,7.2-2.4,9.9,0.3c2.7,2.7,2.8,7.1,0.3,9.9L12,23.1L1.8,12.9C-0.7,10.1-0.6,5.7,2.1,3C4.8,0.3,9.2,0.2,12,2.7  z';
     --Ico-more: 'M12,0c-1.5,0-2.7,1.2-2.7,2.7s1.2,2.7,2.7,2.7s2.7-1.2,2.7-2.7S13.5,0,12,0z M12,18.7c-1.5,0-2.7,1.2-2.7,2.7S10.5,24,12,24  s2.7-1.2,2.7-2.7S13.5,18.7,12,18.7z M12,9.3c-1.5,0-2.7,1.2-2.7,2.7s1.2,2.7,2.7,2.7s2.7-1.2,2.7-2.7S13.5,9.3,12,9.3z';
 
@@ -119,6 +125,7 @@
 
     --Ico-toggle: 'M7.6,6.5c-3,0-5.5,2.4-5.5,5.5s2.4,5.5,5.5,5.5h8.7c3,0,5.5-2.4,5.5-5.5s-2.4-5.5-5.5-5.5H7.6z M7.6,4.4h8.7  c4.2,0,7.6,3.4,7.6,7.6s-3.4,7.6-7.6,7.6H7.6C3.4,19.6,0,16.2,0,12S3.4,4.4,7.6,4.4z M7.6,15.3c-1.8,0-3.3-1.5-3.3-3.3  s1.5-3.3,3.3-3.3s3.3,1.5,3.3,3.3S9.4,15.3,7.6,15.3z';
     --Ico-toggle-fill: 'M7.6,4.4h8.7c4.2,0,7.6,3.4,7.6,7.6s-3.4,7.6-7.6,7.6H7.6C3.4,19.6,0,16.2,0,12S3.4,4.4,7.6,4.4z M16.4,15.3  c1.8,0,3.3-1.5,3.3-3.3s-1.5-3.3-3.3-3.3s-3.3,1.5-3.3,3.3S14.6,15.3,16.4,15.3z';
+    --Ico-add-image: 'M2,24c-0.6,0-1-0.2-1.4-0.6C0.2,23,0,22.6,0,22V2c0-0.6,0.2-1,0.6-1.4S1.5,0,2,0h13.6v2H2v20h20V8.4h2V22  c0,0.6-0.2,1-0.6,1.4C23,23.8,22.6,24,22,24H2z M19.3,7.4V4.7h-2.7v-2h2.7V0h2v2.7H24v2h-2.7v2.7H19.3z M4,18.6h16l-4.8-6.4L11,17.8  l-3.1-4.1L4,18.6z M2,2v20V2z';
 
     // arrow icons
     --Ico-arrow-down: 'M12,14l9.3-9.3L24,7.3l-12,12L0,7.3l2.7-2.7L12,14z';
@@ -130,6 +137,10 @@
     --Ico-success: 'M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-.997-4L6.76 11.757l1.414-1.414 2.829 2.829 5.656-5.657 1.415 1.414L11.003 16z';
     --Ico-warning: 'M12.866 3l9.526 16.5a1 1 0 0 1-.866 1.5H2.474a1 1 0 0 1-.866-1.5L11.134 3a1 1 0 0 1 1.732 0zm-8.66 16h15.588L12 5.5 4.206 19zM11 16h2v2h-2v-2zm0-7h2v5h-2V9z';
     --Ico-error: 'M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-1-5h2v2h-2v-2zm0-8h2v6h-2V7z';
+
+    // site icons
+
+    --Ico-github: 'M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z';
   }
 
   /********** CSS RESET **********/
@@ -253,25 +264,66 @@
   }
 
   #footer {
+    width: 100%;
+    margin: 4.8rem 0 0;
+    font-size: 1.2rem;
+    color: #a5a5a5;
+    letter-spacing: 0.1rem;
+    border-top: 1px solid #e5e5e5;
+    height: 8rem;
     display: flex;
     justify-content: center;
-    width: 100%;
-    height: 6.4rem;
-    margin: 4.8rem 0;
-    font-size: 1.2rem;
-    color: var(--text-light);
-    letter-spacing: 0.1rem;
+    align-items: center;
+
+    .wrap_contents {
+      width: calc(120rem - 4.8rem);
+      text-transform: capitalize;
+      display: flex;
+      justify-content: flex-end;
+
+      @include mobile {
+        width: calc(100% - 4rem);
+        margin: 0 2rem;
+      }
+
+      @include tablet {
+        width: calc(100% - 12.8rem);
+        margin: 0 6.4rem;
+      }
+
+      @include tablet_landscape {
+        width: calc(100% - 6.4rem);
+        margin: 0 3.2rem;
+      }
+
+      strong {
+        color: var(--primary);
+      }
+
+      .links {
+        a {
+          color: var(--primary);
+          display: flex;
+          align-items: center;
+
+          .ico_link {
+            margin: 0 0 0 0.8rem;
+          }
+        }
+      }
+
+      .tech_stack {
+        img {
+          width: 6.4rem;
+        }
+      }
+    }
   }
 
-  .m-createBtn {
-    display: none;
-
-    @include mobile_all {
-      display: block;
-      position: fixed;
-      right: 2.4rem;
-      bottom: 3.2rem;
-    }
+  .btn_create {
+    position: absolute;
+    bottom: 4.8rem;
+    right: 4.8rem;
 
     .a_create {
       display: flex;
