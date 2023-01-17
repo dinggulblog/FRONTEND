@@ -15,10 +15,11 @@ const actions = {
   async getMenus({ commit }) {
     try {
       const { data } = await axios.get('v1/menus')
-      const { data: { menus } } = data
+      const {
+        data: { menus },
+      } = data
 
       commit('SET_MENUS', menus)
-      
     } catch (err) {
       return err.response.data
     }
@@ -46,14 +47,12 @@ const mutations = {
 
   SET_CURRENT_MENUS(state, { main, sub }) {
     if (!state.menus || typeof state.menus !== 'object') return
-    
+
     const subMenus = state.menus[main]
 
     if (Array.isArray(subMenus)) {
-      state.currentMenus = sub
-        ? subMenus.filter((menu) => menu.sub === sub)
-        : subMenus;
-    
+      state.currentMenus = sub ? subMenus.filter((menu) => menu.sub === sub) : subMenus
+
       state.type = state.currentMenus.length === 1 ? state.currentMenus[0]?.type : 'list'
       state.categories = [...new Set(state.currentMenus.flatMap(({ categories }) => categories))]
     }

@@ -139,7 +139,6 @@
     padding: 0;
     border: 0;
     outline: none;
-    letter-spacing: -0.02em;
     -webkit-font-smoothing: antialiased;
     list-style: none;
     box-sizing: border-box;
@@ -168,6 +167,7 @@
   body {
     height: 100%;
     overflow-x: hidden;
+    letter-spacing: -0.02em;
   }
 
   img,

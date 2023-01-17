@@ -1,6 +1,6 @@
 <template>
   <!-- Slide toolbar -->
-  <div v-if="type === 'slide'" class="wrap_slide_toolbar">
+  <div v-if="type === 'slide' && !recent" class="wrap_slide_toolbar">
     <div class="slide_category">
       <span class="category">{{ category }}</span>
     </div>
@@ -24,7 +24,7 @@
             <PostSlot :type="type" :post="post" :data-index="index" @commitPosts="onCommitPosts"></PostSlot>
           </template>
         </transition-group>
-        <div class="observer" ref="TRIGGER_EL"></div>
+        <Observer v-model:page="page" @updatePage="onUpdatePage"></Observer>
       </div>
     </ul>
 
@@ -59,6 +59,7 @@
   import { useStore } from 'vuex'
   import { useMedia } from '../common/mediaQuery'
   import PostSlot from './slotdata/PostSlot.vue'
+  import Observer from './global/Observer.vue'
 
   const props = defineProps({
     menu: {
@@ -83,6 +84,14 @@
       type: String,
       required: false,
     },
+    recent: {
+      type: Boolean,
+      default: false,
+    },
+    recentTitle: {
+      type: String,
+      default: 'Title',
+    },
   })
   const { commit, dispatch } = useStore()
   const isAllMobileDevice = ref(false)
@@ -93,13 +102,12 @@
   const isMobile = useMedia('(min-width: 0px) and (max-width: 767px)')
 
   const POST_EL = ref(null)
-  const TRIGGER_EL = ref(null)
 
   const posts = ref([]) // 게시물 배열
   const page = ref(1) // 현재까지 받아온 페이지
   const maxCount = ref(1) // 전체 게시물 갯수
 
-  const limit = computed(() => (props.type === 'slide' ? 8 : 12)) // 한 번의 요청에 받아올 게시물 갯수
+  const limit = computed(() => (props.type === 'slide' ? 8 : props.recent ? 6 : 12)) // 한 번의 요청에 받아올 게시물 갯수
   const maxPage = computed(() => Math.ceil(maxCount.value / limit.value)) // 요청 가능한 페이지의 상한값
   const skip = computed(() => (page.value - 1) * limit.value)
   const menu = computed(() => props.menu.map(({ _id }) => _id))
@@ -109,7 +117,9 @@
   /* Slide 변수 */
   const slidePage = ref(1) // 현재 보고 있는 페이지
   const slideLimit = computed(() => (isDesktop.value ? limit.value / 2 : limit.value / 4)) // 한 번의 슬라이드에 넘길 게시물 갯수
-  const slideMaxPage = computed(() => Math.ceil(maxCount.value / slideLimit.value)) // 슬라이드 가능한 페이지 상한값
+  const slideMaxPage = computed(() =>
+    props.recent ? Math.ceil(posts.value.length / slideLimit.value) : Math.ceil(maxCount.value / slideLimit.value)
+  ) // 슬라이드 가능한 페이지 상한값
   /* Slide 변수 끝 */
 
   // 게시물 요청 쿼리
@@ -136,7 +146,7 @@
   }
 
   const onUpdatePage = (updatePage) => {
-    if (maxPage.value < updatePage) return
+    if (maxPage.value < updatePage || props.recent) return
     page.value = updatePage
     getPosts(page.value)
   }
@@ -186,6 +196,10 @@
     posts.value.splice((getPage - 1) * limit.value, limit.value, ...newPosts)
   }
 
+  const onCommitPosts = () => {
+    commit('post/SET_POSTS', posts.value)
+  }
+
   const beforeEnter = (el) => {
     el.style.transitionDelay = 150 * parseInt(el.dataset.index % limit.value, 10) + 'ms'
   }
@@ -193,21 +207,6 @@
   const afterEnter = (el) => {
     el.style.transitionDelay = ''
   }
-
-  const onCommitPosts = () => {
-    commit('post/SET_POSTS', posts.value)
-  }
-
-  const callback = (entries, observer) => {
-    entries.forEach((entry) => {
-      // TRIGGER_EL.value가 보이지 않는다면 retrun
-      if (!entry.isIntersecting) return
-
-      onUpdatePage(page.value + 1)
-    })
-  }
-
-  const observer = new IntersectionObserver(callback, { threshold: 1.0 })
 
   watch(
     isDesktop,
@@ -252,12 +251,7 @@
 
   onMounted(() => {
     getDevice()
-    console.log(isAllMobileDevice.value)
-    observer.observe(TRIGGER_EL.value)
-  })
-
-  onUnmounted(() => {
-    observer.disconnect()
+    console.log(props.recent)
   })
 
   await getPosts(1)
@@ -294,11 +288,12 @@
     position: relative;
 
     ul {
-      overflow: hidden;
+      overflow-x: clip;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
 
-      .obsever {
-        width: 100%;
-        height: 0;
+      &::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera*/
       }
     }
 
@@ -388,30 +383,27 @@
     display: flex;
     margin: 6.4rem 0 4rem;
 
-    .slide_category,
-    .slide_page {
-      width: 50%;
-    }
-
     .slide_category {
+      display: flex;
+      align-items: center;
+      width: 30%;
       font-size: 1.6rem;
       color: var(--primary-dark);
-      letter-spacing: 0.2rem;
       text-transform: uppercase;
       position: relative;
 
       .category {
         padding-left: 1.6rem;
-      }
 
-      .category::before {
-        content: '';
-        position: absolute;
-        width: 0.1rem;
-        height: 1.6rem;
-        background-color: var(--primary-dark);
-        top: 0.6rem;
-        left: 0;
+        &::before {
+          content: '';
+          position: absolute;
+          width: 0.1rem;
+          height: 1.6rem;
+          background-color: var(--primary-dark);
+          top: 0.6rem;
+          left: 0;
+        }
       }
     }
 
@@ -421,6 +413,7 @@
       align-items: center;
       font-size: 1.4rem;
       font-weight: 500;
+      width: 100%;
 
       .nowPage {
         color: var(--primary-dark);

@@ -1,34 +1,50 @@
 <template>
-  <div ref="trigger"></div>
+  <div class="observer" ref="TRIGGER_EL"></div>
 </template>
 
 <script>
-  import { onMounted, ref } from 'vue'
+  import { onMounted, onUnmounted, ref } from 'vue'
 
   export default {
-    setup() {
-      const trigger = ref(null)
+    props: {
+      page: {
+        type: Number,
+      },
+    },
+    setup(props, { emit }) {
+      const TRIGGER_EL = ref(null)
 
-      let options = {
-        root: null,
-        threshold: 1.0,
-      }
-
-      let observer = new IntersectionObserver(callback, options)
-
-      let callback = (entries, observer) => {
+      const callback = (entries, observer) => {
         entries.forEach((entry) => {
-          console.log('하잉')
+          // TRIGGER_EL.value가 보이지 않는다면 retrun
+          if (!entry.isIntersecting) return
+
+          onUpdatePage(props.page + 1)
         })
       }
 
+      const observer = new IntersectionObserver(callback, { threshold: 1.0 })
+
+      const onUpdatePage = (page) => {
+        emit('updatePage', page)
+      }
+
       onMounted(() => {
-        observer.observe(trigger.value)
+        observer.observe(TRIGGER_EL.value)
       })
 
-      return { trigger }
+      onUnmounted(() => {
+        observer.disconnect()
+      })
+
+      return { TRIGGER_EL }
     },
   }
 </script>
 
-<style scoped></style>
+<style>
+  .observer {
+    width: 100%;
+    height: 0;
+  }
+</style>

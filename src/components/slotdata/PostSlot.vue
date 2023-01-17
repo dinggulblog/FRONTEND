@@ -1,59 +1,60 @@
 <template>
-    <component :is="type">
-      <template #thumbnail>
-        <div v-if="type !== 'list' || (type === 'list' && post.thumbnail)" class="thumbnail">
-          <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">
-            <img :src="post.thumbnail ? post.thumbnail : DEFAULT_THUMBNAIL" />
-            {{ post.postNum }}
-          </router-link>
-        </div>
-      </template>
-
-      <template #num>
-        <span class="number">{{ post.postNum }}</span>
-      </template>
-
-      <template #title>
-        <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">{{
-          post.title
-        }}</router-link>
-      </template>
-
-      <template #lock_ico>
-        <span class="info_ico" v-if="!post.isPublic">
-          <Ico :size="'sm'" :svg="'lock'" :customColor="type === 'slide' ? '#fff' : 'var(--list_info)'" />
-        </span>
-      </template>
-
-      <template #summary>
-        <p>{{ markdownText(post.content) }}</p>
-      </template>
-
-      <template #createdAt>
-        <span>{{ dayjs(post.createdAt).format('YYYY. M. D') }}</span>
-      </template>
-
-      <template #comment_count>
-        <router-link
-          :to="{ name: 'post', params: { postId: post._id, quickMove: true } }"
-          @click="$emit('commitPosts')"
-        >
-          <span class="info_ico"><Ico :size="'sm'" :svg="'comment'" /></span>
-          <span>{{ post.commentCount }}</span>
+  <component :is="type">
+    <template #thumbnail>
+      <div v-if="type !== 'list' || (type === 'list' && post.thumbnail)" class="thumbnail">
+        <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">
+          <img :src="post.thumbnail ? post.thumbnail : DEFAULT_THUMBNAIL" />
+          {{ post.postNum }}
         </router-link>
-      </template>
+      </div>
+    </template>
 
-      <template #like_count>
-        <span class="info_ico" ref="LIKE_EL">
-          <Ico
-            :size="'sm'"
-            :svg="post.liked ? 'like-fill' : 'like'"
-            :customColor="post.liked ? (type === 'slide' ? 'var(--likeActive-dark)' : 'var(--likeActive)') : ''"
-          />
-        </span>
-        <span>{{ post.likeCount }}</span>
-      </template>
-    </component>
+    <template #num>
+      <span class="number">{{ post.postNum }}</span>
+    </template>
+
+    <template #category>
+      <span>{{ post.category }}</span>
+    </template>
+
+    <template #title>
+      <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">{{
+        post.title
+      }}</router-link>
+    </template>
+
+    <template #lock_ico>
+      <span class="info_ico" v-if="!post.isPublic">
+        <Ico :size="'sm'" :svg="'lock'" :customColor="type === 'slide' ? '#fff' : 'var(--list_info)'" />
+      </span>
+    </template>
+
+    <template #summary>
+      <p>{{ markdownText(post.content) }}</p>
+    </template>
+
+    <template #createdAt>
+      <span>{{ dayjs(post.createdAt).format('YYYY. M. D') }}</span>
+    </template>
+
+    <template #comment_count>
+      <router-link :to="{ name: 'post', params: { postId: post._id, quickMove: true } }" @click="$emit('commitPosts')">
+        <span class="info_ico"><Ico :size="'sm'" :svg="'comment'" /></span>
+        <span>{{ post.commentCount }}</span>
+      </router-link>
+    </template>
+
+    <template #like_count>
+      <span class="info_ico" ref="LIKE_EL">
+        <Ico
+          :size="'sm'"
+          :svg="post.liked ? 'like-fill' : 'like'"
+          :customColor="post.liked ? (type === 'slide' ? 'var(--likeActive-dark)' : 'var(--likeActive)') : ''"
+        />
+      </span>
+      <span>{{ post.likeCount }}</span>
+    </template>
+  </component>
 </template>
 
 <script>
@@ -63,6 +64,7 @@
   import card from '../slots/Card.vue'
   import list from '../slots/List.vue'
   import slide from '../slots/Slide.vue'
+  import recent from '../slots/Recent.vue'
   import DEFAULT_THUMBNAIL from '../../assets/default_thumbnail.webp'
 
   export default {
@@ -82,6 +84,7 @@
       list,
       card,
       slide,
+      recent,
     },
     setup(props) {
       const LIKE_EL = ref(null)
@@ -100,5 +103,4 @@
   }
 </script>
 
-<style lang="scss" rel="stylesheet/scss" scoped>
-</style>
+<style lang="scss" rel="stylesheet/scss" scoped></style>
