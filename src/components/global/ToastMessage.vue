@@ -8,32 +8,33 @@
 </template>
 
 <script setup>
-import { defineExpose, ref, computed } from 'vue'
+  import { defineExpose, ref, computed } from 'vue'
 
-const isVisible = ref(false)
-const state = computed(() => ({
-  type: null,
-  message: null,
-  bgColor: null,
-  color: null,
-}))
+  const isVisible = ref(false)
+  const state = computed(() => ({
+    type: null,
+    message: null,
+    bgColor: null,
+    color: null,
+  }))
 
-const open = (type, message) => {
-  if (isVisible.value) close()
+  const open = (type, message) => {
+    if (isVisible.value) close()
 
-  state.value.type = type
-  state.value.message = message
-  state.value.bgColor = type === 'success' ? `var(--success-light)` : type === 'warn' ? `var(--warning-light)` : `var(--error-light)`
-  state.value.color = type === 'success' ? `var(--success)` : type === 'warn' ? `var(--warning)` : `var(--error)`
-  isVisible.value = true
-  setTimeout(close, 1000 * 3)
-}
+    state.value.type = type
+    state.value.message = message
+    state.value.bgColor =
+      type === 'success' ? `var(--success-light)` : type === 'warn' ? `var(--warning-light)` : `var(--error-light)`
+    state.value.color = type === 'success' ? `var(--success)` : type === 'warn' ? `var(--warning)` : `var(--error)`
+    isVisible.value = true
+    setTimeout(close, 1000 * 3)
+  }
 
-const close = () => {
-  isVisible.value = false
-}
+  const close = () => {
+    isVisible.value = false
+  }
 
-defineExpose({ open })
+  defineExpose({ open })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
@@ -52,7 +53,7 @@ defineExpose({ open })
 
   @keyframes fadeIn {
     from {
-      transform: translateY(4rem);
+      transform: translateY(-4rem);
     }
     to {
       transform: translateY(0);
@@ -63,7 +64,7 @@ defineExpose({ open })
     display: flex;
     position: fixed;
     align-items: center;
-    bottom: 2.4rem;
+    top: 2.4rem;
     right: 2.4rem;
     z-index: 999;
     width: 32rem;

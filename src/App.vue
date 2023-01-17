@@ -14,7 +14,7 @@
       <div class="wrap_contents">
         <p class="links">
           <a href="https://github.com/dinggulblog" target="_blank">
-            dinggul project github <Ico size="lg" svg="github" class="ico_link" />
+            <Ico size="lg" svg="github" class="ico_link" />dinggul project github
           </a>
         </p>
       </div>
@@ -234,7 +234,7 @@
     top: 0;
     z-index: 999;
     width: 100%;
-    margin: 0 0 4.8rem;
+    margin: 0 0 2.4rem;
   }
 
   .content-container {
@@ -279,7 +279,6 @@
       width: calc(120rem - 4.8rem);
       text-transform: capitalize;
       display: flex;
-      justify-content: flex-end;
 
       @include mobile {
         width: calc(100% - 4rem);
@@ -296,10 +295,6 @@
         margin: 0 3.2rem;
       }
 
-      strong {
-        color: var(--primary);
-      }
-
       .links {
         a {
           color: var(--primary);
@@ -307,14 +302,8 @@
           align-items: center;
 
           .ico_link {
-            margin: 0 0 0 0.8rem;
+            margin: 0 0.8rem 0 0;
           }
-        }
-      }
-
-      .tech_stack {
-        img {
-          width: 6.4rem;
         }
       }
     }
@@ -324,6 +313,11 @@
     position: absolute;
     bottom: 4.8rem;
     right: 4.8rem;
+
+    @include mobile {
+      bottom: 2.4rem;
+      right: 2.4rem;
+    }
 
     .a_create {
       display: flex;

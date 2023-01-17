@@ -90,6 +90,21 @@
       width: 56.4rem;
       margin-right: 2.4rem;
 
+      @include tablet_landscape {
+        width: calc(100% / 2 - 2.4rem);
+        margin-right: 2.4rem;
+      }
+
+      @include tablet {
+        width: 100%;
+        margin-right: 0;
+      }
+
+      @include mobile {
+        width: 100%;
+        margin-right: 0;
+      }
+
       &:nth-child(2n) {
         margin-right: 0;
       }

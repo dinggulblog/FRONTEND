@@ -228,7 +228,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        width: calc(100% / 4);
+        width: calc(100% / 3);
 
         @include mobile_all {
           display: flex;
@@ -289,6 +289,7 @@
               justify-content: center;
               align-items: center;
               height: 4.8rem;
+              position: relative;
 
               @include mobile_all {
                 display: block;

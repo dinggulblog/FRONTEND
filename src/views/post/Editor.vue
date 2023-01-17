@@ -594,7 +594,7 @@
     }
 
     .images_add_btn {
-      margin: 2.4rem 0;
+      margin: 1.6rem 0 2.4rem;
       label.upload_label {
         font-size: 1.2rem;
         line-height: 1.8rem;

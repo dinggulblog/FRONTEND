@@ -34,7 +34,7 @@
   }
 </script>
 
-<style lang="scss" rel="stylesheet/scss" scoped>
+<style lang="scss" rel="stylesheet/scss">
   .fade-enter-active,
   .fade-leave-active {
     transition: opacity 0.5s ease;
