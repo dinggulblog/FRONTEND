@@ -1,6 +1,6 @@
 <template>
   <!-- Slide toolbar -->
-  <div v-if="type === 'slide' && !recent" class="wrap_slide_toolbar">
+  <div v-if="type === 'slide'" class="wrap_slide_toolbar">
     <div class="slide_category">
       <span class="category">{{ category }}</span>
     </div>
@@ -159,17 +159,17 @@
     slidePage.value = updatePage
   }
 
-  const slide = (element, index, align = 'end') => {
-    if (!element) return
+  const slide = (index) => {
+    if (!POST_EL.value) return
 
-    const target = element.querySelector(`li[data-index="${index}"]`)
-    //if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: align })
-
+    const target = POST_EL.value.querySelector(`li[data-index="${index}"]`)
     if (!target) return
-    const parent = element?.getBoundingClientRect()?.left
+
+    const parent = POST_EL.value.getBoundingClientRect().left
     const x = target.getBoundingClientRect().left - parent
-    element.style.transform = `translateX(-${x}px)`
-    element.style.transition = 'all 0.3s'
+
+    POST_EL.value.style.transform = `translateX(-${x}px)`
+    POST_EL.value.style.transition = 'all 0.3s'
   }
 
   // Slide index is - (0) 4 8 12 ...
@@ -177,9 +177,13 @@
     if (slidePage.value === slideMaxPage.value) return
 
     onUpdateSlidePage(slidePage.value + 1)
-    const index = (slidePage.value - 1) * slideLimit.value
-    const lastIndex = posts.value.length - 1
-    slide(POST_EL.value, lastIndex < index ? lastIndex : index)
+    const rest = slideMaxPage.value * slideLimit.value - (props.recent ? 8 : maxCount.value)
+    const index =
+      slidePage.value === slideMaxPage.value
+        ? (slidePage.value - 1) * slideLimit.value - rest
+        : (slidePage.value - 1) * slideLimit.value
+    console.log(rest, maxCount.value)
+    slide(index)
   }
 
   // Slide index is - ... 12, 8, 4, 0
@@ -187,8 +191,9 @@
     if (slidePage.value === 1) return
 
     onUpdateSlidePage(slidePage.value - 1)
-    const index = (slidePage.value - 1) * slideLimit.value
-    slide(POST_EL.value, index, 'start')
+    const rest = slideMaxPage.value * slideLimit.value - (props.recent ? 8 : maxCount.value)
+    const index = slidePage.value === 1 ? 0 : (slidePage.value - 1) * slideLimit.value - rest
+    slide(index)
   }
 
   const getPosts = async (getPage) => {
@@ -254,7 +259,6 @@
 
   onMounted(() => {
     getDevice()
-    console.log(props.recent)
   })
 
   await getPosts(1)
