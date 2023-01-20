@@ -265,6 +265,7 @@
 
     .wrap_author {
       position: relative;
+      margin: 6.4rem 0 0;
 
       &:deep(.author) {
         .wrap_avatar {

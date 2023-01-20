@@ -2,7 +2,7 @@
   <Info>
     <template #createdAt>
       <li>
-        <span class="createdAt">{{ dayjs(post.createdAt).format('YYYY. M. D') }}</span>
+        <span class="createdAt">{{ getTime(post.createdAt) }}</span>
       </li>
     </template>
 
@@ -15,8 +15,9 @@
 </template>
 
 <script>
+  import { ref, onMounted } from 'vue'
   import Info from '../slots/Info.vue'
-  import dayjs from 'dayjs'
+  import { getTime } from '../../common/time.js'
 
   export default {
     name: 'InfoSlot',
@@ -29,8 +30,10 @@
         required: true,
       },
     },
-    setup() {
-      return { dayjs }
+    setup(props) {
+      const createAt = ref(null)
+
+      return { getTime }
     },
   }
 </script>

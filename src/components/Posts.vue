@@ -14,7 +14,7 @@
   <div class="posts">
     <ul>
       <div :id="type" ref="POST_EL">
-        <template v-if="posts.length">
+        <template v-if="posts?.length">
           <TransitionGroup
             name="fade"
             @before-enter="beforeEnter"

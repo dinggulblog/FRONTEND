@@ -33,6 +33,7 @@
   import { defineComponent, ref, computed, provide } from 'vue'
   import { useStore } from 'vuex'
   import MyHeader from './components/global/MyHeader.vue'
+  import { getTime } from './common/time.js'
 
   export default defineComponent({
     name: 'app',

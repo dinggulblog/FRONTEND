@@ -37,7 +37,7 @@
     </template>
 
     <template #createdAt>
-      <span>{{ dayjs(post.createdAt).format('YYYY. M. D') }}</span>
+      <span>{{ getTime(post.createdAt) }}</span>
     </template>
 
     <template #comment_count>
@@ -61,6 +61,7 @@
   import slide from '../slots/Slide.vue'
   import recent from '../slots/Recent.vue'
   import DEFAULT_THUMBNAIL from '../../assets/default_thumbnail.webp'
+  import { getTime } from '../../common/time.js'
 
   export default {
     name: 'PostsSlot',
@@ -83,6 +84,7 @@
     },
     setup(props) {
       const LIKE_EL = ref(null)
+      const createAt = ref(null)
 
       onMounted(() => {
         if (props.post.liked) LIKE_EL.value?.classList?.add('is-like')
@@ -90,9 +92,10 @@
 
       return {
         markdownText,
-        dayjs,
+        createAt,
         LIKE_EL,
         DEFAULT_THUMBNAIL,
+        getTime,
       }
     },
   }
