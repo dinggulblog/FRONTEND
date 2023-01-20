@@ -97,13 +97,16 @@
     },
   })
   const { commit, dispatch } = useStore()
-  const isAllMobileDevice = ref(false)
+
   //const isAllMobile = useMedia('only screen and (max-width: 1199px)')
+  const isAllMobileDevice = ref(false)
   const isDesktop = useMedia('(min-width: 1200px)')
   const isTabletLandScape = useMedia('(min-width: 1024px) and (max-width: 1199px)')
   const isTablet = useMedia('(min-width: 768px) and (max-width: 1023px)')
   const isMobile = useMedia('(min-width: 0px) and (max-width: 767px)')
 
+  const MOBILE_LSIT =
+    /Android|Mobile|iP(hone|od|ad)|BlackBerry|I EMobile|Kindle|NetFront|Silk-Accelerated|(hpw|web)OS|Fennec|Minimo|Opera M(obi|ini)|Blazer|Dolfin|Dolphin|Skyfire|Zune/
   const POST_EL = ref(null)
 
   const posts = ref([]) // 게시물 배열
@@ -119,10 +122,10 @@
 
   /* Slide 변수 */
   const slidePage = ref(1) // 현재 보고 있는 페이지
+  const slideIndex = ref(0) // 슬라이드 인덱스
   const slideLimit = computed(() => (isDesktop.value ? limit.value / 2 : limit.value / 4)) // 한 번의 슬라이드에 넘길 게시물 갯수
-  const slideMaxPage = computed(() =>
-    props.recent ? Math.ceil(posts.value.length / slideLimit.value) : Math.ceil(maxCount.value / slideLimit.value)
-  ) // 슬라이드 가능한 페이지 상한값
+  const slideMaxPage = computed(() => Math.ceil(maxCount.value / slideLimit.value)) // 슬라이드 가능한 페이지 상한값
+  const slideRest = computed(() => slideMaxPage.value * slideLimit.value - maxCount.value) // 슬라이드 마지막 페이지에 모자란 게시물 갯수
   /* Slide 변수 끝 */
 
   // 게시물 요청 쿼리
@@ -136,18 +139,6 @@
     userId: computed(() => props.userId),
   })
 
-  const getDevice = () => {
-    isAllMobileDevice.value =
-      navigator.userAgent.match(
-        /Android|Mobile|iP(hone|od|ad)|BlackBerry|I EMobile|Kindle|NetFront|Silk-Accelerated|(hpw|web)OS|Fennec|Minimo|Opera M(obi|ini)|Blazer|Dolfin|Dolphin|Skyfire|Zune/
-      ) === null
-        ? false
-        : true
-    if (isAllMobileDevice.value) {
-      POST_EL.value.style.overflowX = 'auto'
-    }
-  }
-
   const onUpdatePage = (updatePage) => {
     if (maxPage.value < updatePage || props.recent) return
     page.value = updatePage
@@ -159,10 +150,8 @@
     slidePage.value = updatePage
   }
 
-  const slide = (index) => {
-    if (!POST_EL.value) return
-
-    const target = POST_EL.value.querySelector(`li[data-index="${index}"]`)
+  const slide = (idx) => {
+    const target = POST_EL.value?.querySelector(`li[data-index="${idx}"]`)
     if (!target) return
 
     const parent = POST_EL.value.getBoundingClientRect().left
@@ -172,18 +161,23 @@
     POST_EL.value.style.transition = 'all 0.3s'
   }
 
+  const updateIndex = (idx) => {
+    slideIndex.value = idx
+  }
+
   // Slide index is - (0) 4 8 12 ...
   const nextSlide = () => {
     if (slidePage.value === slideMaxPage.value) return
 
     onUpdateSlidePage(slidePage.value + 1)
-    const rest = slideMaxPage.value * slideLimit.value - (props.recent ? 8 : maxCount.value)
-    const index =
-      slidePage.value === slideMaxPage.value
-        ? (slidePage.value - 1) * slideLimit.value - rest
-        : (slidePage.value - 1) * slideLimit.value
-    console.log(rest, maxCount.value)
-    slide(index)
+
+    const idx = !isDesktop.value
+      ? (slidePage.value - 1) * slideLimit.value
+      : slidePage.value !== slideMaxPage.value
+      ? (slidePage.value - 1) * slideLimit.value
+      : (slidePage.value - 1) * slideLimit.value - slideRest.value
+    updateIndex(idx)
+    slide(slideIndex.value)
   }
 
   // Slide index is - ... 12, 8, 4, 0
@@ -191,16 +185,17 @@
     if (slidePage.value === 1) return
 
     onUpdateSlidePage(slidePage.value - 1)
-    const rest = slideMaxPage.value * slideLimit.value - (props.recent ? 8 : maxCount.value)
-    const index = slidePage.value === 1 ? 0 : (slidePage.value - 1) * slideLimit.value - rest
-    slide(index)
+    //const idx = slidePage.value !== 1 ? (slidePage.value - 1) * slideLimit.value - slideRest.value : 0
+    const idx = (slidePage.value - 1) * slideLimit.value
+    updateIndex(idx)
+    slide(slideIndex.value)
   }
 
   const getPosts = async (getPage) => {
     const { success, posts: newPosts, maxCount: newMaxCount } = await dispatch('post/getPosts', query)
     if (!success) throw new Error('게시물을 받아오는 도중 에러가 발생하였습니다.')
 
-    maxCount.value = newMaxCount || maxCount.value
+    if (newMaxCount) maxCount.value = props.recent ? limit.value : newMaxCount
     posts.value.splice((getPage - 1) * limit.value, limit.value, ...newPosts)
   }
 
@@ -216,19 +211,22 @@
     el.style.transitionDelay = ''
   }
 
+  const getDevice = () => {
+    isAllMobileDevice.value = navigator.userAgent.match(MOBILE_LSIT) === null ? false : true
+    if (isAllMobileDevice.value) POST_EL.value.style.overflowX = 'auto'
+  }
+
   watch(
     isDesktop,
     (newIsDesktop, oldIsDesktop) => {
       if (!newIsDesktop && oldIsDesktop) {
         // PC -> Mobile로 갈 때
         onUpdateSlidePage(slidePage.value * 2 - 1)
-        const index = (slidePage.value - 1) * slideLimit.value
-        slide(POST_EL.value, index)
-      } else if (newIsDesktop) {
+        slide(slideIndex.value)
+      } else if (newIsDesktop && !oldIsDesktop) {
         // Mobile -> PC로 갈 때
         onUpdateSlidePage(Math.ceil(slidePage.value / 2))
-        const index = (slidePage.value - 1) * slideLimit.value
-        slide(POST_EL.value, index)
+        slide(slideIndex.value)
       }
     },
     { flush: 'post' }
@@ -236,13 +234,9 @@
 
   watch(
     [isTabletLandScape, isTablet, isMobile],
-    ([newIsTabletLandScape, newIsTablet, newIsMobile], [oldIsTabletLandScape, oldIsTablet, oldIsMobile]) => {
-      if (newIsTabletLandScape || newIsTablet || newIsMobile) {
-        // Mobile 안에서 바뀔 떄
-        const index = (slidePage.value - 1) * slideLimit.value
-        console.log(index)
-        slide(POST_EL.value, index)
-      }
+    ([newIsTabletLandScape, newIsTablet, newIsMobile], [, ,]) => {
+      // Mobile 안에서 바뀔 때
+      if (newIsTabletLandScape || newIsTablet || newIsMobile) slide(slideIndex.value)
     },
     { flush: 'post' }
   )
@@ -257,11 +251,8 @@
     }
   )
 
-  onMounted(() => {
-    getDevice()
-  })
-
   await getPosts(1)
+  getDevice()
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
@@ -306,7 +297,7 @@
 
     .wrap_btn_slidePage {
       position: absolute;
-      top: -3.5rem;
+      top: -4rem;
       width: 100%;
       height: 100%;
       display: flex;
@@ -317,7 +308,7 @@
       }
 
       @include mobile {
-        top: -8rem;
+        top: -6rem;
       }
 
       .btn_old,
@@ -386,6 +377,8 @@
     scrollbar-width: none;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    position: relative;
+    z-index: 9;
 
     &::-webkit-scrollbar {
       display: none; /* Chrome, Safari, Opera*/

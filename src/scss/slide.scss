@@ -1,6 +1,4 @@
 .slide_item {
-  position: relative;
-  z-index: 9;
   transition: box-shadow 0.25s ease-in 0s, transform 0.25s ease-in 0s;
 
   .thumbnail {
@@ -68,16 +66,7 @@
       font-size: 1.4rem;
     }
 
-    @include tablet {
-      margin: 3.2rem 0 0;
-    }
-
-    @include tablet_landscape {
-      margin: 3.2rem 0 0;
-    }
-
     @include mobile {
-      margin: 3.2rem 0 0;
       flex-direction: column;
     }
 
