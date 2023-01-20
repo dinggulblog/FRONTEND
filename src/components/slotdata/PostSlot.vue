@@ -12,10 +12,6 @@
       </div>
     </template>
 
-    <template #num>
-      <span class="number">{{ post.postNum }}</span>
-    </template>
-
     <template #category>
       <span>{{ post.category }}</span>
     </template>
@@ -34,6 +30,11 @@
 
     <template #summary>
       <p>{{ markdownText(post.content) }}</p>
+    </template>
+
+    <template #author>
+      <span class="by">by.</span>
+      <span class="nickname">{{ post.author.nickname }}</span>
     </template>
 
     <template #createdAt>
@@ -69,7 +70,7 @@
       type: {
         type: String,
         default: 'list',
-        validator: (value) => ['list', 'card', 'slide'].includes(value),
+        validator: (value) => ['list', 'card', 'slide', 'recent'].includes(value),
       },
       post: {
         type: Object,
@@ -88,6 +89,7 @@
 
       onMounted(() => {
         if (props.post.liked) LIKE_EL.value?.classList?.add('is-like')
+        console.log(props.post)
       })
 
       return {

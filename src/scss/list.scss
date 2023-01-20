@@ -76,7 +76,7 @@
         display: flex;
         line-height: 1.5;
         width: 100%;
-        margin: 6.4rem 0 0;
+        margin: 4.8rem 0 0;
 
         @include mobile_all {
           font-size: 1.4rem;
@@ -92,7 +92,6 @@
 
         @include mobile {
           margin: 3.2rem 0 0;
-          flex-direction: column;
         }
 
         span,
@@ -111,15 +110,9 @@
 
         .createdAt {
           &::after {
-            content: '•';
-            margin: 0 1.2rem;
+            content: '·';
+            margin: 0 0.8rem;
             color: var(--list_info);
-          }
-
-          @include mobile {
-            &::after {
-              display: none;
-            }
           }
         }
 
@@ -127,15 +120,6 @@
           display: flex;
           align-items: center;
           margin: 0 0 0 1.6rem;
-
-          @include mobile {
-            margin: 0 1.2rem 0 0;
-            &::before {
-              content: '•';
-              margin: 0 1.2rem 0;
-              color: var(--list_info);
-            }
-          }
         }
       }
     }

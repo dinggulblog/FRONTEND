@@ -86,8 +86,8 @@
 
     .createdAt {
       &::after {
-        content: '•';
-        margin: 0 1.2rem;
+        content: '·';
+        margin: 0 0.8rem;
         color: var(--list_info);
       }
 
@@ -106,8 +106,8 @@
       @include mobile {
         margin: 0 1.2rem 0 0;
         &::before {
-          content: '•';
-          margin: 0 1.2rem 0;
+          content: '·';
+          margin: 0 0.8rem;
           color: var(--list_info);
         }
       }

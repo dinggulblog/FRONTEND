@@ -134,7 +134,6 @@
         display: flex;
         justify-content: flex-end;
         width: 100%;
-        margin: 4.8rem 0 0;
       }
 
       @include mobile {
@@ -261,27 +260,27 @@
             position: relative;
             top: 0;
             display: flex;
-            margin: 3.2rem 0 0 3.6rem;
-            border-left: 1px solid var(--primary);
+            margin: 3.2rem 0 0 0rem;
             border-radius: 0;
             box-shadow: 0 0;
             padding: 0;
           }
 
-          ul {
+          ul.nav_item_child {
             display: flex;
             justify-content: center;
             border-radius: 3.2rem;
             background: var(--primary-dark);
-            width: auto;
             padding: 0 2.4rem;
             box-shadow: 0 0.6rem 1.6rem rgba(0, 0, 0, 0.12);
+            width: auto;
 
             @include mobile_all {
-              padding: 0 0 0 3.2rem;
+              padding: 0;
               background-color: transparent;
               box-shadow: 0 0;
-              border-radius: 0 0;
+              border-radius: 0;
+              margin: 0 0 0 4.8rem;
             }
 
             li {
@@ -295,6 +294,10 @@
                 display: block;
                 height: auto;
                 margin: 0 0 3.2rem 0;
+
+                &:last-child {
+                  margin: 0;
+                }
               }
 
               a {
@@ -329,12 +332,13 @@
       .item_number {
         display: flex;
         flex-direction: row;
+        align-items: center;
 
         &::before {
           @include mobile_all {
             counter-increment: number 1;
             content: counter(number, decimal-leading-zero);
-            margin: 0 3.2rem 0 0;
+            width: 4.8rem;
             font-size: 1.6rem;
             font-weight: 500;
             color: var(--primary-dark);

@@ -2,9 +2,32 @@
   <div class="home">
     <div class="recent_tranding">
       <h2 class="h2_recent_tranding">Tranding Posts</h2>
+      <ul class="recent_tranding_sort_btns" style="display: flex; margin-bottom: 3.2rem">
+        <li style="margin-right: 0.8rem">
+          <Button
+            class="btn_sort_view"
+            content="조회수순"
+            size="sm"
+            :customColor="trandingType === 'view' ? 'var(--primary)' : 'var(--text-light)'"
+            :customPadding="'0'"
+            @click="onChangeTrandingType('view')"
+          />
+        </li>
+        <li>
+          <Button
+            class="btn_sort_like"
+            content="좋아요순"
+            size="sm"
+            :customColor="trandingType === 'like' ? 'var(--primary)' : 'var(--text-light)'"
+            :customPadding="'0'"
+            @click="onChangeTrandingType('like')"
+            style="margin-left: 1.2rem"
+          />
+        </li>
+      </ul>
       <Suspense>
         <template #default>
-          <Posts :menu="state.menu.menus.sol" :type="'recent'" :recent="true" />
+          <Posts :menu="state.menu.menus.sol" :type="'recent'" :recent="true" v-model:sort="trandingType" />
         </template>
         <template #fallback>
           <span>게시물 로딩 중...</span>
@@ -22,10 +45,10 @@
       </template>
     </Suspense>
 
-    <h2 class="h2_recent_review_ming">Recent Review Posts by SOL</h2>
+    <h2 class="h2_recent_review_ming">Recent Review Posts by MING</h2>
     <Suspense>
       <template #default>
-        <Posts :menu="slideSolMenu" :type="'slide'" :recent="true" />
+        <Posts :menu="slideMingMenu" :type="'slide'" :recent="true" />
       </template>
       <template #fallback>
         <span>게시물 로딩 중...</span>
@@ -47,8 +70,13 @@
     setup() {
       const { state } = useStore()
       const error = ref(null)
+      const trandingType = ref('view')
       const slideSolMenu = ref(null)
       const slideMingMenu = ref(null)
+
+      const onChangeTrandingType = (type) => {
+        trandingType.value = type
+      }
 
       const getSolMenu = (sub) => {
         slideSolMenu.value = state.menu.menus.sol.filter((main) => main.sub === sub)
@@ -60,9 +88,10 @@
 
       onBeforeMount(() => {
         getSolMenu('album')
+        getMingMenu('album')
       })
 
-      return { state, slideSolMenu }
+      return { state, trandingType, slideSolMenu, slideMingMenu, onChangeTrandingType }
     },
   })
 </script>
@@ -107,6 +136,27 @@
 
       &:nth-child(2n) {
         margin-right: 0;
+      }
+    }
+
+    .recent_tranding_sort_btns {
+      .btn {
+        position: relative;
+
+        &::after {
+          padding-bottom: 2rem;
+          border-bottom: solid 0.1rem var(--primary);
+          content: '';
+          inset: 0;
+          position: absolute;
+          transform: scaleX(0);
+          transition: transform 0.25s ease-in;
+          z-index: -1;
+        }
+
+        &:hover::after {
+          transform: scaleX(1);
+        }
       }
     }
   }

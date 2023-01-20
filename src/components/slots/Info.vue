@@ -1,17 +1,13 @@
 <template>
   <div class="info">
     <ul>
-      <slot name="author"></slot>
       <slot name="createdAt"></slot>
       <slot name="category"></slot>
-      <slot name="reply_count"></slot>
-      <slot name="is-public"></slot>
     </ul>
   </div>
 </template>
 
-<script>
-</script>
+<script></script>
 
 <style lang="scss" rel="stylesheet/scss">
   .info {
@@ -20,8 +16,8 @@
       align-items: center;
 
       li {
-        margin: 0 2.4rem 0 0;
-        padding: 0 0 0 2.4rem;
+        margin: 0 1.2rem 0 0;
+        padding: 0 0 0 1.2rem;
         display: flex;
         align-items: center;
         position: relative;
@@ -53,19 +49,15 @@
         }
 
         .author {
-          display: flex;
           align-items: center;
           flex-direction: row;
 
           .avatar {
-            margin: 0 0 0 0;
-          }
-        }
-
-        .info_ico {
-          i {
-            font-size: 1.6rem;
-            margin-top: 0.2rem;
+            width: 3.2rem;
+            height: 3.2rem;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 0.8rem 0 0;
           }
         }
       }

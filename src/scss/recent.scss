@@ -69,36 +69,22 @@
         align-items: center;
         margin: 1.2rem 0 0;
 
-        div {
-          .info_ico {
-            margin: 0 0.8rem 0 0;
-            color: var(--list_info);
-
-            svg {
-              &.is-like {
-                color: #f3c7c7;
-              }
-            }
-          }
-          span {
-            font-size: 1.2rem;
-            color: var(--list_info);
-          }
+        span {
+          font-size: 1.2rem;
+          color: var(--list_info);
         }
 
-        .comment_count {
-          margin: 0 3.2rem 0 4.8rem;
-
-          a {
-            display: flex;
-            align-items: center;
+        .author {
+          .by {
+            margin: 0 0.4rem 0 0;
+            font-style: italic;
           }
-        }
 
-        .comment_count,
-        .like_count {
-          display: flex;
-          align-items: center;
+          &::after {
+            content: '·';
+            margin: 0 0.8rem;
+            color: var(--list_info);
+          }
         }
       }
     }

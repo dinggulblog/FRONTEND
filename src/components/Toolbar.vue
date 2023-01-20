@@ -136,8 +136,17 @@
       font-size: 1.4rem;
       margin: 0 0 4.8rem;
 
+      @include mobile {
+        flex-direction: column;
+      }
+
       .breadcrumb {
         flex-basis: 50%;
+
+        @include mobile {
+          width: 100%;
+        }
+
         ul {
           display: flex;
           list-style: none;
@@ -174,12 +183,24 @@
         flex-basis: 50%;
         justify-content: flex-end;
 
+        @include mobile {
+          width: 100%;
+          justify-content: flex-start;
+          margin: 2.4rem 0 0;
+        }
+
         button {
           display: flex;
           align-items: center;
           transition: all 0.3s ease;
           margin: 0 0 0 1.2rem;
           color: var(--text-light);
+
+          @include mobile {
+            &:first-child {
+              margin: 0;
+            }
+          }
 
           svg.on {
             fill: var(--primary-dark);

@@ -40,7 +40,7 @@
       customBgColor: {
         type: String,
       },
-      customBoderColor: {
+      customBorderColor: {
         type: String,
       },
       customColor: {
@@ -84,7 +84,7 @@
         color: props.customColor ?? '',
         background: props.customBgColor ?? '',
         border: props.customBorder ?? '',
-        borderColor: props.customBoderColor ?? '',
+        borderColor: props.customBorderColor ?? '',
         fontSize: props.customFontSize ?? '',
       }))
 

@@ -15,7 +15,6 @@
 </template>
 
 <script>
-  import { ref, onMounted } from 'vue'
   import Info from '../slots/Info.vue'
   import { getTime } from '../../common/time.js'
 
@@ -31,8 +30,6 @@
       },
     },
     setup(props) {
-      const createAt = ref(null)
-
       return { getTime }
     },
   }

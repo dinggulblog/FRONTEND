@@ -1,28 +1,26 @@
 <template>
-  <div id="root">
-    <div id="header">
-      <MyHeader />
-    </div>
+  <div id="header">
+    <MyHeader />
+  </div>
 
-    <div class="content-container">
-      <div id="content">
-        <router-view />
-      </div>
+  <div class="content-container">
+    <div id="content">
+      <router-view />
     </div>
+  </div>
 
-    <div id="footer">
-      <div class="wrap_contents">
-        <p class="links">
-          <a href="https://github.com/dinggulblog" target="_blank">
-            <Ico size="lg" svg="github" class="ico_link" />dinggul project github
-          </a>
-        </p>
-      </div>
+  <div id="footer">
+    <div class="wrap_contents">
+      <p class="links">
+        <a href="https://github.com/dinggulblog" target="_blank">
+          <Ico size="lg" svg="github" class="ico_link" />dinggul project github
+        </a>
+      </p>
     </div>
+  </div>
 
-    <div class="btn_create" v-if="isLogin">
-      <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
-    </div>
+  <div class="btn_create" v-if="isLogin">
+    <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
   </div>
 
   <Dialog ref="DIALOG_EL"></Dialog>
@@ -234,8 +232,7 @@
     position: sticky;
     top: 0;
     z-index: 999;
-    width: 100%;
-    margin: 0 0 2.4rem;
+    background: #fff;
   }
 
   .content-container {
@@ -245,6 +242,7 @@
     #content {
       width: calc(120rem - 4.8rem);
       margin: 0 2.4rem;
+      padding: 3.2rem 0 0;
       box-sizing: border-box;
 
       @include mobile {

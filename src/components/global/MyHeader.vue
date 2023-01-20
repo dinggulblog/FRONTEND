@@ -228,9 +228,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
-    z-index: 5;
     width: 100%;
+    margin: 0 0 0;
+    border-bottom: 1px solid #e5e5e5;
 
     .bar {
       display: flex;
@@ -314,17 +314,20 @@
 
             .auth_items {
               justify-content: center;
-              padding: 5.6rem 0 0;
+              padding: 4rem 0 0;
 
               ul {
                 background-color: var(--border-light);
                 box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.2);
+                border-radius: 1.2rem;
                 cursor: default;
+                position: relative;
+                z-index: 999;
               }
 
               li {
                 width: 10rem;
-                margin: 2.4rem 0;
+                margin: 2rem 0;
                 text-align: center;
 
                 @include tablet_landscape {
@@ -360,10 +363,8 @@
   .container_gnb {
     display: flex;
     justify-content: center;
-    position: relative;
-    z-index: 3;
     width: 100%;
-    border-top: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
 
     @include mobile_all {
       display: flex;
@@ -377,7 +378,7 @@
       display: flex;
       align-items: center;
       width: calc(120rem - 4.8rem);
-      height: 6.4rem;
+      height: 4.8rem;
       background-color: #fff;
 
       @include mobile_all {

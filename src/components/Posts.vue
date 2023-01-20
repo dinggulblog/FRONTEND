@@ -1,6 +1,6 @@
 <template>
   <!-- Slide toolbar -->
-  <div v-if="type === 'slide'" class="wrap_slide_toolbar">
+  <div v-if="type === 'slide' && !recent" class="wrap_slide_toolbar">
     <div class="slide_category">
       <span class="category">{{ category }}</span>
     </div>
@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-  import { defineProps, ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
+  import { defineProps, ref, reactive, computed, watch, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import { useMedia } from '../common/mediaQuery'
   import PostSlot from './slotdata/PostSlot.vue'
@@ -72,7 +72,7 @@
     type: {
       type: String,
       default: 'list',
-      validator: (value) => ['list', 'card', 'slide'].includes(value),
+      validator: (value) => ['list', 'card', 'slide', 'recent'].includes(value),
     },
     category: {
       type: String,
@@ -91,9 +91,10 @@
       type: Boolean,
       default: false,
     },
-    recentTitle: {
+    sort: {
       type: String,
-      default: 'Title',
+      required: false,
+      validator: (value) => ['view', 'like'].includes(value),
     },
   })
   const { commit, dispatch } = useStore()
@@ -105,7 +106,7 @@
   const isTablet = useMedia('(min-width: 768px) and (max-width: 1023px)')
   const isMobile = useMedia('(min-width: 0px) and (max-width: 767px)')
 
-  const MOBILE_LSIT =
+  const MOBILE_LIST =
     /Android|Mobile|iP(hone|od|ad)|BlackBerry|I EMobile|Kindle|NetFront|Silk-Accelerated|(hpw|web)OS|Fennec|Minimo|Opera M(obi|ini)|Blazer|Dolfin|Dolphin|Skyfire|Zune/
   const POST_EL = ref(null)
 
@@ -118,7 +119,7 @@
   const skip = computed(() => (page.value - 1) * limit.value)
   const menu = computed(() => props.menu.map(({ _id }) => _id))
   const category = computed(() => props.category)
-  const hasThumbnail = computed(() => props.type === 'slide')
+  const hasThumbnail = computed(() => props.type === 'slide' && !props.recent)
 
   /* Slide 변수 */
   const slidePage = ref(1) // 현재 보고 있는 페이지
@@ -137,6 +138,7 @@
     hasThumbnail: false,
     filter: computed(() => props.filter),
     userId: computed(() => props.userId),
+    sort: computed(() => props.sort),
   })
 
   const onUpdatePage = (updatePage) => {
@@ -212,8 +214,8 @@
   }
 
   const getDevice = () => {
-    isAllMobileDevice.value = navigator.userAgent.match(MOBILE_LSIT) === null ? false : true
-    if (isAllMobileDevice.value) POST_EL.value.style.overflowX = 'auto'
+    isAllMobileDevice.value = navigator.userAgent.match(MOBILE_LIST) === null ? false : true
+    if (isAllMobileDevice.value && props.type === 'slide') POST_EL.value.style.overflowX = 'auto'
   }
 
   watch(
@@ -242,17 +244,21 @@
   )
 
   watch(
-    () => [props.menu, props.category, props.filter],
+    () => [props.menu, props.category, props.filter, props.sort],
     () => {
       window.scrollTo({ left: 0, top: 0, behavior: 'smooth' })
       posts.value = []
       onUpdatePage(1)
       onUpdateSlidePage(1)
+      getPosts(1)
     }
   )
 
   await getPosts(1)
-  getDevice()
+
+  onMounted(() => {
+    getDevice()
+  })
 </script>
 
 <style lang="scss" rel="stylesheet/scss">

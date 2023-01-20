@@ -16,6 +16,9 @@
           <slot name="summary"></slot>
         </div>
         <div class="wrap_info">
+          <div class="author">
+            <slot name="author"></slot>
+          </div>
           <div class="createdAt">
             <slot name="createdAt"></slot>
           </div>

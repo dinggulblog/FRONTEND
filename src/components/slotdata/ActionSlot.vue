@@ -77,22 +77,21 @@
     .wrap_dropbox_items {
       display: none;
       position: absolute;
-      top: 3.2rem;
+      top: 1.6rem;
       right: 0;
       z-index: 30;
 
       ul {
         width: 9.6rem;
-        border-radius: 2.4rem;
-        padding: 0.8rem 1.2rem;
-        box-shadow: 0 0.1rem 2rem rgb(0 0 0 / 16%);
+        border-radius: 1.2rem;
+        padding: 0.1rem 1.2rem;
+        box-shadow: 0 0.1rem 2rem rgb(0 0 0 / 20%);
         background: #fff;
 
         li {
           display: flex;
           justify-content: center;
-          padding: 0.4rem 0;
-          margin: 1.2rem 0;
+          margin: 2rem 0;
           font-size: 1.2rem;
           color: var(--input_text);
 

@@ -29,7 +29,11 @@
 
         <ActionSlot
           ref="DROPBOX_SLOT_EL"
-          :dropboxItems="{ '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }"
+          :dropboxItems="
+            profile.nickname === post.author.nickname
+              ? { '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }
+              : { '링크 복사': onCopyLink }
+          "
         />
       </div>
     </div>
@@ -73,6 +77,7 @@
           class="btn_link"
           :content="linkedPost.title"
           :customFontSize="'1.4rem'"
+          :customColor="'var(--btn_text)'"
           :customPadding="'0'"
           @click="onPushPost(linkedPost._id)"
         />
@@ -82,8 +87,9 @@
 </template>
 
 <script setup>
-  import { defineProps, defineEmits, ref } from 'vue'
+  import { defineProps, defineEmits, ref, reactive, computed } from 'vue'
   import { useRouter } from 'vue-router'
+  import { useStore } from 'vuex'
   import { throttle } from '../common/util.js'
   import Markdown from 'vue3-markdown-it'
   import MarkdownEmoji from 'markdown-it-emoji'
@@ -101,9 +107,14 @@
   const emits = defineEmits(['updateLike', 'deletePost'])
 
   const { push } = useRouter()
+  const { state } = useStore()
 
   const plugins = ref([{ plugin: MarkdownEmoji }])
   const DROPBOX_SLOT_EL = ref(null)
+
+  const profile = reactive({
+    nickname: computed(() => state.auth.profile.nickname),
+  })
 
   const onAction = () => {
     if (DROPBOX_SLOT_EL.value) DROPBOX_SLOT_EL.value.onToggle()
@@ -241,28 +252,6 @@
       }
     }
 
-    .wrap_link {
-      margin: 4.8rem 0 4.8rem;
-      border-top: 1px solid #e5e5e5;
-
-      .link {
-        display: flex;
-        padding: 1.6rem 0;
-
-        &:first-child,
-        &:last-child {
-          border-bottom: 1px solid #e5e5e5;
-        }
-      }
-
-      span {
-        font-size: 1.4rem;
-        margin: 0 1.4rem 0 0;
-        color: var(--primary-dark);
-        font-weight: 500;
-      }
-    }
-
     .wrap_author {
       position: relative;
       margin: 6.4rem 0 0;
@@ -284,6 +273,11 @@
           .nickname {
             font-size: 1.6rem;
             font-weight: 500;
+            width: 10rem;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            word-break: break-all;
           }
 
           .greetings {
@@ -310,6 +304,38 @@
         font-size: 1.4rem;
         text-decoration: underline;
         color: var(--secondary);
+        margin: 0.3rem 0 0;
+      }
+    }
+
+    .wrap_link {
+      margin: 4.8rem 0 4.8rem;
+      border-top: 1px solid #e5e5e5;
+
+      .link {
+        display: flex;
+        padding: 1.6rem 0;
+        width: 100%;
+
+        &:first-child,
+        &:last-child {
+          border-bottom: 1px solid #e5e5e5;
+        }
+
+        span {
+          font-size: 1.4rem;
+          margin: 0 1.2rem 0 0;
+          color: var(--primary-dark);
+          font-weight: 500;
+          min-width: 4rem;
+        }
+
+        .btn_link {
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
       }
     }
   }
