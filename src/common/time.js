@@ -20,7 +20,6 @@ export const getTime = (createdAt) => {
   })
 
   const time = ref(null)
-  console.log(calcTime)
 
   // 60 = 1분
   if (calcTime < 60) {
