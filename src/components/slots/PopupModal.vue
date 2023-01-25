@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <Transition name="fade">
+    <Transition name="fade_up">
       <div class="popup-modal" v-if="isVisible">
         <slot></slot>
       </div>
@@ -29,28 +29,6 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.5s ease;
-  }
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-
-  .fade-enter-active {
-    animation: fadeIn 0.3s;
-  }
-
-  @keyframes fadeIn {
-    from {
-      transform: translateY(4rem);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-
   .popup-modal {
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;

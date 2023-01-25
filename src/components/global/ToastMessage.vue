@@ -1,5 +1,5 @@
 <template>
-  <Transition name="fade">
+  <Transition name="fade_down">
     <div class="toast-message" v-if="isVisible">
       <Ico :size="'md'" :svg="state.type" :customColor="state.color" class="ico_system" />
       {{ state.message }}
@@ -38,29 +38,7 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.5s ease;
-  }
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-
-  .fade-enter-active {
-    animation: fadeIn 0.3s;
-  }
-
-  @keyframes fadeIn {
-    from {
-      transform: translateY(-4rem);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-
-  .toast-message {
+ .toast-message {
     display: flex;
     position: fixed;
     align-items: center;

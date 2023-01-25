@@ -52,7 +52,7 @@
     </div>
   </div>
 
-  <Transition name="gnb_fade">
+  <Transition name="fade_left">
     <div class="container_gnb" v-if="gnbState.display">
       <div class="gnb">
         <Navigation
@@ -67,7 +67,7 @@
     </div>
   </Transition>
 
-  <Transition name="search_fade">
+  <Transition name="fade_down">
     <div class="container_searchForm" v-if="searchState.display">
       <SearchForm />
     </div>
@@ -153,77 +153,6 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  /* gnb fade */
-  .gnb_fade-enter-active {
-    transition: opacity 0.5s ease;
-  }
-  .gnb_fade-enter-from,
-  .gnb_fade-leave-to {
-    opacity: 0;
-  }
-
-  .gnb_fade-enter-active {
-    animation: gnbfadeIn 0.3s;
-  }
-
-  .gnb_fade-leave-active {
-    animation: gnbfadeOut 0.3s;
-  }
-
-  @keyframes gnbfadeIn {
-    from {
-      transform: translateX(-4rem);
-    }
-    to {
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes gnbfadeOut {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-4rem);
-    }
-  }
-
-  /* search fade */
-
-  .search_fade-enter-active,
-  .search_fade-leave-active {
-    transition: opacity 0.5s ease;
-  }
-  .search_fade-enter-from,
-  .search_fade-leave-to {
-    opacity: 0;
-  }
-
-  .search_fade-enter-active {
-    animation: searchfadeIn 0.3s;
-  }
-
-  .search_fade-leave-active {
-    animation: searchfadeOut 0.3s;
-  }
-
-  @keyframes searchfadeIn {
-    from {
-      transform: translateY(-4rem);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes searchfadeOut {
-    from {
-      transform: translateY(0);
-    }
-    to {
-      transform: translateY(-4rem);
-    }
-  }
   .container_bar {
     display: flex;
     justify-content: center;

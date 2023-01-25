@@ -31,7 +31,6 @@
   import { defineComponent, ref, computed, provide } from 'vue'
   import { useStore } from 'vuex'
   import MyHeader from './components/global/MyHeader.vue'
-  import { getTime } from './common/time.js'
 
   export default defineComponent({
     name: 'app',
@@ -56,6 +55,7 @@
 
 <style lang="scss" rel="stylesheet/scss">
   @import './scss/common.scss';
+  @import './scss/fade.scss';
 
   #header {
     position: sticky;
@@ -141,6 +141,7 @@
     position: absolute;
     bottom: 4.8rem;
     right: 4.8rem;
+    z-index: 15;
 
     @include mobile {
       bottom: 2.4rem;

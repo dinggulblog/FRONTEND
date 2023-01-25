@@ -16,7 +16,7 @@
       <div :id="type" ref="POST_EL">
         <template v-if="posts?.length">
           <TransitionGroup
-            name="fade"
+            name="fade_up"
             @before-enter="beforeEnter"
             @after-enter="afterEnter"
             @enter-cancelled="afterEnter"
@@ -262,30 +262,8 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.5s ease;
-  }
-
-  .fade-leave-active {
+  .fade_up-leave-active {
     transition: opacity 0s;
-  }
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-
-  .fade-enter-active {
-    animation: fadeIn 0.3s;
-  }
-
-  @keyframes fadeIn {
-    from {
-      transform: translateY(4rem);
-    }
-    to {
-      transform: translateY(0);
-    }
   }
 
   .posts {

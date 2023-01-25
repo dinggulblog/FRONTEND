@@ -1,5 +1,5 @@
 <template>
-  <transition name="fade">
+  <transition name="fade_up">
     <div class="bottom-sheet" v-if="isVisible">
       <div class="wrap_items">
         <ul>
@@ -35,28 +35,6 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.5s ease;
-  }
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-
-  .fade-enter-active {
-    animation: fadeIn 0.3s;
-  }
-
-  @keyframes fadeIn {
-    from {
-      transform: translateY(4rem);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-
   .bottom-sheet {
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
