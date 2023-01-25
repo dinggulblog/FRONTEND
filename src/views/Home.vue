@@ -99,11 +99,11 @@
 <style lang="scss" rel="stylesheet/scss" scoped>
   .home {
     font-size: 1.4rem;
-    color: var(--text-dark);
+    color: var(--text10);
 
     h2 {
       margin: 6.4rem 0 3.2rem 0;
-      color: var(--primary-dark);
+      color: var(--primary);
 
       &:first-child {
         margin: 0 0 3.2rem 0;

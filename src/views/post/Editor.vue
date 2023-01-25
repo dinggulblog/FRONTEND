@@ -469,7 +469,7 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          border-bottom: 1px solid #ddd;
+          border-bottom: 1px solid var(--border3);
           width: 27rem;
           font-size: 1.4rem;
           margin-right: 2.4rem;
@@ -484,7 +484,7 @@
           select {
             width: 100%;
             font-size: 1.4rem;
-            color: var(--text-light);
+            color: var(--text9);
             height: 4.8rem;
             background-color: transparent;
             font-family: 'Roboto', 'Noto Sans KR', sans-serif;
@@ -520,7 +520,7 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid var(--border3);
       margin: 2.4rem 0 1.6rem;
       width: 100%;
       height: 4.8rem;
@@ -534,13 +534,13 @@
         width: 80%;
 
         input {
-          color: var(--text-light);
+          color: var(--text9);
           font-size: 1.4rem;
           width: 100%;
         }
 
         input::placeholder {
-          color: var(--text-light);
+          color: var(--text9);
           font-size: 1.4rem;
         }
       }
@@ -601,7 +601,7 @@
         cursor: pointer;
         text-transform: uppercase;
         letter-spacing: 0.1rem;
-        color: var(--text-light);
+        color: var(--text9);
         display: flex;
         align-items: center;
         padding: 1.2rem 2.4rem 1.2rem 0;
@@ -643,14 +643,14 @@
               padding: 0.2rem;
 
               &.selected_thumbnail {
-                border: 2px solid var(--primary-dark);
+                border: 2px solid var(--primary);
               }
             }
             .image_del_btn {
               position: absolute;
               bottom: -0.6rem;
               right: -0.6rem;
-              color: var(--secondary-dark);
+              color: var(--primary);
 
               i {
                 font-size: 2.2rem;

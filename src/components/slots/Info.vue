@@ -24,7 +24,7 @@
 
         span {
           font-size: 1.3rem;
-          color: var(--list_info-dark);
+          color: var(--text4);
         }
 
         &::before {
@@ -33,7 +33,7 @@
           left: 0;
           width: 0.01rem;
           height: 1.2rem;
-          background-color: var(--border-dark);
+          background-color: var(--border3);
         }
 
         &:first-child {

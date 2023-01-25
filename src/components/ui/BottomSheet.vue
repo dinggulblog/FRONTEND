@@ -55,8 +55,8 @@
     width: 100%;
     font-weight: 400;
     letter-spacing: 0.05rem;
-    box-shadow: 0 0 2.4rem 0.3rem rgba(0, 0, 0, 0.05);
-    background: #fff;
+    box-shadow: var(--shadow1);
+    background: var(--bg1);
     border-radius: 3.2rem 3.2rem 0 0;
     padding: 2.4rem 3.2rem;
 
@@ -66,7 +66,7 @@
 
         span {
           font-size: 1.6rem;
-          color: #aaa;
+          color: var(--text8);
           cursor: pointer;
         }
       }

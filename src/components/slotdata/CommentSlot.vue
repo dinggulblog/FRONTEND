@@ -10,18 +10,18 @@
             <Button
               v-if="!isVisible.commentEditor"
               class="btn_reply"
-              content="답글 작성"
-              customPadding="0"
-              :customColor="`var(--primary-dark)`"
+              :content="'답글 작성'"
+              :customPadding="'0'"
+              :customColor="`var(--primary)`"
               @click="onCreateEditor"
             />
 
             <Button
               v-else
               class="btn_reply"
-              content="에디터 닫기"
-              customPadding="0"
-              :customColor="`var(--primary-dark)`"
+              :content="'에디터 닫기'"
+              :customPadding="'0'"
+              :customColor="`var(--primary)`"
               @click="onCloseEditor"
             />
           </div>
@@ -29,10 +29,10 @@
         <div class="wrap_right">
           <Button
             class="btn_dropbox"
-            size="sm"
-            svg="more"
-            customPadding="0"
-            :customColor="`var(--list_info)`"
+            :size="'sm'"
+            :svg="'more'"
+            :customPadding="'0'"
+            :customColor="`var(--text3)`"
             @click="onAction"
           />
 
@@ -42,7 +42,7 @@
       <div class="content">
         <p>
           <span v-if="comment.parentComment" class="receiver">@ {{ parentComment?.commenter?.nickname }}</span>
-          <Ico v-if="!comment.isPublic" class="lock_ico" :size="'sm'" :svg="'lock'" :customColor="'var(--list_info)'" />
+          <Ico v-if="!comment.isPublic" class="lock_ico" :size="'sm'" :svg="'lock'" :customColor="'--text3'" />
           <span v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</span>
           <span v-else>{{ comment.content }}</span>
         </p>
@@ -90,7 +90,7 @@
         :svg="!isVisible.childComments ? 'arrow-down' : 'arrow-up'"
         :size="'xs'"
         :content="'답글 ' + comment.childCommentCount + '개'"
-        :customColor="'var(--primary-dark)'"
+        :customColor="'var(--primary)'"
         :customFontSize="'1.4rem'"
         :customPadding="'0'"
         @click="!isVisible.childComments ? onDisplayChildComment() : onHiddenChildComment()"
@@ -300,7 +300,7 @@
         p {
           display: flex;
           align-items: center;
-          color: #bababa;
+          color: var(--text5);
           font-size: 1.4rem;
 
           .lock_ico {
@@ -309,7 +309,7 @@
 
           .receiver {
             font-weight: 500;
-            color: var(--secondary-dark);
+            color: var(--primary);
             border-radius: 3.2rem;
             margin: 0 0.8rem 0 0;
           }
@@ -323,7 +323,7 @@
     flex-direction: column;
     margin: 0 0 0rem;
     font-size: 1.4rem;
-    color: #bababa;
+    color: var(--text5);
 
     .content {
       margin: 0 0 6.4rem;

@@ -80,7 +80,7 @@
 
     label {
       white-space: nowrap;
-      color: var(--primary-dark);
+      color: var(--primary);
     }
 
     input {
@@ -89,13 +89,13 @@
       outline: none;
       font-weight: 400;
       background: transparent;
-      border-bottom: 0.1rem solid #e0e0e0;
+      border-bottom: 0.1rem solid var(--border2);
       width: 100%;
-      color: #999;
+      color: var(--text10);
     }
 
     input::placeholder {
-      color: #bbb;
+      color: var(--text4);
     }
 
     .help-message {

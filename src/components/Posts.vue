@@ -319,7 +319,7 @@
 
     .empty_posts {
       font-size: 1.4rem;
-      color: var(--text-light);
+      color: var(--text9);
       text-transform: capitalize;
     }
   }
@@ -386,7 +386,7 @@
       align-items: center;
       width: 30%;
       font-size: 1.6rem;
-      color: var(--primary-dark);
+      color: var(--primary);
       text-transform: uppercase;
       position: relative;
 
@@ -398,7 +398,7 @@
           position: absolute;
           width: 0.1rem;
           height: 1.6rem;
-          background-color: var(--primary-dark);
+          background-color: var(--primary);
           top: 0.6rem;
           left: 0;
         }
@@ -414,11 +414,11 @@
       width: 100%;
 
       .nowPage {
-        color: var(--primary-dark);
+        color: var(--primary);
       }
 
       .maxPage {
-        color: #c7c7c7;
+        color: var(--text4);
 
         &::before {
           content: '/';

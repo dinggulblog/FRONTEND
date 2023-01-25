@@ -61,10 +61,6 @@
     setup(props) {
       const { avatar, nickname, greetings } = toRefs(props.profile)
 
-      onMounted(() => {
-        console.log(nickname.value)
-      })
-
       return {
         DEFAULT_AVATAR_192,
         DEFAULT_AVATAR_64,

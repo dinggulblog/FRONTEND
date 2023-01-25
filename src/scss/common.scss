@@ -1,39 +1,45 @@
-/* Font cdn */
+/* Font cdn - Noto Sans KR, Roboto */
 
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Roboto+Condensed:wght@700&family=Roboto:wght@300;400;500;700&display=swap');
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
-@import url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff');
 
 :root {
   /* color */
 
   --primary: #9496e1;
   --primary-dark: #9496e1;
-  --secondary: #9496e1;
-  --secondary-dark: #9496e1;
 
   --likeActive: #f3c7c7;
   --likeActive-dark: #ff6d6d;
+
   --success: #4cd964;
   --warning: #ffc861;
   --error: #ff3b30;
   --success-light: #e4f3e5;
   --warning-light: #fff0d9;
   --error-light: #fde3e1;
-  --text-light: #a5a5a5;
-  --text-dark: #333;
-  --thumbnail: #e6e6e6;
-  --list_title: #a9a9a9;
-  --list_summary: #bababa;
-  --list_info: #d0d0d0;
-  --list_info-light: #e0e0e0;
-  --list_info-dark: #bbbbbb;
-  --input_text: #b0b0b0;
-  --btn_border: #e5e5e5;
-  --btn_text: #b7b7b7;
-  --border-light: #efefef;
-  --border-dark: #dddddd;
+
+  --text1: #ffffff;
+  --text2: #e0e0e0;
+  --text3: #d0d0d0;
+  --text4: #bbbbbb;
+  --text5: #bababa;
+  --text6: #b7b7b7;
+  --text7: #b0b0b0;
+  --text8: #a9a9a9;
+  --text9: #a5a5a5;
+  --text10: #999;
+  --text11: #333;
+
+  --border1: #efefef;
+  --border2: #e5e5e5;
+  --border3: #dddddd;
+
+  --bg1: #ffffff;
+  --bg2: #fcfcfc;
+
+  --shadow1: 0 0.1rem 2rem rgba(0, 0, 0, 0.2);
+
+  --empty: #e6e6e6;
 
   /* size */
 
@@ -179,6 +185,7 @@ button {
     display: flex;
   }
 }
+
 .dropdown_items {
   position: absolute;
   top: 0;

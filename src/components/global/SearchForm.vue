@@ -3,8 +3,7 @@
     <div class="searchForm">
       <input class="searchForm__text" type="text" :placeholder="'검색어를 입력해주세요'" />
       <div class="searchForm__btn">
-        <Button class="btn_search" :size="'md'" :svg="'search'" :customColor="'var(--primary)'" :customPadding="'0'">
-        </Button>
+        <Button class="btn_search" :size="'md'" :svg="'search'" :customColor="'var(--primary)'" :customPadding="'0'"/>
       </div>
     </div>
   </div>

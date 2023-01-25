@@ -71,15 +71,15 @@
         width: 9.6rem;
         border-radius: 1.2rem;
         padding: 0.1rem 1.2rem;
-        box-shadow: 0 0.1rem 2rem rgb(0 0 0 / 20%);
-        background: #fff;
+        box-shadow: var(--shadow1);
+        background: var(--bg1);
 
         &:deep(li) {
           display: flex;
           justify-content: center;
           margin: 2rem 0;
           font-size: 1.2rem;
-          color: var(--input_text);
+          color: var(--text7);
 
           span {
             cursor: pointer;

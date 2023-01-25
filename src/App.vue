@@ -20,7 +20,7 @@
   </div>
 
   <div class="btn_create" v-if="isLogin">
-    <router-link :to="{ name: 'editor' }" class="a_create"><i class="material-icons">create</i></router-link>
+    <router-link :to="{ name: 'editor' }" class="a_create"><Ico size="md" svg="create" /></router-link>
   </div>
 
   <Dialog ref="DIALOG_EL"></Dialog>
@@ -61,7 +61,7 @@
     position: sticky;
     top: 0;
     z-index: 999;
-    background: #fff;
+    background: var(--bg1);
   }
 
   .content-container {
@@ -97,7 +97,7 @@
     font-size: 1.2rem;
     color: #a5a5a5;
     letter-spacing: 0.1rem;
-    border-top: 1px solid #e5e5e5;
+    border-top: 1px solid var(--border2);
     height: 8rem;
     display: flex;
     justify-content: center;
@@ -154,10 +154,10 @@
       align-items: center;
       width: 4.8rem;
       height: 4.8rem;
-      color: #fff;
-      background-color: var(--secondary);
+      color: var(--text1);
+      background-color: var(--primary);
       border-radius: 50%;
-      box-shadow: 0 0.8rem 1.6rem rgba(0, 0, 0, 0.12);
+      box-shadow: var(--shadow1);
     }
   }
 </style>

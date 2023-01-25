@@ -112,7 +112,7 @@
       grid-column: 1 / 2;
       grid-template-columns: repeat(2, auto);
       align-items: center;
-      color: var(--point);
+      color: var(--primary);
       cursor: pointer;
       justify-content: end;
     }
@@ -122,7 +122,7 @@
       grid-column: 3 / 4;
       grid-template-columns: repeat(2, auto);
       align-items: center;
-      color: var(--point);
+      color: var(--primary);
       cursor: pointer;
       justify-content: start;
 

@@ -2,7 +2,7 @@
   margin: 0 0 6.4rem;
 
   .wrap_contents {
-    border-top: 1px solid #e5e5e5;
+    border-top: 1px solid var(--border2);
     padding: 6.4rem 0 0 0;
     display: flex;
     flex-direction: row;
@@ -38,7 +38,7 @@
 
         a {
           font-size: 2rem;
-          color: var(--list_title);
+          color: var(--text8);
           overflow: hidden;
           white-space: normal;
           text-overflow: ellipsis;
@@ -64,7 +64,7 @@
           overflow: hidden;
           line-height: 2rem;
           font-size: 1.4rem;
-          color: var(--list_summary);
+          color: var(--text5);
 
           @include mobile_all {
             font-size: 1.6rem;
@@ -97,7 +97,7 @@
         span,
         a {
           font-size: 1.2rem;
-          color: var(--list_info);
+          color: var(--text3);
         }
 
         .wrap_comment_like {
@@ -112,7 +112,7 @@
           &::after {
             content: '·';
             margin: 0 0.8rem;
-            color: var(--list_info);
+            color: var(--text3);
           }
         }
 

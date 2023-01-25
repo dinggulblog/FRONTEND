@@ -1,7 +1,7 @@
 <template>
   <Transition name="fade_down">
     <div class="toast-message" v-if="isVisible">
-      <Ico :size="'md'" :svg="state.type" :customColor="state.color" class="ico_system" />
+      <Ico class="ico_system" :size="'md'" :svg="state.type" :customColor="state.color" />
       {{ state.message }}
     </div>
   </Transition>
@@ -38,7 +38,7 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
- .toast-message {
+  .toast-message {
     display: flex;
     position: fixed;
     align-items: center;
@@ -51,7 +51,7 @@
     background: v-bind('state.bgColor');
     color: v-bind('state.color');
     border-color: v-bind('state.color');
-    box-shadow: 0 0.1rem 2rem rgb(0 0 0 / 16%);
+    box-shadow: var(--shadow1);
     border: 1px solid;
     font-size: 1.4rem;
     padding: 2.4rem;

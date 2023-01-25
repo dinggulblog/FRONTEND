@@ -38,7 +38,7 @@
       width: 85%;
 
       a {
-        color: var(--list_title);
+        color: var(--text8);
         overflow: hidden;
         white-space: normal;
         text-overflow: ellipsis;
@@ -51,7 +51,7 @@
 
       .info_ico {
         margin: 0 0 0 1.2rem;
-        color: var(--list_info);
+        color: var(--text3);
       }
     }
   }
@@ -73,7 +73,7 @@
     span,
     a {
       font-size: 1.2rem;
-      color: var(--list_info);
+      color: var(--text3);
     }
 
     .wrap_comment_like {
@@ -88,7 +88,7 @@
       &::after {
         content: '·';
         margin: 0 0.8rem;
-        color: var(--list_info);
+        color: var(--text3);
       }
 
       @include mobile {
@@ -108,7 +108,7 @@
         &::before {
           content: '·';
           margin: 0 0.8rem;
-          color: var(--list_info);
+          color: var(--text3);
         }
       }
     }

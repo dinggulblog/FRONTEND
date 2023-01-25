@@ -17,7 +17,7 @@
 
         span {
           font-size: 1.4rem;
-          color: var(--secondary-dark);
+          color: var(--primary);
           text-decoration: underline;
         }
       }
@@ -30,7 +30,7 @@
 
         a {
           font-size: 1.6rem;
-          color: var(--list_title);
+          color: var(--text8);
           overflow: hidden;
           white-space: normal;
           text-overflow: ellipsis;
@@ -56,7 +56,7 @@
           overflow: hidden;
           line-height: 2rem;
           font-size: 1.4rem;
-          color: var(--list_summary);
+          color: var(--text5);
 
           @include mobile_all {
             font-size: 1.6rem;
@@ -71,7 +71,7 @@
 
         span {
           font-size: 1.2rem;
-          color: var(--list_info);
+          color: var(--text3);
         }
 
         .author {
@@ -83,7 +83,7 @@
           &::after {
             content: '·';
             margin: 0 0.8rem;
-            color: var(--list_info);
+            color: var(--text3);
           }
         }
       }

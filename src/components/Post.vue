@@ -7,7 +7,7 @@
           <div class="title">
             <h2>{{ post.title }}</h2>
             <span v-if="!post.isPublic" class="lock_ico">
-              <Ico :size="'md'" :svg="'lock'" :customColor="'var(--list_info)'" />
+              <Ico :size="'md'" :svg="'lock'" :customColor="'--text3'" />
             </span>
           </div>
         </div>
@@ -22,7 +22,7 @@
           class="btn_dropbox"
           size="sm"
           svg="more"
-          :customColor="`var(--list_info)`"
+          :customColor="`var(--text3)`"
           :customPadding="'0'"
           @click="onAction"
         />
@@ -70,7 +70,7 @@
           class="btn_link"
           :content="linkedPost.title"
           :customFontSize="'1.4rem'"
-          :customColor="'var(--btn_text)'"
+          :customColor="'var(--text6)'"
           :customPadding="'0'"
           @click="onPushPost(linkedPost._id)"
         />
@@ -163,7 +163,7 @@
         flex-direction: column;
         flex-basis: 80%;
         padding: 0 0 0 2.4rem;
-        border-left: 1px solid var(--primary-dark);
+        border-left: 1px solid var(--primary);
 
         .wrap_title {
           margin-bottom: 2.4rem;
@@ -174,7 +174,7 @@
 
             h2 {
               font-size: 2rem;
-              color: var(--list_title);
+              color: var(--text8);
               font-weight: 400;
               overflow: hidden;
               white-space: normal;
@@ -204,7 +204,7 @@
     .content {
       margin: 6.4rem 0;
       font-size: 1.4rem;
-      color: var(--input_text);
+      color: var(--text7);
       line-height: 2.2rem;
 
       .markdown > p {
@@ -228,7 +228,7 @@
         justify-content: center;
 
         span {
-          color: var(--list_info);
+          color: var(--text3);
           font-size: 1.6rem;
         }
 
@@ -277,7 +277,7 @@
           }
         }
         .wrap_nickname_greetings {
-          color: var(--btn_text);
+          color: var(--text6);
           .nickname {
             font-size: 1.6rem;
             font-weight: 500;
@@ -311,14 +311,14 @@
         right: 0;
         font-size: 1.4rem;
         text-decoration: underline;
-        color: var(--secondary);
+        color: var(--primary);
         margin: 0.3rem 0 0;
       }
     }
 
     .wrap_link {
       margin: 4.8rem 0 4.8rem;
-      border-top: 1px solid #e5e5e5;
+      border-top: 1px solid var(--border2);
 
       .link {
         display: flex;
@@ -327,13 +327,13 @@
 
         &:first-child,
         &:last-child {
-          border-bottom: 1px solid #e5e5e5;
+          border-bottom: 1px solid var(--border2);
         }
 
         span {
           font-size: 1.4rem;
           margin: 0 1.2rem 0 0;
-          color: var(--primary-dark);
+          color: var(--primary);
           font-weight: 500;
           min-width: 4rem;
         }

@@ -3,7 +3,7 @@
     <!-- Close button -->
     <div class="m_menu_close">
       <button class="btn_close" @click="$emit('close')">
-        <i class="material-icons">close</i>
+        <Ico :size="'md'" :svg="'close'" :customColor="'var(--primary)'" />
       </button>
     </div>
 
@@ -47,9 +47,9 @@
           <div class="wrap_nav_item_child dropdown_items">
             <ul class="nav_item_child">
               <li v-for="{ _id, sub } in subMenus" :key="_id">
-                <router-link :to="{ name: 'posts', params: { main, sub } }" @click="$emit('close')">{{
-                  sub
-                }}</router-link>
+                <router-link :to="{ name: 'posts', params: { main, sub } }" @click="$emit('close')">
+                  {{ sub }}
+                </router-link>
               </li>
             </ul>
           </div>
@@ -96,8 +96,8 @@
       height: 100vh;
       padding: 4.8rem 4.8rem;
       font-size: 1.6rem;
-      color: var(--text-light);
-      background-color: #efefef;
+      color: var(--text9);
+      background-color: var(--bg1);
       overflow-y: auto;
 
       a,
@@ -115,7 +115,7 @@
       letter-spacing: 0.2rem;
       font-weight: 500;
       text-transform: uppercase;
-      color: var(--text-light);
+      color: var(--text9);
 
       @include mobile_all {
         margin: 0rem 0;
@@ -124,7 +124,7 @@
     }
 
     a.router-link-active {
-      color: var(--primary-dark);
+      color: var(--primary);
     }
 
     .m_menu_close {
@@ -138,11 +138,6 @@
 
       @include mobile {
         justify-content: center;
-      }
-
-      .btn_close i {
-        font-size: 3.2rem;
-        color: var(--primary);
       }
     }
 
@@ -187,7 +182,7 @@
         .nickname {
           font-size: 1.6rem;
           font-family: 'Noto Sans KR';
-          color: var(--text-light);
+          color: var(--text9);
         }
       }
 
@@ -201,7 +196,7 @@
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.2rem;
-            color: var(--primary-dark);
+            color: var(--primary);
           }
         }
       }
@@ -251,7 +246,7 @@
 
         .wrap_nav_item_child {
           width: 100%;
-          padding: calc(3.2rem + 0.8rem) 0 0;
+          padding: 4.8rem 0 0;
           border-radius: 0 0 3.2rem 3.2rem;
           justify-content: center;
 
@@ -270,9 +265,9 @@
             display: flex;
             justify-content: center;
             border-radius: 3.2rem;
-            background: var(--primary-dark);
+            background: var(--primary);
             padding: 0 2.4rem;
-            box-shadow: 0 0.6rem 1.6rem rgba(0, 0, 0, 0.12);
+            box-shadow: var(--shadow1);
             width: auto;
 
             @include mobile_all {
@@ -302,11 +297,11 @@
 
               a {
                 padding: 1.2rem;
-                color: #fff;
+                color: var(--text1);
 
                 @include mobile_all {
                   padding: 0;
-                  color: var(--text-light);
+                  color: var(--text9);
                 }
               }
             }
@@ -321,7 +316,7 @@
           left: 0;
           width: 0.1rem;
           height: 1.2rem;
-          background-color: var(--border-dark);
+          background-color: var(--bg1);
 
           @include mobile_all {
             display: none;
@@ -341,7 +336,7 @@
             width: 4.8rem;
             font-size: 1.6rem;
             font-weight: 500;
-            color: var(--primary-dark);
+            color: var(--primary);
           }
         }
       }

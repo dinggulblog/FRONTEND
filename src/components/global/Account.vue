@@ -1,7 +1,14 @@
 <template>
   <PopupModal ref="POPUP_EL">
     <div id="account">
-      <Button class="btn_close" size="md" svg="close" customColor="var(--primary)" customPadding="0" @click="close" />
+      <Button
+        class="btn_close"
+        :size="md"
+        :svg="'close'"
+        :customColor="'var(--primary)'"
+        :customPadding="'0'"
+        @click="close"
+      />
 
       <div class="wrap_account">
         <div class="account" ref="ACCOUNT_EL">
@@ -227,8 +234,8 @@
 <style lang="scss" rel="stylesheet/scss" scoped>
   #account {
     width: 37rem;
-    box-shadow: 0 0 2.4rem 0.3rem rgba(0, 0, 0, 0.05);
-    background: #fff;
+    box-shadow: var(--shadow1);
+    background: var(--bg1);
     padding: 2.4rem 3.2rem;
     border-radius: 3.2rem;
     overflow-y: auto;
@@ -260,7 +267,7 @@
         align-items: center;
         justify-content: center;
         font-size: 2.4rem;
-        color: var(--primary-dark);
+        color: var(--primary);
         font-weight: 400;
         margin: 0 0 calc(4.8rem - 3.2rem);
         text-transform: capitalize;
@@ -284,8 +291,8 @@
         justify-content: center;
         width: 100%;
         height: 4rem;
-        color: #fff;
-        background-color: var(--primary-dark);
+        color: var(--text1);
+        background-color: var(--primary);
         border-radius: 3.2rem;
         margin: 4.8rem 0 0;
       }
@@ -299,7 +306,7 @@
           align-items: center;
           justify-content: center;
           .btn_sign-out {
-            color: #aaa;
+            color: var(--text8);
             text-decoration: underline;
           }
         }
@@ -315,13 +322,13 @@
 
           p {
             font-size: 1.2rem;
-            color: #aaa;
+            color: var(--text8);
             margin: 0 0 1.6rem;
           }
 
           .btn_find-account {
             font-size: 1.4rem;
-            color: var(--primary-dark);
+            color: var(--primary);
             text-decoration: underline;
           }
         }
@@ -331,12 +338,12 @@
           align-items: center;
           justify-content: center;
           width: 100%;
-          border-top: 0.1rem solid #ddd;
+          border-top: 0.1rem solid var(--border3);
           padding: 3.2rem 0 0;
 
           .btn_create-account {
             font-size: 1.4rem;
-            color: var(--primary-dark);
+            color: var(--primary);
           }
         }
       }

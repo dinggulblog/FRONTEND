@@ -4,10 +4,10 @@
       <div class="wrap_left">
         <Button
           :class="isMobile ? 'btn_m-toggle' : 'btn_search'"
-          size="md"
+          :size="'md'"
           :svg="isMobile ? 'menu' : searchState.isOpen ? 'close' : 'search'"
-          customColor="#a5a5a5"
-          customPadding="0"
+          :customColor="'var(--text9)'"
+          :customPadding="'0'"
           @click="isMobile ? onToggleGnbVisible() : onToggleSearchVisible()"
         >
         </Button>
@@ -21,7 +21,7 @@
 
       <div class="wrap_right">
         <span class="a_login" v-if="!isMobile && !isLogin" @click="$refs.ACCOUNT_EL.open('login')">
-          <Ico size="md" svg="lock" />
+          <Ico :size="'md'" :svg="'lock'" />
         </span>
 
         <div class="wrap_auth" v-else-if="!isMobile && profile.nickname">
@@ -42,10 +42,10 @@
         <Button
           v-else
           class="btn_search"
-          size="md"
+          :size="'md'"
           :svg="searchState.isOpen ? 'close' : 'search'"
-          customColor="#a5a5a5"
-          customPadding="0"
+          :customColor="'var(--text9)'"
+          :customPadding="'0'"
           @click="onToggleSearchVisible"
         />
       </div>
@@ -159,7 +159,7 @@
     align-items: center;
     width: 100%;
     margin: 0 0 0;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid var(--border2);
 
     .bar {
       display: flex;
@@ -170,7 +170,7 @@
       height: 6.4rem;
       margin: 0 2.4rem;
       font-size: 1.4rem;
-      color: var(--text-light);
+      color: var(--text9);
 
       @include mobile_all {
         font-size: 1.6rem;
@@ -192,7 +192,7 @@
       }
 
       a {
-        color: var(--text-light);
+        color: var(--text9);
       }
 
       .logo {
@@ -246,8 +246,8 @@
               padding: 4rem 0 0;
 
               ul {
-                background-color: var(--border-light);
-                box-shadow: 0 0.1rem 2rem rgba(0, 0, 0, 0.2);
+                background-color: var(--bg2);
+                box-shadow: var(--shadow1);
                 border-radius: 1.2rem;
                 cursor: default;
                 position: relative;
@@ -268,7 +268,7 @@
                 span {
                   font-size: 1.2rem;
                   font-weight: 400;
-                  color: var(--text-light);
+                  color: var(--text9);
                   cursor: pointer;
 
                   @include tablet_landscape {
@@ -293,7 +293,7 @@
     display: flex;
     justify-content: center;
     width: 100%;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid var(--border2);
 
     @include mobile_all {
       display: flex;
@@ -308,7 +308,7 @@
       align-items: center;
       width: calc(120rem - 4.8rem);
       height: 4.8rem;
-      background-color: #fff;
+      background-color: var(--bg1);
 
       @include mobile_all {
         width: auto;
@@ -330,6 +330,6 @@
     width: 100%;
     height: 16rem;
     margin: 6.4rem 0 0 0;
-    background: #fff;
+    background: var(--bg1);
   }
 </style>

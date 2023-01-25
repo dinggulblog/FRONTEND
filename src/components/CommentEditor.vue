@@ -153,12 +153,12 @@
     display: flex;
     flex-direction: column;
     margin: 2.4rem 0 0 0;
-    border: 1px solid #e5e5e5;
+    border: 1px solid var(--border2);
     border-radius: 0.8rem;
     padding: 2rem;
 
     textarea {
-      color: var(--input_text);
+      color: var(--text7);
       font-size: 1.4rem;
       margin: 0 0 1.6rem;
       resize: none;
@@ -166,7 +166,7 @@
       height: 4.8rem;
 
       &::placeholder {
-        color: var(--input_text);
+        color: var(--text7);
       }
 
       &:disabled {

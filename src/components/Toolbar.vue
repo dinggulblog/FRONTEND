@@ -157,7 +157,7 @@
             align-items: center;
 
             a {
-              color: var(--text-light);
+              color: var(--text9);
               letter-spacing: 0.04rem;
               text-transform: uppercase;
               font-weight: 400;
@@ -166,11 +166,11 @@
             &:not(:last-child)::after {
               content: '〉';
               margin: 0 1.4rem 0 1.8rem;
-              color: var(--list_info);
+              color: var(--text3);
             }
 
             &:last-child a {
-              color: var(--primary-dark);
+              color: var(--primary);
               text-decoration: underline;
             }
           }
@@ -194,7 +194,7 @@
           align-items: center;
           transition: all 0.3s ease;
           margin: 0 0 0 1.2rem;
-          color: var(--text-light);
+          color: var(--text9);
 
           @include mobile {
             &:first-child {
@@ -203,7 +203,7 @@
           }
 
           svg.on {
-            fill: var(--primary-dark);
+            fill: var(--primary);
           }
         }
       }
@@ -223,8 +223,8 @@
           padding: 0.8rem 1.6rem;
           font-family: 'Noto Sans KR';
           font-size: 1.4rem;
-          color: var(--text-light);
-          border: 1px solid var(--border-dark);
+          color: var(--text9);
+          border: 1px solid var(--border3);
           border-radius: 2.4rem;
           cursor: pointer;
 
@@ -233,8 +233,8 @@
           }
 
           &.on {
-            color: var(--secondary-dark);
-            border: 1px solid var(--secondary-dark);
+            color: var(--primary);
+            border: 1px solid var(--primary);
           }
         }
 

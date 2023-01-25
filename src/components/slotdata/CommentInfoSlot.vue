@@ -18,7 +18,6 @@
   import Info from '../slots/Info.vue'
   import AuthorSlot from './AuthorSlot.vue'
   import dayjs from 'dayjs'
-  import { onMounted } from 'vue'
 
   export default {
     name: 'CommentInfoSlot',
@@ -34,9 +33,6 @@
       },
     },
     setup(props) {
-      onMounted(() => {
-        console.log(props.comment)
-      })
       return { dayjs }
     },
   }

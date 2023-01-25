@@ -1,6 +1,5 @@
 <template>
   <div class="profile">
-
     <!-- Profile -->
     <form v-on:submit.prevent="submitForm">
       <div class="wrap_author">
@@ -23,12 +22,14 @@
     <!-- Tab menu -->
     <div class="wrap_tab">
       <ul class="tab">
-        <li 
+        <li
           v-for="tab in tabs"
           :key="tab.name"
           :class="tab.name === displayState.tab ? 'isActive' : ''"
           @click="onChangeTab(tab.name)"
-        >{{ tab.content }}</li>
+        >
+          {{ tab.content }}
+        </li>
       </ul>
     </div>
 
@@ -93,7 +94,7 @@
       const tabs = ref([
         { name: 'intro', content: '소개글' },
         { name: 'like', content: '좋아요 한 게시물' },
-        { name: 'comment', content: '댓글 단 게시물' }
+        { name: 'comment', content: '댓글 단 게시물' },
       ])
       const options = ref({
         theme: 'snow',
@@ -104,12 +105,12 @@
             ['blockquote', 'code-block'],
             [{ size: ['small', false, 'large', 'huge'] }],
             [{ header: [1, 2, 3, 4, 5, 6, false] }],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ list: 'ordered' }, { list: 'bullet' }],
             [{ color: [] }, { background: [] }],
-            [{ 'align': [] }],
-            ['clean']
-          ]
-        }
+            [{ align: [] }],
+            ['clean'],
+          ],
+        },
       })
 
       const profileState = reactive({
@@ -122,7 +123,7 @@
 
       const displayState = reactive({
         tab: 'intro',
-        state: 'view'
+        state: 'view',
       })
 
       const myProfile = computed(() => state.auth.profile)
@@ -137,12 +138,16 @@
       }
 
       const onUpdateAvatar = async (event) => {
-        if (myProfile.value.nickname !== profileState.nickname) return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
+        if (myProfile.value.nickname !== profileState.nickname)
+          return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
 
         const formData = new FormData()
         formData.append('avatar', event.target.files[0])
 
-        const { success, profile } = await dispatch('auth/updateProfileAvatar', { nickname: profileState.nickname, payload: formData })
+        const { success, profile } = await dispatch('auth/updateProfileAvatar', {
+          nickname: profileState.nickname,
+          payload: formData,
+        })
 
         if (!success) return TOAST_EL.value.open('error', '아바타 업데이트 도중 에러가 발생하였습니다.')
 
@@ -150,7 +155,8 @@
       }
 
       const resetAvatar = async () => {
-        if (myProfile.value.nickname !== profileState.nickname) return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
+        if (myProfile.value.nickname !== profileState.nickname)
+          return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
 
         const { success } = await dispatch('auth/deleteProfileAvatar', { nickname: profileState.nickname })
 
@@ -164,7 +170,8 @@
       }
 
       const onUpdateGreetings = async () => {
-        if (profileState.greetings.length > 150) return TOAST_EL.value.open('error', '글자 수 제한을 초과하였습니다. (최대 150자까지 허용)')
+        if (profileState.greetings.length > 150)
+          return TOAST_EL.value.open('error', '글자 수 제한을 초과하였습니다. (최대 150자까지 허용)')
         const { success, profile } = await dispatch('auth/updateProfile', {
           nickname: profileState.nickname,
           payload: { greetings: profileState.greetings },
@@ -249,7 +256,7 @@
               padding: 0.8rem 1.2rem;
               border-radius: 3.2rem;
               background: var(--primary);
-              color: #fff;
+              color: var(--text1);
               font-size: 1.1rem;
             }
 
@@ -259,7 +266,7 @@
           }
         }
         .wrap_nickname_greetings {
-          color: var(--btn_text);
+          color: var(--text6);
           width: 100%;
           .nickname {
             font-size: 1.6rem;
@@ -280,14 +287,14 @@
 
           .textarea_greetings {
             margin: 1.6rem 0 0;
-            border: 0.1rem solid #ccc;
+            border: 0.1rem solid var(--border3);
             border-radius: 1.2rem;
             padding: 1.2rem;
             width: 100%;
             min-height: 6.8rem;
             resize: none;
             font-size: 1.4rem;
-            color: var(--text-light);
+            color: var(--text9);
 
             @include mobile {
               min-height: 12rem;
@@ -302,7 +309,7 @@
         right: 0;
         font-size: 1.4rem;
         text-decoration: underline;
-        color: var(--secondary);
+        color: var(--primary);
       }
     }
 
@@ -318,11 +325,11 @@
           margin: 0 1.6rem 0 0;
           list-style: none;
           text-align: center;
-          border: 1px solid #ddd;
+          border: 1px solid var(--border3);
           border-radius: 3.2rem;
           transition: border-color ease 0.5s;
           cursor: pointer;
-          color: var(--text-light);
+          color: var(--text9);
           user-select: none;
           font-size: 1.4rem;
           letter-spacing: 0.1rem;
@@ -333,8 +340,8 @@
           }
 
           &.isActive {
-            border-color: var(--secondary);
-            color: var(--secondary);
+            border-color: var(--primary);
+            color: var(--primary);
           }
         }
 
@@ -350,7 +357,7 @@
   .introduce {
     font-size: 1.6rem;
     .content_intro {
-      color: var(--btn_text);
+      color: var(--text6);
     }
 
     .btn_edit_introduce {
