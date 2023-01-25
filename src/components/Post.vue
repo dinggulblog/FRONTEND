@@ -27,14 +27,7 @@
           @click="onAction"
         />
 
-        <ActionSlot
-          ref="DROPBOX_SLOT_EL"
-          :dropboxItems="
-            profile.nickname === post.author.nickname
-              ? { '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }
-              : { '링크 복사': onCopyLink }
-          "
-        />
+        <ActionSlot ref="DROPBOX_SLOT_EL" :dropboxItems="dropboxItems" />
       </div>
     </div>
 
@@ -87,7 +80,7 @@
 </template>
 
 <script setup>
-  import { defineProps, defineEmits, ref, reactive, computed } from 'vue'
+  import { defineProps, defineEmits, ref, reactive, computed, onBeforeMount } from 'vue'
   import { useRouter } from 'vue-router'
   import { useStore } from 'vuex'
   import { throttle } from '../common/util.js'
@@ -115,6 +108,16 @@
   const profile = reactive({
     nickname: computed(() => state.auth.profile.nickname),
   })
+
+  const dropboxItems = reactive({})
+
+  const setDropboxItems = () => {
+    if (props.post?.author.nickname === profile?.nickname) {
+      dropboxItems['글 수정'] = onUpdatePost
+      dropboxItems['글 삭제'] = onDeletePost
+    }
+    dropboxItems['링크 복사'] = onCopyLink
+  }
 
   const onAction = () => {
     if (DROPBOX_SLOT_EL.value) DROPBOX_SLOT_EL.value.onToggle()
@@ -144,12 +147,17 @@
       alert('링크 복사에 실패하였습니다.')
     }
   }
+
+  onBeforeMount(() => {
+    setDropboxItems()
+  })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   .post {
     .wrap_header {
       display: flex;
+
       .wrap_left {
         display: flex;
         flex-direction: column;

@@ -100,7 +100,7 @@
   }
 </script>
 
-<style lang="scss" rel="stylesheet/scss">
+<style lang="scss" rel="stylesheet/scss" scoped>
   .btn {
     display: flex;
     align-items: center;

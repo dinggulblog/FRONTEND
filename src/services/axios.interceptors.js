@@ -1,5 +1,6 @@
 import axiosInstance from './axios'
 
+
 const setup = (store) => {
   axiosInstance.interceptors.request.use(
     (config) => {
@@ -18,6 +19,7 @@ const setup = (store) => {
 
       return config
     },
+
     (error) => {
       return Promise.reject(error)
     }
@@ -28,6 +30,7 @@ const setup = (store) => {
       store.commit('loading/SET_LOADING', false)
       return response
     },
+
     async (error) => {
       const originalConfig = error.config
 

@@ -3,10 +3,9 @@
     <div class="wrap_item">
       <div class="wrap_header">
         <div class="wrap_left">
-
           <!-- Comment Info -->
           <CommentInfoSlot :comment="comment" />
-          
+
           <div class="wrap_reply_btn">
             <Button
               v-if="!isVisible.commentEditor"
@@ -37,19 +36,13 @@
             @click="onAction"
           />
 
-          <ActionSlot
-            ref="ACTION_SLOT_EL"
-            :dropboxItems="{
-              '댓글 수정': onUpdateEditor,
-              '댓글 삭제': onDeleteComment,
-              '댓글 복사': onCopyComment,
-            }"
-          />
+          <ActionSlot ref="ACTION_SLOT_EL" :dropboxItems="dropboxItems" />
         </div>
       </div>
       <div class="content">
         <p>
           <span v-if="comment.parentComment" class="receiver">@ {{ parentComment?.commenter?.nickname }}</span>
+          <Ico v-if="!comment.isPublic" class="lock_ico" :size="'sm'" :svg="'lock'" :customColor="'var(--list_info)'" />
           <span v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</span>
           <span v-else>{{ comment.content }}</span>
         </p>
@@ -118,7 +111,7 @@
 </template>
 
 <script>
-  import { ref, reactive, computed, inject } from 'vue'
+  import { ref, reactive, computed, inject, onBeforeMount } from 'vue'
   import { useStore } from 'vuex'
   import CommentInfoSlot from './CommentInfoSlot.vue'
   import CommentEditor from '../CommentEditor.vue'
@@ -135,26 +128,26 @@
       comment: {
         type: Object,
         required: true,
-        default: () => ({})
+        default: () => ({}),
       },
       postId: {
         type: String,
         required: true,
-        default: ''
+        default: '',
       },
       author: {
         type: String,
         required: true,
-        default: ''
+        default: '',
       },
       userId: {
         type: String,
         required: false,
-        default: ''
+        default: '',
       },
     },
     setup(props) {
-      const { getters, dispatch } = useStore()
+      const { state, getters, dispatch } = useStore()
 
       const DIALOG_EL = inject('DIALOG_EL')
       const TOAST_EL = inject('TOAST_EL')
@@ -165,8 +158,25 @@
         commentEditor: false,
         childComments: false,
       })
-      const isAuthorized = computed(() => props.comment?.isPublic || props.author === props.userId || props.comment?.commenter?._id === props.userId)
+      const isAuthorized = computed(
+        () => props.comment?.isPublic || props.author === props.userId || props.comment?.commenter?._id === props.userId
+      )
+
+      const profile = reactive({
+        nickname: computed(() => state.auth.profile.nickname),
+      })
+
       const parentComment = computed(() => getters['comment/getParentComment'](props.comment?.parentComment))
+
+      const dropboxItems = reactive({})
+
+      const setDropboxItems = () => {
+        if (props.comment?.commenter.nickname === profile.nickname) {
+          dropboxItems['댓글 수정'] = onUpdateEditor
+          dropboxItems['댓글 삭제'] = onDeleteComment
+        }
+        dropboxItems['댓글 복사'] = onCopyComment
+      }
 
       const onAction = () => {
         ACTION_SLOT_EL.value.onToggle()
@@ -178,8 +188,16 @@
           message: '해당 댓글을 삭제하시겠습니까?\n한번 삭제된 댓글은 되돌릴 수 없습니다.',
         })
         if (ok) {
-          const { success, error } = await dispatch('comment/deleteComment', { id: props.comment._id, postId: props.postId, commenterId: props.userId })
-          if (!success) TOAST_EL.value.open('error', error)
+          const { success, error } = await dispatch('comment/deleteComment', {
+            id: props.comment._id,
+            postId: props.postId,
+            commenterId: props.userId,
+          })
+          if (success) {
+            TOAST_EL.value.open('success', '댓글이 삭제되었습니다.')
+          } else {
+            TOAST_EL.value.open('error', error)
+          }
         }
       }
 
@@ -214,12 +232,17 @@
         }
       }
 
+      onBeforeMount(() => {
+        setDropboxItems()
+      })
+
       return {
         ACTION_SLOT_EL,
         isUpdate,
         isVisible,
         isAuthorized,
         parentComment,
+        dropboxItems,
         onAction,
         onDeleteComment,
         onCreateEditor,
@@ -235,7 +258,7 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   .comment_items > li > ul {
-    margin: -2.4rem 0 0 4.8rem;
+    margin: -2.4rem 0 0 2.4rem;
   }
 
   .comment_item {
@@ -258,9 +281,11 @@
         }
 
         .wrap_right {
-          width: 10%;
           display: flex;
-          justify-content: flex-end;
+          flex-direction: column;
+          flex-basis: 20%;
+          align-items: flex-end;
+          justify-content: center;
         }
       }
 
@@ -268,11 +293,19 @@
         display: flex;
         flex-direction: column;
 
+        &:deep(.btn) {
+          justify-content: start;
+        }
+
         p {
           display: flex;
           align-items: center;
           color: #bababa;
           font-size: 1.4rem;
+
+          .lock_ico {
+            margin: 0 0.8rem 0 0;
+          }
 
           .receiver {
             font-weight: 500;

@@ -89,7 +89,6 @@
 
       onMounted(() => {
         if (props.post.liked) LIKE_EL.value?.classList?.add('is-like')
-        console.log(props.post)
       })
 
       return {
@@ -102,5 +101,3 @@
     },
   }
 </script>
-
-<style lang="scss" rel="stylesheet/scss" scoped></style>

@@ -11,20 +11,6 @@
         <span class="createdAt">{{ dayjs(comment.createdAt).format('YYYY년 M월 D일') }}</span>
       </li>
     </template>
-
-    <template #comment_count>
-      <li>
-        <span class="child_count">답글 {{ comment?.childCommentCount ?? 0 }}개</span>
-      </li>
-    </template>
-
-    <template #is-public v-if="!comment.isPublic">
-      <li>
-        <span class="info_ico">
-          <Ico :svg="'lock'" :size="'sm'"></Ico>
-        </span>
-      </li>
-    </template>
   </Info>
 </template>
 
@@ -32,6 +18,7 @@
   import Info from '../slots/Info.vue'
   import AuthorSlot from './AuthorSlot.vue'
   import dayjs from 'dayjs'
+  import { onMounted } from 'vue'
 
   export default {
     name: 'CommentInfoSlot',
@@ -43,10 +30,13 @@
       comment: {
         type: Object,
         required: true,
-        default: () => ({})
+        default: () => ({}),
       },
     },
-    setup() {
+    setup(props) {
+      onMounted(() => {
+        console.log(props.comment)
+      })
       return { dayjs }
     },
   }

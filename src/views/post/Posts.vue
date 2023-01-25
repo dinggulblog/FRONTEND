@@ -74,7 +74,7 @@
   })
 </script>
 
-<style lang="scss" rel="stylesheet/scss">
+<style lang="scss" rel="stylesheet/scss" scoped>
   .ul_slide > li:first-child > .wrap_slide_toolbar {
     margin-top: 0;
   }

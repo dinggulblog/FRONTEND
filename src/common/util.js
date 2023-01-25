@@ -31,3 +31,11 @@ export const searchParentComment = (parentComment, parentId = null) => {
 
   return null
 }
+
+export const resizeTextarea = (e) => {
+  e.target.style.height = ''
+  e.target.style.height = e.target.scrollHeight + 'px'
+}
+
+
+

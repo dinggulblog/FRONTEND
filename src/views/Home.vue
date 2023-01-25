@@ -7,7 +7,7 @@
           <Button
             class="btn_sort_view"
             content="조회수순"
-            size="sm"
+            size="md"
             :customColor="trandingType === 'view' ? 'var(--primary)' : 'var(--text-light)'"
             :customPadding="'0'"
             @click="onChangeTrandingType('view')"
@@ -17,7 +17,7 @@
           <Button
             class="btn_sort_like"
             content="좋아요순"
-            size="sm"
+            size="md"
             :customColor="trandingType === 'like' ? 'var(--primary)' : 'var(--text-light)'"
             :customPadding="'0'"
             @click="onChangeTrandingType('like')"

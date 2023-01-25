@@ -12,7 +12,23 @@
   </div>
 </template>
 
-<script>
-</script>
+<script></script>
 
-<style lang="scss" rel="stylesheet/scss"></style>
+<style lang="scss" rel="stylesheet/scss" scoped>
+  .author {
+    display: flex;
+    align-items: center;
+    font-family: 'Noto Sans KR';
+
+    .wrap_avatar {
+      margin: 0 1.2rem 0 0;
+
+      &:deep(.avatar) {
+        width: 3.2rem;
+        height: 3.2rem;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+    }
+  }
+</style>

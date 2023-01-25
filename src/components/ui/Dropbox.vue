@@ -56,4 +56,40 @@
   }
 </script>
 
-<style lang="scss" rel="stylesheet/scss"></style>
+<style lang="scss" rel="stylesheet/scss" scoped>
+  .dropbox {
+    position: relative;
+
+    .wrap_dropbox_items {
+      display: none;
+      position: absolute;
+      top: 1.2rem;
+      right: 0;
+      z-index: 30;
+
+      ul {
+        width: 9.6rem;
+        border-radius: 1.2rem;
+        padding: 0.1rem 1.2rem;
+        box-shadow: 0 0.1rem 2rem rgb(0 0 0 / 20%);
+        background: #fff;
+
+        &:deep(li) {
+          display: flex;
+          justify-content: center;
+          margin: 2rem 0;
+          font-size: 1.2rem;
+          color: var(--input_text);
+
+          span {
+            cursor: pointer;
+          }
+        }
+      }
+
+      &.show {
+        display: block;
+      }
+    }
+  }
+</style>

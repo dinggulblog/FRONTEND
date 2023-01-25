@@ -5,7 +5,7 @@ const state = () => ({
   post: null,
   posts: null,
   page: 1,
-  maxPage: 1
+  maxPage: 1,
 })
 
 const getters = {}
@@ -21,7 +21,10 @@ const actions = {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
 
       const { data } = await axios.get(`v1/posts/${postId}`)
-      const { success, data: { post } } = data
+      const {
+        success,
+        data: { post },
+      } = data
 
       if (!post?.isActive) throw new Error('비활성화된 게시물입니다.')
 
@@ -38,10 +41,17 @@ const actions = {
    * @param {Object} payload { menu, skip, limit, category, hasThumbnail }
    * @return {Object} { success, posts, maxPage, error }
    */
-  async getPosts({ commit }, payload) {
+  async getPosts({ rootState, commit }, payload) {
     try {
-      const { data } = await axios.get('v1/posts', { params: payload, paramsSerializer: (params) => stringify(params) })
-      const { success, data: { posts, maxCount } } = data
+      const { data } = await axios.get('v1/posts', {
+        params: payload,
+        paramsSerializer: (params) => stringify(params),
+      })
+
+      const {
+        success,
+        data: { posts, maxCount },
+      } = data
 
       return { success, posts, maxCount, error: null }
     } catch (err) {
@@ -59,7 +69,10 @@ const actions = {
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
 
       const { data } = await axios.post('v1/posts', payload)
-      const { success, data: { post } } = data
+      const {
+        success,
+        data: { post },
+      } = data
 
       return { success, post, error: null }
     } catch (err) {
@@ -79,7 +92,10 @@ const actions = {
       if (rootState.auth.id !== authorId) throw new Error('본인 소유의 게시물만 삭제가 가능합니다.')
 
       const { data } = await axios.put(`v1/posts/${postId}`, payload)
-      const { success, data: { post, images } } = data
+      const {
+        success,
+        data: { post, images },
+      } = data
 
       return { success, post, images, error: null }
     } catch (err) {
@@ -96,8 +112,10 @@ const actions = {
     try {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
-      
-      const { data: { success } } = await axios.put(`v1/posts/${postId}/like`)
+
+      const {
+        data: { success },
+      } = await axios.put(`v1/posts/${postId}/like`)
 
       commit('ADD_POST_LIKE')
 
@@ -117,8 +135,10 @@ const actions = {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
       if (rootState.auth.id !== authorId) throw new Error('본인 소유의 게시물만 삭제가 가능합니다.')
-      
-      const { data: { success } } = await axios.delete(`v1/posts/${postId}`)
+
+      const {
+        data: { success },
+      } = await axios.delete(`v1/posts/${postId}`)
 
       commit('SET_POST', null)
 
@@ -138,8 +158,10 @@ const actions = {
     try {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
-      
-      const { data: { success } } = await axios.delete(`v1/posts/${postId}/file`, { data: { image: imageId } })
+
+      const {
+        data: { success },
+      } = await axios.delete(`v1/posts/${postId}/file`, { data: { image: imageId } })
 
       return { success, error: null }
     } catch (err) {
@@ -156,8 +178,10 @@ const actions = {
     try {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
-      
-      const { data: { success } } = await axios.delete(`v1/posts/${postId}/like`)
+
+      const {
+        data: { success },
+      } = await axios.delete(`v1/posts/${postId}/like`)
 
       commit('DELETE_POST_LIKE')
 

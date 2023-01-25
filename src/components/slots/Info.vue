@@ -9,13 +9,13 @@
 
 <script></script>
 
-<style lang="scss" rel="stylesheet/scss">
+<style lang="scss" rel="stylesheet/scss" scoped>
   .info {
     ul {
       display: flex;
       align-items: center;
 
-      li {
+      &:deep(li) {
         margin: 0 1.2rem 0 0;
         padding: 0 0 0 1.2rem;
         display: flex;

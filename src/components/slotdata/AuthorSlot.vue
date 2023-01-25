@@ -1,11 +1,7 @@
 <template>
   <Author>
     <template #avatar>
-      <img
-        class="avatar"
-        :src="avatar?.thumbnail ?? DEFAULT_AVATAR_192"
-        alt="profile_avatar"
-      />
+      <img class="avatar" :src="avatar?.thumbnail ?? DEFAULT_AVATAR_192" alt="profile_avatar" />
     </template>
 
     <template #avatar_upload v-if="state === 'edit'">
@@ -22,7 +18,7 @@
       />
     </template>
 
-    <template #nickname v-if="nickname">
+    <template #nickname>
       <span class="nickname">{{ nickname }}</span>
     </template>
 
@@ -42,11 +38,11 @@
 </template>
 
 <script>
-  import { reactive, toRefs } from 'vue'
+  import { reactive, toRefs, onMounted } from 'vue'
   import Author from '../slots/Author.vue'
   import DEFAULT_AVATAR_192 from '../../assets/default_avatar_192.webp'
   import DEFAULT_AVATAR_64 from '../../assets/default_avatar_64.webp'
-  
+
   export default {
     name: 'AuthorSlot',
     components: {
@@ -65,6 +61,10 @@
     setup(props) {
       const { avatar, nickname, greetings } = toRefs(props.profile)
 
+      onMounted(() => {
+        console.log(nickname.value)
+      })
+
       return {
         DEFAULT_AVATAR_192,
         DEFAULT_AVATAR_64,
@@ -75,30 +75,3 @@
     },
   }
 </script>
-
-<style lang="scss" rel="stylesheet/scss">
-  .author {
-    display: flex;
-    align-items: center;
-    font-family: 'Noto Sans KR';
-
-    .wrap_avatar {
-      margin: 0 1.2rem 0 0;
-
-      .avatar {
-        width: 3.2rem;
-        height: 3.2rem;
-        border-radius: 50%;
-        object-fit: cover;
-      }
-    }
-
-    .nickname {
-      display: block;
-    }
-
-    .time {
-      display: block;
-    }
-  }
-</style>

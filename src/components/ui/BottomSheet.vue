@@ -1,7 +1,7 @@
 <template>
   <transition name="fade">
     <div class="bottom-sheet" v-if="isVisible">
-      <div class="window">
+      <div class="wrap_items">
         <ul>
           <slot></slot>
         </ul>
@@ -34,7 +34,7 @@
   }
 </script>
 
-<style lang="scss" rel="stylesheet/scss">
+<style lang="scss" rel="stylesheet/scss" scoped>
   .fade-enter-active,
   .fade-leave-active {
     transition: opacity 0.5s ease;
@@ -69,13 +69,12 @@
     z-index: 999;
   }
 
-  .window {
+  .wrap_items {
     display: flex;
     flex-direction: column;
     justify-content: center;
     margin: 0 auto;
     width: 100%;
-    height: 24rem;
     font-weight: 400;
     letter-spacing: 0.05rem;
     box-shadow: 0 0 2.4rem 0.3rem rgba(0, 0, 0, 0.05);
@@ -83,7 +82,7 @@
     border-radius: 3.2rem 3.2rem 0 0;
     padding: 2.4rem 3.2rem;
 
-    ul {
+    &:deep(ul) {
       li {
         padding: 1.6rem 0;
 

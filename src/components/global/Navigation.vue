@@ -41,9 +41,9 @@
           <router-link :to="{ name: 'home' }" class="item_number" @click="$emit('close')">home</router-link>
         </li>
         <li v-for="(subMenus, main) in menus" :key="main" class="nav_item dropdown">
-          <router-link :to="{ name: 'posts', params: { main } }" class="item_number" @click="$emit('close')">{{
-            main
-          }}</router-link>
+          <router-link :to="{ name: 'posts', params: { main } }" class="item_number" @click="$emit('close')">
+            {{ main }}
+          </router-link>
           <div class="wrap_nav_item_child dropdown_items">
             <ul class="nav_item_child">
               <li v-for="{ _id, sub } in subMenus" :key="_id">

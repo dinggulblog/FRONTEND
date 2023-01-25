@@ -1,6 +1,13 @@
 <template>
-  <div class="commentEditor">
-    <textarea v-model="content" ref="CONTENT_EL" onfocus="this.placeholder = ''" @blur="handlerBlur"></textarea>
+  <div class="commentEditor" @click="!isLogin ? $refs.ACCOUNT_EL.open('login') : ''">
+    <textarea
+      v-model="content"
+      @input="resizeTextarea"
+      ref="CONTENT_EL"
+      @blur="handlerBlur"
+      :disabled="!isLogin"
+      rows="1"
+    />
 
     <div class="wrap_btns">
       <div class="wrap_toggle">
@@ -15,27 +22,32 @@
             :size="'md'"
             :rounded="true"
             @onClick="!isUpdate ? onCreateComment() : onUpdateComment()"
-          ></Button>
+          />
         </div>
       </div>
     </div>
   </div>
+
+  <Account ref="ACCOUNT_EL"></Account>
 </template>
 
 <script>
-  import { ref, onMounted, watch } from 'vue'
+  import { ref, onMounted, watch, computed } from 'vue'
   import { useRoute } from 'vue-router'
   import { useStore } from 'vuex'
   import Toggle from './ui/Toggle.vue'
-  
+  import Account from './global/Account.vue'
+  import { resizeTextarea } from '../common/util.js'
+
   export default {
     components: {
       Toggle,
+      Account,
     },
     props: {
       postId: {
         type: String,
-        default: ''
+        default: '',
       },
       comment: {
         type: Object,
@@ -48,27 +60,33 @@
       },
       placeholderText: {
         type: String,
-        default: '코멘트를 작성해보세요',
+        default: '댓글을 작성해보세요.',
       },
     },
     setup(props, { emit }) {
       const route = useRoute()
-      const { dispatch } = useStore()
+      const { state, dispatch } = useStore()
+      const isLogin = computed(() => state.auth.isLogin)
+
       const CONTENT_EL = ref(null)
+      const ACCOUNT_EL = ref(null)
 
       const parentId = ref(null)
       const content = ref('')
       const isPublic = ref(true)
+      const placeholderText = computed(() => (isLogin.value ? props.placeholderText : '로그인 후 댓글을 작성해보세요.'))
 
       const handlerBlur = () => {
-        CONTENT_EL.value.placeholder = props.placeholderText
+        CONTENT_EL.value.placeholder = placeholderText.value
       }
 
       const onUpdatedIsPublic = (state) => {
+        if (!isLogin.value) return
         isPublic.value = state
       }
 
       const onCreateComment = async () => {
+        if (!isLogin.value) return
         await dispatch('comment/createComment', {
           postId: props.postId,
           parentId: props.comment ? props.comment._id : '',
@@ -76,10 +94,13 @@
           isPublic: isPublic.value,
         })
         content.value = ''
+        isPublic.value = true
         emit('closeEditor')
+        CONTENT_EL.value.style.height = ''
       }
 
       const onUpdateComment = async () => {
+        if (!isLogin.value) return
         await dispatch('comment/updateComment', {
           id: props.comment._id,
           postId: props.postId,
@@ -87,11 +108,13 @@
           isPublic: isPublic.value,
         })
         content.value = ''
+        isPublic.value = true
         emit('closeEditor')
+        CONTENT_EL.value.style.height = ''
       }
 
       const remountContent = () => {
-        CONTENT_EL.value.placeholder = props.placeholderText
+        CONTENT_EL.value.placeholder = placeholderText.value
         if (!props.comment) {
           return
         } else if (props.isUpdate) {
@@ -110,9 +133,12 @@
 
       return {
         route,
+        isLogin,
         content,
         CONTENT_EL,
+        ACCOUNT_EL,
         isPublic,
+        resizeTextarea,
         handlerBlur,
         onUpdatedIsPublic,
         onCreateComment,
@@ -127,25 +153,30 @@
     display: flex;
     flex-direction: column;
     margin: 2.4rem 0 0 0;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.8rem;
+    padding: 2rem;
 
     textarea {
       color: var(--input_text);
       font-size: 1.4rem;
-      border: 1px solid #e5e5e5;
-      border-radius: 0.8rem;
-      padding: 2rem;
-      resize: vertical;
-      margin: 0 0 2.4rem;
-      min-height: 12.8rem;
+      margin: 0 0 1.6rem;
+      resize: none;
+      overflow-y: hidden;
+      height: 4.8rem;
 
       &::placeholder {
         color: var(--input_text);
+      }
+
+      &:disabled {
+        background-color: transparent;
       }
     }
 
     .wrap_btns {
       display: flex;
-      align-items: center;
+      align-items: flex-end;
 
       .wrap_toggle {
         flex-basis: 50%;
