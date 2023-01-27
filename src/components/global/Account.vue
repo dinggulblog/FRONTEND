@@ -3,7 +3,7 @@
     <div id="account">
       <Button
         class="btn_close"
-        :size="md"
+        :size="'md'"
         :svg="'close'"
         :customColor="'var(--primary)'"
         :customPadding="'0'"
