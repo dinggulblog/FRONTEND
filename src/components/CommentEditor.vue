@@ -158,7 +158,7 @@
     padding: 2rem;
 
     textarea {
-      color: var(--text7);
+      color: var(--text4);
       font-size: 1.4rem;
       margin: 0 0 1.6rem;
       resize: none;
@@ -166,7 +166,7 @@
       height: 4.8rem;
 
       &::placeholder {
-        color: var(--text7);
+        color: var(--text2);
       }
 
       &:disabled {

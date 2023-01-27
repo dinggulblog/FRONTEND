@@ -57,10 +57,22 @@
   @import './scss/common.scss';
   @import './scss/fade.scss';
 
+  @font-face {
+    font-family: 'Noto Sans DemiLight';
+    font-weight: 400;
+    src: url(./assets/NotoSansKR-DemiLight.woff) format('woff');
+  }
+
+  @font-face {
+    font-family: 'Noto Sans Light';
+    font-weight: 400;
+    src: url(./assets/NotoSansKR-Light.woff) format('woff');
+  }
+
   #header {
     position: sticky;
     top: 0;
-    z-index: 999;
+    z-index: 997;
     background: var(--bg1);
   }
 

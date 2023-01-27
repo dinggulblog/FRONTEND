@@ -17,14 +17,20 @@
     </template>
 
     <template #title>
-      <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">{{
-        post.title
-      }}</router-link>
+      <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">
+      {{ post.title }}
+    </router-link>
     </template>
 
     <template #lock_ico>
-      <span class="info_ico" v-if="!post.isPublic">
-        <Ico :size="'sm'" :svg="'lock'" :customColor="type === 'slide' ? '#fff' : 'var(--list_info)'" />
+      <span class="wrap_ico_lock">
+        <Ico
+          v-if="!post.isPublic"
+          :size="'sm'"
+          :svg="'lock'"
+          :customColor="type === 'slide' ? '#fff' : 'var(--text2)'"
+          class="ico_lock"
+        />
       </span>
     </template>
 

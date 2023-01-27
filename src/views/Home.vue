@@ -2,13 +2,13 @@
   <div class="home">
     <div class="recent_tranding">
       <h2 class="h2_recent_tranding">Tranding Posts</h2>
-      <ul class="recent_tranding_sort_btns" style="display: flex; margin-bottom: 3.2rem">
+      <ul class="recent_tranding_sort_btns">
         <li style="margin-right: 0.8rem">
           <Button
             class="btn_sort_view"
             content="조회수순"
             size="md"
-            :customColor="trandingType === 'view' ? 'var(--primary)' : 'var(--text-light)'"
+            :customColor="trandingType === 'view' ? 'var(--primary)' : 'var(--text3)'"
             :customPadding="'0'"
             @click="onChangeTrandingType('view')"
           />
@@ -18,7 +18,7 @@
             class="btn_sort_like"
             content="좋아요순"
             size="md"
-            :customColor="trandingType === 'like' ? 'var(--primary)' : 'var(--text-light)'"
+            :customColor="trandingType === 'like' ? 'var(--primary)' : 'var(--text3)'"
             :customPadding="'0'"
             @click="onChangeTrandingType('like')"
             style="margin-left: 1.2rem"
@@ -27,7 +27,7 @@
       </ul>
       <Suspense>
         <template #default>
-          <Posts :menu="state.menu.menus.sol" :type="'recent'" :recent="true" v-model:sort="trandingType" />
+          <Posts :type="'recent'" :recent="true" v-model:sort="trandingType" />
         </template>
         <template #fallback>
           <span>게시물 로딩 중...</span>
@@ -59,7 +59,7 @@
 
 <script>
   import Posts from '../components/Posts.vue'
-  import { defineComponent, ref, onBeforeMount, onErrorCaptured } from 'vue'
+  import { defineComponent, ref, onBeforeMount, onErrorCaptured, onMounted } from 'vue'
   import { useStore } from 'vuex'
 
   export default defineComponent({
@@ -99,7 +99,7 @@
 <style lang="scss" rel="stylesheet/scss" scoped>
   .home {
     font-size: 1.4rem;
-    color: var(--text10);
+    color: var(--text3);
 
     h2 {
       margin: 6.4rem 0 3.2rem 0;
@@ -140,6 +140,9 @@
     }
 
     .recent_tranding_sort_btns {
+      display: flex;
+      margin-bottom: 3.2rem;
+
       .btn {
         position: relative;
 

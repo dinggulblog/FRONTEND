@@ -16,7 +16,9 @@ const actions = {
   // param: Object (email, password)
   async login({ commit }, payload) {
     try {
-      const { data: { success } } = await axios.post('v1/auth', payload)
+      const {
+        data: { success },
+      } = await axios.post('v1/auth', payload)
 
       if (!success) throw new Error('로그인에 실패하였습니다.')
 
@@ -31,7 +33,9 @@ const actions = {
   // params: none
   async refresh({ commit }) {
     try {
-      const { data: { success } } = await axios.put('v1/auth')
+      const {
+        data: { success },
+      } = await axios.put('v1/auth')
 
       if (!success) throw new Error('로그인 갱신에 실패하였습니다.')
 
@@ -56,7 +60,9 @@ const actions = {
   // params: Object
   async createAccount({ commit }, payload) {
     try {
-      const { data: { success } } = await axios.post('v1/users/account', payload)
+      const {
+        data: { success },
+      } = await axios.post('v1/users/account', payload)
 
       if (!success) throw new Error('계정 생성에 실패하였습니다.')
 
@@ -70,7 +76,10 @@ const actions = {
   async getAccount({ commit }) {
     try {
       const { data } = await axios.get('v1/users/account')
-      const { success, data: { user, profile } } = data
+      const {
+        success,
+        data: { user, profile },
+      } = data
 
       if (!success) throw new Error('계정 받아오기에 실패하였습니다.\n다시 로그인 해 주세요.')
 
@@ -87,7 +96,9 @@ const actions = {
   // params: Object
   async updateAccount({ commit }, payload) {
     try {
-      const { data: { success } } = await axios.put('v1/users/account', payload)
+      const {
+        data: { success },
+      } = await axios.put('v1/users/account', payload)
 
       if (!success) throw new Error('계정 업데이트에 실패하였습니다.')
 
@@ -100,7 +111,9 @@ const actions = {
   // params: none
   async deleteAccount({ commit }) {
     try {
-      const { data: { success } } = await axios.delete('v1' + '/users/account')
+      const {
+        data: { success },
+      } = await axios.delete('v1' + '/users/account')
 
       if (!success) throw new Error('계정 삭제에 실패하였습니다.')
 
@@ -115,7 +128,10 @@ const actions = {
   async getProfile({ commit }, { nickname }) {
     try {
       const { data } = await axios.get(`v1/users/profile/${nickname}`)
-      const { success, data: { profile } } = data
+      const {
+        success,
+        data: { profile },
+      } = data
 
       if (!success || !profile) throw new Error('프로필을 받아오는데 실패하였습니다.')
 
@@ -128,7 +144,10 @@ const actions = {
   async updateProfile({ commit }, { nickname, payload }) {
     try {
       const { data } = await axios.put(`v1/users/profile/${nickname}`, payload)
-      const { success, data: { profile } } = data
+      const {
+        success,
+        data: { profile },
+      } = data
 
       if (!success || !profile) throw new Error('프로필 업데이트에 실패하였습니다.')
 
@@ -142,7 +161,10 @@ const actions = {
   async updateProfileAvatar({ commit }, { nickname, payload }) {
     try {
       const { data } = await axios.put(`v1/users/profile/${nickname}/avatar`, payload)
-      const { success, data: { profile } } = data
+      const {
+        success,
+        data: { profile },
+      } = data
 
       if (!success || !profile) throw new Error('프로필 아바타 업로드를 실패하였습니다.')
 
@@ -156,7 +178,10 @@ const actions = {
   async deleteProfileAvatar({ commit }, { nickname }) {
     try {
       const { data } = await axios.delete(`v1/users/profile/${nickname}/avatar`)
-      const { success, data: { profile } } = data
+      const {
+        success,
+        data: { profile },
+      } = data
 
       if (!success) throw new Error('프로필 아바타 삭제에 실패하였습니다.')
 
@@ -166,12 +191,37 @@ const actions = {
       alert(err?.response?.data?.message || err?.message)
     }
   },
+
+  async createResetLink({ commit }, { email }) {
+    try {
+      const { data } = await axios.post(`v1/users/account/reset/${email}`)
+      const { success } = data
+
+      if (!success) throw new Error('해당 이메일이 존재하지 않습니다.')
+
+      return { success }
+    } catch (err) {
+      return { success: false, error: err?.response?.data?.message || err?.message }
+    }
+  },
+
+  async updatePassword({ commit }, payload) {
+    try {
+      const { data } = await axios.put(`v1/users/account/reset`, payload)
+      const { success } = data
+
+      if (!success) throw new Error('비밀번호 재설정 링크가 만료되었습니다.')
+      return { success }
+    } catch (err) {
+      return { success: false, error: err?.response?.data?.message || err?.message }
+    }
+  },
 }
 
 const mutations = {
   SET_LOGIN(state) {
     state.isLogin = true
-    setItemWithTTL('isLogin', true, 1000 * 60 * 60* 2)
+    setItemWithTTL('isLogin', true, 1000 * 60 * 60 * 2)
   },
 
   SET_USER(state, user) {

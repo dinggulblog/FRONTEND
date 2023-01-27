@@ -7,7 +7,7 @@
           <div class="title">
             <h2>{{ post.title }}</h2>
             <span v-if="!post.isPublic" class="lock_ico">
-              <Ico :size="'md'" :svg="'lock'" :customColor="'--text3'" />
+              <Ico :size="'md'" :svg="'lock'" :customColor="'var(--text2)'" />
             </span>
           </div>
         </div>
@@ -22,7 +22,7 @@
           class="btn_dropbox"
           size="sm"
           svg="more"
-          :customColor="`var(--text3)`"
+          :customColor="`var(--text2)`"
           :customPadding="'0'"
           @click="onAction"
         />
@@ -47,7 +47,7 @@
     <div class="wrap_like">
       <div class="liked_count">
         <span class="like_ico" @click="onUpdateLike">
-          <Ico :size="'lg'" :svg="'like-fill'" :customColor="!post.liked ? '#ddd' : 'var(--likeActive)'" />
+          <Ico :size="'lg'" :svg="'like-fill'" :customColor="!post.liked ? 'var(--disable)' : 'var(--likeActive)'" />
         </span>
         <span>{{ post.likeCount }}</span>
       </div>
@@ -70,7 +70,7 @@
           class="btn_link"
           :content="linkedPost.title"
           :customFontSize="'1.4rem'"
-          :customColor="'var(--text6)'"
+          :customColor="'var(--text3)'"
           :customPadding="'0'"
           @click="onPushPost(linkedPost._id)"
         />
@@ -174,7 +174,7 @@
 
             h2 {
               font-size: 2rem;
-              color: var(--text8);
+              color: var(--text4);
               font-weight: 400;
               overflow: hidden;
               white-space: normal;
@@ -204,7 +204,7 @@
     .content {
       margin: 6.4rem 0;
       font-size: 1.4rem;
-      color: var(--text7);
+      color: var(--text3);
       line-height: 2.2rem;
 
       .markdown > p {
@@ -228,7 +228,7 @@
         justify-content: center;
 
         span {
-          color: var(--text3);
+          color: var(--text2);
           font-size: 1.6rem;
         }
 
@@ -253,7 +253,7 @@
 
           span {
             font-size: 1.2rem;
-            color: var(--input_text);
+            color: var(--text3);
             margin: 0.8rem 0 0;
           }
         }
@@ -277,7 +277,7 @@
           }
         }
         .wrap_nickname_greetings {
-          color: var(--text6);
+          color: var(--text3);
           .nickname {
             font-size: 1.6rem;
             font-weight: 500;
@@ -286,6 +286,7 @@
             white-space: nowrap;
             text-overflow: ellipsis;
             word-break: break-all;
+            color: var(--text3);
           }
 
           .greetings {
@@ -297,6 +298,7 @@
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+            color: var(--text3);
 
             @include mobile {
               -webkit-line-clamp: 1;

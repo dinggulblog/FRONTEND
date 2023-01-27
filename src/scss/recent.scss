@@ -30,7 +30,7 @@
 
         a {
           font-size: 1.6rem;
-          color: var(--text8);
+          color: var(--text4);
           overflow: hidden;
           white-space: normal;
           text-overflow: ellipsis;
@@ -38,10 +38,14 @@
           -webkit-line-clamp: 1;
           -webkit-box-orient: vertical;
           white-space: pre-wrap;
+
+          @include mobile {
+            font-size: 1.4rem;
+          }
         }
 
-        .info_ico {
-          margin: 0 0 0 1.2rem;
+        .wrap_ico_lock {
+          margin: 0 0 0 0.4rem;
         }
       }
 
@@ -56,10 +60,10 @@
           overflow: hidden;
           line-height: 2rem;
           font-size: 1.4rem;
-          color: var(--text5);
+          color: var(--text2);
 
-          @include mobile_all {
-            font-size: 1.6rem;
+          @include mobile {
+            font-size: 1.2rem;
           }
         }
       }
@@ -71,7 +75,7 @@
 
         span {
           font-size: 1.2rem;
-          color: var(--text3);
+          color: var(--text2);
         }
 
         .author {
@@ -83,7 +87,7 @@
           &::after {
             content: '·';
             margin: 0 0.8rem;
-            color: var(--text3);
+            color: var(--text2);
           }
         }
       }

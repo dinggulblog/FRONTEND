@@ -58,19 +58,19 @@
 
 @keyframes down-in {
   from {
-    transform: translateX(-4rem);
+    transform: translateY(-4rem);
   }
   to {
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
 @keyframes down-out {
   from {
-    transform: translateX(0);
+    transform: translateY(0);
   }
   to {
-    transform: translateX(-4rem);
+    transform: translateY(-4rem);
   }
 }
 

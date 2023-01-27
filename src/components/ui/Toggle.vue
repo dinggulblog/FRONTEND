@@ -4,11 +4,11 @@
       class="ico_toggle"
       :svg="isPublic ? 'toggle' : 'toggle-fill'"
       :size="'xl'"
-      :customColor="isPublic ? '#E6E6E6' : 'var(--secondary)'"
+      :customColor="isPublic ? 'var(--disable)' : 'var(--primary)'"
       @click="onToggle()"
     />
 
-    <span :style="[isPublic ? { color: '#BABABA' } : { color: 'var(--secondary)' }]">
+    <span :style="[isPublic ? { color: 'var(--text3)' } : { color: 'var(--primary)' }]">
       {{ isPublic ? '공개' : '비밀' }}
     </span>
   </div>

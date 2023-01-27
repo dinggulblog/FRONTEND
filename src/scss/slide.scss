@@ -2,6 +2,8 @@
   transition: box-shadow 0.25s ease-in 0s, transform 0.25s ease-in 0s;
 
   .thumbnail {
+    position: relative;
+
     img {
       width: 27rem;
       height: 20.8rem;
@@ -21,7 +23,7 @@
     .ico_like {
       position: absolute;
       top: 2rem;
-      right: 2rem;
+      right: 1.6rem;
     }
   }
 
@@ -38,7 +40,7 @@
       width: 85%;
 
       a {
-        color: var(--text8);
+        color: var(--text4);
         overflow: hidden;
         white-space: normal;
         text-overflow: ellipsis;
@@ -49,9 +51,8 @@
         width: 95%;
       }
 
-      .info_ico {
-        margin: 0 0 0 1.2rem;
-        color: var(--text3);
+      .wrap_ico_lock {
+        margin: 0 0 0 0.4rem;
       }
     }
   }
@@ -73,7 +74,7 @@
     span,
     a {
       font-size: 1.2rem;
-      color: var(--text3);
+      color: var(--text2);
     }
 
     .wrap_comment_like {
@@ -88,7 +89,7 @@
       &::after {
         content: '·';
         margin: 0 0.8rem;
-        color: var(--text3);
+        color: var(--text2);
       }
 
       @include mobile {
@@ -108,7 +109,7 @@
         &::before {
           content: '·';
           margin: 0 0.8rem;
-          color: var(--text3);
+          color: var(--text2);
         }
       }
     }

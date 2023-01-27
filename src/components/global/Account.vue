@@ -111,8 +111,9 @@
             </form>
 
             <div class="wrap_find_account" v-if="form === 'login'">
-              <p>이메일 또는 비밀번호를 잊으셨나요?</p>
-              <button class="btn_find-account">계정 찾기</button>
+              <p>계정 정보를 잊으셨나요?</p>
+
+              <router-link :to="{ name: 'findAccount' }" class="a_find-account" @click="close">계정 찾기</router-link>
             </div>
 
             <div class="wrap_sign-up" v-if="form === 'login'">
@@ -126,7 +127,7 @@
 </template>
 
 <script>
-  import { ref, computed } from 'vue'
+  import { ref, computed, inject } from 'vue'
   import { useStore } from 'vuex'
   import { Form } from 'vee-validate'
   import * as Yup from 'yup'
@@ -145,7 +146,9 @@
 
       const user = computed(() => state.auth.user)
       const form = ref('login')
+
       const POPUP_EL = ref(null)
+      const TOAST_EL = inject('TOAST_EL')
       const ACCOUNT_EL = ref(null)
 
       const loginSchema = Yup.object().shape({
@@ -183,23 +186,42 @@
       })
 
       const onLogin = async (values) => {
-        const { success } = await dispatch('auth/login', values)
-        if (success) close()
+        const { success, error } = await dispatch('auth/login', values)
+
+        if (!success) {
+          return TOAST_EL.value.open('error', error)
+        } else {
+          close()
+        }
       }
 
       const onCreateAccount = async (values) => {
-        const { success } = await dispatch('auth/createAccount', values)
-        if (success) close()
+        const { success, error } = await dispatch('auth/createAccount', values)
+
+        if (!success) {
+          return TOAST_EL.value.open('error', error)
+        } else {
+          close()
+        }
       }
 
       const onUpdateAccount = async (values) => {
-        const { success } = await dispatch('auth/updateAccount', values)
-        if (success) close()
+        const { success, error } = await dispatch('auth/updateAccount', values)
+
+        if (!success) {
+          return TOAST_EL.value.open('error', error)
+        } else {
+          close()
+        }
       }
 
       const onDeleteAccount = async (values) => {
         if (confirm('계정 탈퇴를 진행하시겠습니까?')) {
-          await dispatch('auth/deleteAccount', values)
+          const { success, error } = await dispatch('auth/deleteAccount', values)
+
+          if (!success) {
+            return TOAST_EL.value.open('error', error)
+          }
         }
       }
 
@@ -295,6 +317,16 @@
         background-color: var(--primary);
         border-radius: 3.2rem;
         margin: 4.8rem 0 0;
+
+        @media (hover: hover) and (pointer: fine) {
+          &:hover {
+            background-color: var(--primary-light);
+          }
+        }
+
+        &:active {
+          background-color: var(--primary-dark);
+        }
       }
 
       /* end common */
@@ -306,7 +338,7 @@
           align-items: center;
           justify-content: center;
           .btn_sign-out {
-            color: var(--text8);
+            color: var(--text3);
             text-decoration: underline;
           }
         }
@@ -314,21 +346,22 @@
 
       /* login */
       .login {
+        .btn_submit {
+          margin: 2.4rem 0 0;
+        }
         .wrap_find_account {
-          margin: 4.8rem 0 3.2rem;
+          margin: 3.2rem 0;
           display: flex;
           flex-direction: column;
           align-items: center;
 
           p {
             font-size: 1.2rem;
-            color: var(--text8);
+            color: var(--text3);
             margin: 0 0 1.6rem;
           }
 
-          .btn_find-account {
-            font-size: 1.4rem;
-            color: var(--primary);
+          .a_find-account {
             text-decoration: underline;
           }
         }
@@ -340,10 +373,15 @@
           width: 100%;
           border-top: 0.1rem solid var(--border3);
           padding: 3.2rem 0 0;
+        }
 
-          .btn_create-account {
-            font-size: 1.4rem;
-            color: var(--primary);
+        .a_find-account,
+        .btn_create-account {
+          font-size: 1.4rem;
+          color: var(--primary);
+
+          &:hover {
+            color: var(--primary-light);
           }
         }
       }

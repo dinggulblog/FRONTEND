@@ -79,7 +79,7 @@
           justify-content: center;
           margin: 2rem 0;
           font-size: 1.2rem;
-          color: var(--text7);
+          color: var(--text3);
 
           span {
             cursor: pointer;

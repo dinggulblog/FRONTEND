@@ -39,7 +39,7 @@
         size="md"
         svg="arrow-left"
         bgColor="primary"
-        customColor="#fff"
+        customColor="var(--text1)"
         customPadding="0"
         @onClick="prevSlide"
       />
@@ -49,7 +49,7 @@
         size="md"
         svg="arrow-right"
         bgColor="primary"
-        customColor="#fff"
+        customColor="var(--text1)"
         customPadding="0"
         @onClick="nextSlide"
       />
@@ -97,7 +97,7 @@
       validator: (value) => ['view', 'like'].includes(value),
     },
   })
-  const { commit, dispatch } = useStore()
+  const { state, commit, dispatch } = useStore()
 
   //const isAllMobile = useMedia('only screen and (max-width: 1199px)')
   const isAllMobileDevice = ref(false)
@@ -262,10 +262,6 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .fade_up-leave-active {
-    transition: opacity 0s;
-  }
-
   .posts {
     position: relative;
 
@@ -319,7 +315,7 @@
 
     .empty_posts {
       font-size: 1.4rem;
-      color: var(--text9);
+      color: var(--text3);
       text-transform: capitalize;
     }
   }
@@ -418,7 +414,7 @@
       }
 
       .maxPage {
-        color: var(--text4);
+        color: var(--text2);
 
         &::before {
           content: '/';

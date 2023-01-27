@@ -32,7 +32,7 @@
             :size="'sm'"
             :svg="'more'"
             :customPadding="'0'"
-            :customColor="`var(--text3)`"
+            :customColor="`var(--text2)`"
             @click="onAction"
           />
 
@@ -42,7 +42,7 @@
       <div class="content">
         <p>
           <span v-if="comment.parentComment" class="receiver">@ {{ parentComment?.commenter?.nickname }}</span>
-          <Ico v-if="!comment.isPublic" class="lock_ico" :size="'sm'" :svg="'lock'" :customColor="'--text3'" />
+          <Ico v-if="!comment.isPublic" class="lock_ico" :size="'sm'" :svg="'lock'" :customColor="'var(--text2)'" />
           <span v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</span>
           <span v-else>{{ comment.content }}</span>
         </p>
@@ -52,7 +52,7 @@
           :svg="!isVisible.childComments ? 'arrow-down' : 'arrow-up'"
           :size="'xs'"
           :content="'답글 ' + comment.childCommentCount + '개'"
-          :customColor="'var(--primary-dark)'"
+          :customColor="'var(--primary)'"
           :customFontSize="'1.4rem'"
           :customPadding="'0'"
           @click="!isVisible.childComments ? onDisplayChildComment() : onHiddenChildComment()"
@@ -300,7 +300,7 @@
         p {
           display: flex;
           align-items: center;
-          color: var(--text5);
+          color: var(--text3);
           font-size: 1.4rem;
 
           .lock_ico {
@@ -323,7 +323,7 @@
     flex-direction: column;
     margin: 0 0 0rem;
     font-size: 1.4rem;
-    color: var(--text5);
+    color: var(--text3);
 
     .content {
       margin: 0 0 6.4rem;

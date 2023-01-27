@@ -484,7 +484,7 @@
           select {
             width: 100%;
             font-size: 1.4rem;
-            color: var(--text9);
+            color: var(--text3);
             height: 4.8rem;
             background-color: transparent;
             font-family: 'Roboto', 'Noto Sans KR', sans-serif;
@@ -534,13 +534,13 @@
         width: 80%;
 
         input {
-          color: var(--text9);
+          color: var(--text4);
           font-size: 1.4rem;
           width: 100%;
         }
 
         input::placeholder {
-          color: var(--text9);
+          color: var(--text2);
           font-size: 1.4rem;
         }
       }
@@ -557,7 +557,7 @@
         min-height: 48rem;
         padding: 2.4rem;
         font-size: 1.4rem;
-        color: var(--text-light);
+        color: var(--text3);
         overflow-y: auto;
         max-height: 64rem;
 
@@ -582,7 +582,7 @@
       }
 
       textarea::placeholder {
-        color: var(--text-light);
+        color: var(--text2);
         font-size: 1.4rem;
       }
 
@@ -601,7 +601,7 @@
         cursor: pointer;
         text-transform: uppercase;
         letter-spacing: 0.1rem;
-        color: var(--text9);
+        color: var(--text3);
         display: flex;
         align-items: center;
         padding: 1.2rem 2.4rem 1.2rem 0;

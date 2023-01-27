@@ -96,7 +96,7 @@
       height: 100vh;
       padding: 4.8rem 4.8rem;
       font-size: 1.6rem;
-      color: var(--text9);
+      color: var(--text3);
       background-color: var(--bg1);
       overflow-y: auto;
 
@@ -115,7 +115,17 @@
       letter-spacing: 0.2rem;
       font-weight: 500;
       text-transform: uppercase;
-      color: var(--text9);
+      color: var(--text3);
+
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          color: var(--primary-light);
+        }
+      }
+
+      &:active {
+        color: var(--primary-dark);
+      }
 
       @include mobile_all {
         margin: 0rem 0;
@@ -125,6 +135,10 @@
 
     a.router-link-active {
       color: var(--primary);
+
+      &:hover {
+        color: var(--primary-light);
+      }
     }
 
     .m_menu_close {
@@ -153,6 +167,17 @@
         .a_login {
           text-decoration: underline;
           color: var(--primary);
+          cursor: pointer;
+
+          @media (hover: hover) and (pointer: fine) {
+            &:hover {
+              color: var(--primary-light);
+            }
+          }
+
+          &:active {
+            color: var(--primary-dark);
+          }
         }
       }
     }
@@ -182,7 +207,7 @@
         .nickname {
           font-size: 1.6rem;
           font-family: 'Noto Sans KR';
-          color: var(--text9);
+          color: var(--text3);
         }
       }
 
@@ -265,7 +290,7 @@
             display: flex;
             justify-content: center;
             border-radius: 3.2rem;
-            background: var(--primary);
+            background: var(--text1);
             padding: 0 2.4rem;
             box-shadow: var(--shadow1);
             width: auto;
@@ -297,11 +322,9 @@
 
               a {
                 padding: 1.2rem;
-                color: var(--text1);
 
                 @include mobile_all {
                   padding: 0;
-                  color: var(--text9);
                 }
               }
             }

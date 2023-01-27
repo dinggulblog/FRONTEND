@@ -73,7 +73,7 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   .TextInput {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     width: 100%;
     margin: 3.2rem 0 3.2rem;
     position: relative;
@@ -91,11 +91,11 @@
       background: transparent;
       border-bottom: 0.1rem solid var(--border2);
       width: 100%;
-      color: var(--text10);
+      color: var(--text4);
     }
 
     input::placeholder {
-      color: var(--text4);
+      color: var(--text2);
     }
 
     .help-message {

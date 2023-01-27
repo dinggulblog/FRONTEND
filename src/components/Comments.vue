@@ -74,7 +74,7 @@
     }
 
     h2 {
-      color: var(--text4);
+      color: var(--primary);
       font-weight: 400;
       font-size: 1.6rem;
       margin: 0 0 3.2rem 0;

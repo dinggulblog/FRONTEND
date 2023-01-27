@@ -6,29 +6,23 @@
   /* color */
 
   --primary: #9496e1;
-  --primary-dark: #9496e1;
+  --primary-light: #bfbfed;
+  --primary-dark: #696fd0;
 
   --likeActive: #f3c7c7;
   --likeActive-dark: #ff6d6d;
 
-  --success: #4cd964;
-  --warning: #ffc861;
-  --error: #ff3b30;
-  --success-light: #e4f3e5;
-  --warning-light: #fff0d9;
-  --error-light: #fde3e1;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --error: #ef4444;
+  --success-light: #dcfce7;
+  --warning-light: #fef3c7;
+  --error-light: #fee2e2;
 
   --text1: #ffffff;
-  --text2: #e0e0e0;
-  --text3: #d0d0d0;
-  --text4: #bbbbbb;
-  --text5: #bababa;
-  --text6: #b7b7b7;
-  --text7: #b0b0b0;
-  --text8: #a9a9a9;
-  --text9: #a5a5a5;
-  --text10: #999;
-  --text11: #333;
+  --text2: #a1a1aa;
+  --text3: #71717a;
+  --text4: #52525b;
 
   --border1: #efefef;
   --border2: #e5e5e5;
@@ -39,7 +33,7 @@
 
   --shadow1: 0 0.1rem 2rem rgba(0, 0, 0, 0.2);
 
-  --empty: #e6e6e6;
+  --disable: #dddddd;
 
   /* size */
 
@@ -51,7 +45,8 @@
   --padding-sm: 0.8rem 1.2rem;
   --padding-md: 1.2rem 2.4rem;
   --padding-lg: 2.4rem 3.2rem;
-  --text-sm: 1.1rem;
+  --text-xs: 1.1rem;
+  --text-sm: 1.2rem;
   --text-md: 1.2rem;
   --text-lg: 2rem;
 
@@ -107,6 +102,7 @@
   -webkit-font-smoothing: antialiased;
   list-style: none;
   box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
 }
 
 *,
@@ -172,7 +168,8 @@ textarea,
 input,
 label,
 button {
-  font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+  font-family: 'Roboto', 'Noto Sans DemiLight', sans-serif;
+  font-weight: 400;
 }
 
 /* dropdown menu */

@@ -18,7 +18,6 @@
   .author {
     display: flex;
     align-items: center;
-    font-family: 'Noto Sans KR';
 
     .wrap_avatar {
       margin: 0 1.2rem 0 0;

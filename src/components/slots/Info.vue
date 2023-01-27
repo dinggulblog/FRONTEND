@@ -24,7 +24,7 @@
 
         span {
           font-size: 1.3rem;
-          color: var(--text4);
+          color: var(--text2);
         }
 
         &::before {

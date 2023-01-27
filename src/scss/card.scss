@@ -75,7 +75,7 @@
       width: 85%;
 
       a {
-        color: var(--text8);
+        color: var(--text4);
         overflow: hidden;
         white-space: normal;
         text-overflow: ellipsis;
@@ -86,9 +86,8 @@
         width: 95%;
       }
 
-      .info_ico {
-        margin: 0 0 0 1.2rem;
-        color: var(--text3);
+      .wrap_ico_lock {
+        margin: 0 0 0 0.4rem;
       }
     }
   }
@@ -107,7 +106,7 @@
       -webkit-line-clamp: 2;
       overflow: hidden;
       font-size: 1.4rem;
-      color: var(--text5);
+      color: var(--text2);
       line-height: 1.9rem;
 
       @include mobile_all {
@@ -142,7 +141,7 @@
     span,
     a {
       font-size: 1.2rem;
-      color: var(--text3);
+      color: var(--text2);
     }
 
     .wrap_comment_like {
@@ -157,7 +156,7 @@
       &::after {
         content: '·';
         margin: 0 0.8rem;
-        color: var(--text3);
+        color: var(--text2);
       }
 
       @include mobile {
@@ -177,7 +176,7 @@
         &::before {
           content: '·';
           margin: 0 0.8rem;
-          color: var(--text3);
+          color: var(--text2);
         }
       }
     }

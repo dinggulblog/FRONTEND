@@ -266,7 +266,7 @@
           }
         }
         .wrap_nickname_greetings {
-          color: var(--text6);
+          color: var(--text3);
           width: 100%;
           .nickname {
             font-size: 1.6rem;
@@ -294,7 +294,7 @@
             min-height: 6.8rem;
             resize: none;
             font-size: 1.4rem;
-            color: var(--text9);
+            color: var(--text2);
 
             @include mobile {
               min-height: 12rem;
@@ -329,7 +329,7 @@
           border-radius: 3.2rem;
           transition: border-color ease 0.5s;
           cursor: pointer;
-          color: var(--text9);
+          color: var(--text3);
           user-select: none;
           font-size: 1.4rem;
           letter-spacing: 0.1rem;

@@ -6,7 +6,7 @@
           :class="isMobile ? 'btn_m-toggle' : 'btn_search'"
           :size="'md'"
           :svg="isMobile ? 'menu' : searchState.isOpen ? 'close' : 'search'"
-          :customColor="'var(--text9)'"
+          :customColor="'var(--text3)'"
           :customPadding="'0'"
           @click="isMobile ? onToggleGnbVisible() : onToggleSearchVisible()"
         >
@@ -21,7 +21,7 @@
 
       <div class="wrap_right">
         <span class="a_login" v-if="!isMobile && !isLogin" @click="$refs.ACCOUNT_EL.open('login')">
-          <Ico :size="'md'" :svg="'lock'" />
+          <Ico :size="'md'" :svg="'lock'" class="ico_lock" />
         </span>
 
         <div class="wrap_auth" v-else-if="!isMobile && profile.nickname">
@@ -44,7 +44,7 @@
           class="btn_search"
           :size="'md'"
           :svg="searchState.isOpen ? 'close' : 'search'"
-          :customColor="'var(--text9)'"
+          :customColor="'var(--text3)'"
           :customPadding="'0'"
           @click="onToggleSearchVisible"
         />
@@ -153,6 +153,10 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
+  .fade_left-leave-active {
+    transition: opacity 0s;
+  }
+
   .container_bar {
     display: flex;
     justify-content: center;
@@ -170,7 +174,7 @@
       height: 6.4rem;
       margin: 0 2.4rem;
       font-size: 1.4rem;
-      color: var(--text9);
+      color: var(--text3);
 
       @include mobile_all {
         font-size: 1.6rem;
@@ -192,7 +196,7 @@
       }
 
       a {
-        color: var(--text9);
+        color: var(--text3);
       }
 
       .logo {
@@ -219,6 +223,11 @@
         flex-basis: 20%;
         justify-content: flex-end;
         align-items: center;
+
+        .ico_lock {
+          cursor: pointer;
+        }
+
         .wrap_auth {
           display: flex;
           align-items: center;
@@ -242,7 +251,6 @@
             }
 
             .auth_items {
-              justify-content: center;
               padding: 4rem 0 0;
 
               ul {
@@ -268,7 +276,7 @@
                 span {
                   font-size: 1.2rem;
                   font-weight: 400;
-                  color: var(--text9);
+                  color: var(--text3);
                   cursor: pointer;
 
                   @include tablet_landscape {
@@ -313,10 +321,12 @@
       @include mobile_all {
         width: auto;
         height: auto;
+        border-right: 1px solid var(--border2);
       }
 
       @include mobile {
         width: 100%;
+        border: 0;
       }
     }
   }

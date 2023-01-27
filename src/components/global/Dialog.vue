@@ -85,7 +85,7 @@
         margin-top: 2.4rem;
         text-align: left;
         font-size: 1.4rem;
-        color: var(--text9);
+        color: var(--text3);
 
         @include mobile {
           font-size: 1.6rem;

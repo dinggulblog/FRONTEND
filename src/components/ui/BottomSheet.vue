@@ -66,7 +66,7 @@
 
         span {
           font-size: 1.6rem;
-          color: var(--text8);
+          color: var(--text3);
           cursor: pointer;
         }
       }
