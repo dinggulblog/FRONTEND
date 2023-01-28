@@ -7,6 +7,8 @@ import store from './store'
 import setupInterceptors from './services/axios.interceptors'
 import Dialog from './components/global/Dialog.vue'
 import ToastMessage from './components/global/ToastMessage.vue'
+import Account from './components/global/Account.vue'
+import Contact from './components/global/ContactUs.vue'
 import Button from './components/ui/Button.vue'
 import Ico from './components/ui/Ico.vue'
 
@@ -15,11 +17,14 @@ setupInterceptors(store) // create axios instance
 
 const app = createApp(App)
 
-app.use(store)
+app
+  .use(store)
   .use(router)
   .use(VueDOMPurifyHTML)
   .component('Dialog', Dialog)
   .component('ToastMessage', ToastMessage)
+  .component('Account', Account)
+  .component('Contact', Contact)
   .component('Button', Button)
   .component('Ico', Ico)
   .mount('#app')

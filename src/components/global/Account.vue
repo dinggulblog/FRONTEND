@@ -149,7 +149,7 @@
 
       const POPUP_EL = ref(null)
       const TOAST_EL = inject('TOAST_EL')
-      const ACCOUNT_EL = ref(null)
+      const ACCOUNT_EL = inject('ACCOUNT_EL')
 
       const loginSchema = Yup.object().shape({
         email: Yup.string().required('이메일을 입력해 주세요.').email(),

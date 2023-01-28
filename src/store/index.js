@@ -5,6 +5,7 @@ import postModule from './modules/post'
 import draftModule from './modules/draft'
 import loadingModule from './modules/loading'
 import commentModule from './modules/comment'
+import mailModule from './modules/mail'
 
 export default createStore({
   modules: {
@@ -13,6 +14,7 @@ export default createStore({
     post: postModule,
     draft: draftModule,
     comment: commentModule,
+    mail: mailModule,
     loading: loadingModule,
   },
 })

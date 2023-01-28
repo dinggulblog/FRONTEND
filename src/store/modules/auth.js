@@ -211,6 +211,7 @@ const actions = {
       const { success } = data
 
       if (!success) throw new Error('비밀번호 재설정 링크가 만료되었습니다.')
+      
       return { success }
     } catch (err) {
       return { success: false, error: err?.response?.data?.message || err?.message }

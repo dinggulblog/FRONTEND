@@ -54,13 +54,16 @@
             </ul>
           </div>
         </li>
+        <li class="nav_item">
+          <span @click="onContact" class="item_number">Contact Us</span>
+        </li>
       </ul>
     </div>
   </nav>
 </template>
 
 <script>
-  import { computed, reactive } from 'vue'
+  import { computed, reactive, ref, inject } from 'vue'
   import { useStore } from 'vuex'
   import AuthorSlot from '../slotdata/AuthorSlot.vue'
 
@@ -71,6 +74,7 @@
     emits: ['close', 'openLoginModal', 'openAccountModal'],
     setup() {
       const { state, dispatch } = useStore()
+      const CONTACT_EL = inject('CONTACT_EL')
 
       const menus = computed(() => state.menu.menus)
 
@@ -81,7 +85,9 @@
 
       const onLogout = async () => await dispatch('auth/logout')
 
-      return { menus, profile, onLogout }
+      const onContact = () => CONTACT_EL.value.open()
+
+      return { menus, profile, onContact, onLogout }
     },
   }
 </script>
@@ -110,12 +116,14 @@
       width: 100%;
     }
 
-    a {
+    a,
+    span {
       font-size: 1.2rem;
       letter-spacing: 0.2rem;
       font-weight: 500;
       text-transform: uppercase;
       color: var(--text3);
+      cursor: pointer;
 
       @media (hover: hover) and (pointer: fine) {
         &:hover {

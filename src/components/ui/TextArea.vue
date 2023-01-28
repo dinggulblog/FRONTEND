@@ -1,17 +1,14 @@
 <template>
-  <div class="TextInput" :class="{ 'has-error': !!errorMessage, success: meta.valid }">
+  <div class="TextArea">
     <label :for="name">{{ label }}</label>
-    <input
+    <textarea
       :name="name"
       :id="name"
-      :type="type"
       :value="inputValue"
       :placeholder="placeholder"
-      :disabled="disabled"
       @input="handleChange"
       @blur="handleBlur"
     />
-    <p class="help-message" v-show="errorMessage || meta.valid">{{ errorMessage || successMessage }}</p>
   </div>
 </template>
 
@@ -20,10 +17,6 @@
 
   export default {
     props: {
-      type: {
-        type: String,
-        default: 'text',
-      },
       value: {
         type: String,
         default: '',
@@ -35,23 +28,14 @@
       label: {
         type: String,
       },
-      successMessage: {
-        type: String,
-        default: '',
-      },
       placeholder: {
         type: String,
         default: '',
-      },
-      disabled: {
-        type: Boolean,
-        default: false,
       },
     },
     setup(props) {
       const {
         value: inputValue,
-        errorMessage,
         handleBlur,
         handleChange,
         meta,
@@ -62,7 +46,6 @@
       return {
         handleChange,
         handleBlur,
-        errorMessage,
         inputValue,
         meta,
       }
@@ -71,30 +54,14 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .TextInput {
+  .TextArea {
     font-size: 1.4rem;
     width: 100%;
-    margin: 3.2rem 0 3.2rem;
     position: relative;
 
     label {
       white-space: nowrap;
       color: var(--primary);
-    }
-
-    input {
-      padding: 0 0 1.6rem;
-      margin: 1.6rem 0 0;
-      outline: none;
-      font-weight: 400;
-      background: transparent;
-      border-bottom: 0.1rem solid var(--border2);
-      width: 100%;
-      color: var(--text4);
-    }
-
-    input::placeholder {
-      color: var(--text2);
     }
 
     .help-message {

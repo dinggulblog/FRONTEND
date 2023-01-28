@@ -23,8 +23,10 @@
     <router-link :to="{ name: 'editor' }" class="a_create"><Ico size="md" svg="create" /></router-link>
   </div>
 
-  <Dialog ref="DIALOG_EL"></Dialog>
-  <ToastMessage ref="TOAST_EL"></ToastMessage>
+  <Dialog ref="DIALOG_EL" />
+  <ToastMessage ref="TOAST_EL" />
+  <Account ref="ACCOUNT_EL" />
+  <Contact ref="CONTACT_EL" />
 </template>
 
 <script>
@@ -42,13 +44,17 @@
 
       const DIALOG_EL = ref(null)
       const TOAST_EL = ref(null)
+      const ACCOUNT_EL = ref(null)
+      const CONTACT_EL = ref(null)
 
       const isLogin = computed(() => state.auth.isLogin)
 
       provide('DIALOG_EL', DIALOG_EL)
       provide('TOAST_EL', TOAST_EL)
+      provide('ACCOUNT_EL', ACCOUNT_EL)
+      provide('CONTACT_EL', CONTACT_EL)
 
-      return { DIALOG_EL, TOAST_EL, isLogin }
+      return { DIALOG_EL, TOAST_EL, ACCOUNT_EL, CONTACT_EL, isLogin }
     },
   })
 </script>
