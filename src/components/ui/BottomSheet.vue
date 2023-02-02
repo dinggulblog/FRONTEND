@@ -10,28 +10,24 @@
   </transition>
 </template>
 
-<script>
-  import { ref } from 'vue'
+<script setup>
+  import { ref, defineExpose } from 'vue'
 
-  export default {
-    setup() {
-      const isVisible = ref(false)
+  const isVisible = ref(false)
 
-      const open = () => {
-        isVisible.value = true
-      }
-
-      const close = () => {
-        isVisible.value = false
-      }
-
-      const toggle = () => {
-        isVisible.value ? close() : open()
-      }
-
-      return { isVisible, open, close, toggle }
-    },
+  const open = () => {
+    isVisible.value = true
   }
+
+  const close = () => {
+    isVisible.value = false
+  }
+
+  const toggle = () => {
+    isVisible.value ? close() : open()
+  }
+
+  defineExpose({ toggle })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

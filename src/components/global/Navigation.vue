@@ -2,14 +2,14 @@
   <nav class="nav">
     <!-- Close button -->
     <div class="m_menu_close">
-      <button class="btn_close" @click="$emit('close')">
+      <button class="btn_close" @click="emits('closeAll')">
         <Ico :size="'md'" :svg="'close'" :customColor="'var(--primary)'" />
       </button>
     </div>
 
     <!-- Login rink -->
     <div class="m_menu_login" v-if="!profile.nickname">
-      <span class="a_login" @click="$emit('openLoginModal'), $emit('close')">로그인</span>
+      <span class="a_login" @click="emits('closeAll'), ACCOUNT_EL.open('login')">로그인</span>
       이 필요합니다.
     </div>
 
@@ -22,14 +22,14 @@
       <div class="auth_items">
         <ul>
           <li>
-            <span @click="$emit('openAccountModal'), $emit('close')">Account</span>
+            <span @click="emits('closeAll'), ACCOUNT_EL.open('update')">Account</span>
           </li>
           <li>
-            <router-link :to="{ name: 'profile', params: { nickname: profile.nickname } }" @click="$emit('close')">
+            <router-link :to="{ name: 'profile', params: { nickname: profile.nickname } }" @click="emits('closeAll')">
               Profile
             </router-link>
           </li>
-          <li><span @click="onLogout">Logout</span></li>
+          <li><span @click="emits('logout')">Logout</span></li>
         </ul>
       </div>
     </div>
@@ -38,16 +38,16 @@
     <div class="wrap_nav_item">
       <ul>
         <li class="nav_item">
-          <router-link :to="{ name: 'home' }" class="item_number" @click="$emit('close')">home</router-link>
+          <router-link :to="{ name: 'home' }" class="item_number" @click="emits('closeAll')">home</router-link>
         </li>
         <li v-for="(subMenus, main) in menus" :key="main" class="nav_item dropdown">
-          <router-link :to="{ name: 'posts', params: { main } }" class="item_number" @click="$emit('close')">
+          <router-link :to="{ name: 'posts', params: { main } }" class="item_number" @click="emits('closeAll')">
             {{ main }}
           </router-link>
           <div class="wrap_nav_item_child dropdown_items">
             <ul class="nav_item_child">
               <li v-for="{ _id, sub } in subMenus" :key="_id">
-                <router-link :to="{ name: 'posts', params: { main, sub } }" @click="$emit('close')">
+                <router-link :to="{ name: 'posts', params: { main, sub } }" @click="emits('closeAll')">
                   {{ sub }}
                 </router-link>
               </li>
@@ -55,41 +55,30 @@
           </div>
         </li>
         <li class="nav_item">
-          <span @click="onContact" class="item_number">Contact Us</span>
+          <span @click="CONTACT_EL.open" class="item_number">Contact Us</span>
         </li>
       </ul>
     </div>
   </nav>
 </template>
 
-<script>
-  import { computed, reactive, ref, inject } from 'vue'
+<script setup>
+  import { defineEmits, inject, computed } from 'vue'
   import { useStore } from 'vuex'
   import AuthorSlot from '../slotdata/AuthorSlot.vue'
 
-  export default {
-    components: {
-      AuthorSlot,
-    },
-    emits: ['close', 'openLoginModal', 'openAccountModal'],
-    setup() {
-      const { state, dispatch } = useStore()
-      const CONTACT_EL = inject('CONTACT_EL')
+  const emits = defineEmits(['logout', 'closeAll'])
 
-      const menus = computed(() => state.menu.menus)
+  const { state } = useStore()
 
-      const profile = reactive({
-        nickname: computed(() => state.auth.profile.nickname),
-        avatar: computed(() => state.auth.profile.avatar),
-      })
+  const CONTACT_EL = inject('CONTACT_EL')
+  const ACCOUNT_EL = inject('ACCOUNT_EL')
 
-      const onLogout = async () => await dispatch('auth/logout')
-
-      const onContact = () => CONTACT_EL.value.open()
-
-      return { menus, profile, onContact, onLogout }
-    },
-  }
+  const menus = computed(() => state.menu.menus)
+  const profile = computed(() => ({
+    avatar: state.auth.profile?.avatar,
+    nickname: state.auth.profile?.nickname,
+  }))
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

@@ -1,6 +1,6 @@
 <template>
   <div id="header">
-    <MyHeader />
+    <MyHeader :isLogin="isLogin" />
   </div>
 
   <div class="content-container">
@@ -29,39 +29,31 @@
   <Contact ref="CONTACT_EL" />
 </template>
 
-<script>
-  import { defineComponent, ref, computed, provide } from 'vue'
+<script setup>
+  import { ref, computed, provide } from 'vue'
   import { useStore } from 'vuex'
   import MyHeader from './components/global/MyHeader.vue'
 
-  export default defineComponent({
-    name: 'app',
-    components: {
-      MyHeader,
-    },
-    setup() {
-      const { state } = useStore()
+  const { state } = useStore()
 
-      const DIALOG_EL = ref(null)
-      const TOAST_EL = ref(null)
-      const ACCOUNT_EL = ref(null)
-      const CONTACT_EL = ref(null)
+  const DIALOG_EL = ref(null)
+  const TOAST_EL = ref(null)
+  const ACCOUNT_EL = ref(null)
+  const CONTACT_EL = ref(null)
 
-      const isLogin = computed(() => state.auth.isLogin)
+  const isLogin = computed(() => state.auth.isLogin)
 
-      provide('DIALOG_EL', DIALOG_EL)
-      provide('TOAST_EL', TOAST_EL)
-      provide('ACCOUNT_EL', ACCOUNT_EL)
-      provide('CONTACT_EL', CONTACT_EL)
-
-      return { DIALOG_EL, TOAST_EL, ACCOUNT_EL, CONTACT_EL, isLogin }
-    },
-  })
+  provide('DIALOG_EL', DIALOG_EL)
+  provide('TOAST_EL', TOAST_EL)
+  provide('ACCOUNT_EL', ACCOUNT_EL)
+  provide('CONTACT_EL', CONTACT_EL)
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
   @import './scss/common.scss';
   @import './scss/fade.scss';
+
+  /*
 
   @font-face {
     font-family: 'Noto Sans DemiLight';
@@ -74,6 +66,8 @@
     font-weight: 400;
     src: url(./assets/NotoSansKR-Light.woff) format('woff');
   }
+
+  */
 
   #header {
     position: sticky;
@@ -89,7 +83,7 @@
     #content {
       width: calc(120rem - 4.8rem);
       margin: 0 2.4rem;
-      padding: 3.2rem 0 0;
+      padding: 4.8rem 0 0;
       box-sizing: border-box;
 
       @include mobile {

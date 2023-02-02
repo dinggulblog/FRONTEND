@@ -1,5 +1,5 @@
 <template>
-  <component :is="type">
+  <component :is="layouts[type]">
     <template #thumbnail>
       <div v-if="type !== 'list' || (type === 'list' && post.thumbnail)" class="thumbnail">
         <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">
@@ -18,8 +18,8 @@
 
     <template #title>
       <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">
-      {{ post.title }}
-    </router-link>
+        {{ post.title }}
+      </router-link>
     </template>
 
     <template #lock_ico>
@@ -48,7 +48,7 @@
     </template>
 
     <template #comment_count>
-      <router-link :to="{ name: 'post', params: { postId: post._id, quickMove: true } }" @click="$emit('commitPosts')">
+      <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="onQuickMove(), $emit('commitPosts')">
         댓글 {{ post.commentCount }}
       </router-link>
     </template>
@@ -59,51 +59,41 @@
   </component>
 </template>
 
-<script>
-  import { onMounted, ref } from 'vue'
+<script setup>
+  import { defineProps, ref } from 'vue'
+  import { useStore } from 'vuex'
   import markdownText from 'markdown-to-text'
-  import dayjs from 'dayjs'
+  import DEFAULT_THUMBNAIL from '../../assets/default_thumbnail.webp'
   import card from '../slots/Card.vue'
   import list from '../slots/List.vue'
   import slide from '../slots/Slide.vue'
   import recent from '../slots/Recent.vue'
-  import DEFAULT_THUMBNAIL from '../../assets/default_thumbnail.webp'
   import { getTime } from '../../common/time.js'
 
-  export default {
-    name: 'PostsSlot',
-    props: {
-      type: {
-        type: String,
-        default: 'list',
-        validator: (value) => ['list', 'card', 'slide', 'recent'].includes(value),
-      },
-      post: {
-        type: Object,
-        required: true,
-      },
+  const props = defineProps({
+    type: {
+      type: String,
+      default: 'list',
+      validator: (value) => ['list', 'card', 'slide', 'recent'].includes(value),
     },
-    components: {
-      list,
-      card,
-      slide,
-      recent,
+    post: {
+      type: Object,
+      required: true,
     },
-    setup(props) {
-      const LIKE_EL = ref(null)
-      const createAt = ref(null)
+  })
 
-      onMounted(() => {
-        if (props.post.liked) LIKE_EL.value?.classList?.add('is-like')
-      })
+  const { commit } = useStore()
 
-      return {
-        markdownText,
-        createAt,
-        LIKE_EL,
-        DEFAULT_THUMBNAIL,
-        getTime,
-      }
-    },
+  const type = ref(props.type)
+
+  const layouts = {
+    card: card,
+    list: list,
+    slide: slide,
+    recent: recent,
+  }
+
+  const onQuickMove = () => {
+    commit('post/SET_QUICKMOVE', true)
   }
 </script>

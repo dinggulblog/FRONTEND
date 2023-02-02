@@ -1,73 +1,66 @@
 <template>
   <Author>
     <template #avatar>
-      <img class="avatar" :src="avatar?.thumbnail ?? DEFAULT_AVATAR_192" alt="profile_avatar" />
+      <img
+        class="avatar"
+        :src="profile?.avatar?.thumbnail ?? DEFAULT_AVATAR_192"
+        alt="profile_avatar"
+        @error="onGetDefaultImage"
+      />
     </template>
 
     <template #avatar_upload v-if="state === 'edit'">
       <div class="wrap_input_file">
         <label for="input_file">아바타 업로드</label>
-        <input type="file" id="input_file" @change="$emit('updateAvatar', $event)" accept="image/*" />
+        <input type="file" id="input_file" @change="emits('updateAvatar', $event)" accept="image/*" />
       </div>
       <Button
         class="btn_avatar_reset"
         :content="'아바타 초기화'"
         :size="'sm'"
         :rounded="true"
-        @click="$emit('resetAvatar')"
+        @click="emits('resetAvatar')"
       />
     </template>
 
     <template #nickname>
-      <span class="nickname">{{ nickname }}</span>
+      <span class="nickname">{{ profile.nickname }}</span>
     </template>
 
-    <template #greetings v-if="greetings && state !== 'edit'">
-      <p class="greetings">{{ greetings }}</p>
+    <template #greetings v-if="profile.greetings && state !== 'edit'">
+      <p class="greetings">{{ profile.greetings }}</p>
     </template>
 
     <template #greetings_textarea v-else-if="state === 'edit'">
       <textarea
         class="textarea_greetings"
         placeholder="인사말을 적어보세요."
-        :value="greetings"
-        @change="$emit('updateGreetings', $event)"
+        :value="profile.greetings"
+        @change="emits('updateGreetings', $event)"
       />
     </template>
   </Author>
 </template>
 
-<script>
-  import { reactive, toRefs, onMounted } from 'vue'
+<script setup>
+  import { defineProps, defineEmits } from 'vue'
   import Author from '../slots/Author.vue'
   import DEFAULT_AVATAR_192 from '../../assets/default_avatar_192.webp'
-  import DEFAULT_AVATAR_64 from '../../assets/default_avatar_64.webp'
 
-  export default {
-    name: 'AuthorSlot',
-    components: {
-      Author,
+  const props = defineProps({
+    profile: {
+      type: Object,
+      required: true,
+      default: () => ({}),
     },
-    props: {
-      profile: {
-        type: Object,
-        default: () => reactive({}),
-      },
-      state: {
-        type: String,
-      },
+    state: {
+      type: String,
     },
-    emits: ['updateAvatar', 'updateGreetings', 'resetAvatar'],
-    setup(props) {
-      const { avatar, nickname, greetings } = toRefs(props.profile)
+  })
 
-      return {
-        DEFAULT_AVATAR_192,
-        DEFAULT_AVATAR_64,
-        avatar,
-        nickname,
-        greetings,
-      }
-    },
+  const emits = defineEmits(['updateAvatar', 'updateGreetings', 'resetAvatar']) // views -> Profile function
+
+  const onGetDefaultImage = (event) => {
+    event.target.src = DEFAULT_AVATAR_192
   }
 </script>

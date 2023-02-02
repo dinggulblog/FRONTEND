@@ -126,49 +126,40 @@
   </PopupModal>
 </template>
 
-<script>
-  import { ref, computed, inject } from 'vue'
+<script setup>
+  import { defineExpose, ref, computed, inject } from 'vue'
   import { useStore } from 'vuex'
   import { Form } from 'vee-validate'
   import * as Yup from 'yup'
-  import TextInput from '../ui/TextInput.vue'
   import PopupModal from '../slots/PopupModal.vue'
 
-  export default {
-    name: 'account',
-    components: {
-      Form,
-      TextInput,
-      PopupModal,
-    },
-    setup() {
-      const { state, dispatch } = useStore()
+  const { state, dispatch } = useStore()
 
-      const user = computed(() => state.auth.user)
-      const form = ref('login')
+  const POPUP_EL = ref(null)
+  const TOAST_EL = inject('TOAST_EL')
+  const ACCOUNT_EL = inject('ACCOUNT_EL')
 
-      const POPUP_EL = ref(null)
-      const TOAST_EL = inject('TOAST_EL')
-      const ACCOUNT_EL = inject('ACCOUNT_EL')
+  const user = computed(() => state.auth.user)
+  const form = ref('login')
 
-      const loginSchema = Yup.object().shape({
-        email: Yup.string().required('이메일을 입력해 주세요.').email(),
-        password: Yup.string().required('패스워드를 입력해 주세요.'),
-      })
+  const loginSchema = Yup.object().shape({
+    email: Yup.string().required('이메일을 입력해 주세요.').email(),
+    password: Yup.string().required('패스워드를 입력해 주세요.'),
+  })
 
-      const createAccountSchema = Yup.object().shape({
-        email: Yup.string().required('이메일을 입력해 주세요.').email(),
-        password: Yup.string()
-          .required()
-          .matches(
-            /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/,
-            '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'
-          ),
-        passwordConfirmation: Yup.string().oneOf([Yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
-        nickname: Yup.string()
-          .required('닉네임을 정해주세요.')
-          .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
-      })
+  const createAccountSchema = Yup.object().shape({
+    email: Yup.string().required('이메일을 입력해 주세요.').email(),
+    password: Yup.string()
+      .required()
+      .matches(
+        /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/,
+        '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'
+      ),
+    passwordConfirmation: Yup.string().oneOf([Yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
+    nickname: Yup.string()
+      .required('닉네임을 정해주세요.')
+      .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
+  })
 
       const updateAccountSchema = Yup.object().shape({
         email: Yup.string().default(user.value.email).email(),
@@ -187,70 +178,36 @@
 
       const onLogin = async (values) => {
         const { success, error } = await dispatch('auth/login', values)
-
-        if (!success) {
-          return TOAST_EL.value.open('error', error)
-        } else {
-          close()
-        }
+        !success ? TOAST_EL.value.open('error', error) : close()
       }
 
       const onCreateAccount = async (values) => {
         const { success, error } = await dispatch('auth/createAccount', values)
-
-        if (!success) {
-          return TOAST_EL.value.open('error', error)
-        } else {
-          close()
-        }
+        !success ? TOAST_EL.value.open('error', error) : close()
       }
 
       const onUpdateAccount = async (values) => {
         const { success, error } = await dispatch('auth/updateAccount', values)
-
-        if (!success) {
-          return TOAST_EL.value.open('error', error)
-        } else {
-          close()
-        }
+        !success ? TOAST_EL.value.open('error', error) : close()
       }
 
       const onDeleteAccount = async (values) => {
-        if (confirm('계정 탈퇴를 진행하시겠습니까?')) {
-          const { success, error } = await dispatch('auth/deleteAccount', values)
+        if (!confirm('계정 탈퇴를 진행하시겠습니까?')) return
 
-          if (!success) {
-            return TOAST_EL.value.open('error', error)
-          }
-        }
+        const { success, error } = await dispatch('auth/deleteAccount', values)
+        !success ? TOAST_EL.value.open('error', error) : close()
       }
 
-      const open = (type) => {
-        form.value = type
-        POPUP_EL.value?.open()
-      }
-
-      const close = () => {
-        POPUP_EL.value?.close()
-      }
-
-      return {
-        user,
-        form,
-        POPUP_EL,
-        ACCOUNT_EL,
-        loginSchema,
-        createAccountSchema,
-        updateAccountSchema,
-        onLogin,
-        onCreateAccount,
-        onUpdateAccount,
-        onDeleteAccount,
-        open,
-        close,
-      }
-    },
+  const open = (type) => {
+    form.value = type
+    POPUP_EL.value?.open()
   }
+
+  const close = () => {
+    POPUP_EL.value?.close()
+  }
+
+  defineExpose({ open, close })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

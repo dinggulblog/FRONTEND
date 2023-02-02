@@ -57,42 +57,32 @@
   </div>
 </template>
 
-<script>
+<script setup>
   import Posts from '../components/Posts.vue'
   import { defineComponent, ref, onBeforeMount, onErrorCaptured, onMounted } from 'vue'
   import { useStore } from 'vuex'
 
-  export default defineComponent({
-    name: 'home',
-    components: {
-      Posts,
-    },
-    setup() {
-      const { state } = useStore()
-      const error = ref(null)
-      const trandingType = ref('view')
-      const slideSolMenu = ref(null)
-      const slideMingMenu = ref(null)
+  const { state } = useStore()
+  const error = ref(null)
+  const trandingType = ref('view')
+  const slideSolMenu = ref(null)
+  const slideMingMenu = ref(null)
 
-      const onChangeTrandingType = (type) => {
-        trandingType.value = type
-      }
+  const onChangeTrandingType = (type) => {
+    trandingType.value = type
+  }
 
-      const getSolMenu = (sub) => {
-        slideSolMenu.value = state.menu.menus.sol.filter((main) => main.sub === sub)
-      }
+  const getSolMenu = (sub) => {
+    slideSolMenu.value = state.menu.menus.sol.filter((main) => main.sub === sub)
+  }
 
-      const getMingMenu = (sub) => {
-        slideMingMenu.value = state.menu.menus.ming.filter((main) => main.sub === sub)
-      }
+  const getMingMenu = (sub) => {
+    slideMingMenu.value = state.menu.menus.ming.filter((main) => main.sub === sub)
+  }
 
-      onBeforeMount(() => {
-        getSolMenu('album')
-        getMingMenu('album')
-      })
-
-      return { state, trandingType, slideSolMenu, slideMingMenu, onChangeTrandingType }
-    },
+  onBeforeMount(() => {
+    getSolMenu('album')
+    getMingMenu('album')
   })
 </script>
 

@@ -28,49 +28,39 @@
   </Suspense>
 </template>
 
-<script>
-  import { defineComponent, ref, onErrorCaptured } from 'vue'
+<script setup>
+  import { defineProps, ref, onErrorCaptured } from 'vue'
   import { useStore } from 'vuex'
   import { mapState } from '../../common/vuex-helper.js'
   import Posts from '../../components/Posts.vue'
   import Toolbar from '../../components/Toolbar.vue'
 
-  export default defineComponent({
-    name: 'posts',
-    components: {
-      Posts,
-      Toolbar,
+  const props = defineProps({
+    main: {
+      type: String,
+      required: true,
     },
-    props: {
-      main: {
-        type: String,
-        required: true,
-      },
-      sub: {
-        type: String,
-      },
+    sub: {
+      type: String,
     },
-    setup() {
-      const { commit } = useStore()
-      const { type, category, categories, currentMenus } = mapState('menu')
+  })
 
-      const error = ref(null)
+  const { commit } = useStore()
+  const { type, category, categories, currentMenus } = mapState('menu')
 
-      const onUpdateType = (updateType) => {
-        commit('menu/SET_TYPE', updateType)
-      }
+  const error = ref(null)
 
-      const onUpdateCategory = (updateCategory) => {
-        commit('menu/SET_CATEGORY', updateCategory)
-      }
+  const onUpdateType = (updateType) => {
+    commit('menu/SET_TYPE', updateType)
+  }
 
-      onErrorCaptured((err) => {
-        error.value = err.message
-        return true
-      })
+  const onUpdateCategory = (updateCategory) => {
+    commit('menu/SET_CATEGORY', updateCategory)
+  }
 
-      return { type, category, categories, currentMenus, error, onUpdateType, onUpdateCategory }
-    },
+  onErrorCaptured((err) => {
+    error.value = err.message
+    return true
   })
 </script>
 

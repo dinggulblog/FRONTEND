@@ -12,45 +12,36 @@
   </div>
 </template>
 
-<script>
+<script setup>
+  import { defineProps } from 'vue'
   import { useField } from 'vee-validate'
 
-  export default {
-    props: {
-      value: {
-        type: String,
-        default: '',
-      },
-      name: {
-        type: String,
-        required: true,
-      },
-      label: {
-        type: String,
-      },
-      placeholder: {
-        type: String,
-        default: '',
-      },
+  const props = defineProps({
+    value: {
+      type: String,
+      default: '',
     },
-    setup(props) {
-      const {
-        value: inputValue,
-        handleBlur,
-        handleChange,
-        meta,
-      } = useField(props.name, undefined, {
-        initialValue: props.value,
-      })
+    name: {
+      type: String,
+      required: true,
+    },
+    label: {
+      type: String,
+    },
+    placeholder: {
+      type: String,
+      default: '',
+    },
+  })
 
-      return {
-        handleChange,
-        handleBlur,
-        inputValue,
-        meta,
-      }
-    },
-  }
+  const {
+    value: inputValue,
+    handleBlur,
+    handleChange,
+    meta,
+  } = useField(props.name, undefined, {
+    initialValue: props.value,
+  })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

@@ -70,8 +70,8 @@
   </div>
 </template>
 
-<script>
-  import { defineComponent, onBeforeMount, inject, ref, reactive, computed } from 'vue'
+<script setup>
+  import { onBeforeMount, inject, ref, reactive, computed } from 'vue'
   import { useRouter } from 'vue-router'
   import { useStore } from 'vuex'
   import { QuillEditor } from '@vueup/vue-quill'
@@ -79,153 +79,127 @@
   import Posts from '../../components/Posts.vue'
   import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
-  export default defineComponent({
-    name: 'profile',
-    components: {
-      QuillEditor,
-      AuthorSlot,
-      Posts,
+  const { go, currentRoute: route } = useRouter()
+  const { state, dispatch } = useStore()
+
+  const TOAST_EL = inject('TOAST_EL')
+  const tabs = ref([
+    { name: 'intro', content: '소개글' },
+    { name: 'like', content: '좋아요 한 게시물' },
+    { name: 'comment', content: '댓글 단 게시물' },
+  ])
+  const options = ref({
+    theme: 'snow',
+    placeholder: '소개글을 작성해 주세요.',
+    modules: {
+      toolbar: [
+        ['bold', 'italic', 'underline', 'strike'],
+        ['blockquote', 'code-block'],
+        [{ size: ['small', false, 'large', 'huge'] }],
+        [{ header: [1, 2, 3, 4, 5, 6, false] }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        [{ color: [] }, { background: [] }],
+        [{ align: [] }],
+        ['clean'],
+      ],
     },
-    setup() {
-      const { go, currentRoute: route } = useRouter()
-      const { state, dispatch } = useStore()
+  })
 
-      const TOAST_EL = inject('TOAST_EL')
-      const tabs = ref([
-        { name: 'intro', content: '소개글' },
-        { name: 'like', content: '좋아요 한 게시물' },
-        { name: 'comment', content: '댓글 단 게시물' },
-      ])
-      const options = ref({
-        theme: 'snow',
-        placeholder: '소개글을 작성해 주세요.',
-        modules: {
-          toolbar: [
-            ['bold', 'italic', 'underline', 'strike'],
-            ['blockquote', 'code-block'],
-            [{ size: ['small', false, 'large', 'huge'] }],
-            [{ header: [1, 2, 3, 4, 5, 6, false] }],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-            [{ color: [] }, { background: [] }],
-            [{ align: [] }],
-            ['clean'],
-          ],
-        },
-      })
+  const profileState = reactive({
+    nickname: route.value.params.nickname,
+    _id: '',
+    avatar: '',
+    greetings: '',
+    introduce: '',
+  })
 
-      const profileState = reactive({
-        nickname: route.value.params.nickname,
-        _id: '',
-        avatar: '',
-        greetings: '',
-        introduce: '',
-      })
+  const displayState = reactive({
+    tab: 'intro',
+    state: 'view',
+  })
 
-      const displayState = reactive({
-        tab: 'intro',
-        state: 'view',
-      })
+  const myProfile = computed(() => state.auth.profile)
+  const alignItems = computed(() => (displayState.state === 'edit' ? 'flex-start' : 'center'))
 
-      const myProfile = computed(() => state.auth.profile)
-      const alignItems = computed(() => (displayState.state === 'edit' ? 'flex-start' : 'center'))
+  const onChangeState = (state) => {
+    displayState.state = state
+  }
 
-      const onChangeState = (state) => {
-        displayState.state = state
-      }
+  const onChangeTab = (tab) => {
+    displayState.tab = tab
+  }
 
-      const onChangeTab = (tab) => {
-        displayState.tab = tab
-      }
+  const onUpdateAvatar = async (event) => {
+    if (myProfile.value.nickname !== profileState.nickname)
+      return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
 
-      const onUpdateAvatar = async (event) => {
-        if (myProfile.value.nickname !== profileState.nickname)
-          return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
+    const formData = new FormData()
+    formData.append('avatar', event.target.files[0])
 
-        const formData = new FormData()
-        formData.append('avatar', event.target.files[0])
+    const { success, profile } = await dispatch('auth/updateProfileAvatar', {
+      nickname: profileState.nickname,
+      payload: formData,
+    })
 
-        const { success, profile } = await dispatch('auth/updateProfileAvatar', {
-          nickname: profileState.nickname,
-          payload: formData,
-        })
+    if (!success) return TOAST_EL.value.open('error', '아바타 업데이트 도중 에러가 발생하였습니다.')
 
-        if (!success) return TOAST_EL.value.open('error', '아바타 업데이트 도중 에러가 발생하였습니다.')
+    profileState.avatar = profile.avatar
+  }
 
-        profileState.avatar = profile.avatar
-      }
+  const resetAvatar = async () => {
+    if (myProfile.value.nickname !== profileState.nickname)
+      return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
 
-      const resetAvatar = async () => {
-        if (myProfile.value.nickname !== profileState.nickname)
-          return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
+    const { success } = await dispatch('auth/deleteProfileAvatar', { nickname: profileState.nickname })
 
-        const { success } = await dispatch('auth/deleteProfileAvatar', { nickname: profileState.nickname })
+    if (!success) return TOAST_EL.value.open('error', '아바타 업데이트 도중 에러가 발생하였습니다.')
 
-        if (!success) return TOAST_EL.value.open('error', '아바타 업데이트 도중 에러가 발생하였습니다.')
+    profileState.avatar = null
+  }
 
-        profileState.avatar = null
-      }
+  const updateGreetings = (event) => {
+    profileState.greetings = event.target.value
+  }
 
-      const updateGreetings = (event) => {
-        profileState.greetings = event.target.value
-      }
+  const onUpdateGreetings = async () => {
+    if (profileState.greetings.length > 150)
+      return TOAST_EL.value.open('error', '글자 수 제한을 초과하였습니다. (최대 150자까지 허용)')
+    const { success, profile } = await dispatch('auth/updateProfile', {
+      nickname: profileState.nickname,
+      payload: { greetings: profileState.greetings },
+    })
 
-      const onUpdateGreetings = async () => {
-        if (profileState.greetings.length > 150)
-          return TOAST_EL.value.open('error', '글자 수 제한을 초과하였습니다. (최대 150자까지 허용)')
-        const { success, profile } = await dispatch('auth/updateProfile', {
-          nickname: profileState.nickname,
-          payload: { greetings: profileState.greetings },
-        })
+    if (!success) return
 
-        if (!success) return
+    profileState.greetings = profile.greetings
+    onChangeState('view')
+  }
 
-        profileState.greetings = profile.greetings
-        onChangeState('view')
-      }
+  const onUpdateIntroduce = async () => {
+    const { success, profile } = await dispatch('auth/updateProfile', {
+      nickname: profileState.nickname,
+      payload: {
+        introduce: profileState.introduce.replace(/(^([ ]*<p><br><\/p>)*)|((<p><br><\/p>)*[ ]*$)/gi, '').trim(' '),
+      },
+    })
 
-      const onUpdateIntroduce = async () => {
-        const { success, profile } = await dispatch('auth/updateProfile', {
-          nickname: profileState.nickname,
-          payload: {
-            introduce: profileState.introduce.replace(/(^([ ]*<p><br><\/p>)*)|((<p><br><\/p>)*[ ]*$)/gi, '').trim(' '),
-          },
-        })
+    if (!success) return
 
-        if (!success) return
+    profileState.introduce = profile.introduce
+    onChangeState('view')
+  }
 
-        profileState.introduce = profile.introduce
-        onChangeState('view')
-      }
+  onBeforeMount(async () => {
+    if (route.value.params.nickname) {
+      const { success, profile } = await dispatch('auth/getProfile', { nickname: profileState.nickname })
 
-      onBeforeMount(async () => {
-        if (route.value.params.nickname) {
-          const { success, profile } = await dispatch('auth/getProfile', { nickname: profileState.nickname })
+      if (!success) return go(-1)
 
-          if (!success) return go(-1)
-
-          profileState._id = profile._id
-          profileState.avatar = profile.avatar
-          profileState.greetings = profile.greetings
-          profileState.introduce = profile.introduce
-        }
-      })
-
-      return {
-        tabs,
-        options,
-        myProfile,
-        profileState,
-        displayState,
-        alignItems,
-        onChangeState,
-        onChangeTab,
-        onUpdateAvatar,
-        resetAvatar,
-        updateGreetings,
-        onUpdateGreetings,
-        onUpdateIntroduce,
-      }
-    },
+      profileState._id = profile._id
+      profileState.avatar = profile.avatar
+      profileState.greetings = profile.greetings
+      profileState.introduce = profile.introduce
+    }
   })
 </script>
 

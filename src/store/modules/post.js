@@ -6,6 +6,7 @@ const state = () => ({
   posts: null,
   page: 1,
   maxPage: 1,
+  quickMove: false
 })
 
 const getters = {}
@@ -207,6 +208,10 @@ const mutations = {
 
   SET_POSTS(state, posts = []) {
     state.posts = posts
+  },
+
+  SET_QUICKMOVE(state, boolean = false) {
+    state.quickMove = boolean
   },
 
   ADD_POST_LIKE(state) {

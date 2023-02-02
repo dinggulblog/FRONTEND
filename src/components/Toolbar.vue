@@ -35,97 +35,96 @@
   </div>
 </template>
 
-<script>
-  import { onMounted, ref, watch } from 'vue'
+<script setup>
+  import { defineProps, defineEmits, onMounted, ref, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
-  export default {
-    props: {
-      main: {
-        type: String,
-        required: true,
-      },
-      sub: {
-        type: String,
-      },
-      type: {
-        type: String,
-        default: 'list',
-        validator: (value) => ['list', 'card', 'slide'].includes(value),
-      },
-      categories: {
-        type: Array,
-        default: () => [],
-      },
+  const props = defineProps({
+    main: {
+      type: String,
+      required: true,
     },
-    setup(props, { emit }) {
-      const route = useRoute()
-      const views = [
-        {
-          name: 'list',
-          path: 'row',
-        },
-        {
-          name: 'card',
-          path: 'grid',
-        },
-        {
-          name: 'slide',
-          path: 'column',
-        },
-      ]
-
-      const typeBtnsEl = ref(null)
-      const categoryEl = ref(null)
-
-      const addOnClass = (element) => {
-        element?.classList?.add('on')
-      }
-
-      const removeOnClass = (elements = []) => {
-        for (const elem of elements) {
-          if (elem.tagName === 'LI') {
-            elem.classList.remove('on')
-          } else if (elem.tagName === 'BUTTON') {
-            elem.firstChild.classList.remove('on')
-          }
-        }
-      }
-
-      const changeView = (event) => {
-        if (event.currentTarget.firstChild.tagName === 'svg') {
-          removeOnClass(typeBtnsEl.value)
-          emit('updateType', event.currentTarget.firstChild.classList[0])
-          addOnClass(event.currentTarget.firstChild)
-        }
-      }
-
-      const changeCategory = (event) => {
-        if (event.target.tagName === 'LI') {
-          removeOnClass(categoryEl.value?.children)
-          emit('updateCategory', event.target.innerText)
-          addOnClass(event.target)
-        }
-      }
-
-      const remountClass = () => {
-        removeOnClass(typeBtnsEl.value)
-        removeOnClass(categoryEl.value?.children)
-        addOnClass(typeBtnsEl.value?.find((button) => button.firstChild.classList.value === props.type)?.firstChild)
-        addOnClass(categoryEl.value?.firstChild)
-      }
-
-      watch(() => route.path, remountClass)
-
-      onMounted(() => {
-        typeBtnsEl.value.forEach((button) => button.addEventListener('click', changeView))
-        categoryEl.value.addEventListener('click', changeCategory)
-        remountClass()
-      })
-
-      return { views, typeBtnsEl, categoryEl }
+    sub: {
+      type: String,
     },
+    type: {
+      type: String,
+      default: 'list',
+      validator: (value) => ['list', 'card', 'slide'].includes(value),
+    },
+    categories: {
+      type: Array,
+      default: () => [],
+    },
+  })
+
+  const emits = defineEmits(['updateType', 'updateCategory'])
+
+  const route = useRoute()
+  const views = [
+    {
+      name: 'list',
+      path: 'row',
+    },
+    {
+      name: 'card',
+      path: 'grid',
+    },
+    {
+      name: 'slide',
+      path: 'column',
+    },
+  ]
+
+  const typeBtnsEl = ref(null)
+  const categoryEl = ref(null)
+
+  const addOnClass = (element) => {
+    element?.classList?.add('on')
   }
+
+  const removeOnClass = (elements = []) => {
+    for (const elem of elements) {
+      if (elem.tagName === 'LI') {
+        elem.classList.remove('on')
+      } else if (elem.tagName === 'BUTTON') {
+        elem.firstChild.classList.remove('on')
+      }
+    }
+  }
+
+  const changeView = (event) => {
+    if (event.currentTarget.firstChild.tagName === 'svg') {
+      removeOnClass(typeBtnsEl.value)
+      emits('updateType', event.currentTarget.firstChild.classList[0])
+      addOnClass(event.currentTarget.firstChild)
+    }
+  }
+
+  const changeCategory = (event) => {
+    if (event.target.tagName === 'LI') {
+      removeOnClass(categoryEl.value?.children)
+      emits('updateCategory', event.target.innerText)
+      addOnClass(event.target)
+    }
+  }
+
+  const remountClass = () => {
+    removeOnClass(typeBtnsEl.value)
+    removeOnClass(categoryEl.value?.children)
+    addOnClass(typeBtnsEl.value?.find((button) => button.firstChild.classList.value === props.type)?.firstChild)
+    addOnClass(categoryEl.value?.firstChild)
+  }
+
+  watch(() => route.path, remountClass)
+
+  onMounted(() => {
+    typeBtnsEl.value.forEach((button) => button.addEventListener('click', changeView))
+    categoryEl.value.addEventListener('click', changeCategory)
+    remountClass()
+
+    console.log(props.main)
+  })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

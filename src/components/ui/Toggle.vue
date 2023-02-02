@@ -14,20 +14,19 @@
   </div>
 </template>
 
-<script>
-  export default {
-    name: 'Toggle',
-    props: {
-      isPublic: {
-        type: Boolean,
-      },
+<script setup>
+  import { defineProps, defineEmits } from 'vue'
+
+  const props = defineProps({
+    isPublic: {
+      type: Boolean,
     },
-    setup(props, { emit }) {
-      const onToggle = () => {
-        emit('updateIsPublic', !props.isPublic)
-      }
-      return { onToggle }
-    },
+  })
+
+  const emit = defineEmits(['updateIsPublic'])
+
+  const onToggle = () => {
+    emit('updateIsPublic', !props.isPublic)
   }
 </script>
 

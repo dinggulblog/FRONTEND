@@ -15,59 +15,49 @@
   </div>
 </template>
 
-<script>
+<script setup>
+  import { defineProps } from 'vue'
   import { useField } from 'vee-validate'
 
-  export default {
-    props: {
-      type: {
-        type: String,
-        default: 'text',
-      },
-      value: {
-        type: String,
-        default: '',
-      },
-      name: {
-        type: String,
-        required: true,
-      },
-      label: {
-        type: String,
-      },
-      successMessage: {
-        type: String,
-        default: '',
-      },
-      placeholder: {
-        type: String,
-        default: '',
-      },
-      disabled: {
-        type: Boolean,
-        default: false,
-      },
+  const props = defineProps({
+    type: {
+      type: String,
+      default: 'text',
     },
-    setup(props) {
-      const {
-        value: inputValue,
-        errorMessage,
-        handleBlur,
-        handleChange,
-        meta,
-      } = useField(props.name, undefined, {
-        initialValue: props.value,
-      })
+    value: {
+      type: String,
+      default: '',
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    label: {
+      type: String,
+    },
+    successMessage: {
+      type: String,
+      default: '',
+    },
+    placeholder: {
+      type: String,
+      default: '',
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+  })
 
-      return {
-        handleChange,
-        handleBlur,
-        errorMessage,
-        inputValue,
-        meta,
-      }
-    },
-  }
+  const {
+    value: inputValue,
+    errorMessage,
+    handleBlur,
+    handleChange,
+    meta,
+  } = useField(props.name, undefined, {
+    initialValue: props.value,
+  })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

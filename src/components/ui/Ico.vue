@@ -4,32 +4,26 @@
   </svg>
 </template>
 
-<script>
-  import { computed } from 'vue'
+<script setup>
+  import { defineProps, computed } from 'vue'
 
-  export default {
-    name: 'Ico',
-    props: {
-      svg: {
-        type: String,
-      },
-      size: {
-        type: String,
-      },
-      customColor: {
-        type: String,
-      },
+  const props = defineProps({
+    svg: {
+      type: String,
     },
-    setup(props) {
-      const state = computed(() => ({
-        svgPath: props.svg ? `path(var(--Ico-${props.svg}))` : '',
-        svgSize: props.svg ? `var(--Ico-${props.size})` : 'var(--Ico-md)',
-        fill: props.customColor ? props.customColor : 'currentColor',
-      }))
+    size: {
+      type: String,
+    },
+    customColor: {
+      type: String,
+    },
+  })
 
-      return { state }
-    },
-  }
+  const state = computed(() => ({
+    svgPath: props.svg ? `path(var(--Ico-${props.svg}))` : '',
+    svgSize: props.svg ? `var(--Ico-${props.size})` : 'var(--Ico-md)',
+    fill: props.customColor ? props.customColor : 'currentColor',
+  }))
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

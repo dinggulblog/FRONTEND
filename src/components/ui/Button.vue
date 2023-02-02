@@ -5,99 +5,87 @@
   </button>
 </template>
 
-<script>
-  import { computed, ref } from 'vue'
+<script setup>
+  import { defineProps, defineEmits, computed, ref } from 'vue'
   import { throttle } from '../../common/util.js'
   import Ico from './Ico.vue'
 
-  export default {
-    name: 'Button',
-    components: {
-      Ico,
+  const props = defineProps({
+    content: {
+      type: String,
     },
-    props: {
-      content: {
-        type: String,
-      },
-      size: {
-        type: String,
-        validator: (value) => ['xs', 'sm', 'md', 'lg'].includes(value),
-      },
-      customSize: {
-        type: String,
-      },
-      customFontSize: {
-        type: String,
-      },
-      bgColor: {
-        type: String,
-        validator: (value) => ['primary', 'primary-dark', 'secondary', 'secondary-dark'].includes(value),
-      },
-      borderColor: {
-        type: String,
-        validator: (value) => ['primary', 'primary-dark', 'secondary', 'secondary-dark'].includes(value),
-      },
-      customBgColor: {
-        type: String,
-      },
-      customBorderColor: {
-        type: String,
-      },
-      customColor: {
-        type: String,
-      },
-      customBorder: {
-        type: String,
-      },
-      customPadding: {
-        type: String,
-      },
-      svg: {
-        type: String,
-      },
-      full: {
-        type: Boolean,
-        default: false,
-      },
-      rounded: {
-        type: Boolean,
-        default: false,
-      },
+    size: {
+      type: String,
+      validator: (value) => ['xs', 'sm', 'md', 'lg'].includes(value),
     },
-    setup(props, { emit }) {
-      const svgPath = ref(null)
-
-      const state = computed(() => ({
-        width: props.full ? '100%' : 'auto',
-        padding: props.size ? `var(--padding-${props.size})` : '0',
-        fontSize: props.size ? `var(--text-${props.size})` : '1.2rem',
-        bgColor: props.bgColor ? `var(--${props.bgColor})` : 'transparent',
-        color: props.bgColor ? '#fff' : props.borderColor ? `var(--${props.borderColor})` : 'var(--text-light)',
-        border: props.borderColor ? 'solid 0.2rem' : '0',
-        borderRadius: props.rounded ? '3.2rem' : '0',
-        borderColor: props.borderColor ? `var(--${props.borderColor})` : 'transparent',
-        svgMargin: props.svg && props.content ? '0.8rem' : '',
-      }))
-
-      const customState = computed(() => ({
-        padding: props.customPadding ?? '',
-        color: props.customColor ?? '',
-        background: props.customBgColor ?? '',
-        border: props.customBorder ?? '',
-        borderColor: props.customBorderColor ?? '',
-        fontSize: props.customFontSize ?? '',
-      }))
-
-      const onClick = throttle(() => emit('onClick'), 250)
-
-      return {
-        onClick,
-        svgPath,
-        state,
-        customState,
-      }
+    customSize: {
+      type: String,
     },
-  }
+    customFontSize: {
+      type: String,
+    },
+    bgColor: {
+      type: String,
+      validator: (value) => ['primary', 'primary-dark', 'secondary', 'secondary-dark'].includes(value),
+    },
+    borderColor: {
+      type: String,
+      validator: (value) => ['primary', 'primary-dark', 'secondary', 'secondary-dark'].includes(value),
+    },
+    customBgColor: {
+      type: String,
+    },
+    customBorderColor: {
+      type: String,
+    },
+    customColor: {
+      type: String,
+    },
+    customBorder: {
+      type: String,
+    },
+    customPadding: {
+      type: String,
+    },
+    svg: {
+      type: String,
+    },
+    full: {
+      type: Boolean,
+      default: false,
+    },
+    rounded: {
+      type: Boolean,
+      default: false,
+    },
+  })
+
+  const emit = defineEmits(['onClick'])
+
+  const svgPath = ref(null)
+
+  const state = computed(() => ({
+    width: props.full ? '100%' : 'auto',
+    padding: props.size ? `var(--padding-${props.size})` : '0',
+    fontSize: props.size ? `var(--text-${props.size})` : '1.2rem',
+    bgColor: props.bgColor ? `var(--${props.bgColor})` : 'transparent',
+    color: props.bgColor ? '#fff' : props.borderColor ? `var(--${props.borderColor})` : 'var(--text-light)',
+    border: props.borderColor ? 'solid 0.2rem' : '0',
+    borderRadius: props.rounded ? '3.2rem' : '0',
+    borderColor: props.borderColor ? `var(--${props.borderColor})` : 'transparent',
+    svgMargin: props.svg && props.content ? '0.8rem' : '',
+  }))
+
+  const customState = computed(() => ({
+    padding: props.customPadding ?? '',
+    color: props.customColor ?? '',
+    background: props.customBgColor ?? '',
+    border: props.customBorder ?? '',
+    borderColor: props.customBorderColor ?? '',
+    fontSize: props.customFontSize ?? '',
+  }))
+
+  const onClick = throttle(() => emit('onClick'), 250)
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

@@ -128,19 +128,8 @@
   </div>
 </template>
 
-<script>
-  import {
-    defineComponent,
-    inject,
-    ref,
-    reactive,
-    computed,
-    nextTick,
-    watch,
-    onBeforeMount,
-    onMounted,
-    onUnmounted,
-  } from 'vue'
+<script setup>
+  import { inject, ref, reactive, computed, nextTick, watch, onBeforeMount, onMounted, onUnmounted } from 'vue'
   import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
   import { useStore } from 'vuex'
   import { useMedia } from '../../common/mediaQuery'
@@ -149,297 +138,266 @@
   import Toggle from '../../components/ui/Toggle.vue'
   import 'highlight.js/styles/atom-one-dark.css'
 
-  export default defineComponent({
-    name: 'editor',
-    components: {
-      Toggle,
-      Markdown,
-    },
-    setup() {
-      const route = useRoute()
-      const { go, push } = useRouter()
-      const { state, dispatch } = useStore()
+  const route = useRoute()
+  const { go, push } = useRouter()
+  const { state, dispatch } = useStore()
 
-      const DIALOG_EL = inject('DIALOG_EL')
-      const TOAST_EL = inject('TOAST_EL')
-      const CONTENT_EL = ref(null)
+  const DIALOG_EL = inject('DIALOG_EL')
+  const TOAST_EL = inject('TOAST_EL')
+  const CONTENT_EL = ref(null)
 
-      let autoSave = null
-      let canLeavePage = true
-      const isMobile = useMedia('only screen and (max-width: 767px)')
+  let autoSave = null
+  let canLeavePage = true
+  const isMobile = useMedia('only screen and (max-width: 767px)')
 
-      const plugins = ref([{ plugin: MarkdownEmoji }])
-      const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
+  const plugins = ref([{ plugin: MarkdownEmoji }])
+  const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
 
-      const temp = ref(false)
-      const postId = ref(null)
-      const draftId = ref(null)
-      const authorId = ref(null)
+  const temp = ref(false)
+  const postId = ref(null)
+  const draftId = ref(null)
+  const authorId = ref(null)
 
-      const menuState = reactive({
-        isLoading: computed(() => state.loading.isLoading),
-        percentage: computed(() => state.loading.percentage),
-        menus: computed(() => state.menu.menus),
-        mainMenus: [],
-        subMenu: {},
-      })
+  const menuState = reactive({
+    isLoading: computed(() => state.loading.isLoading),
+    percentage: computed(() => state.loading.percentage),
+    menus: computed(() => state.menu.menus),
+    mainMenus: [],
+    subMenu: {},
+  })
 
-      const postState = reactive({
-        menu: '',
-        title: '',
-        content: '',
-        category: '기타',
-        isPublic: true,
-        images: computed(() => fileState.files.map(({ _id }) => _id)),
-        thumbnail: computed(() => fileState.fileId),
-      })
+  const postState = reactive({
+    menu: '',
+    title: '',
+    content: '',
+    category: '기타',
+    isPublic: true,
+    images: computed(() => fileState.files.map(({ _id }) => _id)),
+    thumbnail: computed(() => fileState.fileId),
+  })
 
-      const fileState = reactive({
-        files: [],
-        fileId: '',
-        fileUrl: '',
-        fileIndex: 0,
-      })
+  const fileState = reactive({
+    files: [],
+    fileId: '',
+    fileUrl: '',
+    fileIndex: 0,
+  })
 
-      const onChangeMainMenu = (event) => {
-        menuState.mainMenus = menuState.menus[event.target.value]
-        document.body.querySelector('div.sub select').selectedIndex = 0
-        document.body.querySelector('div.category select').selectedIndex = 0
+  const onChangeMainMenu = (event) => {
+    menuState.mainMenus = menuState.menus[event.target.value]
+    document.body.querySelector('div.sub select').selectedIndex = 0
+    document.body.querySelector('div.category select').selectedIndex = 0
+  }
+
+  const onChangeSubMenu = (event) => {
+    menuState.subMenu = menuState.mainMenus.find((menu) => menu.sub === event.target.value)
+    postState.menu = menuState.subMenu?._id
+    document.body.querySelector('div.category select').selectedIndex = 0
+  }
+
+  const onChangeCategory = (event) => {
+    postState.category = event.target.value
+  }
+
+  const onChangeIsPublic = (state) => {
+    postState.isPublic = Boolean(state)
+  }
+
+  const onUpdateDraft = async (formData = new FormData()) => {
+    if (!postState.menu) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
+
+    const { ...payload } = postState
+    Object.keys(payload).forEach((key) => formData.append(key, payload[key]))
+
+    const { success, draft, images } = draftId.value
+      ? await dispatch('draft/updateDraft', { draftId: draftId.value, payload: formData })
+      : await dispatch('draft/createDraft', formData)
+
+    success
+      ? TOAST_EL.value.open('success', '임시저장 되었습니다.')
+      : TOAST_EL.value.open('error', '임시저장에 실패하였습니다')
+
+    draftId.value = draft?._id
+
+    return { success, images }
+  }
+
+  const onUpdatePost = async () => {
+    if (!postState.menu) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
+
+    const { ...payload } = postState
+    const { success, post, error } = postId.value
+      ? await dispatch('post/updatePost', { postId: postId.value, authorId: authorId.value, payload })
+      : await dispatch('post/createPost', payload)
+
+    if (!success) return TOAST_EL.value.open('error', error)
+
+    if (canLeavePage) push({ name: 'post', params: { postId: post._id } })
+  }
+
+  const onUploadImages = async (event) => {
+    if (!event.target.files.length) return
+    if (!postState.menu) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
+
+    for (const { name } of event.target.files) {
+      if (String(name).split('.')[0].length > 32) {
+        return TOAST_EL.value.open('error', '파일명은 32자 이하만 가능합니다.')
       }
+    }
 
-      const onChangeSubMenu = (event) => {
-        menuState.subMenu = menuState.mainMenus.find((menu) => menu.sub === event.target.value)
-        postState.menu = menuState.subMenu?._id
-        document.body.querySelector('div.category select').selectedIndex = 0
+    const formData = new FormData()
+    Object.values(event.target.files).forEach((file) => formData.append('images', file))
+
+    const { success, images, error } = postId.value
+      ? await dispatch('post/updatePost', { postId: postId.value, authorId: authorId.value, payload: formData })
+      : await onUpdateDraft(formData)
+
+    if (!success) return TOAST_EL.value.open('error', error)
+
+    if (Array.isArray(images)) {
+      fileState.files.push(...images)
+      onSelectImage(fileState.files[0], 0)
+      for await (const { thumbnail } of images) {
+        await nextTick()
+        onInsertImage(thumbnail)
       }
+    }
+  }
 
-      const onChangeCategory = (event) => {
-        postState.category = event.target.value
-      }
+  const onDeleteImage = async (file, index) => {
+    if (!file?._id) return
 
-      const onChangeIsPublic = (state) => {
-        postState.isPublic = Boolean(state)
-      }
+    const { success, error } = postId.value
+      ? await dispatch('post/deleteFile', { postId: postId.value, imageId: file._id })
+      : await dispatch('draft/deleteFile', { draftId: draftId.value, imageId: file._id })
 
-      const onUpdateDraft = async (formData = new FormData()) => {
-        if (!postState.menu) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
+    if (!success) return TOAST_EL.value.open('error', error)
 
-        const { ...payload } = postState
-        Object.keys(payload).forEach((key) => formData.append(key, payload[key]))
+    fileState.files.splice(index, 1)
+  }
 
-        const { success, draft, images } = draftId.value
-          ? await dispatch('draft/updateDraft', { draftId: draftId.value, payload: formData })
-          : await dispatch('draft/createDraft', formData)
+  const onSelectImage = (file, index) => {
+    if (!file) return TOAST_EL.value.open('error', '파일이 선택되지 않았습니다.')
+    fileState.fileId = file._id
+    fileState.fileUrl = file.thumbnail
+    fileState.fileIndex = index
+  }
 
-        success
-          ? TOAST_EL.value.open('success', '임시저장 되었습니다.')
-          : TOAST_EL.value.open('error', '임시저장에 실패하였습니다')
+  const onInsertImage = (url) => {
+    let start = CONTENT_EL.value.value.substring(0, CONTENT_EL.value.selectionStart)
+    let end = CONTENT_EL.value.value.substring(CONTENT_EL.value.selectionEnd, CONTENT_EL.value.value.length)
 
-        draftId.value = draft?._id
+    const innerText = `\n!` + `[` + `]` + `(` + `${url}` + `)\n`
+    postState.content = start + innerText + end
+    CONTENT_EL.value.focus()
+  }
 
-        return { success, images }
-      }
-
-      const onUpdatePost = async () => {
-        if (!postState.menu) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
-
-        const { ...payload } = postState
-        const { success, post, error } = postId.value
-          ? await dispatch('post/updatePost', { postId: postId.value, authorId: authorId.value, payload })
-          : await dispatch('post/createPost', payload)
-
-        if (!success) return TOAST_EL.value.open('error', error)
-
-        if (canLeavePage) push({ name: 'post', params: { postId: post._id } })
-      }
-
-      const onUploadImages = async (event) => {
-        if (!event.target.files.length) return
-        if (!postState.menu) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
-
-        for (const { name } of event.target.files) {
-          if (String(name).split('.')[0].length > 32) {
-            return TOAST_EL.value.open('error', '파일명은 32자 이하만 가능합니다.')
-          }
-        }
-
-        const formData = new FormData()
-        Object.values(event.target.files).forEach((file) => formData.append('images', file))
-
-        const { success, images, error } = postId.value
-          ? await dispatch('post/updatePost', { postId: postId.value, authorId: authorId.value, payload: formData })
-          : await onUpdateDraft(formData)
-
-        if (!success) return TOAST_EL.value.open('error', error)
-
-        if (Array.isArray(images)) {
-          fileState.files.push(...images)
-          onSelectImage(fileState.files[0], 0)
-          for await (const { thumbnail } of images) {
-            await nextTick()
-            onInsertImage(thumbnail)
-          }
-        }
-      }
-
-      const onDeleteImage = async (file, index) => {
-        if (!file?._id) return
-
-        const { success, error } = postId.value
-          ? await dispatch('post/deleteFile', { postId: postId.value, imageId: file._id })
-          : await dispatch('draft/deleteFile', { draftId: draftId.value, imageId: file._id })
-
-        if (!success) return TOAST_EL.value.open('error', error)
-
-        fileState.files.splice(index, 1)
-      }
-
-      const onSelectImage = (file, index) => {
-        if (!file) return TOAST_EL.value.open('error', '파일이 선택되지 않았습니다.')
-        fileState.fileId = file._id
-        fileState.fileUrl = file.thumbnail
-        fileState.fileIndex = index
-      }
-
-      const onInsertImage = (url) => {
-        let start = CONTENT_EL.value.value.substring(0, CONTENT_EL.value.selectionStart)
-        let end = CONTENT_EL.value.value.substring(CONTENT_EL.value.selectionEnd, CONTENT_EL.value.value.length)
-
-        const innerText = `\n!` + `[` + `]` + `(` + `${url}` + `)\n`
-        postState.content = start + innerText + end
-        CONTENT_EL.value.focus()
-      }
-
-      /*
+  /*
       const onClearImages = () => {
         fileState.files = []
       }
-      */
+  */
 
-      const onChangeCanLeavePage = (bool) => {
-        canLeavePage = bool
+  const onChangeCanLeavePage = (bool) => {
+    canLeavePage = bool
+  }
+
+  const unloadEvent = (event) => {
+    if (!canLeavePage) {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+  }
+
+  const setInitData = (post = {}, temp = false) => {
+    const { _id, author, menu, category, title, content, isPublic, images, thumbnail } = post
+
+    if (temp) draftId.value = _id
+    else postId.value = _id
+
+    authorId.value = author._id
+    postState.menu = menu
+    postState.title = title
+    postState.content = content
+    postState.category = category
+    postState.isPublic = isPublic
+    fileState.files = Array.isArray(images) ? images : []
+
+    const idx = fileState.files.findIndex(({ _id }) => _id === thumbnail)
+    if (thumbnail && idx !== -1) {
+      onSelectImage(fileState.files[idx], idx)
+    }
+  }
+
+  watch(
+    () => canLeavePage,
+    (newCanLeavePage, oldCanLeavePage) => {
+      if (newCanLeavePage && !oldCanLeavePage && !autoSave) {
+        autoSave = route.query.id ? setInterval(onUpdatePost, 1000 * 60 * 5) : setInterval(onUpdateDraft, 1000 * 60 * 5)
       }
+    }
+  )
 
-      const unloadEvent = (event) => {
-        if (!canLeavePage) {
-          event.preventDefault()
-          event.returnValue = ''
+  watch(
+    () => postState.menu,
+    () => {
+      const { menu, category } = postState
+
+      if (menu) {
+        const { main, sub } = Object.keys(menuState.menus).reduce((acc, key) => {
+          const searchedMenu = menuState.menus[key].find(({ _id }) => _id === menu)
+          if (searchedMenu) acc = { ...searchedMenu }
+          return acc
+        }, {})
+
+        if (main) {
+          document.body.querySelector('div.main select').value = main
+          menuState.mainMenus = menuState.menus[main]
         }
-      }
-
-      const setInitData = (post = {}, temp = false) => {
-        const { _id, author, menu, category, title, content, isPublic, images, thumbnail } = post
-
-        if (temp) draftId.value = _id
-        else postId.value = _id
-
-        authorId.value = author._id
-        postState.menu = menu
-        postState.title = title
-        postState.content = content
-        postState.category = category
-        postState.isPublic = isPublic
-        fileState.files = Array.isArray(images) ? images : []
-
-        const idx = fileState.files.findIndex(({ _id }) => _id === thumbnail)
-        if (thumbnail && idx !== -1) {
-          onSelectImage(fileState.files[idx], idx)
+        if (sub) {
+          document.body.querySelector('div.sub select').value = sub
+          menuState.subMenu = menuState.mainMenus.find((menu) => menu.sub === sub)
         }
-      }
-
-      watch(
-        () => canLeavePage,
-        (newCanLeavePage, oldCanLeavePage) => {
-          if (newCanLeavePage && !oldCanLeavePage && !autoSave) {
-            autoSave = route.query.id
-              ? setInterval(onUpdatePost, 1000 * 60 * 5)
-              : setInterval(onUpdateDraft, 1000 * 60 * 5)
-          }
-        }
-      )
-
-      watch(
-        () => postState.menu,
-        () => {
-          const { menu, category } = postState
-
-          if (menu) {
-            const { main, sub } = Object.keys(menuState.menus).reduce((acc, key) => {
-              const searchedMenu = menuState.menus[key].find(({ _id }) => _id === menu)
-              if (searchedMenu) acc = { ...searchedMenu }
-              return acc
-            }, {})
-
-            if (main) {
-              document.body.querySelector('div.main select').value = main
-              menuState.mainMenus = menuState.menus[main]
-            }
-            if (sub) {
-              document.body.querySelector('div.sub select').value = sub
-              menuState.subMenu = menuState.mainMenus.find((menu) => menu.sub === sub)
-            }
-            if (category) document.body.querySelector('div.category select').value = category
-          }
-        },
-        { flush: 'post' }
-      )
-
-      onBeforeMount(async () => {
-        if (route.query.id) {
-          if (state.post.post) return setInitData(state.post.post)
-
-          const { success, post, error } = await dispatch('post/getPost', { postId: route.query.id })
-          if (!success) {
-            alert(error)
-            return go(-1)
-          }
-
-          setInitData(post)
-        }
-      })
-
-      onMounted(() => {
-        window.addEventListener('beforeunload', unloadEvent)
-      })
-
-      onUnmounted(async () => {
-        window.removeEventListener('beforeunload', unloadEvent)
-        if (autoSave) clearInterval(autoSave)
-      })
-
-      onBeforeRouteLeave(async (to, from, next) => {
-        if (canLeavePage) next()
-        else {
-          const ok = await DIALOG_EL.value.show({
-            title: '현재 페이지에서 나가시겠습니까?',
-            message: '임시 저장되지 않은 내용은 사라집니다.',
-            okButton: '나가기',
-            cancelButton: '잠시만요!',
-          })
-          ok ? next() : next(false)
-        }
-      })
-
-      return {
-        CONTENT_EL,
-        plugins,
-        isMobile,
-        IMAGE_URL,
-        menuState,
-        postState,
-        fileState,
-        onChangeCanLeavePage,
-        onChangeMainMenu,
-        onChangeSubMenu,
-        onChangeCategory,
-        onChangeIsPublic,
-        onUpdatePost,
-        onUploadImages,
-        onInsertImage,
-        onDeleteImage,
-        onSelectImage,
+        if (category) document.body.querySelector('div.category select').value = category
       }
     },
+    { flush: 'post' }
+  )
+
+  onBeforeMount(async () => {
+    if (route.query.id) {
+      if (state.post.post) return setInitData(state.post.post)
+
+      const { success, post, error } = await dispatch('post/getPost', { postId: route.query.id })
+      if (!success) {
+        alert(error)
+        return go(-1)
+      }
+
+      setInitData(post)
+    }
+  })
+
+  onMounted(() => {
+    window.addEventListener('beforeunload', unloadEvent)
+  })
+
+  onUnmounted(async () => {
+    window.removeEventListener('beforeunload', unloadEvent)
+    if (autoSave) clearInterval(autoSave)
+  })
+
+  onBeforeRouteLeave(async (to, from, next) => {
+    if (canLeavePage) next()
+    else {
+      const ok = await DIALOG_EL.value.show({
+        title: '현재 페이지에서 나가시겠습니까?',
+        message: '임시 저장되지 않은 내용은 사라집니다.',
+        okButton: '나가기',
+        cancelButton: '잠시만요!',
+      })
+      ok ? next() : next(false)
+    }
   })
 </script>
 

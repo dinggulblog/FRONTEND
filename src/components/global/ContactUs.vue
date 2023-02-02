@@ -40,74 +40,52 @@
   </PopupModal>
 </template>
 
-<script>
-  import { ref, computed, inject } from 'vue'
+<script setup>
+  import { ref, computed, inject, defineExpose } from 'vue'
   import { useStore } from 'vuex'
   import { Form } from 'vee-validate'
   import * as Yup from 'yup'
-  import TextInput from '../ui/TextInput.vue'
-  import TextArea from '../ui/TextArea.vue'
   import PopupModal from '../slots/PopupModal.vue'
 
-  export default {
-    name: 'account',
-    components: {
-      Form,
-      TextInput,
-      TextArea,
-      PopupModal,
-    },
-    setup() {
-      const { state, dispatch } = useStore()
+  const { state, dispatch } = useStore()
 
-      const isLogin = computed(() => state.auth.isLogin)
+  const isLogin = computed(() => state.auth.isLogin)
 
-      const form = ref(null)
+  const form = ref(null)
 
-      const POPUP_EL = ref(null)
-      const TOAST_EL = inject('TOAST_EL')
+  const POPUP_EL = ref(null)
+  const TOAST_EL = inject('TOAST_EL')
 
-      const contactUsSchema = Yup.object().shape({
-        email: Yup.string().required('이메일을 입력해 주세요.').email(),
-        subject: Yup.string().required('제목을 입력해주세요.'),
-        content: Yup.string(),
-      })
+  const contactUsSchema = Yup.object().shape({
+    email: Yup.string().required('이메일을 입력해 주세요.').email(),
+    subject: Yup.string().required('제목을 입력해주세요.'),
+    content: Yup.string(),
+  })
 
-      const onSendMail = async (values) => {
-        console.log(values)
-        const { success, error } = await dispatch('mail/createMail', values)
+  const onSendMail = async (values) => {
+    const { success, error } = await dispatch('mail/createMail', values)
 
-        if (!success) {
-          return TOAST_EL.value.open('error', error)
-        } else {
-          close()
-        }
-      }
-
-      const open = () => {
-        if (!isLogin.value) {
-          close()
-          TOAST_EL.value.open('error', '로그인한 유저만 이용 가능합니다.')
-        } else {
-          POPUP_EL.value?.open()
-        }
-      }
-
-      const close = () => {
-        POPUP_EL.value?.close()
-      }
-
-      return {
-        isLogin,
-        form,
-        POPUP_EL,
-        contactUsSchema,
-        onSendMail,
-        open,
-        close,
-      }
-    },
+    if (!success) {
+      return TOAST_EL.value.open('error', error)
+    } else {
+      close()
+    }
   }
+
+  const open = () => {
+    if (!isLogin.value) {
+      close()
+      TOAST_EL.value.open('error', '로그인한 유저만 이용 가능합니다.')
+    } else {
+      POPUP_EL.value?.open()
+    }
+  }
+
+  const close = () => {
+    POPUP_EL.value?.close()
+  }
+
+  defineExpose({ open, close })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

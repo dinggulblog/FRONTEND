@@ -5,10 +5,10 @@
         <Button
           :class="isMobile ? 'btn_m-toggle' : 'btn_search'"
           :size="'md'"
-          :svg="isMobile ? 'menu' : searchState.isOpen ? 'close' : 'search'"
+          :svg="isMobile ? 'menu' : isOpenSearch ? 'close' : 'search'"
           :customColor="'var(--text3)'"
           :customPadding="'0'"
-          @click="isMobile ? onToggleGnbVisible() : onToggleSearchVisible()"
+          @click="isMobile ? onToggleGnb() : onToggleSearch()"
         >
         </Button>
       </div>
@@ -20,7 +20,7 @@
       </div>
 
       <div class="wrap_right">
-        <span class="a_login" v-if="!isMobile && !isLogin" @click="$refs.ACCOUNT_EL.open('login')">
+        <span class="a_login" v-if="!isMobile && !isLogin" @click="ACCOUNT_EL.open('login')">
           <Ico :size="'md'" :svg="'lock'" class="ico_lock" />
         </span>
 
@@ -29,7 +29,7 @@
             <AuthorSlot :profile="profile" />
             <div class="auth_items dropdown_items">
               <ul>
-                <li><span @click="$refs.ACCOUNT_EL.open('update')">Account</span></li>
+                <li><span @click="ACCOUNT_EL.open('update')">Account</span></li>
                 <li>
                   <router-link :to="{ name: 'profile', params: { nickname: profile.nickname } }">Profile</router-link>
                 </li>
@@ -43,112 +43,85 @@
           v-else
           class="btn_search"
           :size="'md'"
-          :svg="searchState.isOpen ? 'close' : 'search'"
+          :svg="isOpenSearch ? 'close' : 'search'"
           :customColor="'var(--text3)'"
           :customPadding="'0'"
-          @click="onToggleSearchVisible"
+          @click="onToggleSearch"
         />
       </div>
     </div>
   </div>
 
   <Transition name="fade_left">
-    <div class="container_gnb" v-if="gnbState.display">
+    <div class="container_gnb" v-if="!isMobile || isOpenGnb">
       <div class="gnb">
         <Navigation
-          @toggleGnbVisible="onToggleGnbVisible"
-          @toggleSearchVisible="onToggleSearchVisible"
-          @close="onClose"
-          @openLoginModal="$refs.ACCOUNT_EL.open('login')"
-          @openAccountModal="$refs.ACCOUNT_EL.open('update')"
-          ref="GNB_EL"
+          @logout="onLogout"
+          @closeAll="onCloseAll"
         />
       </div>
     </div>
   </Transition>
 
   <Transition name="fade_down">
-    <div class="container_searchForm" v-if="searchState.display">
+    <div class="container_searchForm" v-if="isOpenSearch">
       <SearchForm />
     </div>
   </Transition>
-
-  <Account ref="ACCOUNT_EL"></Account>
 </template>
 
-<script>
-  import { ref, reactive, computed } from 'vue'
+<script setup>
+  import { defineProps, inject, ref, computed } from 'vue'
   import { useStore } from 'vuex'
   import { useMedia } from '../../common/mediaQuery'
   import Navigation from './Navigation.vue'
   import SearchForm from './SearchForm.vue'
   import AuthorSlot from '../slotdata/AuthorSlot.vue'
-  import Account from './Account.vue'
   import LOGO from '../../assets/logo.png'
 
-  export default {
-    components: {
-      Navigation,
-      SearchForm,
-      AuthorSlot,
-      Account,
-    },
-    setup() {
-      const { state, dispatch } = useStore()
+  const props = defineProps({
+    isLogin: {
+      type: Boolean,
+      default: false
+    }
+  })
 
-      const ACCOUNT_EL = ref(null)
-      const GNB_EL = ref(null)
-      const isMobile = useMedia('only screen and (max-width: 1199px)')
-      const isLogin = computed(() => state.auth.isLogin)
+  const { state, dispatch } = useStore()
 
-      const profile = reactive({
-        nickname: computed(() => state.auth.profile.nickname),
-        avatar: computed(() => state.auth.profile.avatar),
-      })
+  const ACCOUNT_EL = inject('ACCOUNT_EL')
 
-      const gnbState = reactive({
-        isOpen: false,
-        display: computed(() => (!isMobile.value ? true : gnbState.isOpen ? true : false)),
-      })
-      const searchState = reactive({
-        isOpen: false,
-        display: computed(() => (searchState.isOpen ? true : false)),
-      })
+  const isOpenGnb = ref(false)
+  const isOpenSearch = ref(false)
+  const isMobile = useMedia('only screen and (max-width: 1199px)')
 
-      const onLogout = async () => {
-        await dispatch('auth/logout')
-      }
+  const profile = computed(() => ({
+    avatar: state.auth.profile?.avatar,
+    nickname: state.auth.profile?.nickname
+  }))
 
-      const onClose = () => {
-        gnbState.isOpen = false
-        searchState.isOpen = false
-      }
+  const onLogout = async () => {
+    await dispatch('auth/logout')
+  }
 
-      const onToggleGnbVisible = () => {
-        searchState.isOpen = false
-        gnbState.isOpen = !gnbState.isOpen
-      }
+  const onCloseGnb = () => {
+    isOpenGnb.value = false
+  }
 
-      const onToggleSearchVisible = () => {
-        gnbState.isOpen = false
-        searchState.isOpen = !searchState.isOpen
-      }
+  const onCloseSearch = () => {
+    isOpenSearch.value = false
+  }
 
-      return {
-        LOGO,
-        ACCOUNT_EL,
-        GNB_EL,
-        isMobile,
-        isLogin,
-        profile,
-        gnbState,
-        searchState,
-        onLogout,
-        onClose,
-        onToggleGnbVisible,
-        onToggleSearchVisible,
-      }
-    },
+  const onCloseAll = () => {
+    onCloseGnb()
+    onCloseSearch()
+  }
+
+  const onToggleGnb = () => {
+    isOpenGnb.value = !isOpenGnb.value
+  }
+
+  const onToggleSearch = () => {
+    isOpenSearch.value = !isOpenSearch.value
   }
 </script>
 

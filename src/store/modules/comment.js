@@ -66,7 +66,7 @@ const actions = {
 }
 
 const mutations = {
-  SET_COMMENTS(state, { comments = [], commentCount }) {
+  SET_COMMENTS(state, { comments = [], commentCount = 0 }) {
     state.comments = comments
     state.commentCount = commentCount
   },

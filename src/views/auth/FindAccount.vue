@@ -27,40 +27,29 @@
   </div>
 </template>
 
-<script>
-  import { defineComponent, inject } from 'vue'
+<script setup>
+  import { inject } from 'vue'
   import { useStore } from 'vuex'
   import { Form } from 'vee-validate'
   import * as Yup from 'yup'
   import TextInput from '../../components/ui/TextInput.vue'
 
-  export default defineComponent({
-    name: 'findAccount',
-    components: {
-      Form,
-      TextInput,
-    },
-    setup() {
-      const { dispatch } = useStore()
-      const TOAST_EL = inject('TOAST_EL')
+  const { dispatch } = useStore()
+  const TOAST_EL = inject('TOAST_EL')
 
-      const findSchema = Yup.object().shape({
-        email: Yup.string().required('이메일을 입력해 주세요.').email(),
-      })
-
-      const onSendEmail = async (values) => {
-        const { success, error } = await dispatch('auth/createResetLink', { email: values.email })
-
-        if (!success) {
-          return TOAST_EL.value.open('error', error)
-        } else {
-          return TOAST_EL.value.open('success', '전송되었습니다. 해당 이메일의 메일을 확인하세요.')
-        }
-      }
-
-      return { findSchema, onSendEmail }
-    },
+  const findSchema = Yup.object().shape({
+    email: Yup.string().required('이메일을 입력해 주세요.').email(),
   })
+
+  const onSendEmail = async (values) => {
+    const { success, error } = await dispatch('auth/createResetLink', { email: values.email })
+
+    if (!success) {
+      return TOAST_EL.value.open('error', error)
+    } else {
+      return TOAST_EL.value.open('success', '전송되었습니다. 해당 이메일의 메일을 확인하세요.')
+    }
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

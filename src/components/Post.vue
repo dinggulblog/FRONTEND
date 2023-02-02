@@ -24,10 +24,13 @@
           svg="more"
           :customColor="`var(--text2)`"
           :customPadding="'0'"
-          @click="onAction"
+          @click="$refs.ACTION_SLOT_EL.onToggle()"
         />
 
-        <ActionSlot ref="DROPBOX_SLOT_EL" :dropboxItems="dropboxItems" />
+        <ActionSlot 
+          ref="ACTION_SLOT_EL"
+          :dropboxItems="!auth ? { '링크 복사': onCopyLink } : { '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }"
+        />
       </div>
     </div>
 
@@ -80,7 +83,7 @@
 </template>
 
 <script setup>
-  import { defineProps, defineEmits, ref, reactive, computed, onBeforeMount } from 'vue'
+  import { defineEmits, ref, computed } from 'vue'
   import { useRouter } from 'vue-router'
   import { useStore } from 'vuex'
   import { throttle } from '../common/util.js'
@@ -90,45 +93,22 @@
   import AuthorSlot from './slotdata/AuthorSlot.vue'
   import PostInfoSlot from './slotdata/PostInfoSlot.vue'
 
-  const props = defineProps({
-    post: {
-      type: Object,
-      required: true,
-      default: () => ({}),
-    },
-  })
   const emits = defineEmits(['updateLike', 'deletePost'])
 
   const { push } = useRouter()
   const { state } = useStore()
 
   const plugins = ref([{ plugin: MarkdownEmoji }])
-  const DROPBOX_SLOT_EL = ref(null)
 
-  const profile = reactive({
-    nickname: computed(() => state.auth.profile.nickname),
-  })
-
-  const dropboxItems = reactive({})
-
-  const setDropboxItems = () => {
-    if (props.post?.author.nickname === profile?.nickname) {
-      dropboxItems['글 수정'] = onUpdatePost
-      dropboxItems['글 삭제'] = onDeletePost
-    }
-    dropboxItems['링크 복사'] = onCopyLink
-  }
-
-  const onAction = () => {
-    if (DROPBOX_SLOT_EL.value) DROPBOX_SLOT_EL.value.onToggle()
-  }
+  const post = computed(() => state.post.post)
+  const auth = computed(() => state.auth.id && (post.value?.author?._id === state.auth.id))
 
   const onUpdateLike = throttle(() => {
     emits('updateLike')
   }, 500)
 
   const onUpdatePost = () => {
-    if (props.post._id) push({ name: 'editor', query: { id: props.post._id } })
+    if (post.value?._id) push({ name: 'editor', query: { id: post.value?._id } })
   }
 
   const onDeletePost = () => {
@@ -147,10 +127,6 @@
       alert('링크 복사에 실패하였습니다.')
     }
   }
-
-  onBeforeMount(() => {
-    setDropboxItems()
-  })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

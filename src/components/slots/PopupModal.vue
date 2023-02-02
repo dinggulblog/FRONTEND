@@ -8,24 +8,20 @@
   </Teleport>
 </template>
 
-<script>
-  import { ref } from 'vue'
+<script setup>
+  import { ref, defineExpose } from 'vue'
 
-  export default {
-    setup() {
-      const isVisible = ref(false)
+  const isVisible = ref(false)
 
-      const open = () => {
-        isVisible.value = true
-      }
-
-      const close = () => {
-        isVisible.value = false
-      }
-
-      return { isVisible, open, close }
-    },
+  const open = () => {
+    isVisible.value = true
   }
+
+  const close = () => {
+    isVisible.value = false
+  }
+
+  defineExpose({ open, close })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

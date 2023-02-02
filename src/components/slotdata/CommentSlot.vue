@@ -4,25 +4,24 @@
       <div class="wrap_header">
         <div class="wrap_left">
           <!-- Comment Info -->
-          <CommentInfoSlot :comment="comment" />
+
+          <AuthorSlot :profile="comment.commenter" />
+
+          <Info>
+            <template #createdAt>
+              <li>
+                <span class="createdAt">{{ dayjs(comment.createdAt).format('YYYY년 M월 D일') }}</span>
+              </li>
+            </template>
+          </Info>
 
           <div class="wrap_reply_btn">
             <Button
-              v-if="!isVisible.commentEditor"
               class="btn_reply"
-              :content="'답글 작성'"
+              :content="!isVisible.commentEditor ? '답글 작성' : '에디터 닫기'"
               :customPadding="'0'"
               :customColor="`var(--primary)`"
-              @click="onCreateEditor"
-            />
-
-            <Button
-              v-else
-              class="btn_reply"
-              :content="'에디터 닫기'"
-              :customPadding="'0'"
-              :customColor="`var(--primary)`"
-              @click="onCloseEditor"
+              @click="!isVisible.commentEditor ? onCreateEditor() : onCloseEditor()"
             />
           </div>
         </div>
@@ -33,7 +32,7 @@
             :svg="'more'"
             :customPadding="'0'"
             :customColor="`var(--text2)`"
-            @click="onAction"
+            @click="$refs.ACTION_SLOT_EL.onToggle()"
           />
 
           <ActionSlot ref="ACTION_SLOT_EL" :dropboxItems="dropboxItems" />
@@ -80,7 +79,7 @@
   </li>
 
   <!-- Non-active Comment -->
-  <li class="not-is-acitve" v-else>
+  <li v-else class="not-is-acitve">
     <div class="content">
       <p>** 해당 댓글은 삭제된 댓글입니다 **</p>
 
@@ -110,150 +109,112 @@
   </li>
 </template>
 
-<script>
-  import { ref, reactive, computed, inject, onBeforeMount } from 'vue'
+<script setup>
+  import { defineProps, ref, reactive, computed, inject, onMounted } from 'vue'
   import { useStore } from 'vuex'
-  import CommentInfoSlot from './CommentInfoSlot.vue'
   import CommentEditor from '../CommentEditor.vue'
   import ActionSlot from './ActionSlot.vue'
+  import dayjs from 'dayjs'
+  import Info from '../slots/Info.vue'
+  import AuthorSlot from './AuthorSlot.vue'
 
-  export default {
-    name: 'CommentSlot',
-    components: {
-      CommentInfoSlot,
-      CommentEditor,
-      ActionSlot,
+  const props = defineProps({
+    comment: {
+      type: Object,
+      required: true,
+      default: () => ({}),
     },
-    props: {
-      comment: {
-        type: Object,
-        required: true,
-        default: () => ({}),
-      },
-      postId: {
-        type: String,
-        required: true,
-        default: '',
-      },
-      author: {
-        type: String,
-        required: true,
-        default: '',
-      },
-      userId: {
-        type: String,
-        required: false,
-        default: '',
-      },
+    postId: {
+      type: String,
+      required: true,
+      default: '',
     },
-    setup(props) {
-      const { state, getters, dispatch } = useStore()
-
-      const DIALOG_EL = inject('DIALOG_EL')
-      const TOAST_EL = inject('TOAST_EL')
-      const ACTION_SLOT_EL = ref(null)
-
-      const isUpdate = ref(false)
-      const isVisible = reactive({
-        commentEditor: false,
-        childComments: false,
-      })
-      const isAuthorized = computed(
-        () => props.comment?.isPublic || props.author === props.userId || props.comment?.commenter?._id === props.userId
-      )
-
-      const profile = reactive({
-        nickname: computed(() => state.auth.profile.nickname),
-      })
-
-      const parentComment = computed(() => getters['comment/getParentComment'](props.comment?.parentComment))
-
-      const dropboxItems = reactive({})
-
-      const setDropboxItems = () => {
-        if (props.comment?.commenter.nickname === profile.nickname) {
-          dropboxItems['댓글 수정'] = onUpdateEditor
-          dropboxItems['댓글 삭제'] = onDeleteComment
-        }
-        dropboxItems['댓글 복사'] = onCopyComment
-      }
-
-      const onAction = () => {
-        ACTION_SLOT_EL.value.onToggle()
-      }
-
-      const onDeleteComment = async () => {
-        const ok = await DIALOG_EL.value.show({
-          title: '댓글 삭제',
-          message: '해당 댓글을 삭제하시겠습니까?\n한번 삭제된 댓글은 되돌릴 수 없습니다.',
-        })
-        if (ok) {
-          const { success, error } = await dispatch('comment/deleteComment', {
-            id: props.comment._id,
-            postId: props.postId,
-            commenterId: props.userId,
-          })
-          if (success) {
-            TOAST_EL.value.open('success', '댓글이 삭제되었습니다.')
-          } else {
-            TOAST_EL.value.open('error', error)
-          }
-        }
-      }
-
-      const onCreateEditor = () => {
-        isUpdate.value = false
-        isVisible.commentEditor = true
-      }
-
-      const onUpdateEditor = () => {
-        isUpdate.value = true
-        isVisible.commentEditor = true
-      }
-
-      const onCloseEditor = () => {
-        isVisible.commentEditor = false
-      }
-
-      const onDisplayChildComment = () => {
-        isVisible.childComments = true
-      }
-
-      const onHiddenChildComment = () => {
-        isVisible.childComments = false
-      }
-
-      const onCopyComment = async () => {
-        try {
-          await navigator.clipboard.writeText(props.comment.content)
-          TOAST_EL.value.open('success', '댓글 내용이 복사되었습니다')
-        } catch (err) {
-          TOAST_EL.value.open('error', '댓글 내용 복사에 실패하였습니다.')
-        }
-      }
-
-      onBeforeMount(() => {
-        setDropboxItems()
-      })
-
-      return {
-        ACTION_SLOT_EL,
-        isUpdate,
-        isVisible,
-        isAuthorized,
-        parentComment,
-        dropboxItems,
-        onAction,
-        onDeleteComment,
-        onCreateEditor,
-        onUpdateEditor,
-        onCloseEditor,
-        onDisplayChildComment,
-        onHiddenChildComment,
-        onCopyComment,
-      }
+    author: {
+      type: String,
+      required: true,
+      default: '',
     },
+    userId: {
+      type: String,
+      required: false,
+      default: '',
+    },
+  })
+
+  const { getters, dispatch } = useStore()
+
+  const DIALOG_EL = inject('DIALOG_EL')
+  const TOAST_EL = inject('TOAST_EL')
+  const ACTION_SLOT_EL = ref(null)
+
+  const isUpdate = ref(false)
+  const dropboxItems = reactive({})
+  const isVisible = reactive({
+    commentEditor: false,
+    childComments: false,
+  })
+  const isAuthorized = computed(
+    () => props.comment.isPublic || props.author === props.userId || props.comment?.commenter?._id === props.userId
+  )
+  const parentComment = computed(() => getters['comment/getParentComment'](props.comment?.parentComment))
+
+  const setDropboxItems = () => {
+    if (props.comment?.commenter?._id === props.userId) {
+      dropboxItems['댓글 수정'] = onUpdateEditor
+      dropboxItems['댓글 삭제'] = onDeleteComment
+    }
+    dropboxItems['댓글 복사'] = onCopyComment
   }
+
+  const onCreateEditor = () => {
+    isUpdate.value = false
+    isVisible.commentEditor = true
+  }
+
+  const onUpdateEditor = () => {
+    isUpdate.value = true
+    isVisible.commentEditor = true
+  }
+
+  const onCloseEditor = () => {
+    isVisible.commentEditor = false
+  }
+
+  const onDisplayChildComment = () => {
+    isVisible.childComments = true
+  }
+
+  const onHiddenChildComment = () => {
+    isVisible.childComments = false
+  }
+
+  const onCopyComment = async () => {
+    try {
+      await navigator.clipboard.writeText(props.comment.content)
+      TOAST_EL.value.open('success', '댓글 내용이 복사되었습니다')
+    } catch (err) {
+      TOAST_EL.value.open('error', '댓글 내용 복사에 실패하였습니다.')
+    }
+  }
+
+  const onDeleteComment = async () => {
+    const ok = await DIALOG_EL.value.show({
+      title: '댓글 삭제',
+      message: '해당 댓글을 삭제하시겠습니까?\n한번 삭제된 댓글은 되돌릴 수 없습니다.',
+    })
+    if (!ok) return
+
+    const { success, error } = await dispatch('comment/deleteComment', {
+      id: props.comment._id,
+      postId: props.postId,
+      commenterId: props.userId,
+    })
+    success ? TOAST_EL.value.open('success', '댓글이 삭제되었습니다.') : TOAST_EL.value.open('error', error)
+  }
+
+  onMounted(() => {
+    setDropboxItems()
+  })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

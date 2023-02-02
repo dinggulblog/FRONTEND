@@ -2,16 +2,13 @@
   <div class="introduce">{{ introduce }}</div>
 </template>
 
-<script>
-  import { defineComponent } from 'vue'
+<script setup>
+  import { defineProps } from 'vue'
 
-  export default defineComponent({
-    props: {
-      introduce: {
-        type: String,
-        default: '소개를 작성해 보세요.',
-      },
+  const props = defineProps({
+    introduce: {
+      type: String,
+      default: '소개를 작성해 보세요.',
     },
-    setup(props) {},
   })
 </script>

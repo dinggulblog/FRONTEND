@@ -14,23 +14,15 @@
   </Info>
 </template>
 
-<script>
+<script setup>
+  import { defineProps } from 'vue'
   import Info from '../slots/Info.vue'
   import { getTime } from '../../common/time.js'
 
-  export default {
-    name: 'InfoSlot',
-    components: {
-      Info,
+  const props = defineProps({
+    post: {
+      type: Object,
+      required: true,
     },
-    props: {
-      post: {
-        type: Object,
-        required: true,
-      },
-    },
-    setup(props) {
-      return { getTime }
-    },
-  }
+  })
 </script>
