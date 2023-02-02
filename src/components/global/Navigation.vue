@@ -2,14 +2,12 @@
   <nav class="nav">
     <!-- Close button -->
     <div class="m_menu_close">
-      <button class="btn_close" @click="emits('closeAll')">
-        <Ico :size="'md'" :svg="'close'" :customColor="'var(--primary)'" />
-      </button>
+      <Button class="btn_close" :svg="'close'" :theme="'primary'" @click="emits('closeAll')" />
     </div>
 
     <!-- Login rink -->
     <div class="m_menu_login" v-if="!profile.nickname">
-      <span class="a_login" @click="emits('closeAll'), ACCOUNT_EL.open('login')">로그인</span>
+      <Button class="btn_login" :content="'로그인'" :theme="'primary'" @click="emits('closeAll'), ACCOUNT_EL.open('login')" />
       이 필요합니다.
     </div>
 
@@ -156,15 +154,15 @@
       display: none;
 
       @include mobile_all {
-        display: block;
+        display: flex;
+        align-items: center;
         width: 100%;
-        padding: 4.8rem 0;
+        padding: 4rem 0;
         border-bottom: 1px solid var(--primary);
 
-        .a_login {
+        .btn_login {
           text-decoration: underline;
-          color: var(--primary);
-          cursor: pointer;
+          padding:0;
 
           @media (hover: hover) and (pointer: fine) {
             &:hover {

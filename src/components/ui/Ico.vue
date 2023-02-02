@@ -13,8 +13,9 @@
     },
     size: {
       type: String,
+      default:'md',
     },
-    customColor: {
+    color: {
       type: String,
     },
   })
@@ -22,7 +23,7 @@
   const state = computed(() => ({
     svgPath: props.svg ? `path(var(--Ico-${props.svg}))` : '',
     svgSize: props.svg ? `var(--Ico-${props.size})` : 'var(--Ico-md)',
-    fill: props.customColor ? props.customColor : 'currentColor',
+    fill: props.color ? (props.color?.includes('primary') ? `var(--primary)` : props.color) : 'currentColor',
   }))
 </script>
 

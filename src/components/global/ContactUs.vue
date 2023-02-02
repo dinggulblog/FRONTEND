@@ -1,14 +1,7 @@
 <template>
   <PopupModal ref="POPUP_EL">
     <div id="contact-us">
-      <Button
-        class="btn_close"
-        :size="'md'"
-        :svg="'close'"
-        :customColor="'var(--primary)'"
-        :customPadding="'0'"
-        @click="close"
-      />
+      <Button class="btn_close" :svg="'close'" :theme="'primary'" @click="close" />
 
       <div class="wrap_contact-us">
         <div class="contact-us">
@@ -31,7 +24,8 @@
                 :placeholder="isLogin ? '메시지를 적어주세요.' : '로그인한 유저만 이용할 수 있습니다.'"
               />
 
-              <button type="submit" class="btn_submit">보내기</button>
+              <Button type="submit" class="btn_submit" :content="'보내기'" :shape="'fill-round-full'" :theme="'primary'" />
+              
             </form>
           </Form>
         </div>
@@ -93,7 +87,7 @@
     width: 48rem;
     box-shadow: var(--shadow1);
     background: var(--bg1);
-    padding: 2.4rem 3.2rem;
+    padding: 3.2rem;
     border-radius: 3.2rem;
     overflow-y: auto;
 
@@ -103,15 +97,11 @@
       border-radius: 0;
     }
   }
-  .btn_close {
-    margin: 2rem 0;
-  }
   .wrap_contact-us {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 0 0 2rem;
 
     /* account */
 

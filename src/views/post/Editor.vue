@@ -69,7 +69,7 @@
     <div class="wrap_image_btns">
       <div class="images_add_btn">
         <label for="upload_input" class="upload_label">
-          <Ico size="md" svg="add-image" class="ico_add-image" />사진 추가
+          <Ico :svg="'add-image'" class="ico_add-image" />사진 추가
         </label>
         <input
           ref="UPLOAD_INPUT_EL"
@@ -103,9 +103,7 @@
               :class="fileState.fileIndex === index ? 'selected_thumbnail' : ''"
               @click="onSelectImage(file, index), onInsertImage(file.thumbnail)"
             />
-            <button class="image_del_btn" @click="onDeleteImage(file, index)">
-              <i class="material-symbols-outlined"> do_not_disturb_on </i>
-            </button>
+            <Button class="image_del_btn" @click="onDeleteImage(file, index)" :svg="'del-image'" :theme="'primary'" />
           </div>
         </li>
       </ul>
@@ -116,14 +114,11 @@
       <Button
         class="btn_submit"
         :content="'글 등록'"
-        :size="'md'"
-        :bgColor="'primary-dark'"
-        :custom="true"
-        :rounded="true"
-        :full="isMobile ? true : false"
+        :shape="isMobile ? 'fill-round-full' : 'fill-round'"
+        :theme="'primary'"
         :disabled="menuState.isLoading"
         @onClick="onChangeCanLeavePage(true), onUpdatePost()"
-      ></Button>
+      />
     </div>
   </div>
 </template>

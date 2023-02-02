@@ -7,7 +7,7 @@
           <div class="title">
             <h2>{{ post.title }}</h2>
             <span v-if="!post.isPublic" class="lock_ico">
-              <Ico :size="'md'" :svg="'lock'" :customColor="'var(--text2)'" />
+              <Ico :svg="'lock'" :color="'var(--text2)'" />
             </span>
           </div>
         </div>
@@ -20,10 +20,8 @@
       <div class="wrap_right">
         <Button
           class="btn_dropbox"
-          size="sm"
-          svg="more"
-          :customColor="`var(--text2)`"
-          :customPadding="'0'"
+          :size="'sm'"
+          :svg="'more'"
           @click="$refs.ACTION_SLOT_EL.onToggle()"
         />
 
@@ -50,7 +48,7 @@
     <div class="wrap_like">
       <div class="liked_count">
         <span class="like_ico" @click="onUpdateLike">
-          <Ico :size="'lg'" :svg="'like-fill'" :customColor="!post.liked ? 'var(--disable)' : 'var(--likeActive)'" />
+          <Ico :size="'lg'" :svg="'like-fill'" :color="!post.liked ? 'var(--disable)' : 'var(--likeActive)'" />
         </span>
         <span>{{ post.likeCount }}</span>
       </div>
@@ -72,9 +70,6 @@
         <Button
           class="btn_link"
           :content="linkedPost.title"
-          :customFontSize="'1.4rem'"
-          :customColor="'var(--text3)'"
-          :customPadding="'0'"
           @click="onPushPost(linkedPost._id)"
         />
       </div>

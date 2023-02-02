@@ -36,21 +36,14 @@
       <Button
         v-show="slidePage !== 1 && !isAllMobileDevice"
         class="btn_old"
-        size="md"
-        svg="arrow-left"
-        bgColor="primary"
-        customColor="var(--text1)"
-        customPadding="0"
+        :size="'md'"
+        :svg="'arrow-left'"
         @onClick="prevSlide"
       />
       <Button
         v-show="slidePage < slideMaxPage && !isAllMobileDevice"
         class="btn_next"
-        size="md"
-        svg="arrow-right"
-        bgColor="primary"
-        customColor="var(--text1)"
-        customPadding="0"
+        :svg="'arrow-right'"
         @onClick="nextSlide"
       />
     </div>
@@ -301,6 +294,8 @@
         justify-content: center;
         position: relative;
         z-index: 10;
+        background: var(--primary);
+        color:#fff;
       }
 
       .btn_old {

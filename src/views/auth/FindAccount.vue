@@ -18,11 +18,8 @@
           success-message="올바른 이메일 주소입니다."
         />
 
-        <button type="submit" class="btn_submit">보내기</button>
+        <Button type="submit" class="btn_submit" :content="'보내기'" :shape="'fill-round-full'" :theme="'primary'" />
       </form>
-
-      <p>이메일을 잊어버린 경우 <strong>contact us</strong>에서 문의 바랍니다.</p>
-      <!-- <router-link :to="{ name: 'contactUs' }">contact us</router-link> -->
     </Form>
   </div>
 </template>
@@ -36,6 +33,7 @@
 
   const { dispatch } = useStore()
   const TOAST_EL = inject('TOAST_EL')
+  const CONTACT_EL = inject('CONTACT_EL')
 
   const findSchema = Yup.object().shape({
     email: Yup.string().required('이메일을 입력해 주세요.').email(),

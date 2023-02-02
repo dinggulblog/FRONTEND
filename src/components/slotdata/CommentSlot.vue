@@ -19,8 +19,7 @@
             <Button
               class="btn_reply"
               :content="!isVisible.commentEditor ? '답글 작성' : '에디터 닫기'"
-              :customPadding="'0'"
-              :customColor="`var(--primary)`"
+              :theme="'primary'"
               @click="!isVisible.commentEditor ? onCreateEditor() : onCloseEditor()"
             />
           </div>
@@ -30,8 +29,6 @@
             class="btn_dropbox"
             :size="'sm'"
             :svg="'more'"
-            :customPadding="'0'"
-            :customColor="`var(--text2)`"
             @click="$refs.ACTION_SLOT_EL.onToggle()"
           />
 
@@ -41,7 +38,7 @@
       <div class="content">
         <p>
           <span v-if="comment.parentComment" class="receiver">@ {{ parentComment?.commenter?.nickname }}</span>
-          <Ico v-if="!comment.isPublic" class="lock_ico" :size="'sm'" :svg="'lock'" :customColor="'var(--text2)'" />
+          <Ico v-if="!comment.isPublic" class="lock_ico" :size="'sm'" :svg="'lock'" :color="'var(--text2)'" />
           <span v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</span>
           <span v-else>{{ comment.content }}</span>
         </p>
@@ -51,9 +48,7 @@
           :svg="!isVisible.childComments ? 'arrow-down' : 'arrow-up'"
           :size="'xs'"
           :content="'답글 ' + comment.childCommentCount + '개'"
-          :customColor="'var(--primary)'"
-          :customFontSize="'1.4rem'"
-          :customPadding="'0'"
+          :theme="'primary'"
           @click="!isVisible.childComments ? onDisplayChildComment() : onHiddenChildComment()"
         />
       </div>
@@ -89,9 +84,7 @@
         :svg="!isVisible.childComments ? 'arrow-down' : 'arrow-up'"
         :size="'xs'"
         :content="'답글 ' + comment.childCommentCount + '개'"
-        :customColor="'var(--primary)'"
-        :customFontSize="'1.4rem'"
-        :customPadding="'0'"
+        :theme="'primary'"
         @click="!isVisible.childComments ? onDisplayChildComment() : onHiddenChildComment()"
       />
     </div>

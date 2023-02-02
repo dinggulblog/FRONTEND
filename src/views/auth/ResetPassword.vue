@@ -13,7 +13,7 @@
           success-message="비밀번호가 정상적으로 입력되었습니다."
         />
 
-        <button type="submit" class="btn_submit">변경하기</button>
+        <Button type="submit" class="btn_submit" :content="'변경하기'" :shape="'fill-round-full'" :theme="'primary'" />
       </form>
     </Form>
   </div>

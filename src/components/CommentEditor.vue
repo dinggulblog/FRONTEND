@@ -18,9 +18,8 @@
           <Button
             class="btn_submit"
             :content="!isUpdate ? '댓글 작성' : '댓글 수정'"
-            :bgColor="'primary-dark'"
-            :size="'md'"
-            :rounded="true"
+            :shape="'fill-round'"
+            :theme="'primary'"
             @onClick="!isUpdate ? onCreateComment() : onUpdateComment()"
           />
         </div>

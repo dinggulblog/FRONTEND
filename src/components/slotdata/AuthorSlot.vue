@@ -18,7 +18,7 @@
         class="btn_avatar_reset"
         :content="'아바타 초기화'"
         :size="'sm'"
-        :rounded="true"
+        :shape="'line-round'"
         @click="emits('resetAvatar')"
       />
     </template>

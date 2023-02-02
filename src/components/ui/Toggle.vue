@@ -4,7 +4,7 @@
       class="ico_toggle"
       :svg="isPublic ? 'toggle' : 'toggle-fill'"
       :size="'xl'"
-      :customColor="isPublic ? 'var(--disable)' : 'var(--primary)'"
+      :color="isPublic ? 'var(--disable)' : 'primary'"
       @click="onToggle()"
     />
 

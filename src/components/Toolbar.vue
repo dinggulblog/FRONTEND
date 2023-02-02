@@ -21,7 +21,7 @@
 
       <div class="type">
         <button v-for="view in views" :key="view.name" ref="typeBtnsEl">
-          <Ico :size="'md'" :svg="view.path" :class="view.name" />
+          <Ico :svg="view.path" :class="view.name" />
         </button>
       </div>
     </div>

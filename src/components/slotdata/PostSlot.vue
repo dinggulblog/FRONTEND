@@ -7,7 +7,7 @@
         </router-link>
 
         <div class="ico_like" v-if="post.liked">
-          <Ico :size="'md'" :svg="'like-fill'" :customColor="'var(--likeActive-dark)'" />
+          <Ico :svg="'like-fill'" :color="'var(--likeActive-dark)'" />
         </div>
       </div>
     </template>
@@ -24,13 +24,7 @@
 
     <template #lock_ico>
       <span class="wrap_ico_lock">
-        <Ico
-          v-if="!post.isPublic"
-          :size="'sm'"
-          :svg="'lock'"
-          :customColor="type === 'slide' ? '#fff' : 'var(--text2)'"
-          class="ico_lock"
-        />
+        <Ico v-if="!post.isPublic" class="ico_lock" :size="'sm'" :svg="'lock'" :color="type === 'slide' ? '#fff' : 'var(--text2)'"/>
       </span>
     </template>
 

@@ -13,14 +13,14 @@
     <div class="wrap_contents">
       <p class="links">
         <a href="https://github.com/dinggulblog" target="_blank">
-          <Ico size="lg" svg="github" class="ico_link" />dinggul project github
+          <Ico :size="'lg'" :svg="'github'" class="ico_link" />dinggul project github
         </a>
       </p>
     </div>
   </div>
 
   <div class="btn_create" v-if="isLogin">
-    <router-link :to="{ name: 'editor' }" class="a_create"><Ico size="md" svg="create" /></router-link>
+    <router-link :to="{ name: 'editor' }" class="a_create"><Ico :size="'md'" :svg="'create'" /></router-link>
   </div>
 
   <Dialog ref="DIALOG_EL" />
@@ -83,7 +83,7 @@
     #content {
       width: calc(120rem - 4.8rem);
       margin: 0 2.4rem;
-      padding: 4.8rem 0 0;
+      padding: 4.8rem 0;
       box-sizing: border-box;
 
       @include mobile {
@@ -105,7 +105,6 @@
 
   #footer {
     width: 100%;
-    margin: 4.8rem 0 0;
     font-size: 1.2rem;
     color: #a5a5a5;
     letter-spacing: 0.1rem;

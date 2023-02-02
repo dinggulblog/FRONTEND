@@ -3,14 +3,10 @@
     <div class="bar">
       <div class="wrap_left">
         <Button
-          :class="isMobile ? 'btn_m-toggle' : 'btn_search'"
-          :size="'md'"
+          :class="isMobile ? 'btn_m-toggle' : 'btn_search'" 
           :svg="isMobile ? 'menu' : isOpenSearch ? 'close' : 'search'"
-          :customColor="'var(--text3)'"
-          :customPadding="'0'"
           @click="isMobile ? onToggleGnb() : onToggleSearch()"
-        >
-        </Button>
+        />
       </div>
 
       <div class="logo">
@@ -20,34 +16,29 @@
       </div>
 
       <div class="wrap_right">
-        <span class="a_login" v-if="!isMobile && !isLogin" @click="ACCOUNT_EL.open('login')">
-          <Ico :size="'md'" :svg="'lock'" class="ico_lock" />
-        </span>
+        <Button
+          v-if="!isMobile && !isLogin" :class="'btn_login'" :svg="'lock'" @click="ACCOUNT_EL.open('login')"/>
 
         <div class="wrap_auth" v-else-if="!isMobile && profile.nickname">
           <div class="auth dropdown">
             <AuthorSlot :profile="profile" />
             <div class="auth_items dropdown_items">
               <ul>
-                <li><span @click="ACCOUNT_EL.open('update')">Account</span></li>
+                <li>
+                  <span @click="ACCOUNT_EL.open('update')">Account</span>
+                </li>
                 <li>
                   <router-link :to="{ name: 'profile', params: { nickname: profile.nickname } }">Profile</router-link>
                 </li>
-                <li><span @click="onLogout">Logout</span></li>
+                <li>
+                  <span @click="onLogout">Logout</span>
+                </li>
               </ul>
             </div>
           </div>
         </div>
 
-        <Button
-          v-else
-          class="btn_search"
-          :size="'md'"
-          :svg="isOpenSearch ? 'close' : 'search'"
-          :customColor="'var(--text3)'"
-          :customPadding="'0'"
-          @click="onToggleSearch"
-        />
+        <Button v-else class="btn_search" :svg="isOpenSearch ? 'close' : 'search'" @click="onToggleSearch" />
       </div>
     </div>
   </div>
@@ -55,10 +46,7 @@
   <Transition name="fade_left">
     <div class="container_gnb" v-if="!isMobile || isOpenGnb">
       <div class="gnb">
-        <Navigation
-          @logout="onLogout"
-          @closeAll="onCloseAll"
-        />
+        <Navigation @logout="onLogout" @closeAll="onCloseAll" />
       </div>
     </div>
   </Transition>
@@ -82,8 +70,8 @@
   const props = defineProps({
     isLogin: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   })
 
   const { state, dispatch } = useStore()
@@ -96,7 +84,7 @@
 
   const profile = computed(() => ({
     avatar: state.auth.profile?.avatar,
-    nickname: state.auth.profile?.nickname
+    nickname: state.auth.profile?.nickname,
   }))
 
   const onLogout = async () => {

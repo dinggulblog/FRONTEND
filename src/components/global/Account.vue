@@ -1,14 +1,7 @@
 <template>
   <PopupModal ref="POPUP_EL">
     <div id="account">
-      <Button
-        class="btn_close"
-        :size="'md'"
-        :svg="'close'"
-        :customColor="'var(--primary)'"
-        :customPadding="'0'"
-        @click="close"
-      />
+      <Button class="btn_close" :svg="'close'" :theme="'primary'" @click="close" />
 
       <div class="wrap_account">
         <div class="account" ref="ACCOUNT_EL">
@@ -49,7 +42,7 @@
                 success-message="사용할 수 있는 닉네임입니다."
               />
 
-              <button type="submit" class="btn_submit">가입 완료</button>
+              <Button type="submit" class="btn_submit" :content="'가입 완료'" :shape="'fill-round-full'" :theme="'primary'" />
             </form>
           </Form>
 
@@ -92,10 +85,10 @@
                 spellcheck="false"
                 success-message="사용할 수 있는 닉네임입니다."
               />
-              <button type="submit" class="btn_submit">수정 완료</button>
+              <Button type="submit" class="btn_submit" :content="'수정 완료'" :shape="'fill-round-full'" :theme="'primary'" />
 
               <div class="wrap_btn_sign-out" v-if="form === 'update'">
-                <button @click="onDeleteAccount" class="btn_sign-out">회원 탈퇴</button>
+                <Button class="btn_sign-out" :content="'회원 탈퇴'" @click="onDeleteAccount" />
               </div>
             </form>
           </Form>
@@ -107,7 +100,7 @@
             <form @submit="handleSubmit($event, onLogin)" class="login_form">
               <TextInput name="email" type="email" label="이메일" placeholder="User ID (Email)" spellcheck="false" />
               <TextInput name="password" type="password" label="비밀번호" placeholder="Password" />
-              <button type="submit" class="btn_submit">로그인</button>
+              <Button type="submit" class="btn_submit" :content="'로그인'" :shape="'fill-round-full'" :theme="'primary'" />
             </form>
 
             <div class="wrap_find_account" v-if="form === 'login'">
@@ -117,7 +110,7 @@
             </div>
 
             <div class="wrap_sign-up" v-if="form === 'login'">
-              <button @click="form = 'create'" class="btn_create-account">회원가입</button>
+              <Button class="btn_create-account" :content="'회원가입'" :theme="'primary'" @click="form = 'create'"/>
             </div>
           </Form>
         </div>
@@ -161,42 +154,42 @@
       .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
   })
 
-      const updateAccountSchema = Yup.object().shape({
-        email: Yup.string().default(user.value.email).email(),
-        currentPassword: Yup.string().required(),
-        newPassword: Yup.string()
-          .nullable(true)
-          .matches(
-            /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/,
-            '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'
-          ),
-        passwordConfirmation: Yup.string().oneOf([Yup.ref('newPassword')], '비밀번호가 일치하지 않습니다.'),
-        nickname: Yup.string()
-          .default(user.value.nickname)
-          .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
-      })
+  const updateAccountSchema = Yup.object().shape({
+    email: Yup.string().default(user.value.email).email(),
+    currentPassword: Yup.string().required(),
+    newPassword: Yup.string()
+      .nullable(true)
+      .matches(
+        /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/,
+        '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'
+      ),
+    passwordConfirmation: Yup.string().oneOf([Yup.ref('newPassword')], '비밀번호가 일치하지 않습니다.'),
+    nickname: Yup.string()
+      .default(user.value.nickname)
+      .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
+  })
 
-      const onLogin = async (values) => {
-        const { success, error } = await dispatch('auth/login', values)
-        !success ? TOAST_EL.value.open('error', error) : close()
-      }
+  const onLogin = async (values) => {
+    const { success, error } = await dispatch('auth/login', values)
+    !success ? TOAST_EL.value.open('error', error) : close()
+  }
 
-      const onCreateAccount = async (values) => {
-        const { success, error } = await dispatch('auth/createAccount', values)
-        !success ? TOAST_EL.value.open('error', error) : close()
-      }
+  const onCreateAccount = async (values) => {
+    const { success, error } = await dispatch('auth/createAccount', values)
+    !success ? TOAST_EL.value.open('error', error) : close()
+  }
 
-      const onUpdateAccount = async (values) => {
-        const { success, error } = await dispatch('auth/updateAccount', values)
-        !success ? TOAST_EL.value.open('error', error) : close()
-      }
+  const onUpdateAccount = async (values) => {
+    const { success, error } = await dispatch('auth/updateAccount', values)
+    !success ? TOAST_EL.value.open('error', error) : close()
+  }
 
-      const onDeleteAccount = async (values) => {
-        if (!confirm('계정 탈퇴를 진행하시겠습니까?')) return
+  const onDeleteAccount = async (values) => {
+    if (!confirm('계정 탈퇴를 진행하시겠습니까?')) return
 
-        const { success, error } = await dispatch('auth/deleteAccount', values)
-        !success ? TOAST_EL.value.open('error', error) : close()
-      }
+    const { success, error } = await dispatch('auth/deleteAccount', values)
+    !success ? TOAST_EL.value.open('error', error) : close()
+  }
 
   const open = (type) => {
     form.value = type
@@ -215,7 +208,7 @@
     width: 37rem;
     box-shadow: var(--shadow1);
     background: var(--bg1);
-    padding: 2.4rem 3.2rem;
+    padding: 3.2rem;
     border-radius: 3.2rem;
     overflow-y: auto;
 
@@ -225,15 +218,11 @@
       border-radius: 0;
     }
   }
-  .btn_close {
-    margin: 2rem 0;
-  }
   .wrap_account {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 0 0 2rem;
 
     /* account */
 
@@ -252,11 +241,6 @@
         text-transform: capitalize;
       }
 
-      button {
-        font-weight: 500;
-        font-size: 1.3rem;
-      }
-
       form {
         display: flex;
         flex-direction: column;
@@ -265,14 +249,6 @@
       }
 
       .btn_submit {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 4rem;
-        color: var(--text1);
-        background-color: var(--primary);
-        border-radius: 3.2rem;
         margin: 4.8rem 0 0;
 
         @media (hover: hover) and (pointer: fine) {
@@ -295,7 +271,6 @@
           align-items: center;
           justify-content: center;
           .btn_sign-out {
-            color: var(--text3);
             text-decoration: underline;
           }
         }
@@ -320,6 +295,8 @@
 
           .a_find-account {
             text-decoration: underline;
+            font-size: 1.2rem;
+            color: var(--primary);
           }
         }
 
@@ -332,15 +309,12 @@
           padding: 3.2rem 0 0;
         }
 
-        .a_find-account,
         .btn_create-account {
-          font-size: 1.4rem;
-          color: var(--primary);
-
           &:hover {
             color: var(--primary-light);
           }
         }
+        
       }
     }
   }

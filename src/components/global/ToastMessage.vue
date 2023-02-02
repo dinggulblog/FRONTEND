@@ -1,7 +1,7 @@
 <template>
   <Transition name="fade_down">
     <div class="toast-message" v-if="isVisible">
-      <Ico class="ico_system" :size="'md'" :svg="state.type" :customColor="state.color" />
+      <Ico class="ico_system" :svg="state.type" :color="state.color" />
       {{ state.message }}
     </div>
   </Transition>

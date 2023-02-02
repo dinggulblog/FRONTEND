@@ -7,8 +7,8 @@
       </div>
 
       <div class="btns">
-        <button @click="_cancel">{{ cancelButton }}</button>
-        <button @click="_confirm">{{ okButton }}</button>
+        <Button :content="cancelButton" :shape="'line-round'" @click="_cancel" />
+        <Button :content="okButton" :shape="'fill-round'" :theme="'primary'" @click="_confirm" />
       </div>
     </div>
   </PopupModal>
@@ -57,7 +57,7 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   #dialog {
-    max-width: 37rem;
+    max-width: 48rem;
     box-shadow: var(--shadow1);
     background: var(--bg1);
     padding: 3.2rem 2.4rem;
@@ -99,30 +99,8 @@
       justify-content: flex-end;
       margin-top: 3.2rem;
 
-      button {
-        width: 9.8rem;
-        height: 4rem;
-        display: grid;
-        place-content: center;
-        border: 0;
-        font-weight: 500;
-        font-size: 1.2rem;
-        border-radius: 3.2rem;
-
-        @include mobile {
-          font-size: 1.6rem;
-        }
-      }
-
       button:nth-child(1) {
-        color: var(--primary);
-        border: 2px solid var(--primary);
         margin: 0 1.2rem 0 0;
-      }
-
-      button:nth-child(2) {
-        color: var(--text1);
-        background-color: var(--primary);
       }
     }
   }

@@ -1,6 +1,6 @@
 <template>
-  <button class="btn" type="button" :style="customState" @click="onClick" ref="BTN_EL">
-    <Ico :svg="svg" :size="size" :customColor="customColor"></Ico>
+  <button class="btn" type="button" @click="onClick" ref="BTN_EL">
+    <Ico :svg="svg" :size="size"></Ico>
     {{ content }}
   </button>
 </template>
@@ -14,75 +14,60 @@
     content: {
       type: String,
     },
+    shape: {
+      type: String,
+      validator: (value) =>
+        [
+          'fill',
+          'fill-full',
+          'fill-round',
+          'fill-round-full',
+          'line',
+          'line-full',
+          'line-round',
+          'line-round-full',
+        ].includes(value),
+    },
     size: {
       type: String,
       validator: (value) => ['xs', 'sm', 'md', 'lg'].includes(value),
+      default: 'md',
     },
-    customSize: {
-      type: String,
-    },
-    customFontSize: {
-      type: String,
-    },
-    bgColor: {
-      type: String,
-      validator: (value) => ['primary', 'primary-dark', 'secondary', 'secondary-dark'].includes(value),
-    },
-    borderColor: {
-      type: String,
-      validator: (value) => ['primary', 'primary-dark', 'secondary', 'secondary-dark'].includes(value),
-    },
-    customBgColor: {
-      type: String,
-    },
-    customBorderColor: {
-      type: String,
-    },
-    customColor: {
-      type: String,
-    },
-    customBorder: {
-      type: String,
-    },
-    customPadding: {
+    theme: {
       type: String,
     },
     svg: {
       type: String,
     },
-    full: {
-      type: Boolean,
-      default: false,
-    },
-    rounded: {
-      type: Boolean,
-      default: false,
-    },
   })
 
   const emit = defineEmits(['onClick'])
 
-  const svgPath = ref(null)
-
   const state = computed(() => ({
-    width: props.full ? '100%' : 'auto',
-    padding: props.size ? `var(--padding-${props.size})` : '0',
+    width: props.shape?.includes('full') ? '100%' : 'auto',
+    padding: props.shape ? `var(--padding-${props.size})` : undefined,
     fontSize: props.size ? `var(--text-${props.size})` : '1.2rem',
-    bgColor: props.bgColor ? `var(--${props.bgColor})` : 'transparent',
-    color: props.bgColor ? '#fff' : props.borderColor ? `var(--${props.borderColor})` : 'var(--text-light)',
-    border: props.borderColor ? 'solid 0.2rem' : '0',
-    borderRadius: props.rounded ? '3.2rem' : '0',
-    borderColor: props.borderColor ? `var(--${props.borderColor})` : 'transparent',
-    svgMargin: props.svg && props.content ? '0.8rem' : '',
-  }))
-
-  const customState = computed(() => ({
-    padding: props.customPadding ?? '',
-    color: props.customColor ?? '',
-    background: props.customBgColor ?? '',
-    border: props.customBorder ?? '',
-    borderColor: props.customBorderColor ?? '',
-    fontSize: props.customFontSize ?? '',
+    bgColor:
+      props.shape?.includes('fill')
+        ? props.theme
+        ? `var(--${props.theme})`
+        : `var(--bg2)`
+        : undefined,
+    color:
+      props.shape?.includes('fill')
+        ? '#fff'
+        : props.theme
+        ? `var(--${props.theme})`
+        : `var(--text2)`,
+    border: props.shape?.includes('line') ? 'solid 0.1rem' : undefined,
+    borderRadius: props.shape?.includes('round') ? '3.2rem' : undefined,
+    borderColor:
+     props.shape?.includes('line')
+        ? props.theme
+        ? `var(--${props.theme})`
+        : `var(--border3)`
+        : undefined,
+    svgMargin: props.svg && props.content ? '0.8rem' : undefined,
   }))
 
   const onClick = throttle(() => emit('onClick'), 250)

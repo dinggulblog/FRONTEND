@@ -50,9 +50,8 @@
         class="btn_edit_introduce"
         :content="displayState.state === 'introEdit' ? '편집 완료' : '소개글 편집'"
         :size="'sm'"
-        :rounded="true"
-        :bgColor="'primary-dark'"
-        :customFontSize="'1.2rem'"
+        :shape="'fill-round'"
+        :theme="'primary'"
         @onClick="displayState.state === 'introEdit' ? onUpdateIntroduce() : onChangeState('introEdit')"
       ></Button>
     </div>
@@ -119,7 +118,6 @@
   })
 
   const myProfile = computed(() => state.auth.profile)
-  const alignItems = computed(() => (displayState.state === 'edit' ? 'flex-start' : 'center'))
 
   const onChangeState = (state) => {
     displayState.state = state
@@ -210,7 +208,7 @@
       margin: 0 0 4.8rem;
 
       &:deep(.author) {
-        align-items: v-bind('alignItems');
+        align-items: center;
 
         @include mobile {
           align-items: center;
@@ -225,15 +223,19 @@
           }
 
           .wrap_input_file {
-            margin: 2.4rem 0 0.8rem;
-            label {
               padding: 0.8rem 1.2rem;
               border-radius: 3.2rem;
               background: var(--primary);
               color: var(--text1);
               font-size: 1.1rem;
-            }
+              cursor: pointer;
+              margin: 0.8rem 0;
 
+              label{
+                padding:0;
+                margin:0;
+              }
+  
             #input_file {
               display: none;
             }
@@ -265,7 +267,7 @@
             border-radius: 1.2rem;
             padding: 1.2rem;
             width: 100%;
-            min-height: 6.8rem;
+            min-height: 12rem;
             resize: none;
             font-size: 1.4rem;
             color: var(--text2);

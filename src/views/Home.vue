@@ -6,22 +6,17 @@
         <li style="margin-right: 0.8rem">
           <Button
             class="btn_sort_view"
-            content="조회수순"
-            size="md"
-            :customColor="trandingType === 'view' ? 'var(--primary)' : 'var(--text3)'"
-            :customPadding="'0'"
+            :content="'조회수순'"
+            :theme="trandingType === 'view' ? 'primary' : ''"
             @click="onChangeTrandingType('view')"
           />
         </li>
         <li>
           <Button
             class="btn_sort_like"
-            content="좋아요순"
-            size="md"
-            :customColor="trandingType === 'like' ? 'var(--primary)' : 'var(--text3)'"
-            :customPadding="'0'"
+            :content="'좋아요순'"
+            :theme="trandingType === 'like' ? 'primary' : ''"
             @click="onChangeTrandingType('like')"
-            style="margin-left: 1.2rem"
           />
         </li>
       </ul>
@@ -150,6 +145,11 @@
         &:hover::after {
           transform: scaleX(1);
         }
+
+      }
+
+      .btn_sort_like {
+        margin:0 0 0 0.4rem;
       }
     }
   }
