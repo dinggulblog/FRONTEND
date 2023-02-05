@@ -62,7 +62,7 @@
     </div>
 
     <ul class="comment_childItem" v-if="comment.childComments && isVisible.childComments">
-      <CommentSlot
+      <Comment
         v-for="childComment in comment.childComments"
         :key="childComment._id"
         :comment="childComment"
@@ -90,7 +90,7 @@
     </div>
 
     <ul class="comment_childItem" v-if="comment.childComments && isVisible.childComments">
-      <CommentSlot
+      <Comment
         v-for="childComment in comment.childComments"
         :key="childComment._id"
         :comment="childComment"
@@ -105,6 +105,7 @@
 <script setup>
   import { ref, reactive, computed, inject, onMounted } from 'vue'
   import { useStore } from 'vuex'
+  import Comment from './Comment.vue'
   import CommentEditor from './CommentEditor.vue'
   import Action from './Action.vue'
   import User from './User.vue'

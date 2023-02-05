@@ -84,7 +84,7 @@
     <div class="comments" ref="COMMENTS_EL">
       <h2>댓글 {{ commentCount }}개</h2>
       <ul class="comment_items" v-if="comments.length">
-        <CommentSlot
+        <Comment
           v-for="comment in comments"
           :key="comment._id"
           :comment="comment"
@@ -102,7 +102,7 @@
   import { useStore } from 'vuex'
   import { useRouter } from 'vue-router'
   import CommentEditor from '../../components/CommentEditor.vue'
-  import CommentSlot from '../../components/Comment.vue'
+  import Comment from '../../components/Comment.vue'
   import Markdown from 'vue3-markdown-it'
   import MarkdownEmoji from 'markdown-it-emoji'
   import Action from '../../components/Action.vue'
