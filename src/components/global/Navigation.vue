@@ -13,7 +13,7 @@
     <!-- Account info -->
     <div class="wrap_auth" v-else>
       <div class="auth">
-        <User :profile="profile" />
+        <User :profile="user" />
       </div>
 
       <div class="auth_items">

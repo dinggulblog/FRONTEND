@@ -20,7 +20,7 @@
 
         <div class="wrap_auth" v-else-if="!isMobile && user.nickname">
           <div class="auth dropdown">
-            <User :profile="profile" />
+            <User :profile="user" />
             <div class="auth_items dropdown_items">
               <ul>
                 <li>
@@ -199,7 +199,7 @@
             align-items: center;
             margin: 0 0 0 4.8rem;
 
-            &:deep(.author) {
+            &:deep(.user-info) {
               flex-direction: row-reverse;
 
               .wrap_avatar {
