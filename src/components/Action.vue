@@ -8,9 +8,9 @@
 
 <script setup>
   import { defineProps, defineExpose, ref, onMounted, onUnmounted } from 'vue'
-  import { useMedia } from '../../common/mediaQuery'
-  import Dropbox from '../ui/Dropbox.vue'
-  import BottomSheet from '../ui/BottomSheet.vue'
+  import { useMedia } from '../common/mediaQuery.js'
+  import Dropbox from './ui/Dropbox.vue'
+  import BottomSheet from './ui/BottomSheet.vue'
 
   const props = defineProps({
     dropboxItems: {

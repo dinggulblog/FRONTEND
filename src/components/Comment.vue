@@ -5,7 +5,7 @@
         <div class="wrap_left">
           <!-- Comment Info -->
 
-          <AuthorSlot :profile="comment.commenter" />
+          <User :profile="comment.commenter" />
 
           <Info>
             <template #createdAt>
@@ -32,7 +32,7 @@
             @click="$refs.ACTION_SLOT_EL.onToggle()"
           />
 
-          <ActionSlot ref="ACTION_SLOT_EL" :dropboxItems="dropboxItems" />
+          <Action ref="ACTION_SLOT_EL" :dropboxItems="dropboxItems" />
         </div>
       </div>
       <div class="content">
@@ -105,11 +105,11 @@
 <script setup>
   import { defineProps, ref, reactive, computed, inject, onMounted } from 'vue'
   import { useStore } from 'vuex'
-  import CommentEditor from '../CommentEditor.vue'
-  import ActionSlot from './ActionSlot.vue'
+  import CommentEditor from './CommentEditor.vue'
+  import Action from './Action.vue'
+  import User from './User.vue'
   import dayjs from 'dayjs'
-  import Info from '../slots/Info.vue'
-  import AuthorSlot from './AuthorSlot.vue'
+  import Info from './slots/Info.vue'
 
   const props = defineProps({
     comment: {

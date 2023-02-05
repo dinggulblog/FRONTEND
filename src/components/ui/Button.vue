@@ -1,12 +1,12 @@
 <template>
-  <button class="btn" type="button" @click="onClick" ref="BTN_EL">
+  <button class="btn" type="button" @click="onClick">
     <Ico :svg="svg" :size="size"></Ico>
     {{ content }}
   </button>
 </template>
 
 <script setup>
-  import { defineProps, defineEmits, computed, ref } from 'vue'
+  import { defineProps, defineEmits, computed } from 'vue'
   import { throttle } from '../../common/util.js'
   import Ico from './Ico.vue'
 

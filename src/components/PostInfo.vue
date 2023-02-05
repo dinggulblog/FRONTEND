@@ -16,8 +16,8 @@
 
 <script setup>
   import { defineProps } from 'vue'
-  import Info from '../slots/Info.vue'
-  import { getTime } from '../../common/time.js'
+  import Info from './slots/Info.vue'
+  import { getTime } from '../common/time.js'
 
   const props = defineProps({
     post: {

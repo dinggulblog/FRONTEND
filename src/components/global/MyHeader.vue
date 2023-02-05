@@ -21,7 +21,7 @@
 
         <div class="wrap_auth" v-else-if="!isMobile && profile.nickname">
           <div class="auth dropdown">
-            <AuthorSlot :profile="profile" />
+            <User :profile="profile" />
             <div class="auth_items dropdown_items">
               <ul>
                 <li>
@@ -64,7 +64,7 @@
   import { useMedia } from '../../common/mediaQuery'
   import Navigation from './Navigation.vue'
   import SearchForm from './SearchForm.vue'
-  import AuthorSlot from '../slotdata/AuthorSlot.vue'
+  import User from '../User.vue'
   import LOGO from '../../assets/logo.png'
 
   const props = defineProps({

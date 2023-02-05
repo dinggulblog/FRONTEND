@@ -7,14 +7,19 @@
 
     <!-- Login rink -->
     <div class="m_menu_login" v-if="!profile.nickname">
-      <Button class="btn_login" :content="'로그인'" :theme="'primary'" @click="emits('closeAll'), ACCOUNT_EL.open('login')" />
+      <Button
+        class="btn_login"
+        :content="'로그인'"
+        :theme="'primary'"
+        @click="emits('closeAll'), ACCOUNT_EL.open('login')"
+      />
       이 필요합니다.
     </div>
 
     <!-- Account info -->
     <div class="wrap_auth" v-else>
       <div class="auth">
-        <AuthorSlot :profile="profile" />
+        <User :profile="profile" />
       </div>
 
       <div class="auth_items">
@@ -63,7 +68,7 @@
 <script setup>
   import { defineEmits, inject, computed } from 'vue'
   import { useStore } from 'vuex'
-  import AuthorSlot from '../slotdata/AuthorSlot.vue'
+  import User from '../User.vue'
 
   const emits = defineEmits(['logout', 'closeAll'])
 
@@ -162,7 +167,7 @@
 
         .btn_login {
           text-decoration: underline;
-          padding:0;
+          padding: 0;
 
           @media (hover: hover) and (pointer: fine) {
             &:hover {

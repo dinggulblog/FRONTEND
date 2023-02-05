@@ -39,7 +39,7 @@
   import { useStore } from 'vuex'
   import { Form } from 'vee-validate'
   import * as Yup from 'yup'
-  import PopupModal from '../slots/PopupModal.vue'
+  import PopupModal from '../ui/PopupModal.vue'
 
   const { state, dispatch } = useStore()
 

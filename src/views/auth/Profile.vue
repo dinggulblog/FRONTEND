@@ -74,7 +74,7 @@
   import { useRouter } from 'vue-router'
   import { useStore } from 'vuex'
   import { QuillEditor } from '@vueup/vue-quill'
-  import AuthorSlot from '../../components/slotdata/AuthorSlot.vue'
+  import User from '../../components/User.vue'
   import Posts from '../../components/Posts.vue'
   import '@vueup/vue-quill/dist/vue-quill.snow.css'
 

@@ -53,8 +53,8 @@
 <script setup>
   import { defineProps, ref, reactive, computed, watch, onMounted } from 'vue'
   import { useStore } from 'vuex'
-  import { useMedia } from '../common/mediaQuery'
-  import PostSlot from './slotdata/PostSlot.vue'
+  import { useMedia } from '../common/mediaQuery.js'
+  import PostSlot from './PostsItem.vue'
   import Observer from './global/Observer.vue'
 
   const props = defineProps({

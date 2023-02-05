@@ -16,7 +16,7 @@
 
 <script setup>
   import { defineExpose, ref } from 'vue'
-  import PopupModal from '../slots/PopupModal.vue'
+  import PopupModal from '../ui/PopupModal.vue'
 
   const POPUP_EL = ref(null)
   const title = ref(null)
@@ -57,7 +57,7 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   #dialog {
-    max-width: 48rem;
+    max-width: 40rem;
     box-shadow: var(--shadow1);
     background: var(--bg1);
     padding: 3.2rem 2.4rem;

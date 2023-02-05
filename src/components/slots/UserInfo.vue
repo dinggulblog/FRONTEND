@@ -1,5 +1,5 @@
 <template>
-  <div class="author">
+  <div class="user-info">
     <div class="wrap_avatar">
       <slot name="avatar"></slot>
       <slot name="avatar_upload"></slot>
@@ -15,7 +15,7 @@
 <script></script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .author {
+  .user-info {
     display: flex;
     align-items: center;
 

@@ -2,6 +2,7 @@ module.exports = {
   root: true,
   env: {
     node: true,
+    'vue/setup-compiler-macros': true,
   },
   parserOptions: {
     parser: 'babel-eslint',
@@ -14,9 +15,10 @@ module.exports = {
     'no-extra-boolean-cast': 0,
     'no-mixed-spaces-and-tabs': 0,
     'vue/custom-event-name-casing': 'off',
+    'vue/multi-word-component-names': 'off',
     'vetur.validation.template': 0,
     'vetur.validation.script': 0,
-    'vetur.validation.style': 0
+    'vetur.validation.style': 0,
   },
 }
 

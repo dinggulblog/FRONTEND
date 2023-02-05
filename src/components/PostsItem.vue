@@ -57,12 +57,12 @@
   import { defineProps, ref } from 'vue'
   import { useStore } from 'vuex'
   import markdownText from 'markdown-to-text'
-  import DEFAULT_THUMBNAIL from '../../assets/default_thumbnail.webp'
-  import card from '../slots/Card.vue'
-  import list from '../slots/List.vue'
-  import slide from '../slots/Slide.vue'
-  import recent from '../slots/Recent.vue'
-  import { getTime } from '../../common/time.js'
+  import DEFAULT_THUMBNAIL from '../assets/default_thumbnail.webp'
+  import card from './slots/Card.vue'
+  import list from './slots/List.vue'
+  import slide from './slots/Slide.vue'
+  import recent from './slots/Recent.vue'
+  import { getTime } from '../common/time.js'
 
   const props = defineProps({
     type: {

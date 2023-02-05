@@ -1,5 +1,5 @@
 <template>
-  <Author>
+  <UserInfo>
     <template #avatar>
       <img
         class="avatar"
@@ -39,13 +39,13 @@
         @change="emits('updateGreetings', $event)"
       />
     </template>
-  </Author>
+  </UserInfo>
 </template>
 
 <script setup>
   import { defineProps, defineEmits } from 'vue'
-  import Author from '../slots/Author.vue'
-  import DEFAULT_AVATAR_192 from '../../assets/default_avatar_192.webp'
+  import UserInfo from './slots/UserInfo.vue'
+  import DEFAULT_AVATAR_192 from '../assets/default_avatar_192.webp'
 
   const props = defineProps({
     profile: {
