@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-  import { defineExpose, onMounted, ref } from 'vue'
+  import { onMounted, ref } from 'vue'
 
   const DROPBOX_ITEMS_EL = ref(null)
 

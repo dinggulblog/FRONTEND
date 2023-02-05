@@ -103,7 +103,7 @@
 </template>
 
 <script setup>
-  import { defineProps, ref, reactive, computed, inject, onMounted } from 'vue'
+  import { ref, reactive, computed, inject, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import CommentEditor from './CommentEditor.vue'
   import Action from './Action.vue'

@@ -8,9 +8,10 @@
 </template>
 
 <script setup>
-  import { defineExpose, ref, computed } from 'vue'
+  import { ref, computed } from 'vue'
 
   const isVisible = ref(false)
+  
   const state = computed(() => ({
     type: null,
     message: null,
@@ -34,7 +35,7 @@
     isVisible.value = false
   }
 
-  defineExpose({ open })
+  defineExpose({ open, close })
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

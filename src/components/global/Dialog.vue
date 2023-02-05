@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-  import { defineExpose, ref } from 'vue'
+  import { ref } from 'vue'
   import PopupModal from '../ui/PopupModal.vue'
 
   const POPUP_EL = ref(null)

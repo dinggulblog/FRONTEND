@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-  import { defineProps, defineEmits, onMounted, onUnmounted, ref } from 'vue'
+  import { onMounted, onUnmounted, ref } from 'vue'
 
   const props = defineProps({
     page: {

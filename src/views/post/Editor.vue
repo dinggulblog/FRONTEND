@@ -31,7 +31,7 @@
 
       <!-- Public scope toggle button -->
       <div class="wrap_toggle">
-        <Toggle :isPublic="postState.isPublic" @updateIsPublic="onChangeIsPublic" />
+        <Toggle :isActive="postState.isPublic" @update="onChangeIsPublic" />
       </div>
     </div>
 
@@ -88,7 +88,7 @@
           :content="'사진 모두 제거'"
           :size="'md'"
           :disabled="menuState.isLoading"
-          @onClick="onClearImages"
+          @click="onClearImages"
         ></Button>
         -->
     </div>
@@ -117,7 +117,7 @@
         :shape="isMobile ? 'fill-round-full' : 'fill-round'"
         :theme="'primary'"
         :disabled="menuState.isLoading"
-        @onClick="onChangeCanLeavePage(true), onUpdatePost()"
+        @click="onChangeCanLeavePage(true), onUpdatePost()"
       />
     </div>
   </div>

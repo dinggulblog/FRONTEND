@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-  import { defineProps, ref, onErrorCaptured } from 'vue'
+  import { ref, onErrorCaptured } from 'vue'
   import { useStore } from 'vuex'
   import { mapState } from '../../common/vuex-helper.js'
   import Posts from '../../components/Posts.vue'

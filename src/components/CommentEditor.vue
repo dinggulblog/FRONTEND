@@ -1,41 +1,34 @@
 <template>
-  <div class="commentEditor" @click="!isLogin ? $refs.ACCOUNT_EL.open('login') : ''">
+  <div class="commentEditor" @click="!isLogin && ACCOUNT_EL.open('login')">
     <textarea
-      v-model="content"
-      @input="resizeTextarea"
       ref="CONTENT_EL"
-      @blur="handlerBlur"
-      :disabled="!isLogin"
       rows="1"
+      v-model="content"
+      :disabled="!isLogin"
+      @blur="handlerBlur"
+      @input="resizeTextarea"
     />
 
     <div class="wrap_btns">
       <div class="wrap_toggle">
-        <Toggle :isPublic="isPublic" @updateIsPublic="onUpdatedIsPublic" />
+        <Toggle :isActive="isPublic" @update="onUpdatedIsPublic" />
       </div>
       <div class="wrap_submit">
         <div class="submit">
-          <Button
-            class="btn_submit"
-            :content="!isUpdate ? '댓글 작성' : '댓글 수정'"
-            :shape="'fill-round'"
-            :theme="'primary'"
-            @onClick="!isUpdate ? onCreateComment() : onUpdateComment()"
-          />
+          <Button class="btn_submit" :shape="'fill-round'" :theme="'primary'" @click="!isUpdate ? onCreateComment() : onUpdateComment()">
+            {{ !isUpdate ? '댓글 작성' : '댓글 수정' }}
+          </Button>
         </div>
       </div>
     </div>
   </div>
-
-  <Account ref="ACCOUNT_EL"></Account>
 </template>
 
 <script setup>
-  import { defineProps, defineEmits, ref, onMounted, watch, computed } from 'vue'
+  import { inject, ref, onMounted, watch, computed } from 'vue'
   import { useStore } from 'vuex'
-  import Toggle from './ui/Toggle.vue'
-  import Account from './global/Account.vue'
   import { resizeTextarea } from '../common/util.js'
+  import Toggle from './ui/Toggle.vue'
 
   const props = defineProps({
     postId: {
@@ -63,7 +56,7 @@
   const isLogin = computed(() => state.auth.isLogin)
 
   const CONTENT_EL = ref(null)
-  const ACCOUNT_EL = ref(null)
+  const ACCOUNT_EL = inject('ACCOUNT_EL')
 
   const parentId = ref(null)
   const content = ref('')

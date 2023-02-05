@@ -5,8 +5,8 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import setupInterceptors from './services/axios.interceptors'
+import Toast from './components/global/ToastMessage.vue'
 import Dialog from './components/global/Dialog.vue'
-import ToastMessage from './components/global/ToastMessage.vue'
 import Account from './components/global/Account.vue'
 import Contact from './components/global/ContactUs.vue'
 import TextInput from './components/ui/TextInput.vue'
@@ -23,8 +23,8 @@ app
   .use(store)
   .use(router)
   .use(VueDOMPurifyHTML)
+  .component('Toast', Toast)
   .component('Dialog', Dialog)
-  .component('ToastMessage', ToastMessage)
   .component('Account', Account)
   .component('Contact', Contact)
   .component('TextInput', TextInput)

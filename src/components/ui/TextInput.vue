@@ -2,6 +2,7 @@
   <div class="TextInput" :class="{ 'has-error': !!errorMessage, success: meta.valid }">
     <label :for="name">{{ label }}</label>
     <input
+      spellcheck="false"
       :name="name"
       :id="name"
       :type="type"
@@ -16,7 +17,6 @@
 </template>
 
 <script setup>
-  import { defineProps } from 'vue'
   import { useField } from 'vee-validate'
 
   const props = defineProps({

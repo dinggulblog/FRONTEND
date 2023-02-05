@@ -1,19 +1,16 @@
 <template>
-  <button class="btn" type="button" @click="onClick">
+  <button class="btn" type="button" @click="onClick" ref="BTN_EL">
     <Ico :svg="svg" :size="size"></Ico>
-    {{ content }}
+    <slot></slot>
   </button>
 </template>
 
 <script setup>
-  import { defineProps, defineEmits, computed } from 'vue'
+  import { computed } from 'vue'
   import { throttle } from '../../common/util.js'
   import Ico from './Ico.vue'
 
   const props = defineProps({
-    content: {
-      type: String,
-    },
     shape: {
       type: String,
       validator: (value) =>
@@ -41,7 +38,7 @@
     },
   })
 
-  const emit = defineEmits(['onClick'])
+  const emits = defineEmits(['click'])
 
   const state = computed(() => ({
     width: props.shape?.includes('full') ? '100%' : 'auto',
@@ -70,7 +67,7 @@
     svgMargin: props.svg && props.content ? '0.8rem' : undefined,
   }))
 
-  const onClick = throttle(() => emit('onClick'), 250)
+  const onClick = throttle(() => { emits('click') }, 250)
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

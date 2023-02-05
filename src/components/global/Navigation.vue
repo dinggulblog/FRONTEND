@@ -6,14 +6,8 @@
     </div>
 
     <!-- Login rink -->
-    <div class="m_menu_login" v-if="!profile.nickname">
-      <Button
-        class="btn_login"
-        :content="'로그인'"
-        :theme="'primary'"
-        @click="emits('closeAll'), ACCOUNT_EL.open('login')"
-      />
-      이 필요합니다.
+    <div class="m_menu_login" v-if="!user.nickname">
+      <Button class="btn_login" :theme="'primary'" @click="ACCOUNT_EL.open('login')" >로그인</Button>이 필요합니다.
     </div>
 
     <!-- Account info -->
@@ -28,7 +22,7 @@
             <span @click="emits('closeAll'), ACCOUNT_EL.open('update')">Account</span>
           </li>
           <li>
-            <router-link :to="{ name: 'profile', params: { nickname: profile.nickname } }" @click="emits('closeAll')">
+            <router-link :to="{ name: 'profile', params: { nickname: user.nickname } }" @click="emits('closeAll')">
               Profile
             </router-link>
           </li>
@@ -66,7 +60,7 @@
 </template>
 
 <script setup>
-  import { defineEmits, inject, computed } from 'vue'
+  import { inject, computed } from 'vue'
   import { useStore } from 'vuex'
   import User from '../User.vue'
 
@@ -78,10 +72,7 @@
   const ACCOUNT_EL = inject('ACCOUNT_EL')
 
   const menus = computed(() => state.menu.menus)
-  const profile = computed(() => ({
-    avatar: state.auth.profile?.avatar,
-    nickname: state.auth.profile?.nickname,
-  }))
+  const user = computed(() => state.auth.user)
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
@@ -167,7 +158,7 @@
 
         .btn_login {
           text-decoration: underline;
-          padding: 0;
+          padding:0;
 
           @media (hover: hover) and (pointer: fine) {
             &:hover {

@@ -16,10 +16,9 @@
       </div>
 
       <div class="wrap_right">
-        <Button
-          v-if="!isMobile && !isLogin" :class="'btn_login'" :svg="'lock'" @click="ACCOUNT_EL.open('login')"/>
+        <Button v-if="!isMobile && !isLogin" :class="'btn_login'" :svg="'lock'" @click="ACCOUNT_EL.open('login')"/>
 
-        <div class="wrap_auth" v-else-if="!isMobile && profile.nickname">
+        <div class="wrap_auth" v-else-if="!isMobile && user.nickname">
           <div class="auth dropdown">
             <User :profile="profile" />
             <div class="auth_items dropdown_items">
@@ -28,7 +27,7 @@
                   <span @click="ACCOUNT_EL.open('update')">Account</span>
                 </li>
                 <li>
-                  <router-link :to="{ name: 'profile', params: { nickname: profile.nickname } }">Profile</router-link>
+                  <router-link :to="{ name: 'profile', params: { nickname: user.nickname } }">Profile</router-link>
                 </li>
                 <li>
                   <span @click="onLogout">Logout</span>
@@ -59,7 +58,7 @@
 </template>
 
 <script setup>
-  import { defineProps, inject, ref, computed } from 'vue'
+  import { inject, ref, computed } from 'vue'
   import { useStore } from 'vuex'
   import { useMedia } from '../../common/mediaQuery'
   import Navigation from './Navigation.vue'
@@ -82,10 +81,7 @@
   const isOpenSearch = ref(false)
   const isMobile = useMedia('only screen and (max-width: 1199px)')
 
-  const profile = computed(() => ({
-    avatar: state.auth.profile?.avatar,
-    nickname: state.auth.profile?.nickname,
-  }))
+  const user = computed(() => state.auth.user)
 
   const onLogout = async () => {
     await dispatch('auth/logout')

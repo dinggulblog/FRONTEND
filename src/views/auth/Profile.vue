@@ -3,14 +3,13 @@
     <!-- Profile -->
     <form v-on:submit.prevent="submitForm">
       <div class="wrap_author">
-        <AuthorSlot
+        <User
           :profile="profileState"
           :state="displayState.state"
           @updateAvatar="onUpdateAvatar"
           @resetAvatar="resetAvatar"
           @updateGreetings="updateGreetings"
-        >
-        </AuthorSlot>
+        />
         <div class="wrap_btn-edit" v-if="profileState.nickname === myProfile.nickname">
           <button class="btn_edit" @click="displayState.state === 'edit' ? onUpdateGreetings() : onChangeState('edit')">
             {{ displayState.state === 'edit' ? '편집 완료' : '기본 정보 편집' }}
@@ -27,9 +26,7 @@
           :key="tab.name"
           :class="tab.name === displayState.tab ? 'isActive' : ''"
           @click="onChangeTab(tab.name)"
-        >
-          {{ tab.content }}
-        </li>
+        >{{ tab.content }}</li>
       </ul>
     </div>
 
@@ -39,21 +36,16 @@
         <QuillEditor v-model:content="profileState.introduce" contentType="html" :options="options" />
       </span>
 
-      <div
-        v-else
-        class="content_intro"
-        v-dompurify-html="profileState.introduce ? profileState.introduce : '작성된 소개글이 없습니다.'"
-      ></div>
+      <div v-else class="content_intro" v-dompurify-html="profileState.introduce ? profileState.introduce : '작성된 소개글이 없습니다.'"></div>
 
       <Button
         v-if="profileState.nickname === myProfile.nickname"
         class="btn_edit_introduce"
-        :content="displayState.state === 'introEdit' ? '편집 완료' : '소개글 편집'"
         :size="'sm'"
         :shape="'fill-round'"
         :theme="'primary'"
-        @onClick="displayState.state === 'introEdit' ? onUpdateIntroduce() : onChangeState('introEdit')"
-      ></Button>
+        @click="displayState.state === 'introEdit' ? onUpdateIntroduce() : onChangeState('introEdit')"
+      >{{ displayState.state === 'introEdit' ? '편집 완료' : '소개글 편집' }}</Button>
     </div>
 
     <!-- Tab content - Posts -->

@@ -38,7 +38,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   try {
-    document.title = to.meta?.title ?? 'DINGGUL'
+    document.title = to.meta?.title ?? document.title
 
     const isLogin = getItemWithTTL('isLogin', false)
 
@@ -52,11 +52,11 @@ router.beforeEach(async (to, from, next) => {
     }
 
     if (isLogin && !store.state.auth.id) {
-      const profile = getItem('profile', null)
-      profile ? store.commit('auth/SET_PROFILE', profile) : await store.dispatch('auth/getAccount')
+      const user = getItem('user', null)
+      user ? store.commit('auth/SET_USER', user) : await store.dispatch('auth/getAccount')
     }
 
-    if (to.meta.requiredAuth && !store.state.auth.user?._id) {
+    if (to.meta.requiredAuth && !store.state.auth.id) {
       next({ name: 'home' })
     } else {
       next()

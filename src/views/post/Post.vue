@@ -98,7 +98,7 @@
 </template>
 
 <script setup>
-  import { defineProps, inject, ref, computed, watch, onUnmounted } from 'vue'
+  import { inject, ref, computed, watch, onUnmounted } from 'vue'
   import { useStore } from 'vuex'
   import { useRouter } from 'vue-router'
   import CommentEditor from '../../components/CommentEditor.vue'

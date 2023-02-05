@@ -2,32 +2,26 @@
   <div class="toggle">
     <Ico
       class="ico_toggle"
-      :svg="isPublic ? 'toggle' : 'toggle-fill'"
+      :svg="isActive ? 'toggle' : 'toggle-fill'"
       :size="'xl'"
-      :color="isPublic ? 'var(--disable)' : 'primary'"
-      @click="onToggle()"
+      :color="isActive ? 'var(--disable)' : 'primary'"
+      @click="emits('update', !isActive)"
     />
 
-    <span :style="[isPublic ? { color: 'var(--text3)' } : { color: 'var(--primary)' }]">
-      {{ isPublic ? '공개' : '비밀' }}
+    <span :style="[isActive ? { color: 'var(--text3)' } : { color: 'var(--primary)' }]">
+      {{ isActive ? '공개' : '비밀' }}
     </span>
   </div>
 </template>
 
 <script setup>
-  import { defineProps, defineEmits } from 'vue'
-
   const props = defineProps({
-    isPublic: {
+    isActive: {
       type: Boolean,
     },
   })
 
-  const emit = defineEmits(['updateIsPublic'])
-
-  const onToggle = () => {
-    emit('updateIsPublic', !props.isPublic)
-  }
+  const emits = defineEmits(['update'])
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

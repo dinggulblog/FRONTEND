@@ -1,118 +1,61 @@
 <template>
   <PopupModal ref="POPUP_EL">
     <div id="account">
+
+      <!-- Close button -->
       <Button class="btn_close" :svg="'close'" :theme="'primary'" @click="close" />
 
       <div class="wrap_account">
-        <div class="account" ref="ACCOUNT_EL">
+        <div class="account">
+
           <!-- Sign-up Form -->
-          <Form
-            v-if="form === 'create'"
-            as="div"
-            class="create_account"
-            v-slot="{ handleSubmit }"
-            :validation-schema="createAccountSchema"
-          >
+          <Form v-if="form === 'create'" as="div" class="create_account" v-slot="{ handleSubmit }" :validation-schema="createAccountSchema">
             <h2>create account</h2>
-
             <form @submit="handleSubmit($event, onCreateAccount)">
-              <TextInput
-                name="email"
-                type="email"
-                label="이메일"
-                placeholder="Email"
-                spellcheck="false"
-                success-message="올바른 이메일 주소입니다."
-              />
-
+              <TextInput name="email" type="email" label="이메일" placeholder="Email" success-message="올바른 이메일 주소입니다."/>
               <TextInput name="password" type="password" label="비밀번호" placeholder="Password" />
-              <TextInput
-                name="passwordConfirmation"
-                type="password"
-                label="비밀번호 확인"
-                placeholder="Type password again"
-                success-message="비밀번호가 정상적으로 입력되었습니다."
-              />
-              <TextInput
-                name="nickname"
-                type="text"
-                label="닉네임"
-                placeholder="Nickname"
-                spellcheck="false"
-                success-message="사용할 수 있는 닉네임입니다."
-              />
-
-              <Button type="submit" class="btn_submit" :content="'가입 완료'" :shape="'fill-round-full'" :theme="'primary'" />
+              <TextInput name="passwordConfirmation" type="password" label="비밀번호 확인" placeholder="Type password again" success-message="비밀번호가 정상적으로 입력되었습니다."/>
+              <TextInput name="nickname" type="text" label="닉네임" placeholder="Nickname" success-message="사용할 수 있는 닉네임입니다."/>
+              <Button type="submit" class="btn_submit" :shape="'fill-round-full'" :theme="'primary'">가입 완료</Button>
             </form>
           </Form>
 
           <!-- Update Form -->
-          <Form
-            v-else-if="form === 'update'"
-            as="div"
-            class="update_account"
-            v-slot="{ handleSubmit }"
-            :validation-schema="updateAccountSchema"
-          >
+          <Form v-else-if="form === 'update'" as="div" class="update_account" v-slot="{ handleSubmit }" :validation-schema="updateAccountSchema">
             <h2>modify account</h2>
-
             <form @submit="handleSubmit($event, onUpdateAccount)">
-              <TextInput
-                name="email"
-                type="email"
-                label="이메일"
-                :disabled="true"
-                :value="user?.email"
-                :placeholder="user?.email"
-                spellcheck="false"
-                success-message="이메일은 변경할 수 없습니다."
-              />
+              <TextInput name="email" type="email" label="이메일" :disabled="true" :value="user?.email" success-message="이메일은 변경할 수 없습니다."/>
               <TextInput name="currentPassword" type="password" label="현재 비밀번호" placeholder="Current Password" />
               <TextInput name="newPassword" type="password" label="새 비밀번호" placeholder="New Password" />
-              <TextInput
-                name="passwordConfirmation"
-                type="password"
-                label="새 비밀번호 확인"
-                placeholder="Type password again"
-                success-message="비밀번호가 정상적으로 입력되었습니다."
-              />
-              <TextInput
-                name="nickname"
-                type="text"
-                label="닉네임"
-                :value="user?.nickname"
-                :placeholder="user?.nickname"
-                spellcheck="false"
-                success-message="사용할 수 있는 닉네임입니다."
-              />
-              <Button type="submit" class="btn_submit" :content="'수정 완료'" :shape="'fill-round-full'" :theme="'primary'" />
-
-              <div class="wrap_btn_sign-out" v-if="form === 'update'">
-                <Button class="btn_sign-out" :content="'회원 탈퇴'" @click="onDeleteAccount" />
-              </div>
+              <TextInput name="passwordConfirmation" type="password" label="새 비밀번호 확인" placeholder="Type password again" success-message="비밀번호가 정상적으로 입력되었습니다." />
+              <TextInput name="nickname" type="text" label="닉네임" :value="user?.nickname" placeholder="Nickname" success-message="사용할 수 있는 닉네임입니다." />
+              <Button type="submit" class="btn_submit" :shape="'fill-round-full'" :theme="'primary'">수정 완료</Button>
             </form>
+
+            <div class="wrap_btn_sign-out">
+              <Button class="btn_sign-out" @click="onDeleteAccount">회원 탈퇴</Button>
+            </div>
           </Form>
 
           <!-- Login Form -->
           <Form v-else as="div" class="login" v-slot="{ handleSubmit }" :validation-schema="loginSchema">
             <h2>member login</h2>
-
             <form @submit="handleSubmit($event, onLogin)" class="login_form">
-              <TextInput name="email" type="email" label="이메일" placeholder="User ID (Email)" spellcheck="false" />
+              <TextInput name="email" type="email" label="이메일" placeholder="User ID (Email)" />
               <TextInput name="password" type="password" label="비밀번호" placeholder="Password" />
-              <Button type="submit" class="btn_submit" :content="'로그인'" :shape="'fill-round-full'" :theme="'primary'" />
+              <Button type="submit" class="btn_submit" :shape="'fill-round-full'" :theme="'primary'">로그인</Button>
             </form>
 
-            <div class="wrap_find_account" v-if="form === 'login'">
+            <div class="wrap_find_account">
               <p>계정 정보를 잊으셨나요?</p>
-
               <router-link :to="{ name: 'findAccount' }" class="a_find-account" @click="close">계정 찾기</router-link>
             </div>
 
-            <div class="wrap_sign-up" v-if="form === 'login'">
-              <Button class="btn_create-account" :content="'회원가입'" :theme="'primary'" @click="form = 'create'"/>
+            <div class="wrap_sign-up">
+              <Button class="btn_create-account" :theme="'primary'" @click="form = 'create'">회원 가입</Button>
             </div>
           </Form>
+          
         </div>
       </div>
     </div>
@@ -120,7 +63,7 @@
 </template>
 
 <script setup>
-  import { defineExpose, ref, computed, inject } from 'vue'
+  import { ref, computed, inject } from 'vue'
   import { useStore } from 'vuex'
   import { Form } from 'vee-validate'
   import * as Yup from 'yup'
@@ -130,7 +73,6 @@
 
   const POPUP_EL = ref(null)
   const TOAST_EL = inject('TOAST_EL')
-  const ACCOUNT_EL = inject('ACCOUNT_EL')
 
   const user = computed(() => state.auth.user)
   const form = ref('login')
@@ -144,10 +86,7 @@
     email: Yup.string().required('이메일을 입력해 주세요.').email(),
     password: Yup.string()
       .required()
-      .matches(
-        /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/,
-        '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'
-      ),
+      .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
     passwordConfirmation: Yup.string().oneOf([Yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
     nickname: Yup.string()
       .required('닉네임을 정해주세요.')
@@ -159,10 +98,7 @@
     currentPassword: Yup.string().required(),
     newPassword: Yup.string()
       .nullable(true)
-      .matches(
-        /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/,
-        '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'
-      ),
+      .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
     passwordConfirmation: Yup.string().oneOf([Yup.ref('newPassword')], '비밀번호가 일치하지 않습니다.'),
     nickname: Yup.string()
       .default(user.value.nickname)

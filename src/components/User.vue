@@ -43,7 +43,6 @@
 </template>
 
 <script setup>
-  import { defineProps, defineEmits } from 'vue'
   import UserInfo from './slots/UserInfo.vue'
   import DEFAULT_AVATAR_192 from '../assets/default_avatar_192.webp'
 

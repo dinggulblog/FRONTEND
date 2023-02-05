@@ -24,7 +24,7 @@
   </div>
 
   <Dialog ref="DIALOG_EL" />
-  <ToastMessage ref="TOAST_EL" />
+  <Toast ref="TOAST_EL" />
   <Account ref="ACCOUNT_EL" />
   <Contact ref="CONTACT_EL" />
 </template>

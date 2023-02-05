@@ -7,7 +7,7 @@
 </template>
 
 <script setup>
-  import { defineProps, defineExpose, ref, onMounted, onUnmounted } from 'vue'
+  import { ref, onMounted, onUnmounted } from 'vue'
   import { useMedia } from '../common/mediaQuery.js'
   import Dropbox from './ui/Dropbox.vue'
   import BottomSheet from './ui/BottomSheet.vue'

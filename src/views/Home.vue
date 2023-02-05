@@ -53,9 +53,9 @@
 </template>
 
 <script setup>
-  import Posts from '../components/Posts.vue'
-  import { defineComponent, ref, onBeforeMount, onErrorCaptured, onMounted } from 'vue'
+  import { ref, onBeforeMount } from 'vue'
   import { useStore } from 'vuex'
+  import Posts from '../components/Posts.vue'
 
   const { state } = useStore()
   const error = ref(null)

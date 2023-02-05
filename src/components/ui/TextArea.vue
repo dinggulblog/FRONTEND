@@ -13,7 +13,6 @@
 </template>
 
 <script setup>
-  import { defineProps } from 'vue'
   import { useField } from 'vee-validate'
 
   const props = defineProps({

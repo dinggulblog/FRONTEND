@@ -54,7 +54,7 @@
 </template>
 
 <script setup>
-  import { defineProps, ref } from 'vue'
+  import { ref } from 'vue'
   import { useStore } from 'vuex'
   import markdownText from 'markdown-to-text'
   import DEFAULT_THUMBNAIL from '../assets/default_thumbnail.webp'

@@ -22,7 +22,7 @@
             @enter-cancelled="afterEnter"
           >
             <template v-for="(post, index) in posts" :key="index">
-              <PostSlot :type="type" :post="post" :data-index="index" @commitPosts="onCommitPosts"></PostSlot>
+              <PostsItem :type="type" :post="post" :data-index="index" @commitPosts="onCommitPosts"></PostsItem>
             </template>
           </TransitionGroup>
           <Observer v-model:page="page" @updatePage="onUpdatePage"></Observer>
@@ -38,23 +38,23 @@
         class="btn_old"
         :size="'md'"
         :svg="'arrow-left'"
-        @onClick="prevSlide"
+        @click="prevSlide"
       />
       <Button
         v-show="slidePage < slideMaxPage && !isAllMobileDevice"
         class="btn_next"
         :svg="'arrow-right'"
-        @onClick="nextSlide"
+        @click="nextSlide"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-  import { defineProps, ref, reactive, computed, watch, onMounted } from 'vue'
+  import { ref, reactive, computed, watch, onMounted } from 'vue'
   import { useStore } from 'vuex'
-  import { useMedia } from '../common/mediaQuery.js'
-  import PostSlot from './PostsItem.vue'
+  import { useMedia } from '../common/mediaQuery'
+  import PostsItem from './PostsItem.vue'
   import Observer from './global/Observer.vue'
 
   const props = defineProps({
@@ -90,7 +90,7 @@
       validator: (value) => ['view', 'like'].includes(value),
     },
   })
-  const { state, commit, dispatch } = useStore()
+  const { commit, dispatch } = useStore()
 
   //const isAllMobile = useMedia('only screen and (max-width: 1199px)')
   const isAllMobileDevice = ref(false)

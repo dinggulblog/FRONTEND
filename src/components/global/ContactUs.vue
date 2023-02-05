@@ -9,23 +9,10 @@
             <h2>contact us</h2>
 
             <form @submit="handleSubmit($event, onSendMail)" id="contact">
-              <TextInput
-                name="email"
-                type="email"
-                placeholder="답변 받으실 이메일"
-                spellcheck="false"
-                success-message="올바른 이메일 주소입니다."
-              />
-
+              <TextInput name="email" type="email" placeholder="답변 받으실 이메일" success-message="올바른 이메일 주소입니다." />
               <TextInput name="subject" type="text" placeholder="제목" spellcheck="false" />
-
-              <TextArea
-                name="content"
-                :placeholder="isLogin ? '메시지를 적어주세요.' : '로그인한 유저만 이용할 수 있습니다.'"
-              />
-
-              <Button type="submit" class="btn_submit" :content="'보내기'" :shape="'fill-round-full'" :theme="'primary'" />
-              
+              <TextArea name="content" :placeholder="isLogin ? '메시지를 적어주세요.' : '로그인한 유저만 이용할 수 있습니다.'" />
+              <Button type="submit" class="btn_submit" :shape="'fill-round-full'" :theme="'primary'">보내기</Button>
             </form>
           </Form>
         </div>
@@ -35,7 +22,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, inject, defineExpose } from 'vue'
+  import { ref, computed, inject } from 'vue'
   import { useStore } from 'vuex'
   import { Form } from 'vee-validate'
   import * as Yup from 'yup'

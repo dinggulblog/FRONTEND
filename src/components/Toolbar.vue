@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-  import { defineProps, defineEmits, onMounted, ref, watch } from 'vue'
+  import { onMounted, ref, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   const props = defineProps({
@@ -122,8 +122,6 @@
     typeBtnsEl.value.forEach((button) => button.addEventListener('click', changeView))
     categoryEl.value.addEventListener('click', changeCategory)
     remountClass()
-
-    console.log(props.main)
   })
 </script>
 
