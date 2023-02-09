@@ -17,7 +17,7 @@
       <Posts v-if="type !== 'slide'" :menu="currentMenus" :type="type" :category="category" />
       <ul v-else class="ul_slide">
         <li v-for="category in categories" :key="category">
-          <Posts :menu="currentMenus" :type="type" :category="category" />
+          <PostsSlide :menu="currentMenus" :category="category" />
         </li>
       </ul>
     </template>
@@ -33,6 +33,7 @@
   import { useStore } from 'vuex'
   import { mapState } from '../../common/vuex-helper.js'
   import Posts from '../../components/Posts.vue'
+  import PostsSlide from '../../components/PostsSlide.vue'
   import Toolbar from '../../components/Toolbar.vue'
 
   const props = defineProps({
@@ -67,5 +68,9 @@
 <style lang="scss" rel="stylesheet/scss" scoped>
   .ul_slide > li:first-child > .wrap_slide_toolbar {
     margin-top: 0;
+  }
+
+  .posts {
+    position: relative;
   }
 </style>

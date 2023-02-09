@@ -53,8 +53,6 @@
   @import './scss/common.scss';
   @import './scss/fade.scss';
 
-  /*
-
   @font-face {
     font-family: 'Noto Sans DemiLight';
     font-weight: 400;
@@ -66,8 +64,6 @@
     font-weight: 400;
     src: url(./assets/NotoSansKR-Light.woff) format('woff');
   }
-
-  */
 
   #header {
     position: sticky;
@@ -82,8 +78,7 @@
 
     #content {
       width: calc(120rem - 4.8rem);
-      margin: 0 2.4rem;
-      padding: 4.8rem 0;
+      margin: 4.8rem 2.4rem;
       box-sizing: border-box;
 
       @include mobile {

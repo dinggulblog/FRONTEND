@@ -5,7 +5,7 @@
         <Button
           :class="isMobile ? 'btn_m-toggle' : 'btn_search'" 
           :svg="isMobile ? 'menu' : isOpenSearch ? 'close' : 'search'"
-          @click="isMobile ? onToggleGnb() : onToggleSearch()"
+          @click="isMobile ? onToggleGnb() : push({ name: 'search' })"
         />
       </div>
 
@@ -60,9 +60,9 @@
 <script setup>
   import { inject, ref, computed } from 'vue'
   import { useStore } from 'vuex'
+  import { useRouter } from 'vue-router'
   import { useMedia } from '../../common/mediaQuery'
   import Navigation from './Navigation.vue'
-  import SearchForm from './SearchForm.vue'
   import User from '../User.vue'
   import LOGO from '../../assets/logo.png'
 
@@ -74,6 +74,7 @@
   })
 
   const { state, dispatch } = useStore()
+  const { push } = useRouter()
 
   const ACCOUNT_EL = inject('ACCOUNT_EL')
 

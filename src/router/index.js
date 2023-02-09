@@ -10,6 +10,7 @@ const ResetPassword = () => import(/* webpackChunkName: "resetPassword" */ '../v
 const Editor = () => import(/* webpackChunkName: "editor" */ '../views/post/Editor.vue')
 const Posts = () => import(/* webpackChunkName: "posts" */ '../views/post/Posts.vue')
 const Post = () => import(/* webpackChunkName: "post" */ '../views/post/Post.vue')
+const Search = () => import(/* webpackChunkName: "post" */ '../views/Search.vue')
 
 const routes = [
   { path: '/', redirect: 'home' },
@@ -25,6 +26,7 @@ const routes = [
   { path: '/editor', name: 'editor', component: Editor, meta: { title: 'Editor', requiredAuth: true } },
   { path: '/posts/:main/:sub?', name: 'posts', component: Posts, props: true, meta: { title: 'Posts' } },
   { path: '/post/:postId', name: 'post', component: Post, props: true, meta: { title: 'Post' } },
+  { path: '/search', name: 'search', component: Search, props: true, meta: { title: 'Search' } },
   { path: '/:catchAll(.*)+', name: 'notfound', component: NotFound, meta: { title: 'NotFoundError 404!' } },
 ]
 
