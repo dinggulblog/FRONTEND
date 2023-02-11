@@ -9,7 +9,7 @@
       <template v-if="posts?.length">
        <TransitionGroup name="fade_up" @before-enter="beforeEnter" @after-enter="afterEnter" @enter-cancelled="afterEnter">
          <template v-for="(post, index) in posts" :key="index">
-            <PostsItem :type="type" :post="post" :data-index="index" @commitPosts="onCommitPosts"></PostsItem>
+            <PostsItem :type="type" :post="post" :data-index="index" @commitPosts="$store.commit('post/SET_POSTS', posts)"></PostsItem>
          </template>
         </TransitionGroup>
       <Observer v-model:page="page" @updatePage="onUpdatePage"></Observer>
@@ -60,7 +60,7 @@
       validator: (value) => ['view', 'like'].includes(value),
     },
   })
-  const { commit, dispatch } = useStore()
+  const { dispatch } = useStore()
 
   const MOBILE_LIST = /Android|Mobile|iP(hone|od|ad)|BlackBerry|I EMobile|Kindle|NetFront|Silk-Accelerated|(hpw|web)OS|Fennec|Minimo|Opera M(obi|ini)|Blazer|Dolfin|Dolphin|Skyfire|Zune/
   const POST_EL = ref(null)
@@ -110,10 +110,6 @@
 
     if (newMaxCount) maxCount.value = props.recent ? limit.value : newMaxCount
     posts.value.splice((getPage - 1) * limit.value, limit.value, ...newPosts)
-  }
-
-  const onCommitPosts = () => {
-    commit('post/SET_POSTS', posts.value)
   }
 
   const beforeEnter = (el) => {

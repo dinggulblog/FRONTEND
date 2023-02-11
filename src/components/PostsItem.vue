@@ -42,7 +42,7 @@
     </template>
 
     <template #comment_count>
-      <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="onQuickMove(), $emit('commitPosts')">
+      <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$store.commit('post/SET_QUICKMOVE', true), $emit('commitPosts')">
         댓글 {{ post.commentCount }}
       </router-link>
     </template>
@@ -55,7 +55,6 @@
 
 <script setup>
   import { ref } from 'vue'
-  import { useStore } from 'vuex'
   import markdownText from 'markdown-to-text'
   import DEFAULT_THUMBNAIL from '../assets/default_thumbnail.webp'
   import card from './slots/Card.vue'
@@ -76,8 +75,6 @@
     },
   })
 
-  const { commit } = useStore()
-
   const type = ref(props.type)
 
   const layouts = {
@@ -85,9 +82,5 @@
     list: list,
     slide: slide,
     recent: recent,
-  }
-
-  const onQuickMove = () => {
-    commit('post/SET_QUICKMOVE', true)
   }
 </script>
