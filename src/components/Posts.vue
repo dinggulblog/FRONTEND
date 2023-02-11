@@ -1,28 +1,31 @@
 <template>
+
+  <!-- Slide Toolbar -->
+  <Slider v-if="type === 'slide'" :category="category" :maxCount="maxCount" :limit="limit" :isAllMobileDevice="isAllMobileDevice" @slide="slide"></Slider>
+
   <!-- List of Posts -->
+  <div class="posts">
     <ul :id="type" ref="POST_EL">
-        <template v-if="posts?.length">
-          <TransitionGroup
-            name="fade_up"
-            @before-enter="beforeEnter"
-            @after-enter="afterEnter"
-            @enter-cancelled="afterEnter"
-          >
-            <template v-for="(post, index) in posts" :key="index">
-              <PostsItem :type="type" :post="post" :data-index="index" @commitPosts="onCommitPosts"></PostsItem>
-            </template>
-          </TransitionGroup>
-          <Observer v-model:page="page" @updatePage="onUpdatePage"></Observer>
-        </template>
-        <p v-else class="empty_posts">no posts yet</p>
+      <template v-if="posts?.length">
+       <TransitionGroup name="fade_up" @before-enter="beforeEnter" @after-enter="afterEnter" @enter-cancelled="afterEnter">
+         <template v-for="(post, index) in posts" :key="index">
+            <PostsItem :type="type" :post="post" :data-index="index" @commitPosts="onCommitPosts"></PostsItem>
+         </template>
+        </TransitionGroup>
+      <Observer v-model:page="page" @updatePage="onUpdatePage"></Observer>
+     </template>
+      <p v-else class="empty_posts">no posts yet</p>
     </ul>
+  </div>
+
 </template>
 
 <script setup>
-  import { ref, reactive, computed, watch } from 'vue'
+  import { ref, reactive, computed, watch, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import PostsItem from './PostsItem.vue'
   import Observer from './global/Observer.vue'
+  import Slider from './Slider.vue'
 
   const props = defineProps({
     menu: {
@@ -59,7 +62,9 @@
   })
   const { commit, dispatch } = useStore()
 
+  const MOBILE_LIST = /Android|Mobile|iP(hone|od|ad)|BlackBerry|I EMobile|Kindle|NetFront|Silk-Accelerated|(hpw|web)OS|Fennec|Minimo|Opera M(obi|ini)|Blazer|Dolfin|Dolphin|Skyfire|Zune/
   const POST_EL = ref(null)
+  const isAllMobileDevice = computed(() => navigator.userAgent.match(MOBILE_LIST) === null ? false : true)
 
   const posts = ref([]) // 게시물 배열
   const page = ref(1) // 현재까지 받아온 페이지
@@ -88,6 +93,16 @@
     getPosts(page.value)
   }
 
+  const slide = (idx) => {
+    const target = POST_EL.value?.querySelector(`li[data-index="${idx}"]`)
+    if (!target) return
+
+    const parent = POST_EL.value.getBoundingClientRect().left
+    const x = target.getBoundingClientRect().left - parent
+
+    POST_EL.value.style.transform = `translateX(-${x}px)`
+    POST_EL.value.style.transition = 'all 0.3s'
+  }
 
   const getPosts = async (getPage) => {
     const { success, posts: newPosts, maxCount: newMaxCount } = await dispatch('post/getPosts', query)
@@ -118,6 +133,10 @@
       getPosts(1)
     }
   )
+
+  onMounted(() => {
+    if (isAllMobileDevice.value && props.type === 'slide') POST_EL.value.style.overflowX = 'auto'
+  })
 
   await getPosts(1)
 </script>
@@ -193,5 +212,22 @@
     }
   }
 
+  .posts {
+
+       overflow-x: clip;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera*/
+      }
+
+
+    .empty_posts {
+      font-size: 1.4rem;
+      color: var(--text3);
+      text-transform: capitalize;
+    }
+  }
 
 </style>

@@ -4,8 +4,8 @@
     :sub="sub"
     :type="type"
     :categories="categories"
-    @updateType="onUpdateType"
-    @updateCategory="onUpdateCategory"
+    @updateType="$store.commit('menu/SET_TYPE', $event)"
+    @updateCategory="$store.commit('menu/SET_CATEGORY', $event)"
   />
 
   <div v-if="error">
@@ -17,7 +17,7 @@
       <Posts v-if="type !== 'slide'" :menu="currentMenus" :type="type" :category="category" />
       <ul v-else class="ul_slide">
         <li v-for="category in categories" :key="category">
-          <PostsSlide :menu="currentMenus" :category="category" />
+          <Posts :type="'slide'" :menu="currentMenus" :category="category" />
         </li>
       </ul>
     </template>
@@ -30,10 +30,8 @@
 
 <script setup>
   import { ref, onErrorCaptured } from 'vue'
-  import { useStore } from 'vuex'
   import { mapState } from '../../common/vuex-helper.js'
   import Posts from '../../components/Posts.vue'
-  import PostsSlide from '../../components/PostsSlide.vue'
   import Toolbar from '../../components/Toolbar.vue'
 
   const props = defineProps({
@@ -45,19 +43,10 @@
       type: String,
     },
   })
-
-  const { commit } = useStore()
+  
   const { type, category, categories, currentMenus } = mapState('menu')
 
   const error = ref(null)
-
-  const onUpdateType = (updateType) => {
-    commit('menu/SET_TYPE', updateType)
-  }
-
-  const onUpdateCategory = (updateCategory) => {
-    commit('menu/SET_CATEGORY', updateCategory)
-  }
 
   onErrorCaptured((err) => {
     error.value = err.message
@@ -70,7 +59,7 @@
     margin-top: 0;
   }
 
-  .posts {
+  .ul_slide > li {
     position: relative;
   }
 </style>

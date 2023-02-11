@@ -2,6 +2,7 @@ import { stringify } from 'querystring'
 import axios from '../../services/axios'
 
 const state = () => ({
+  limit: 6,
   post: null,
   posts: null,
   page: 1,
