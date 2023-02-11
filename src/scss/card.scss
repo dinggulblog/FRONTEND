@@ -26,14 +26,13 @@
   }
 
   .wrap_item {
-    @include desktop {
-      transition: box-shadow 0.25s ease-in 0s, transform 0.25s ease-in 0s;
+      @media (hover: hover) and (pointer: fine) {
+        transition: transform 0.25s ease-in 0s;
 
-      &:hover {
-        transform: translateY(-1rem);
+        &:hover {
+          transform: translateY(-1rem);
+        }
       }
-    }
-    transition: box-shadow 0.25s ease-in 0s, transform 0.25s ease-in 0s;
   }
 
   .thumbnail {

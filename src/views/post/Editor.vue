@@ -5,7 +5,7 @@
         <!-- Main menu select box -->
         <div class="main">
           <select required @change="onChangeMainMenu">
-            <option selected disabled hidden value="">main menu</option>
+            <option selected disabled hidden value="">메뉴 선택</option>
             <option v-for="main in Object.keys(menuState.menus)" :key="main" :value="main">{{ main }}</option>
           </select>
         </div>
@@ -13,7 +13,7 @@
         <!-- Sub menu select box -->
         <div class="sub">
           <select required :disabled="!menuState.mainMenus.length" @change="onChangeSubMenu">
-            <option selected disabled hidden value="">sub menu</option>
+            <option selected disabled hidden value="">게시판 선택</option>
             <option v-for="menu in menuState.mainMenus" :key="menu?._id" :value="menu?.sub">{{ menu?.sub }}</option>
           </select>
         </div>
@@ -21,7 +21,7 @@
         <!-- Category select box -->
         <div class="category">
           <select :disabled="!menuState.subMenu.categories" @change="onChangeCategory">
-            <option selected disabled hidden value="">category</option>
+            <option selected disabled hidden value="">카테고리 선택</option>
             <option v-for="category in menuState.subMenu.categories" :key="category" :value="category">
               {{ category }}
             </option>
@@ -113,12 +113,11 @@
       <!-- Buttons -->
       <Button
         class="btn_submit"
-        :content="'글 등록'"
         :shape="isMobile ? 'fill-round-full' : 'fill-round'"
         :theme="'primary'"
         :disabled="menuState.isLoading"
         @click="onChangeCanLeavePage(true), onUpdatePost()"
-      />
+      >작성 완료</Button>
     </div>
   </div>
 </template>
@@ -440,7 +439,6 @@
             color: var(--text3);
             height: 4.8rem;
             background-color: transparent;
-            font-family: 'Roboto', 'Noto Sans KR', sans-serif;
             text-transform: uppercase;
           }
 

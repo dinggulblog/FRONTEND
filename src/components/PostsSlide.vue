@@ -19,7 +19,6 @@
       <Button
         v-show="slidePage !== 1 && !isAllMobileDevice"
         class="btn_old"
-        :size="'md'"
         :svg="'arrow-left'"
         @click="prevSlide"
       />
@@ -217,8 +216,6 @@
     margin: 6.4rem 0 4rem;
 
     .slide_category {
-      display: flex;
-      align-items: center;
       width: 30%;
       font-size: 1.6rem;
       color: var(--primary);
@@ -234,7 +231,7 @@
           width: 0.1rem;
           height: 1.6rem;
           background-color: var(--primary);
-          top: 0.6rem;
+          top: 0.15rem;
           left: 0;
         }
       }

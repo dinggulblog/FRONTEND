@@ -20,8 +20,8 @@
       </div>
 
       <div class="type">
-        <button v-for="view in views" :key="view.name" ref="typeBtnsEl">
-          <Ico :svg="view.path" :class="view.name" />
+        <button v-for="view in views" :key="view.name" ref="typeBtnsEl" class="btn_type">
+          <Ico :svg="view.path" :class="view.name" :size="'sm'"/>
         </button>
       </div>
     </div>
@@ -88,6 +88,7 @@
       if (elem.tagName === 'LI') {
         elem.classList.remove('on')
       } else if (elem.tagName === 'BUTTON') {
+        elem.classList.remove('on')
         elem.firstChild.classList.remove('on')
       }
     }
@@ -97,6 +98,7 @@
     if (event.currentTarget.firstChild.tagName === 'svg') {
       removeOnClass(typeBtnsEl.value)
       emits('updateType', event.currentTarget.firstChild.classList[0])
+      addOnClass(event.currentTarget)
       addOnClass(event.currentTarget.firstChild)
     }
   }
@@ -130,7 +132,7 @@
     .wrap_breadcrumb_sort_type {
       display: flex;
       align-items: center;
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       margin: 0 0 4.8rem;
 
       @include mobile {
@@ -157,7 +159,6 @@
               color: var(--text3);
               letter-spacing: 0.04rem;
               text-transform: uppercase;
-              font-weight: 400;
 
               @media (hover: hover) and (pointer: fine) {
                 &:hover {
@@ -202,13 +203,20 @@
           display: flex;
           align-items: center;
           transition: all 0.3s ease;
-          margin: 0 0 0 1.6rem;
+          margin: 0 0 0 -0.1rem;
           color: var(--text2);
+          padding:0.8rem;
+          border: 1px solid var(--border3);
 
           @include mobile {
             &:first-child {
               margin: 0;
             }
+          }
+
+          &.on {
+            border: 1px solid var(--primary);
+            z-index:1;
           }
 
           svg.on {
@@ -235,7 +243,6 @@
           border: 1px solid var(--border3);
           border-radius: 2.4rem;
           cursor: pointer;
-          font-family: 'Noto Sans KR';
 
           @media (hover: hover) and (pointer: fine) {
             &:hover {

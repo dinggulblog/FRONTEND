@@ -71,9 +71,9 @@
         <span v-else>다음글</span>
         <Button
           class="btn_link"
-          :content="linkedPost.title"
           @click="onPushPost(linkedPost._id)"
-        />
+        > {{ linkedPost.title }}
+        </Button>
       </div>
     </div>
   </div>
@@ -396,6 +396,7 @@
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+          font-size:1.4rem;
         }
       }
     }

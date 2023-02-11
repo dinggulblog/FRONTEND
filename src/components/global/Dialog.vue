@@ -7,8 +7,8 @@
       </div>
 
       <div class="btns">
-        <Button :content="cancelButton" :shape="'line-round'" @click="_cancel" />
-        <Button :content="okButton" :shape="'fill-round'" :theme="'primary'" @click="_confirm" />
+        <Button :shape="'line-round'" @click="_cancel">{{ cancelButton }}</Button>
+        <Button :shape="'fill-round'" :theme="'primary'" @click="_confirm"> {{ okButton }}</Button>
       </div>
     </div>
   </PopupModal>

@@ -53,17 +53,20 @@
   @import './scss/common.scss';
   @import './scss/fade.scss';
 
-  @font-face {
-    font-family: 'Noto Sans DemiLight';
-    font-weight: 400;
-    src: url(./assets/NotoSansKR-DemiLight.woff) format('woff');
-  }
 
   @font-face {
-    font-family: 'Noto Sans Light';
-    font-weight: 400;
-    src: url(./assets/NotoSansKR-Light.woff) format('woff');
-  }
+	font-family: 'Pretendard';
+	font-weight: 400;
+	font-display: swap;
+	src: local('Pretendard Regular'), url('./assets/Pretendard-Regular.subset.woff2') format('woff2'), url('./assets/Pretendard-Regular.subset.woff') format('woff');
+}
+
+@font-face {
+	font-family: 'Pretendard';
+	font-weight: 500;
+	font-display: swap;
+	src: local('Pretendard Medium'), url('./assets/Pretendard-Medium.subset.woff2') format('woff2'), url('./assets/Pretendard-Medium.subset.woff') format('woff');
+}
 
   #header {
     position: sticky;
@@ -83,17 +86,17 @@
 
       @include mobile {
         width: calc(100% - 4rem);
-        margin: 0 2rem;
+        margin: 4rem 2rem;
       }
 
       @include tablet {
         width: calc(100% - 12.8rem);
-        margin: 0 6.4rem;
+        margin: 4rem 6.4rem;
       }
 
       @include tablet_landscape {
         width: calc(100% - 6.4rem);
-        margin: 0 3.2rem;
+        margin: 4rem 3.2rem;
       }
     }
   }
@@ -102,7 +105,7 @@
     width: 100%;
     font-size: 1.2rem;
     color: #a5a5a5;
-    letter-spacing: 0.1rem;
+    letter-spacing: 0.05rem;
     border-top: 1px solid var(--border2);
     height: 8rem;
     display: flex;
@@ -134,6 +137,7 @@
           color: var(--primary);
           display: flex;
           align-items: center;
+          font-weight:500;
 
           .ico_link {
             margin: 0 0.8rem 0 0;

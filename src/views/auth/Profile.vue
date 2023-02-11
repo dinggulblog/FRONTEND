@@ -10,7 +10,7 @@
           @resetAvatar="resetAvatar"
           @updateGreetings="updateGreetings"
         />
-        <div class="wrap_btn-edit" v-if="profileState.nickname === myProfile.nickname">
+        <div class="wrap_btn-edit" v-if="profileState.nickname === user.nickname">
           <button class="btn_edit" @click="displayState.state === 'edit' ? onUpdateGreetings() : onChangeState('edit')">
             {{ displayState.state === 'edit' ? '편집 완료' : '기본 정보 편집' }}
           </button>
@@ -39,7 +39,7 @@
       <div v-else class="content_intro" v-dompurify-html="profileState.introduce ? profileState.introduce : '작성된 소개글이 없습니다.'"></div>
 
       <Button
-        v-if="profileState.nickname === myProfile.nickname"
+        v-if="profileState.nickname === user.nickname"
         class="btn_edit_introduce"
         :size="'sm'"
         :shape="'fill-round'"
@@ -51,7 +51,7 @@
     <!-- Tab content - Posts -->
     <Suspense v-else>
       <template #default>
-        <Posts :filter="displayState.tab" :userId="profileState._id" />
+        <Posts :filter="displayState.tab" :userId="profileState._id" :type="'recent'" />
       </template>
 
       <template #fallback>
@@ -109,7 +109,7 @@
     state: 'view',
   })
 
-  const myProfile = computed(() => state.auth.profile)
+  const user = computed(() => state.auth.user)
 
   const onChangeState = (state) => {
     displayState.state = state
@@ -120,7 +120,7 @@
   }
 
   const onUpdateAvatar = async (event) => {
-    if (myProfile.value.nickname !== profileState.nickname)
+    if (user.value.nickname !== profileState.nickname)
       return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
 
     const formData = new FormData()
@@ -137,7 +137,7 @@
   }
 
   const resetAvatar = async () => {
-    if (myProfile.value.nickname !== profileState.nickname)
+    if (user.value.nickname !== profileState.nickname)
       return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
 
     const { success } = await dispatch('auth/deleteProfileAvatar', { nickname: profileState.nickname })
@@ -199,7 +199,7 @@
       position: relative;
       margin: 0 0 4.8rem;
 
-      &:deep(.author) {
+      &:deep(.user-info) {
         align-items: center;
 
         @include mobile {
@@ -300,8 +300,6 @@
           color: var(--text3);
           user-select: none;
           font-size: 1.4rem;
-          letter-spacing: 0.1rem;
-          font-family: 'Noto Sans KR';
 
           &:last-child {
             margin: 0;
@@ -323,9 +321,9 @@
   }
 
   .introduce {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     .content_intro {
-      color: var(--text6);
+      color: var(--text4);
     }
 
     .btn_edit_introduce {

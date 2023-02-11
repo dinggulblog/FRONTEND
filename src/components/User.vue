@@ -16,11 +16,10 @@
       </div>
       <Button
         class="btn_avatar_reset"
-        :content="'아바타 초기화'"
         :size="'sm'"
         :shape="'line-round'"
         @click="emits('resetAvatar')"
-      />
+      >아바타 초기화</Button>
     </template>
 
     <template #nickname>

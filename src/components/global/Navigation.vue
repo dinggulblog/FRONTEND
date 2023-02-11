@@ -85,7 +85,7 @@
       height: 100vh;
       padding: 4.8rem 4.8rem;
       font-size: 1.6rem;
-      color: var(--text3);
+      color: var(--text1);
       background-color: var(--bg1);
       overflow-y: auto;
 
@@ -102,11 +102,11 @@
     a,
     span {
       font-size: 1.2rem;
-      letter-spacing: 0.2rem;
       font-weight: 500;
       text-transform: uppercase;
       color: var(--text3);
       cursor: pointer;
+      letter-spacing: 0.05rem;
 
       @media (hover: hover) and (pointer: fine) {
         &:hover {
@@ -197,7 +197,6 @@
 
         .nickname {
           font-size: 1.6rem;
-          font-family: 'Noto Sans KR';
           color: var(--text3);
         }
       }
@@ -211,7 +210,6 @@
             font-size: 1.4rem;
             font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 0.2rem;
             color: var(--primary);
           }
         }
@@ -283,7 +281,7 @@
             border-radius: 3.2rem;
             background: var(--text1);
             padding: 0 2.4rem;
-            box-shadow: var(--shadow1);
+            border:1px solid var(--border2);
             width: auto;
 
             @include mobile_all {
@@ -291,6 +289,7 @@
               background-color: transparent;
               box-shadow: 0 0;
               border-radius: 0;
+              border:0;
               margin: 0 0 0 4.8rem;
             }
 
@@ -324,13 +323,19 @@
       }
 
       li.nav_item {
+        position: relative;
+
+        &:first-child::before {
+          display: none;
+        }
+
         &::before {
           content: '';
           position: absolute;
           left: 0;
           width: 0.1rem;
           height: 1.2rem;
-          background-color: var(--bg1);
+          background-color: var(--border3);
 
           @include mobile_all {
             display: none;

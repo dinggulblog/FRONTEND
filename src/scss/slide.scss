@@ -1,14 +1,16 @@
 .slide_item {
-  transition: box-shadow 0.25s ease-in 0s, transform 0.25s ease-in 0s;
 
   .thumbnail {
     position: relative;
+    overflow: hidden;
+    width: 100%;
+    border-radius: 0.8rem;
+    
 
     img {
       width: 27rem;
       height: 20.8rem;
       object-fit: cover;
-      border-radius: 0.8rem;
 
       @include tablet {
         width: 22.2rem;
@@ -17,6 +19,14 @@
       @include mobile {
         width: 15.2rem;
         height: 15.2rem;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        transition: all 0.3s ease-in-out;
+
+        &:hover {
+          transform: scale(1.1);
+        }
       }
     }
 

@@ -166,7 +166,7 @@
           font-size: 2.4rem;
 
           img {
-            width: 14rem;
+            width: 100%;
           }
         }
       }
@@ -213,7 +213,7 @@
 
               ul {
                 background-color: var(--bg2);
-                box-shadow: var(--shadow1);
+                border:1px solid var(--border2);
                 border-radius: 1.2rem;
                 cursor: default;
                 position: relative;
@@ -240,6 +240,16 @@
                   @include tablet_landscape {
                     font-size: 1.6rem;
                   }
+                  
+                  @media (hover: hover) and (pointer: fine) {
+                     &:hover {
+                         color: var(--primary-light);
+                    }
+                  }
+
+          &:active {
+            color: var(--primary-dark);
+          }
                 }
               }
             }

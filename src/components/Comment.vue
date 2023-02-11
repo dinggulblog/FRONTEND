@@ -10,7 +10,7 @@
           <Info>
             <template #createdAt>
               <li>
-                <span class="createdAt">{{ dayjs(comment.createdAt).format('YYYY년 M월 D일') }}</span>
+                <span class="createdAt">{{ getTime(comment.createdAt) }}</span>
               </li>
             </template>
           </Info>
@@ -105,11 +105,11 @@
 <script setup>
   import { ref, reactive, computed, inject, onMounted } from 'vue'
   import { useStore } from 'vuex'
+  import { getTime } from '../common/time.js'
   import Comment from './Comment.vue'
   import CommentEditor from './CommentEditor.vue'
   import Action from './Action.vue'
   import User from './User.vue'
-  import dayjs from 'dayjs'
   import Info from './slots/Info.vue'
 
   const props = defineProps({
@@ -229,6 +229,14 @@
           display: flex;
           align-items: center;
           width: 90%;
+
+          &:deep(.user-info) {
+            &::after {
+             content: "·";
+              margin: 0 0.8rem;
+              color: var(--text2);
+              }
+          }
 
           .wrap_reply_btn {
             margin: 0 0 0 3.2rem;

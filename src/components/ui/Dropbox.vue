@@ -66,7 +66,7 @@
         width: 9.6rem;
         border-radius: 1.2rem;
         padding: 0.1rem 1.2rem;
-        box-shadow: var(--shadow1);
+        border:1px solid var(--border2);
         background: var(--bg1);
 
         &:deep(li) {
