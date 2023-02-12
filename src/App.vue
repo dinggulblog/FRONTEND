@@ -1,6 +1,6 @@
 <template>
   <div id="header">
-    <MyHeader :isLogin="isLogin" />
+    <MyHeader :isLogin="$store.state.auth.isLogin" />
   </div>
 
   <div class="content-container">
@@ -19,7 +19,7 @@
     </div>
   </div>
 
-  <div class="btn_create" v-if="isLogin">
+  <div class="btn_create" v-if="$store.state.auth.isLogin">
     <router-link :to="{ name: 'editor' }" class="a_create"><Ico :size="'md'" :svg="'create'" /></router-link>
   </div>
 
@@ -30,18 +30,12 @@
 </template>
 
 <script setup>
-  import { ref, computed, provide } from 'vue'
-  import { useStore } from 'vuex'
-  import MyHeader from './components/global/MyHeader.vue'
-
-  const { state } = useStore()
+  import { ref, provide } from 'vue'
 
   const DIALOG_EL = ref(null)
   const TOAST_EL = ref(null)
   const ACCOUNT_EL = ref(null)
   const CONTACT_EL = ref(null)
-
-  const isLogin = computed(() => state.auth.isLogin)
 
   provide('DIALOG_EL', DIALOG_EL)
   provide('TOAST_EL', TOAST_EL)

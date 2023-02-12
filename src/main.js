@@ -5,6 +5,8 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import setupInterceptors from './services/axios.interceptors'
+import MediaQuery from './plugins/MediaQuery'
+import MyHeader from './components/global/MyHeader.vue'
 import Toast from './components/global/ToastMessage.vue'
 import Dialog from './components/global/Dialog.vue'
 import Account from './components/global/Account.vue'
@@ -23,6 +25,8 @@ app
   .use(store)
   .use(router)
   .use(VueDOMPurifyHTML)
+  .use(MediaQuery)
+  .component('MyHeader', MyHeader)
   .component('Toast', Toast)
   .component('Dialog', Dialog)
   .component('Account', Account)

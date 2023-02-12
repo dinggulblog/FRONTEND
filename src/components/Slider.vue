@@ -1,10 +1,11 @@
 <template>
+ 
   <!-- Slide toolbar -->
   <div class="wrap_slide_toolbar">
     <div class="slide_category">
       <span class="category">{{ category }}</span>
     </div>
-    <div class="slide_page" v-if="!isAllMobileDevice">
+    <div class="slide_page" v-if="!isMobileDevices">
       <span class="nowPage">{{ slidePage }}</span>
       <span class="maxPage">{{ slideMaxPage }}</span>
     </div>
@@ -26,8 +27,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, watch } from 'vue'
-  import { useMedia } from '../common/mediaQuery'
+  import { inject, ref, toRefs, computed, watch } from 'vue'
 
   const props = defineProps({
     category: {
@@ -40,28 +40,22 @@
     },
     limit: {
       type: Number,
-      default: 12
+      default: 10
     },
-    isAllMobileDevice: {
-      type: Boolean,
-      default: false
-    }
   })
 
   const emits = defineEmits(['slide'])
 
-  // const isAllMobile = useMedia('only screen and (max-width: 1199px)')
-  // const isTabletLandScape = useMedia('(min-width: 1024px) and (max-width: 1199px)')
-  // const isTablet = useMedia('(min-width: 768px) and (max-width: 1023px)')
-  // const isMobile = useMedia('(min-width: 0px) and (max-width: 767px)')
+  const isDesktop = inject('isDesktop')
+  const isMobileDevices = inject('isMobileDevices')
 
-  const isDesktop = useMedia('(min-width: 1200px)')
+  const { maxCount, limit } = toRefs(props)
 
   const slidePage = ref(1) // 현재 보고 있는 페이지
   const slideIndex = ref(0) // 슬라이드 인덱스
-  const slideLimit = computed(() => (isDesktop.value ? props.limit / 2 : props.limit / 4)) // 한 번의 슬라이드에 넘길 게시물 갯수
-  const slideMaxPage = computed(() => Math.ceil(props.maxCount / slideLimit.value)) // 슬라이드 가능한 페이지 상한값
-  const slideRest = computed(() => slideMaxPage.value * slideLimit.value - props.maxCount) // 슬라이드 마지막 페이지에 모자란 게시물 갯수
+  const slideLimit = computed(() => (isDesktop.value ? limit.value / 2 : limit.value / 4)) // 한 번의 슬라이드에 넘길 게시물 갯수
+  const slideMaxPage = computed(() => Math.ceil(maxCount.value / slideLimit.value)) // 슬라이드 가능한 페이지 상한값
+  const slideRest = computed(() => slideMaxPage.value * slideLimit.value - maxCount.value) // 슬라이드 마지막 페이지에 모자란 게시물 갯수
 
   const onUpdateSlidePage = (updatePage) => {
     if (slideMaxPage.value < updatePage) return

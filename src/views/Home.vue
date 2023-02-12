@@ -3,21 +3,11 @@
     <div class="recent_tranding">
       <h2 class="h2_recent_tranding">Tranding Posts</h2>
       <ul class="recent_tranding_sort_btns">
-        <li style="margin-right: 0.8rem">
-          <Button
-            class="btn_sort_view"
-            :content="'조회수순'"
-            :theme="trandingType === 'view' ? 'primary' : ''"
-            @click="onChangeTrandingType('view')"
-          />
+        <li>
+          <Button class="btn_sort_view" :theme="trandingType === 'view' ? 'primary' : ''" @click="onChangeTrandingType('view')">조회수순</Button>
         </li>
         <li>
-          <Button
-            class="btn_sort_like"
-            :content="'좋아요순'"
-            :theme="trandingType === 'like' ? 'primary' : ''"
-            @click="onChangeTrandingType('like')"
-          />
+          <Button class="btn_sort_like" :theme="trandingType === 'like' ? 'primary' : ''" @click="onChangeTrandingType('like')">좋아요순</Button>
         </li>
       </ul>
       <Suspense>
@@ -128,7 +118,11 @@
       display: flex;
       margin-bottom: 3.2rem;
 
-      .btn {
+      li:first-child {
+        margin-right: 0.8rem;
+      }
+
+      &:deep(.btn) {
         position: relative;
 
         &::after {

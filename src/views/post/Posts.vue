@@ -14,10 +14,10 @@
 
   <Suspense v-else>
     <template #default>
-      <Posts v-if="type !== 'slide'" :menu="currentMenus" :type="type" :category="category" />
-      <ul v-else class="ul_slide">
+      <Posts v-if="type !== 'slide'" :type="type" :menu="currentMenus?.map(({ _id }) => _id)" :category="category" />
+      <ul v-else>
         <li v-for="category in categories" :key="category">
-          <Posts :type="'slide'" :menu="currentMenus" :category="category" />
+          <Posts :type="type" :menu="currentMenus?.map(({ _id }) => _id)" :category="category" />
         </li>
       </ul>
     </template>
@@ -41,6 +41,7 @@
     },
     sub: {
       type: String,
+      required: false
     },
   })
   
@@ -55,11 +56,4 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .ul_slide > li:first-child > .wrap_slide_toolbar {
-    margin-top: 0;
-  }
-
-  .ul_slide > li {
-    position: relative;
-  }
 </style>

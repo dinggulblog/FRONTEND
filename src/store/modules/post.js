@@ -45,15 +45,8 @@ const actions = {
    */
   async getPosts({ rootState, commit }, payload) {
     try {
-      const { data } = await axios.get('v1/posts', {
-        params: payload,
-        paramsSerializer: (params) => stringify(params),
-      })
-
-      const {
-        success,
-        data: { posts, maxCount },
-      } = data
+      const { data } = await axios.get('v1/posts', { params: payload, paramsSerializer: (params) => stringify(params) })
+      const { success, data: { posts, maxCount } } = data
 
       return { success, posts, maxCount, error: null }
     } catch (err) {
