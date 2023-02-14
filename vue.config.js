@@ -20,7 +20,8 @@ module.exports = defineConfig({
     ],
     resolve: {
       fallback: {
-        'fs': false
+        'fs': false,
+        'net': false
       }
     }
   },

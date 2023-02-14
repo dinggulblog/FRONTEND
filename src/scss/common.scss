@@ -127,6 +127,7 @@ body {
   height: 100%;
   overflow-x: hidden;
   letter-spacing: -0.02em;
+  scroll-behavior: smooth;
 }
 
 img,
@@ -189,4 +190,35 @@ option
   top: 0;
   right: 0;
   display: none;
+}
+
+
+.wrap_chapter {
+  position: absolute;
+  right:-20rem;
+  top:0;
+  height:100%;
+
+  ul {
+    position: sticky;
+    top:16rem;
+
+    li {
+    margin:0 0 1.2rem 0;
+    width:16rem;
+    overflow: hidden;
+    white-space: normal;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    white-space: pre-wrap;
+
+    a {
+      font-size:1.6rem;
+      color:var(--text3);
+      }
+    }
+  }
+
 }

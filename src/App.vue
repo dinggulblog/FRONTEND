@@ -74,6 +74,7 @@
     justify-content: center;
 
     #content {
+      position: relative;
       width: calc(120rem - 4.8rem);
       margin: 4.8rem 2.4rem;
       box-sizing: border-box;

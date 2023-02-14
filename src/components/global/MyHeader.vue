@@ -297,16 +297,4 @@
       }
     }
   }
-
-  .container_searchForm {
-    display: flex;
-    justify-content: center;
-    position: absolute;
-    top: 0;
-    z-index: 5;
-    width: 100%;
-    height: 16rem;
-    margin: 6.4rem 0 0 0;
-    background: var(--bg1);
-  }
 </style>

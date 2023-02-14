@@ -95,7 +95,6 @@
   }
 
   const getPosts = async (getPage) => {
-    console.log(getPage)
     const res = await dispatch('post/getPosts', reactive({ limit, skip, menu, category, filter, userId, sort, hasThumbnail: false }))
     if (!res.success) throw new Error('게시물을 받아오는 도중 에러가 발생하였습니다.')
 

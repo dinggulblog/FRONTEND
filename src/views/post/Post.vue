@@ -37,7 +37,7 @@
     </div>
 
     <!-- Post Content -->
-    <div class="content">
+    <div class="content" ref="CONTENT_EL">
       <markdown
         class="markdown"
         :source="post.content"
@@ -76,6 +76,18 @@
         </Button>
       </div>
     </div>
+
+
+   <Teleport to="#content">
+      <div class="wrap_chapter">
+        <ul class="chapter">
+            <li v-for="item in chapter" :key="item">
+              <a :id="item.getAttribute('id')" :href="'#' + item.getAttribute('id')" class="a_chapter_item" ref="CHAPTER_EL" :style="item.tagName === 'H2' ? { marginLeft: '0.8rem' } : item.tagName === 'H3' ? { marginLeft : '1.6rem' } : ''">{{ item.innerText }}</a>
+            </li>
+        </ul>
+      </div>
+    </Teleport>
+
   </div>
 
   <div class="comment">
@@ -98,7 +110,7 @@
 </template>
 
 <script setup>
-  import { inject, ref, computed, watch, onUnmounted } from 'vue'
+  import { inject, ref, computed, watch, onUnmounted, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import { useRouter } from 'vue-router'
   import CommentEditor from '../../components/CommentEditor.vue'
@@ -108,6 +120,7 @@
   import Action from '../../components/Action.vue'
   import User from '../../components/User.vue'
   import PostInfoSlot from '../../components/PostInfo.vue'
+
 
   const props = defineProps({
     postId: {
@@ -125,7 +138,9 @@
   const DIALOG_EL = inject('DIALOG_EL')
   const TOAST_EL = inject('TOAST_EL')
 
+  const CONTENT_EL = ref(null)
   const COMMENTS_EL = ref(null)
+  const CHAPTER_EL = ref(null)
   const postError = ref(null)
   const commentsError = ref(null)
 
@@ -138,6 +153,7 @@
 
   const auth = computed(() => state.auth.id && (post.value?.author?._id === state.auth.id))
 
+  const chapter = ref(null)
 
   const onUpdatePost = () => {
     if (post.value?._id) push({ name: 'editor', query: { id: post.value?._id } })
@@ -180,6 +196,33 @@
     }
   }
 
+  const observedEl = ref(new Map())
+  const targetEl = ref([])
+
+  const callback = (entries, observer) => {
+    entries.map((entry) => {
+      if (entry.isIntersecting && entry.target) {
+        observedEl.value.set(entry.target.id, entry)
+        targetEl.value = [...observedEl.value.values()].filter((el) => el && el.isIntersecting)
+        CHAPTER_EL.value.forEach((el) => el.style.color = `var(--text3)`)
+        if(targetEl.value.length) {
+          CHAPTER_EL.value.find(el => el.getAttribute('id') === targetEl.value[0].target.id).style.color = 'red'
+        }
+        
+      } else {
+        const idx = targetEl.value.findIndex(el => el.target.id === entry.target.id)
+        if (idx !== -1) targetEl.value.splice(idx, 1)
+        observedEl.value.set(entry.target.id, entry)
+        CHAPTER_EL.value.forEach((el) => el.style.color = `var(--text3)`)
+        if(targetEl.value.length) {
+          CHAPTER_EL.value.find(el => el.getAttribute('id') === targetEl.value[0].target.id).style.color = 'red'
+        }        
+      }
+    })
+  }
+
+  const observer = new IntersectionObserver(callback, { threshold: 1, rootMargin: '-114px 0px 0px 0px' })
+
   watch(
     () => props.postId,
     async () => {
@@ -193,6 +236,14 @@
         COMMENTS_EL.value.scrollIntoView({ behavior: 'smooth' })
         commit('post/SET_QUICKMOVE', false)
       }
+
+      let chapterElements = CONTENT_EL.value?.querySelectorAll('h1, h2, h3')
+      chapter.value = Array.from(chapterElements).map(el => el)
+      chapterElements.forEach(el => {
+        el.style.scrollMarginTop = '11.4rem'
+        observer.observe(el)
+        observedEl.value.set(el.getAttribute('id'), null)
+      })
     },
     { immediate: true }
   )
@@ -200,6 +251,7 @@
   onUnmounted(() => {
     commit('post/SET_POST', null)
     commit('comment/SET_COMMENTS', {})
+    observer.disconnect()
   })
 </script>
 
@@ -258,14 +310,25 @@
       color: var(--text3);
       line-height: 2.2rem;
 
-      .markdown > p {
-        box-sizing: border-box;
+      h1,h2.h3 {
+         scroll-margin-top: 400px;
+        } 
+
+      .markdown {
+    
+        h1,h2.h3 {
+         scroll-margin-top: 400px;
+        } 
+      
+         p {
+           box-sizing: border-box;
+            img {
+               width: 100%;
+               height: 100%;
+                }
+           }
       }
 
-      .markdown > p > img {
-        width: 100%;
-        height: 100%;
-      }
     }
 
     .wrap_like {
