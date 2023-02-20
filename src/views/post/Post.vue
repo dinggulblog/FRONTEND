@@ -317,7 +317,7 @@
       margin: 6.4rem 0;
       font-size: 1.4rem;
       color: var(--text3);
-      line-height: 2.2rem;
+      line-height: 1.5;
 
       .markdown {
   

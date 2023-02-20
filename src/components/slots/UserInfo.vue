@@ -32,5 +32,9 @@
         object-fit: cover;
       }
     }
+
+    .wrap_nickname_greetings {
+      line-height: 1.5;
+    }
   }
 </style>

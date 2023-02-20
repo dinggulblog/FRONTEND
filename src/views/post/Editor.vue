@@ -71,9 +71,6 @@
         :thema="'primary'"
         @click="onCreateCompletions"
       >초안 만들기</Button>
-      <p>
-        {{ $store.state.openai.text }}
-      </p>
     </div>
 
     <!-- Image Buttons -->
@@ -541,6 +538,7 @@
         color: var(--text3);
         overflow-y: auto;
         max-height: 64rem;
+        line-height: 1.5;
 
         -ms-overflow-style: none;
         scrollbar-width: none;

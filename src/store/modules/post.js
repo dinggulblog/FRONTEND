@@ -192,7 +192,6 @@ const actions = {
 
 const mutations = {
   SET_INIT_POSTS(state, menus) {
-
     for (const menu in menus) {
 
       state[menu] = menus[menu].reduce((acc, { categories }) => {
@@ -200,10 +199,18 @@ const mutations = {
           posts: [],
           page: 1,
           maxCount: 1
-          })
+        })
         return acc
         }, {})
+
+        state[menu]['전체'] = {
+          posts: [],
+          page: 1,
+          maxCount: 1
+        }
       }
+
+    console.log(state)  
   },
 
   SET_PAGE(state, page = 1) {

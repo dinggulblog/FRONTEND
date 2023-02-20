@@ -12,7 +12,7 @@
    </div>
 
     <div class="table-body">
-      <div class="table-row" v-for="data in tableData" :key="data">
+      <div class="table-row" v-for="(data, val, idx) in tableData" :key="data">
         <div class="table-cell" v-for="(value, key) in data" :key="key" :class="key">
           <img :src="value" v-if="key === 'avatar'" :class="key" />
           <span v-else v-for="v in value" :key="v" :class="v">{{ v }}</span>
@@ -23,10 +23,10 @@
             class="btn_dropbox"
             :size="'sm'"
             :svg="'more'"
-            @click="$refs.ACTION_SLOT_EL.onToggle()"
+            @click="$refs.KEBAB_SLOT_EL[idx].onToggle()"
           />
 
-          <Action ref="ACTION_SLOT_EL" :dropboxItems="dropboxItems" />
+          <Kebab ref="KEBAB_SLOT_EL" :dropboxItems="dropboxItems" />
         </div>
     </div>
   </div>
@@ -42,7 +42,6 @@
 </template>
 
 <script setup>
-import Action from '../../components/Action.vue'
 import { reactive, ref, onMounted } from 'vue'
 
 const dropboxItems = reactive({})
@@ -73,6 +72,9 @@ const test1 = () => {
   console.log('hi')
 }
 
+const test2 = (refs) => {
+  console.log(refs)
+}
 
 const setDropboxItems = () => {
       dropboxItems['회원 정보'] = test1

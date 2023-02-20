@@ -14,10 +14,10 @@
 
   <Suspense v-else>
     <template #default>
-      <Posts v-if="type !== 'slide'" :type="type" :menu="currentMenus?.map(({ _id }) => _id)" :category="category" />
+      <Posts v-if="type !== 'slide'" :type="type" :menu="currentMenus?.map(({ _id }) => _id)" :category="category" :main="main"/>
       <ul v-else>
         <li v-for="category in categories" :key="category">
-          <Posts :type="type" :menu="currentMenus?.map(({ _id }) => _id)" :category="category" />
+          <Posts :type="type" :menu="currentMenus?.map(({ _id }) => _id)" :category="category" :main="main"/>
         </li>
       </ul>
     </template>

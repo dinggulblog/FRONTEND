@@ -1,6 +1,6 @@
 <template>
   <div class="wrap_posts">
-    <Slider v-if="type === 'slide'" :category="category" :maxCount="maxCount" :limit="limit" @slide="slide"></Slider>
+    <Slider v-if="type === 'slide'" :category="category" :maxCount="state.post[props.main][category].maxCount" :limit="state.post.limit" @slide="slide"></Slider>
 
     <!-- List of Posts -->
     <div class="posts">
@@ -11,7 +11,7 @@
               <PostsItem :type="type" :post="post" :data-index="index" @commitPosts="$store.commit('post/SET_POSTS', posts)"></PostsItem>
           </template>
           </TransitionGroup>
-        <Observer v-model:page="page" @updatePage="onUpdatePage"></Observer>
+        <Observer v-model:page="$store.state.post[props.main][props.category].page" @updatePage="onUpdatePage"></Observer>
       </template>
         <p v-else class="empty_posts">no posts yet</p>
       </ul>
@@ -35,6 +35,10 @@
   }
 
   const props = defineProps({
+    main: {
+      type: String,
+      required: true,
+    },
     type: {
       type: String,
       default: 'list',
@@ -63,24 +67,30 @@
       required: false,
     },
   })
-  const { dispatch } = useStore()
+  const { dispatch, state } = useStore()
   const { type, menu, category, filter, userId, sort } = toRefs(props)
 
   const isMobileDevices = inject('isMobileDevices')
 
   const POST_EL = ref(null)
   const posts = ref([])   // 게시물 배열
-  const page = ref(1)     // 현재까지 받아온 페이지
-  const maxCount = ref(1) // 전체 게시물 갯수
 
+
+  const query = {
+    limit: computed(()=> state.post.limit),
+    skip: computed(()=> (state.post[props.main][props.category].page - 1) * state.post.limit),
+  }
+
+  /*
   const limit = computed(() => typeLimit[type.value])        // 한 번의 요청에 받아올 게시물 갯수
-  const maxPage = computed(() => Math.ceil(maxCount.value / limit.value)) // 요청 가능한 페이지의 상한값
-  const skip = computed(() => (page.value - 1) * limit.value)
+  const maxPage = computed(() => Math.ceil(state.post[props.main].maxCount / state.post[props.main].limit)) // 요청 가능한 페이지의 상한값
+  const skip = computed(() => (state.post[props.main].page - 1) * limit.value)
+  */
 
   const onUpdatePage = (updatePage) => {
-    if (maxPage.value < updatePage) return
-    page.value = updatePage
-    getPosts(page.value)
+    if (Math.ceil(state.post[props.main][props.category].maxCount / state.post.limit) < updatePage) return
+    state.post[props.main][props.category].page = updatePage
+    getPosts(state.post[props.main][props.category].page)
   }
 
   const slide = (idx) => {
@@ -95,15 +105,15 @@
   }
 
   const getPosts = async (getPage) => {
-    const res = await dispatch('post/getPosts', reactive({ limit, skip, menu, category, filter, userId, sort, hasThumbnail: props.type === 'slide' ? true : false }))
+    const res = await dispatch('post/getPosts', reactive({ limit : query.limit, skip: query.skip, menu, category, filter, userId, sort, hasThumbnail: props.type === 'slide' ? true : false }))
     if (!res.success) throw new Error('게시물을 받아오는 도중 에러가 발생하였습니다.')
 
-    if (res.maxCount) maxCount.value = type.value === 'recent' ? limit.value : res.maxCount
-    posts.value.splice((getPage - 1) * limit.value, limit.value, ...res.posts)
+    if (res.maxCount) state.post[props.main][props.category].maxCount = type.value === 'recent' ? query.limit: res.maxCount
+    posts.value.splice((getPage - 1) * query.limit, query.limit, ...res.posts)
   }
 
   const beforeEnter = (el) => {
-    el.style.transitionDelay = 150 * parseInt(el.dataset.index % limit.value, 10) + 'ms'
+    el.style.transitionDelay = 150 * parseInt(el.dataset.index % query.limit, 10) + 'ms'
   }
 
   const afterEnter = (el) => {
@@ -115,6 +125,7 @@
     () => {
       window.scrollTo({ left: 0, top: 0, behavior: 'smooth' })
       posts.value = []
+      //state.post.limit = typeLimit[props.type]
       onUpdatePage(1)
       getPosts(1)
     }
@@ -122,6 +133,7 @@
 
   onMounted(() => {
     if (isMobileDevices.value && type.value === 'slide') POST_EL.value.style.overflowX = 'auto'
+    state.post.limit = typeLimit[props.type]
   })
 
   await getPosts(1)
