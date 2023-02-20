@@ -15,7 +15,9 @@
           <Posts :type="'recent'" :recent="true" v-model:sort="trandingType" />
         </template>
         <template #fallback>
-          <span>게시물 로딩 중...</span>
+          <ul :id="'recent'">
+          <component v-for="skeleton in 6" :key="skeleton" :is="layouts['recent']"></component>
+      </ul>
         </template>
       </Suspense>
     </div>
@@ -26,7 +28,9 @@
         <Posts :menu="slideSolMenu" :type="'slide'" :recent="true" />
       </template>
       <template #fallback>
-        <span>게시물 로딩 중...</span>
+        <ul :id="'slide'">
+          <component v-for="skeleton in 4" :key="skeleton" :is="layouts['slide']"></component>
+      </ul>
       </template>
     </Suspense>
 
@@ -36,7 +40,9 @@
         <Posts :menu="slideMingMenu" :type="'slide'" :recent="true" />
       </template>
       <template #fallback>
-        <span>게시물 로딩 중...</span>
+        <ul :id="'slide'">
+          <component v-for="skeleton in 4" :key="skeleton" :is="layouts['slide']"></component>
+      </ul>
       </template>
     </Suspense>
   </div>
@@ -46,6 +52,8 @@
   import { ref, onBeforeMount } from 'vue'
   import { useStore } from 'vuex'
   import Posts from '../components/Posts.vue'
+  import slide from '../components/slots/Slide.vue'
+  import recent from '../components/slots/Recent.vue'
 
   const { state } = useStore()
   const error = ref(null)
@@ -63,6 +71,11 @@
 
   const getMingMenu = (sub) => {
     slideMingMenu.value = state.menu.menus.ming.filter((main) => main.sub === sub)
+  }
+
+  const layouts = {
+    slide: slide,
+    recent: recent,
   }
 
   onBeforeMount(() => {

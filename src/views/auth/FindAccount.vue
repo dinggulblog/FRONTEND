@@ -18,7 +18,7 @@
           success-message="올바른 이메일 주소입니다."
         />
 
-        <Button type="submit" class="btn_submit" :content="'보내기'" :shape="'fill-round-full'" :theme="'primary'" />
+        <Button type="submit" class="btn_submit" :shape="'fill-round-full'" :theme="'primary'">보내기</Button>
       </form>
     </Form>
   </div>

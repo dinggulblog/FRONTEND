@@ -139,7 +139,6 @@
 
   const DIALOG_EL = inject('DIALOG_EL')
   const TOAST_EL = inject('TOAST_EL')
-  const ACTION_SLOT_EL = ref(null)
 
   const isUpdate = ref(false)
   const dropboxItems = reactive({})

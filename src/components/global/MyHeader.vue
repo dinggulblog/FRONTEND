@@ -29,6 +29,9 @@
                 <li>
                   <router-link :to="{ name: 'profile', params: { nickname: user.nickname } }">Profile</router-link>
                 </li>
+                <li v-if="$store.state.auth.isAdmin">
+                  <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
+                </li>
                 <li>
                   <span @click="onLogout">Logout</span>
                 </li>

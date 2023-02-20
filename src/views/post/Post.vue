@@ -1,112 +1,112 @@
 <template>
-  <div v-if="postError">
-    {{ postError }}
-  </div>
+      <div v-if="postError">
+      {{ postError }}
+    </div>
 
-  <div class="post" v-if="post">
-    <div class="wrap_header">
-      <div class="wrap_left">
-        <!-- Post Title -->
-        <div class="wrap_title">
-          <div class="title">
-            <h2>{{ post.title }}</h2>
-            <span v-if="!post.isPublic" class="ico_lock">
-              <Ico :svg="'lock'" :color="'var(--text2)'" />
-            </span>
+    <div class="post" v-if="post">
+      <div class="wrap_header">
+        <div class="wrap_left">
+          <!-- Post Title -->
+          <div class="wrap_title">
+            <div class="title">
+              <h2>{{ post.title }}</h2>
+              <span v-if="!post.isPublic" class="ico_lock">
+                <Ico :svg="'lock'" :color="'var(--text2)'" />
+              </span>
+            </div>
+          </div>
+
+          <!-- Post Info -->
+          <div class="wrap_info">
+            <PostInfoSlot :post="post" />
           </div>
         </div>
+        <div class="wrap_right">
+          <Button
+            class="btn_dropbox"
+            :size="'sm'"
+            :svg="'more'"
+            @click="$refs.ACTION_SLOT_EL.onToggle()"
+          />
 
-        <!-- Post Info -->
-        <div class="wrap_info">
-          <PostInfoSlot :post="post" />
+          <Action
+            ref="ACTION_SLOT_EL"
+            :dropboxItems="!auth ? { '링크 복사': onCopyLink } : { '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }"
+          />
         </div>
       </div>
-      <div class="wrap_right">
-        <Button
-          class="btn_dropbox"
-          :size="'sm'"
-          :svg="'more'"
-          @click="$refs.ACTION_SLOT_EL.onToggle()"
+
+      <!-- Post Content -->
+      <div class="content" ref="CONTENT_EL">
+        <markdown
+          class="markdown"
+          :source="post.content"
+          :plugins="plugins"
+          :breaks="true"
+          :xhtmlOut="true"
+          :typographer="true"
         />
-
-        <Action
-          ref="ACTION_SLOT_EL"
-          :dropboxItems="!auth ? { '링크 복사': onCopyLink } : { '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }"
-        />
       </div>
-    </div>
 
-    <!-- Post Content -->
-    <div class="content" ref="CONTENT_EL">
-      <markdown
-        class="markdown"
-        :source="post.content"
-        :plugins="plugins"
-        :breaks="true"
-        :xhtmlOut="true"
-        :typographer="true"
-      />
-    </div>
-
-    <!-- Post Likes -->
-    <div class="wrap_like">
-      <div class="liked_count">
-        <Ico class="ico_like" :size="'lg'" :svg="'like-fill'" :color="!post.liked ? 'var(--disable)' : 'var(--likeActive)'" @click="onUpdateLike"/>
-        <span>{{ post.likeCount }}</span>
+      <!-- Post Likes -->
+      <div class="wrap_like">
+        <div class="liked_count">
+          <Ico class="ico_like" :svg="'like-fill'" :color="!post.liked ? 'var(--disable)' : 'var(--likeActive)'" @click="onUpdateLike"/>
+          <span>{{ post.likeCount }}</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Author Profile -->
-    <div class="wrap_author">
-      <User :profile="post.author" />
-      <router-link :to="{ name: 'profile', params: { nickname: post.author.nickname } }" class="a_link">
-        프로필 보러가기
-      </router-link>
-    </div>
-
-    <!-- Link to another Post -->
-    <div class="wrap_link">
-      <div v-for="linkedPost in post.linkedPosts" :key="linkedPost?._id" class="link">
-        <span v-if="linkedPost.rel === 'prev'">이전글</span>
-        <span v-else>다음글</span>
-        <Button
-          class="btn_link"
-          @click="onPushPost(linkedPost._id)"
-        > {{ linkedPost.title }}
-        </Button>
+      <!-- Author Profile -->
+      <div class="wrap_author">
+        <User :profile="post.author" />
+        <router-link :to="{ name: 'profile', params: { nickname: post.author.nickname } }" class="a_link">
+          프로필 보러가기
+        </router-link>
       </div>
+
+      <!-- Link to another Post -->
+      <div class="wrap_link">
+        <div v-for="linkedPost in post.linkedPosts" :key="linkedPost?._id" class="link">
+          <span v-if="linkedPost.rel === 'prev'">이전글</span>
+          <span v-else>다음글</span>
+          <Button
+            class="btn_link"
+            @click="onPushPost(linkedPost._id)"
+          > {{ linkedPost.title }}
+          </Button>
+        </div>
+      </div>
+
+
+    <Teleport to="#content">
+        <div class="wrap_toc">
+          <ul class="toc">
+              <li v-for="item in toc" :key="item">
+                <a :id="item.getAttribute('id')" :href="'#' + item.getAttribute('id')" class="a_toc_item" ref="toc_EL" :style="item.tagName === 'H2' ? { marginLeft: '0.8rem' } : item.tagName === 'H3' ? { marginLeft : '1.6rem' } : ''">{{ item.innerText }}</a>
+              </li>
+          </ul>
+        </div>
+      </Teleport>
+
     </div>
 
+    <div class="comment">
+      <CommentEditor :postId="postId" />
 
-   <Teleport to="#content">
-      <div class="wrap_toc">
-        <ul class="toc">
-            <li v-for="item in toc" :key="item">
-              <a :id="item.getAttribute('id')" :href="'#' + item.getAttribute('id')" class="a_toc_item" ref="toc_EL" :style="item.tagName === 'H2' ? { marginLeft: '0.8rem' } : item.tagName === 'H3' ? { marginLeft : '1.6rem' } : ''">{{ item.innerText }}</a>
-            </li>
+      <div class="comments" ref="COMMENTS_EL">
+        <h2>댓글 {{ commentCount }}개</h2>
+        <ul class="comment_items" v-if="comments.length">
+          <Comment
+            v-for="comment in comments"
+            :key="comment._id"
+            :comment="comment"
+            :postId="postId"
+            :author="author"
+            :userId="userId"
+          />
         </ul>
       </div>
-    </Teleport>
-
-  </div>
-
-  <div class="comment">
-    <CommentEditor :postId="postId" />
-
-    <div class="comments" ref="COMMENTS_EL">
-      <h2>댓글 {{ commentCount }}개</h2>
-      <ul class="comment_items" v-if="comments.length">
-        <Comment
-          v-for="comment in comments"
-          :key="comment._id"
-          :comment="comment"
-          :postId="postId"
-          :author="author"
-          :userId="userId"
-        />
-      </ul>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -203,18 +203,18 @@
       if (entry.isIntersecting) {
         observedEl.value.set(entry.target.id, entry)
         intersectEl.value = [...observedEl.value.values()].filter((el) => el && el.isIntersecting)
-        toc_EL.value.forEach((el) => el.style.color = `var(--text3)`)
+        toc_EL.value.forEach((el) => el.classList.remove('on'))
         if(intersectEl.value.length) {
-          toc_EL.value.find(el => el.getAttribute('id') === intersectEl.value[0].target.id).style.color = `var(--primary)`
+          toc_EL.value.find(el => el.getAttribute('id') === intersectEl.value[0].target.id).classList.add('on')
         }
         
       } else {
         const idx = intersectEl.value.findIndex(el => el.target.id === entry.target.id)
         if (idx !== -1) intersectEl.value.splice(idx, 1)
         observedEl.value.set(entry.target.id, entry)
-        toc_EL.value.forEach((el) => el.style.color = `var(--text3)`)
+        toc_EL.value.forEach((el) => el.classList.remove('on'))
         if(intersectEl.value.length) {
-          toc_EL.value.find(el => el.getAttribute('id') === intersectEl.value[0].target.id).style.color = `var(--primary)`
+          toc_EL.value.find(el => el.getAttribute('id') === intersectEl.value[0].target.id).classList.add('on')
         }        
       }
     })
@@ -236,8 +236,9 @@
         commit('post/SET_QUICKMOVE', false)
       }
 
-      observer.disconnect()
+      document.title = post.value.title
 
+      observer.disconnect()
       observedEl.value.clear()
       intersectEl.value = []
 
@@ -341,10 +342,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        border: 1px solid var(--border3);
+        border-radius: 3.2rem;
+        padding:0.8rem 1.2rem;
 
         span {
           color: var(--text2);
-          font-size: 1.6rem;
+          font-size: 1.2rem;
         }
 
         .ico_like {

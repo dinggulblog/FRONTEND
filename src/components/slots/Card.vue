@@ -1,28 +1,40 @@
 <template>
   <li class="card_item">
     <div class="wrap_item">
-      <slot name="thumbnail"></slot>
+      <slot name="thumbnail">
+        <div class="thumbnail skeleton"></div>
+      </slot>
 
       <div class="wrap_title">
         <div class="title">
-          <slot name="title"></slot>
+          <slot name="title">
+            <p class="skeleton-title"></p>
+          </slot>
         </div>
       </div>
 
       <div class="summary">
-        <slot name="summary"></slot>
+        <slot name="summary">
+          <p v-for="summary in 2" :key="summary" class="skeleton-summary"></p>
+        </slot>
       </div>
 
       <div class="wrap_info">
         <div class="createdAt">
-          <slot name="createdAt"></slot>
+          <slot name="createdAt">
+            <p class="skeleton-info"></p>
+          </slot>
         </div>
         <div class="wrap_comment_like">
           <div class="comment_count">
-            <slot name="comment_count"></slot>
+            <slot name="comment_count">
+              <p class="skeleton-info"></p>
+            </slot>
           </div>
           <div class="like_count">
-            <slot name="like_count"></slot>
+            <slot name="like_count">
+              <p class="skeleton-info"></p>
+            </slot>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 <template>
   <component :is="layouts[type]">
     <template #thumbnail>
-      <div v-if="type !== 'list' || (type === 'list' && post.thumbnail)" class="thumbnail">
+      <div v-if="type !== 'list' && post.thumbnail || (type === 'list' && post.thumbnail)" class="thumbnail">
         <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">
           <img :src="post.thumbnail ? post.thumbnail : DEFAULT_THUMBNAIL" />
         </router-link>
@@ -54,7 +54,7 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, onMounted } from 'vue'
   import markdownText from 'markdown-to-text'
   import DEFAULT_THUMBNAIL from '../assets/default_thumbnail.webp'
   import card from './slots/Card.vue'
@@ -71,7 +71,6 @@
     },
     post: {
       type: Object,
-      required: true,
     },
   })
 

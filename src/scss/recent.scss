@@ -73,6 +73,11 @@
         align-items: center;
         margin: 1.2rem 0 0;
 
+        div {
+          display: flex;
+        align-items: center;
+        }
+
         span {
           font-size: 1.2rem;
           color: var(--text2);

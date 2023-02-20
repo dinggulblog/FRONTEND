@@ -141,59 +141,6 @@ scrollbar-width: none;
  display: none; /* Chrome, Safari, Opera*/
 }
 
-#list {
-display: flex;
-flex-direction: column;
-}
-
-#card {
-display: flex;
-width: 100%;
-flex-wrap: wrap;
-
-@include tablet_landscape {
-& .card_item:nth-child(3n + 0) {
- margin-right: 0;
-}
-}
-
-@include desktop {
-& .card_item:nth-child(3n + 0) {
- margin-right: 0;
-}
-}
-
-@include mobile_tablet {
-& .card_item:nth-child(2n + 0) {
- margin-right: 0;
-}
-}
-}
-
-#slide {
-display: flex;
-flex-direction: row;
-margin: 0 0 0rem;
--ms-overflow-style: none;
-scrollbar-width: none;
-scroll-behavior: smooth;
--webkit-overflow-scrolling: touch;
-position: relative;
-z-index: 9;
-
-&::-webkit-scrollbar {
-display: none; /* Chrome, Safari, Opera*/
-}
-
-li {
-margin: 0 2.4rem 0 0;
-}
-
-li:last-of-type {
-margin: 0;
-}
-}
-
 
 .empty_posts {
 font-size: 1.4rem;

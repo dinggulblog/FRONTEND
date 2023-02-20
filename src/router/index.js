@@ -7,6 +7,8 @@ import NotFound from '../views/NotFound.vue'
 const Profile = () => import(/* webpackChunkName: "profile" */ '../views/auth/Profile.vue')
 const FindAccount = () => import(/* webpackChunkName: "findAccount" */ '../views/auth/FindAccount.vue')
 const ResetPassword = () => import(/* webpackChunkName: "resetPassword" */ '../views/auth/ResetPassword.vue')
+const Dashboard = () => import(/* webpackChunkName: "dashboard" */ '../views/dashboard/Dashboard.vue')
+const Members = () => import(/* webpackChunkName: "members" */ '../views/dashboard/Members.vue')
 const Editor = () => import(/* webpackChunkName: "editor" */ '../views/post/Editor.vue')
 const Posts = () => import(/* webpackChunkName: "posts" */ '../views/post/Posts.vue')
 const Post = () => import(/* webpackChunkName: "post" */ '../views/post/Post.vue')
@@ -14,7 +16,7 @@ const Search = () => import(/* webpackChunkName: "post" */ '../views/Search.vue'
 
 const routes = [
   { path: '/', redirect: 'home' },
-  { path: '/home', name: 'home', component: Home, meta: { title: 'Home' } },
+  { path: '/home', name: 'home', component: Home, meta: { title: 'Dinggul' } },
   {
     path: '/auth/profile/:nickname',
     name: 'profile',
@@ -23,6 +25,8 @@ const routes = [
   },
   { path: '/auth/find', name: 'findAccount', component: FindAccount, meta: { title: 'FindAccount' } },
   { path: '/auth/pwd-reset', name: 'resetPassword', component: ResetPassword, meta: { title: 'ResetPassword' } },
+  { path: '/dashboard', name: 'dashboard', component: Dashboard, props: true, meta: { title: 'Dashboard' } },
+  { path: '/members', name: 'members', component: Members, props: true, meta: { title: 'Members' } },
   { path: '/editor', name: 'editor', component: Editor, meta: { title: 'Editor', requiredAuth: true } },
   { path: '/posts/:main/:sub?', name: 'posts', component: Posts, props: true, meta: { title: 'Posts' } },
   { path: '/post/:postId', name: 'post', component: Post, props: true, meta: { title: 'Post' } },
@@ -40,7 +44,15 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   try {
-    document.title = to.meta?.title ?? document.title
+    if (to.name !== 'post') {
+      document.title = to.params.sub
+      ? to.params.main.replace(/^[a-z]/, char => char.toUpperCase()) + ' / ' + to.params.sub.replace(/^[a-z]/, char => char.toUpperCase()) + ' - Dinggul'
+      : to.params.main
+      ? to.params.main.replace(/^[a-z]/, char => char.toUpperCase()) + ' - Dinggul'
+      : to.meta?.title
+      ? to.meta?.title
+      : document.title
+    }
 
     const isLogin = getItemWithTTL('isLogin', false)
 

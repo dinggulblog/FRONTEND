@@ -14,11 +14,13 @@
   <!-- Slide button -->
   <div class="wrap_btn_slidePage">
     <Button
+      v-if="slidePage !== 1"
       class="btn_old"
       :svg="'arrow-left'"
       @click="prevSlide"
     />
     <Button
+      v-if="slidePage !== slideMaxPage"
       class="btn_next"
       :svg="'arrow-right'"
       @click="nextSlide"

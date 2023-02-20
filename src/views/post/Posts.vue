@@ -23,7 +23,9 @@
     </template>
 
     <template #fallback>
-      <span>게시물 로딩 중...</span>
+      <ul :id="type">
+          <component v-for="skeleton in 9" :key="skeleton" :is="layouts[type]"></component>
+      </ul>
     </template>
   </Suspense>
 </template>
@@ -33,6 +35,10 @@
   import { mapState } from '../../common/vuex-helper.js'
   import Posts from '../../components/Posts.vue'
   import Toolbar from '../../components/Toolbar.vue'
+  import card from '../../components/slots/Card.vue'
+  import list from '../../components/slots/List.vue'
+  import slide from '../../components/slots/Slide.vue'
+  import recent from '../../components/slots/Recent.vue'
 
   const props = defineProps({
     main: {
@@ -53,7 +59,18 @@
     error.value = err.message
     return true
   })
+
+  const layouts = {
+    card: card,
+    list: list,
+    slide: slide,
+    recent: recent,
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
+
+
+
+
 </style>

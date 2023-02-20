@@ -5,7 +5,9 @@
 
   <div class="content-container">
     <div id="content">
-      <router-view />
+      <div>
+        <router-view />
+      </div>
     </div>
   </div>
 
