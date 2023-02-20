@@ -4,9 +4,12 @@ import axios from '../../services/axios'
 const state = () => ({
   limit: 6,
   post: null,
-  posts: null,
-  page: 1,
-  maxPage: 1,
+  sol: {
+    '전체': { posts: [], page: 1, maxCount: 1 }
+  },
+  ming: {
+    '전체': { posts: [], page: 1, maxCount: 1 }
+  },
   quickMove: false
 })
 
@@ -188,6 +191,21 @@ const actions = {
 }
 
 const mutations = {
+  SET_INIT_POSTS(state, menus) {
+
+    for (const menu in menus) {
+
+      state[menu] = menus[menu].reduce((acc, { categories }) => {
+        categories.forEach(category => state[menu] = acc[category] = {
+          posts: [],
+          page: 1,
+          maxCount: 1
+          })
+        return acc
+        }, {})
+      }
+  },
+
   SET_PAGE(state, page = 1) {
     state.page = page
   },

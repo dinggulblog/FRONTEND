@@ -95,7 +95,7 @@
   }
 
   const getPosts = async (getPage) => {
-    const res = await dispatch('post/getPosts', reactive({ limit, skip, menu, category, filter, userId, sort, hasThumbnail: false }))
+    const res = await dispatch('post/getPosts', reactive({ limit, skip, menu, category, filter, userId, sort, hasThumbnail: props.type === 'slide' ? true : false }))
     if (!res.success) throw new Error('게시물을 받아오는 도중 에러가 발생하였습니다.')
 
     if (res.maxCount) maxCount.value = type.value === 'recent' ? limit.value : res.maxCount

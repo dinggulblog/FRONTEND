@@ -1,14 +1,18 @@
 <template>
   <component :is="layouts[type]">
     <template #thumbnail>
-      <div v-if="type !== 'list' && post.thumbnail || (type === 'list' && post.thumbnail)" class="thumbnail">
+      <div v-if="post?.thumbnail" class="thumbnail">
         <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">
-          <img :src="post.thumbnail ? post.thumbnail : DEFAULT_THUMBNAIL" />
+          <img :src="post.thumbnail"/>
         </router-link>
 
         <div class="ico_like" v-if="post.liked">
           <Ico :svg="'like-fill'" :color="'var(--likeActive-dark)'" />
         </div>
+      </div>
+      
+      <div class="thumbnail" v-else>
+        <img :src="DEFAULT_THUMBNAIL" :style="type === 'list' ? { display: 'none' } : ''"/>
       </div>
     </template>
 

@@ -9,8 +9,6 @@
 
 <script setup>
 import { ref, onMounted, inject } from 'vue'
-import { useRouter } from 'vue-router'
-import { useStore } from 'vuex'
 import Chart from './Chart.vue'
 import Members from './Members.vue'
 import ManagePosts from './ManagePosts.vue'
