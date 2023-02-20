@@ -1,47 +1,48 @@
 <template>
-  <transition name="fade_up">
-    <div class="bottom-sheet" v-if="isVisible">
+  <Transition name="fade_up">
+    <div class="bottom-sheet" ref="BOTTOM_SHEET_EL">
       <div class="wrap_items">
         <ul>
           <slot></slot>
         </ul>
       </div>
     </div>
-  </transition>
+  </Transition>
 </template>
 
 <script setup>
   import { ref, onMounted, onUnmounted } from 'vue'
+  import { closeBottomSheets } from '../../common/util.js'
 
-  const isVisible = ref(false)
+  const BOTTOM_SHEET_EL = ref(false)
 
   const open = () => {
     closeAll()
-    isVisible.value = true
+    BOTTOM_SHEET_EL.value.classList.add('show')
   }
 
   const close = () => {
-    isVisible.value = false
+    BOTTOM_SHEET_EL.value.classList.remove('show')
   }
 
   const toggle = () => {
-    isVisible.value ? close() : open()
+    BOTTOM_SHEET_EL.value.classList.contains('show') ? close() : open()
   }
 
   const closeAll = () => {
     const buttomSheets = document.body.getElementsByClassName('bottom-sheet')
 
     for (let i = 0; i < buttomSheets.length; i++) {
-      buttomSheets[i].close()
+      buttomSheets[i].classList.remove('show')
     }
   }
 
   onMounted(() => {
-    document.addEventListener('click', closeAll)
+    document.addEventListener('click', closeBottomSheets)
   })
 
   onUnmounted(() => {
-    document.removeEventListener('click', closeAll)
+    document.removeEventListener('click', closeBottomSheets)
   })
 
   defineExpose({ toggle })
@@ -50,7 +51,7 @@
 <style lang="scss" rel="stylesheet/scss" scoped>
   .bottom-sheet {
     background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
+    display: none;
     position: fixed;
     align-items: flex-end;
     top: 0;
@@ -58,6 +59,10 @@
     left: 0;
     right: 0;
     z-index: 999;
+
+    &.show {
+      display: flex;
+    }
   }
 
   .wrap_items {

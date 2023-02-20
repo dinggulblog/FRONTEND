@@ -12,7 +12,20 @@ const actions = {
 
       if (!success) throw new Error('메시지 전송에 실패하였습니다.')
 
-      return { success }
+      return { success, error: null }
+    } catch (err) {
+      return { success: false, error: err?.response?.data?.message || err?.message }
+    }
+  },
+
+  async createMailCode({ commit }, { email }) {
+    try {
+      const { data } = await axios.post(`v1/mails/${email}/code`)
+      const { success } = data
+
+      if (!success) throw new Error('해당 이메일이 존재하지 않습니다.')
+
+      return { success, error: null }
     } catch (err) {
       return { success: false, error: err?.response?.data?.message || err?.message }
     }

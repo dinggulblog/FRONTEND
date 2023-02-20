@@ -46,5 +46,11 @@ export const closeDropdowns = (event) => {
   }
 }
 
-
-
+export const closeBottomSheets = (event) => {
+  if (!event.target.matches('.btn_dropbox > svg') && !event.target.matches('.btn_dropbox > svg > path')) {
+    const bottomSheets = document.body.getElementsByClassName('bottom-sheet')
+    for (let i = 0; i < bottomSheets.length; i++) {
+      bottomSheets[i].classList.remove('show')
+    }
+  }
+}

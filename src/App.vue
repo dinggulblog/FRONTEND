@@ -48,7 +48,6 @@
 
   onMounted(() => {
     commit('post/SET_INIT_POSTS', (state.menu.menus))
-    console.log(state.post)
   })
 </script>
 

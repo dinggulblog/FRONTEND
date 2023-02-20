@@ -256,6 +256,7 @@
 
     const formData = new FormData()
     Object.values(event.target.files).forEach((file) => formData.append('images', file))
+    Object.entries(postState).forEach(([key, value]) => formData.append(key, value))
 
     const { success, images, error } = postId.value
       ? await dispatch('post/updatePost', { postId: postId.value, authorId: authorId.value, payload: formData })

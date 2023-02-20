@@ -19,7 +19,6 @@ const searchSchema = Yup.object().shape({
 })
 
 const onSearch = async (values) => {
-  console.log(values)
 }
 </script>
 
