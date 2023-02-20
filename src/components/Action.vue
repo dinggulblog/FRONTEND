@@ -7,8 +7,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, onUnmounted } from 'vue'
-  import { useMedia } from '../common/mediaQuery.js'
+  import { inject, ref, onMounted, onUnmounted } from 'vue'
   import Dropbox from './ui/Dropbox.vue'
   import BottomSheet from './ui/BottomSheet.vue'
 
@@ -19,7 +18,7 @@
     },
   })
 
-  const isMobile = useMedia('only screen and (max-width: 1023px)')
+  const isMobile = inject('isMobile')
   const DROPBOX_EL = ref(null)
 
   const onToggle = () => {

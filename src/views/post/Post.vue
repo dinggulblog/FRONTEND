@@ -29,7 +29,7 @@
             @click="$refs.ACTION_SLOT_EL.onToggle()"
           />
 
-          <Action
+          <Kebab
             ref="ACTION_SLOT_EL"
             :dropboxItems="!auth ? { '링크 복사': onCopyLink } : { '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }"
           />
@@ -79,14 +79,14 @@
 
 
     <Teleport to="#content">
-        <div class="wrap_toc">
-          <ul class="toc">
-              <li v-for="item in toc" :key="item">
-                <a :id="item.getAttribute('id')" :href="'#' + item.getAttribute('id')" class="a_toc_item" ref="toc_EL" :style="item.tagName === 'H2' ? { marginLeft: '0.8rem' } : item.tagName === 'H3' ? { marginLeft : '1.6rem' } : ''">{{ item.innerText }}</a>
-              </li>
-          </ul>
-        </div>
-      </Teleport>
+      <div class="wrap_toc">
+        <ul class="toc">
+          <li v-for="item in toc" :key="item">
+            <a :id="item.getAttribute('id')" :href="'#' + item.getAttribute('id')" class="a_toc_item" ref="toc_EL" :style="item.tagName === 'H2' ? { marginLeft: '0.8rem' } : item.tagName === 'H3' ? { marginLeft : '1.6rem' } : ''">{{ item.innerText }}</a>
+          </li>
+        </ul>
+      </div>
+    </Teleport>
 
     </div>
 
@@ -344,7 +344,7 @@
         justify-content: center;
         border: 1px solid var(--border3);
         border-radius: 3.2rem;
-        padding:0.8rem 1.2rem;
+        padding:0.6rem 1.2rem;
 
         span {
           color: var(--text2);

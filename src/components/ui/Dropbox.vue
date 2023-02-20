@@ -9,7 +9,8 @@
 </template>
 
 <script setup>
-  import { onMounted, ref } from 'vue'
+  import { ref, onMounted, onUnmounted } from 'vue'
+  import { closeDropdowns } from '../../common/util.js'
 
   const DROPBOX_ITEMS_EL = ref(null)
 
@@ -30,22 +31,16 @@
     const dropdowns = document.body.getElementsByClassName('wrap_dropbox_items')
 
     for (let i = 0; i < dropdowns.length; i++) {
-      if (dropdowns[i].classList.contains('show')) {
-        dropdowns[i].classList.remove('show')
-      }
-    }
-  }
-
-  window.onclick = (event) => {
-    if (!event.target.matches('.btn_dropbox > svg') && !event.target.matches('.btn_dropbox > svg > path')) {
-      closeAll()
+      dropdowns[i].classList.remove('show')
     }
   }
 
   onMounted(() => {
-    DROPBOX_ITEMS_EL.value.addEventListener('click', (event) => {
-      event.stopPropagation()
-    })
+    document.addEventListener('click', closeDropdowns)
+  })
+
+  onUnmounted(() => {
+    document.removeEventListener('click', closeDropdowns)
   })
 
   defineExpose({ toggle })

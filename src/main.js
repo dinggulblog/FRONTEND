@@ -15,6 +15,7 @@ import TextInput from './components/ui/TextInput.vue'
 import TextArea from './components/ui/TextArea.vue'
 import Button from './components/ui/Button.vue'
 import Ico from './components/ui/Ico.vue'
+import Kebab from './components/ui/Kebab.vue'
 
 config() // dotenv config
 setupInterceptors(store) // create axios instance
@@ -35,4 +36,5 @@ app
   .component('TextArea', TextArea)
   .component('Button', Button)
   .component('Ico', Ico)
+  .component('Kebab', Kebab)
   .mount('#app')

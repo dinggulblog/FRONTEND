@@ -66,6 +66,17 @@
       />
     </div>
 
+    <div>
+      <Button
+        :thema="'primary'"
+        @click="onCreateCompletions"
+      >초안 만들기</Button>
+      <p>
+        {{ $store.state.openai.text }}
+      </p>
+    </div>
+
+    <!-- Image Buttons -->
     <div class="wrap_image_btns">
       <div class="images_add_btn">
         <label for="upload_input" class="upload_label">
@@ -109,8 +120,8 @@
       </ul>
     </div>
 
+    <!-- Submit Button -->
     <div class="wrap_btns">
-      <!-- Buttons -->
       <Button
         class="btn_submit"
         :shape="isMobile ? 'fill-round-full' : 'fill-round'"
@@ -126,7 +137,6 @@
   import { inject, ref, reactive, computed, nextTick, watch, onBeforeMount, onMounted, onUnmounted } from 'vue'
   import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
   import { useStore } from 'vuex'
-  import { useMedia } from '../../common/mediaQuery'
   import Markdown from 'vue3-markdown-it'
   import MarkdownEmoji from 'markdown-it-emoji'
   import Toggle from '../../components/ui/Toggle.vue'
@@ -136,13 +146,13 @@
   const { go, push } = useRouter()
   const { state, dispatch } = useStore()
 
+  const isMobile = inject('isMobile')
   const DIALOG_EL = inject('DIALOG_EL')
   const TOAST_EL = inject('TOAST_EL')
   const CONTENT_EL = ref(null)
 
   let autoSave = null
   let canLeavePage = true
-  const isMobile = useMedia('only screen and (max-width: 767px)')
 
   const plugins = ref([{ plugin: MarkdownEmoji }])
   const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
@@ -175,6 +185,11 @@
     fileId: '',
     fileUrl: '',
     fileIndex: 0,
+  })
+
+  const completionState = reactive({
+    temperature: 0.3,
+    max_tokens: 2048
   })
 
   const onChangeMainMenu = (event) => {
@@ -287,10 +302,24 @@
   }
 
   /*
-      const onClearImages = () => {
-        fileState.files = []
-      }
+  const onClearImages = () => {
+    fileState.files = []
+  }
   */
+
+  const onCreateCompletions = async () => {
+    const url = `//localhost:3000/v1/openai/stream/completions?prompt=${postState.title}`
+    const eventSource = new EventSource(url, { withCredentials: true })
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      postState.content += data
+    }
+    eventSource.onerror = (error) => {
+      TOAST_EL.value.open('error', error)
+      eventSource.close()
+    }
+  }
 
   const onChangeCanLeavePage = (bool) => {
     canLeavePage = bool

@@ -37,5 +37,14 @@ export const resizeTextarea = (e) => {
   e.target.style.height = e.target.scrollHeight + 'px'
 }
 
+export const closeDropdowns = (event) => {
+  if (!event.target.matches('.btn_dropbox > svg') && !event.target.matches('.btn_dropbox > svg > path')) {
+    const dropdowns = document.body.getElementsByClassName('wrap_dropbox_items')
+    for (let i = 0; i < dropdowns.length; i++) {
+      dropdowns[i].classList.remove('show')
+    }
+  }
+}
+
 
 

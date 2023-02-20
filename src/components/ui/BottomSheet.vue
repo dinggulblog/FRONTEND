@@ -11,11 +11,12 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, onMounted, onUnmounted } from 'vue'
 
   const isVisible = ref(false)
 
   const open = () => {
+    closeAll()
     isVisible.value = true
   }
 
@@ -26,6 +27,22 @@
   const toggle = () => {
     isVisible.value ? close() : open()
   }
+
+  const closeAll = () => {
+    const buttomSheets = document.body.getElementsByClassName('bottom-sheet')
+
+    for (let i = 0; i < buttomSheets.length; i++) {
+      buttomSheets[i].close()
+    }
+  }
+
+  onMounted(() => {
+    document.addEventListener('click', closeAll)
+  })
+
+  onUnmounted(() => {
+    document.removeEventListener('click', closeAll)
+  })
 
   defineExpose({ toggle })
 </script>

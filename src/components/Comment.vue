@@ -32,7 +32,7 @@
             @click="$refs.ACTION_SLOT_EL.onToggle()"
           />
 
-          <Action ref="ACTION_SLOT_EL" :dropboxItems="dropboxItems" />
+          <Kebab ref="ACTION_SLOT_EL" :dropboxItems="dropboxItems" />
         </div>
       </div>
       <div class="content">

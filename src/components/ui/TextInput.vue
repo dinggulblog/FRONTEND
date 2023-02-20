@@ -17,7 +17,9 @@
 </template>
 
 <script setup>
+  import { watch } from 'vue';
   import { useField } from 'vee-validate'
+  import { debounce } from '../../common/util.js';
 
   const props = defineProps({
     type: {
@@ -34,6 +36,7 @@
     },
     label: {
       type: String,
+      default: '',
     },
     successMessage: {
       type: String,
@@ -49,6 +52,8 @@
     },
   })
 
+  const emits = defineEmits(['callback'])
+
   const {
     value: inputValue,
     errorMessage,
@@ -58,6 +63,8 @@
   } = useField(props.name, undefined, {
     initialValue: props.value,
   })
+
+  watch(inputValue, debounce(() => emits('callback', inputValue.value), 250))
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
