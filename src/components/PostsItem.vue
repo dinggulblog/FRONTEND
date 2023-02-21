@@ -11,8 +11,8 @@
         </div>
       </div>
       
-      <div class="thumbnail" v-else>
-        <img :src="DEFAULT_THUMBNAIL" :style="type === 'list' ? { display: 'none' } : ''"/>
+      <div class="thumbnail" v-else :style="type === 'list' ? { display: 'none', width: '0' } : ''">
+        <img :src="DEFAULT_THUMBNAIL"/>
       </div>
     </template>
 
