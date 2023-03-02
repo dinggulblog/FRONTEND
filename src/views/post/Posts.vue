@@ -77,7 +77,6 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-
 .wrap_slides > li {
   margin:0 0 6.4rem;
 

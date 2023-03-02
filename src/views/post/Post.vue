@@ -222,7 +222,7 @@
     })
   }
 
-  const observer = new IntersectionObserver(callback, { threshold: 1, rootMargin: '-114px 0px 0px 0px' })
+  const observer = new IntersectionObserver(callback, { threshold: 0.7, rootMargin: '-114px 0px 0px 0px' })
 
   watch(
     () => props.postId,
@@ -325,6 +325,11 @@
       font-size: 1.4rem;
       color: var(--text3);
       line-height: 1.5;
+
+
+      h1,h2,h3 {
+        margin-top: 11.4rem;
+      }
 
       .markdown {
   
