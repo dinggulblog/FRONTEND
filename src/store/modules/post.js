@@ -2,15 +2,8 @@ import { stringify } from 'querystring'
 import axios from '../../services/axios'
 
 const state = () => ({
-  limit: 6,
   post: null,
-  sol: {
-    '전체': { posts: [], page: 1, maxCount: 1 }
-  },
-  ming: {
-    '전체': { posts: [], page: 1, maxCount: 1 }
-  },
-  quickMove: false
+  quickMove: false,
 })
 
 const getters = {}
@@ -26,10 +19,7 @@ const actions = {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
 
       const { data } = await axios.get(`v1/posts/${postId}`)
-      const {
-        success,
-        data: { post },
-      } = data
+      const { success, data: { post } } = data
 
       if (!post?.isActive) throw new Error('비활성화된 게시물입니다.')
 
@@ -43,13 +33,17 @@ const actions = {
 
   /**
    * Get posts with pagenation query object
-   * @param {Object} payload { menu, skip, limit, category, hasThumbnail }
-   * @return {Object} { success, posts, maxPage, error }
+   * @param {Object} payload { menu, skip, limit, category }
+   * @return {Object} { success, error }
    */
-  async getPosts({ rootState, commit }, payload) {
+  async getPosts({ rootState },{ main, sub, ...payload}) {
     try {
-      const { data } = await axios.get('v1/posts', { params: payload, paramsSerializer: (params) => stringify(params) })
+      payload.menus = rootState.menu.menus[main].filter((menu) => !sub ? true : menu.sub === sub).map(({ _id }) => _id)
+      const { data } = await axios.get('v1/posts', { params: payload , paramsSerializer: (params) => stringify(params) })
+
       const { success, data: { posts, maxCount } } = data
+
+      if (!success || !posts) throw new Error('네트워크 에러가 발생하였습니다. 잠시 후에 다시 시도해 주세요.')
 
       return { success, posts, maxCount, error: null }
     } catch (err) {
@@ -67,10 +61,7 @@ const actions = {
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
 
       const { data } = await axios.post('v1/posts', payload)
-      const {
-        success,
-        data: { post },
-      } = data
+      const { success, data: { post } } = data
 
       return { success, post, error: null }
     } catch (err) {
@@ -90,10 +81,7 @@ const actions = {
       if (rootState.auth.id !== authorId) throw new Error('본인 소유의 게시물만 삭제가 가능합니다.')
 
       const { data } = await axios.put(`v1/posts/${postId}`, payload)
-      const {
-        success,
-        data: { post, images },
-      } = data
+      const { success, data: { post, images } } = data
 
       return { success, post, images, error: null }
     } catch (err) {
@@ -111,9 +99,7 @@ const actions = {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
 
-      const {
-        data: { success },
-      } = await axios.put(`v1/posts/${postId}/like`)
+      const { data: { success } } = await axios.put(`v1/posts/${postId}/like`)
 
       commit('ADD_POST_LIKE')
 
@@ -134,9 +120,7 @@ const actions = {
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
       if (rootState.auth.id !== authorId) throw new Error('본인 소유의 게시물만 삭제가 가능합니다.')
 
-      const {
-        data: { success },
-      } = await axios.delete(`v1/posts/${postId}`)
+      const { data: { success } } = await axios.delete(`v1/posts/${postId}`)
 
       commit('SET_POST', null)
 
@@ -157,9 +141,7 @@ const actions = {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
 
-      const {
-        data: { success },
-      } = await axios.delete(`v1/posts/${postId}/file`, { data: { image: imageId } })
+      const { data: { success } } = await axios.delete(`v1/posts/${postId}/file`, { data: { image: imageId } })
 
       return { success, error: null }
     } catch (err) {
@@ -177,9 +159,7 @@ const actions = {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
 
-      const {
-        data: { success },
-      } = await axios.delete(`v1/posts/${postId}/like`)
+      const { data: { success } } = await axios.delete(`v1/posts/${postId}/like`)
 
       commit('DELETE_POST_LIKE')
 
@@ -191,42 +171,29 @@ const actions = {
 }
 
 const mutations = {
-  SET_INIT_POSTS(state, menus) {
-    for (const menu in menus) {
-
-      state[menu] = menus[menu].reduce((acc, { categories }) => {
-        categories.forEach(category => state[menu] = acc[category] = {
-          posts: [],
-          page: 1,
-          maxCount: 1
-        })
-        return acc
-        }, {})
-
-        state[menu]['전체'] = {
-          posts: [],
-          page: 1,
-          maxCount: 1
-        }
-      }
-
-    console.log(state)  
-  },
-
-  SET_PAGE(state, page = 1) {
-    state.page = page
-  },
-
-  SET_MAXPAGE(state, maxPage = 1) {
-    state.maxPage = maxPage
+  SET_PAGE(state, { main, category = '전체', page }) {
+    state[main][category].page = page
   },
 
   SET_POST(state, post = {}) {
     state.post = post
   },
 
-  SET_POSTS(state, posts = []) {
-    state.posts = posts
+  SET_INIT_POSTS(state, menus = {}) {
+    for (const menu in menus) {
+      state[menu] = menus[menu].reduce((acc, { sub, categories }) => {
+        categories.forEach(category => acc[category] = { posts: [], page: 1, maxCount: 0 })
+        acc[`전체-${sub}`] = { posts: [], page: 1, maxCount: 0 }
+        return acc
+        }, {})
+
+      state[menu]['전체'] = { posts: [], page: 1, maxCount: 0 }
+    } 
+  },
+
+  SET_POSTS(state, { main, category = '전체', skip, limit, posts, maxCount }) {
+    state[main][category].posts.splice(skip, limit, ...posts)
+    state[main][category].maxCount = maxCount ? maxCount : state[main][category].maxCount
   },
 
   SET_QUICKMOVE(state, boolean = false) {
@@ -246,6 +213,10 @@ const mutations = {
       state.post.likeCount = parseInt(state.post.likeCount, 10) - 1
     }
   },
+
+  UNSET_POSTS(state, { main, category = '전체' }) {
+    state[main][category].posts = []
+  }
 }
 
 export default {

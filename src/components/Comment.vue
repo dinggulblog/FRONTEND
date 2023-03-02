@@ -103,12 +103,11 @@
 </template>
 
 <script setup>
-  import { ref, reactive, computed, inject, onMounted } from 'vue'
+  import { inject, ref, reactive, computed, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import { getTime } from '../common/time.js'
   import Comment from './Comment.vue'
   import CommentEditor from './CommentEditor.vue'
-  import Action from './Action.vue'
   import User from './User.vue'
   import Info from './slots/Info.vue'
 
@@ -146,9 +145,7 @@
     commentEditor: false,
     childComments: false,
   })
-  const isAuthorized = computed(
-    () => props.comment.isPublic || props.author === props.userId || props.comment?.commenter?._id === props.userId
-  )
+  const isAuthorized = computed(() => props.comment.isPublic || props.author === props.userId || props.comment?.commenter?._id === props.userId)
   const parentComment = computed(() => getters['comment/getParentComment'](props.comment?.parentComment))
 
   const setDropboxItems = () => {

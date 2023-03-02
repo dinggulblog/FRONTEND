@@ -6,7 +6,8 @@ const state = () => ({
   category: '전체',
   categories: [],
   menus: getItem('menus', null),
-  currentMenus: [],
+  subMenus: [],
+  curMenus: [],
 })
 
 const getters = {}
@@ -15,13 +16,13 @@ const actions = {
   async getMenus({ commit }) {
     try {
       const { data } = await axios.get('v1/menus')
-      const {
-        data: { menus },
-      } = data
+      const { success, data: { menus } } = data
 
       commit('SET_MENUS', menus)
+
+      return { success, error: null }
     } catch (err) {
-      return err.response.data
+      return { success: false, error: err?.response?.data?.message ?? err.message }
     }
   },
 }
@@ -46,15 +47,17 @@ const mutations = {
   },
 
   SET_CURRENT_MENUS(state, { main, sub }) {
-    if (!state.menus || typeof state.menus !== 'object') return
+    state.subMenus = state.menus[main]
+    state.curMenus = state.subMenus
 
-    const subMenus = state.menus[main]
-
-    if (Array.isArray(subMenus)) {
-      state.currentMenus = sub ? subMenus.filter((menu) => menu.sub === sub) : subMenus
-
-      state.type = state.currentMenus.length === 1 ? state.currentMenus[0]?.type : 'list'
-      state.categories = [...new Set(state.currentMenus.flatMap(({ categories }) => categories))]
+    if (sub) {
+      state.curMenus = state.subMenus.filter((menu) => menu.sub === sub)
+      state.type = state.curMenus[0].type
+      state.categories = state.curMenus[0].categories
+    }
+    else {
+      state.type = 'list'
+      state.categories = [...new Set(state.subMenus.flatMap(({ categories }) => categories))]
     }
   },
 }

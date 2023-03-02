@@ -2,7 +2,7 @@
   <component :is="layouts[type]">
     <template #thumbnail>
       <div v-if="post?.thumbnail" class="thumbnail">
-        <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">
+        <router-link :to="{ name: 'post', params: { main, postId: post._id } }">
           <img :src="post.thumbnail"/>
         </router-link>
 
@@ -21,7 +21,7 @@
     </template>
 
     <template #title>
-      <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$emit('commitPosts')">
+      <router-link :to="{ name: 'post', params: { main, postId: post._id } }">
         {{ post.title }}
       </router-link>
     </template>
@@ -46,7 +46,7 @@
     </template>
 
     <template #comment_count>
-      <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$store.commit('post/SET_QUICKMOVE', true), $emit('commitPosts')">
+      <router-link :to="{ name: 'post', params: { main, postId: post._id } }" @click="$store.commit('post/SET_QUICKMOVE', true)">
         댓글 {{ post.commentCount }}
       </router-link>
     </template>
@@ -58,7 +58,6 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
   import markdownText from 'markdown-to-text'
   import DEFAULT_THUMBNAIL from '../assets/default_thumbnail.webp'
   import card from './slots/Card.vue'
@@ -68,6 +67,10 @@
   import { getTime } from '../common/time.js'
 
   const props = defineProps({
+    main: {
+      type: String,
+      required: true,
+    },
     type: {
       type: String,
       default: 'list',
@@ -75,10 +78,9 @@
     },
     post: {
       type: Object,
+      required: true
     },
   })
-
-  const type = ref(props.type)
 
   const layouts = {
     card: card,

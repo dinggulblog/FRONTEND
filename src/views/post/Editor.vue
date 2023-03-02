@@ -12,7 +12,7 @@
 
         <!-- Sub menu select box -->
         <div class="sub">
-          <select required :disabled="!menuState.mainMenus.length" @change="onChangeSubMenu">
+          <select required :disabled="!menuState.main" @change="onChangeSubMenu">
             <option selected disabled hidden value="">게시판 선택</option>
             <option v-for="menu in menuState.mainMenus" :key="menu?._id" :value="menu?.sub">{{ menu?.sub }}</option>
           </select>
@@ -70,7 +70,14 @@
       <Button
         :thema="'primary'"
         @click="onCreateCompletions"
-      >초안 만들기</Button>
+      >초안 만들기
+      </Button>
+      <br>
+      <Button
+        :thema="'primary'"
+        @click="onCloseCompletions"
+      >생성 멈춰!      
+      </Button>
     </div>
 
     <!-- Image Buttons -->
@@ -148,13 +155,14 @@
   const TOAST_EL = inject('TOAST_EL')
   const CONTENT_EL = ref(null)
 
+  const MAX_TRY = 3
   let autoSave = null
+  let eventSource = null
   let canLeavePage = true
 
   const plugins = ref([{ plugin: MarkdownEmoji }])
   const IMAGE_URL = ref(process.env.VUE_APP_IMAGE_URL)
 
-  const temp = ref(false)
   const postId = ref(null)
   const draftId = ref(null)
   const authorId = ref(null)
@@ -163,6 +171,8 @@
     isLoading: computed(() => state.loading.isLoading),
     percentage: computed(() => state.loading.percentage),
     menus: computed(() => state.menu.menus),
+    main: '',
+    sub: '',
     mainMenus: [],
     subMenu: {},
   })
@@ -190,6 +200,7 @@
   })
 
   const onChangeMainMenu = (event) => {
+    menuState.main = event.target.value
     menuState.mainMenus = menuState.menus[event.target.value]
     document.body.querySelector('div.sub select').selectedIndex = 0
     document.body.querySelector('div.category select').selectedIndex = 0
@@ -238,7 +249,7 @@
 
     if (!success) return TOAST_EL.value.open('error', error)
 
-    if (canLeavePage) push({ name: 'post', params: { postId: post._id } })
+    if (canLeavePage) push({ name: 'post', params: { main: menuState.main, postId: post._id } })
   }
 
   const onUploadImages = async (event) => {
@@ -306,17 +317,33 @@
   */
 
   const onCreateCompletions = async () => {
+    let attempts = 0
     const url = `//localhost:3000/v1/openai/stream/completions?prompt=${postState.title}`
-    const eventSource = new EventSource(url, { withCredentials: true })
+
+    if (eventSource && (eventSource.readyState === 0 || eventSource.readyState === 1)) {
+      return TOAST_EL.value.open('error', '초안 생성 중입니다. 생성 종료 버튼을 눌러 진행을 멈추거나 생성이 종료된 후 다시 시도해 주세요.')
+    }
+    if (postState.title.length < 6) {
+      return TOAST_EL.value.open('error', '제목을 최소 5글자 이상 입력해주세요.')
+    }
+
+    eventSource = new EventSource(url, { withCredentials: true })
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data)
       postState.content += data
     }
     eventSource.onerror = (error) => {
-      TOAST_EL.value.open('error', error)
+      error.data === 'DONE'
+        ? TOAST_EL.value.open('success', '초안 작성을 완료하였습니다.')
+        : TOAST_EL.value.open('error', '서버와 통신이 원할하지 않습니다. 잠시 후 다시 시도해 주세요.')
+      
       eventSource.close()
     }
+  }
+
+  const onCloseCompletions = () => {
+    eventSource.close()
   }
 
   const onChangeCanLeavePage = (bool) => {
@@ -387,11 +414,12 @@
 
   onBeforeMount(async () => {
     if (route.query.id) {
+
       if (state.post.post) return setInitData(state.post.post)
 
       const { success, post, error } = await dispatch('post/getPost', { postId: route.query.id })
       if (!success) {
-        alert(error)
+        TOAST_EL.value.open('error', error)
         return go(-1)
       }
 
@@ -403,7 +431,7 @@
     window.addEventListener('beforeunload', unloadEvent)
   })
 
-  onUnmounted(async () => {
+  onUnmounted(() => {
     window.removeEventListener('beforeunload', unloadEvent)
     if (autoSave) clearInterval(autoSave)
   })

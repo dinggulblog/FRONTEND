@@ -1,9 +1,9 @@
 <template>
-      <div v-if="postError">
-      {{ postError }}
+    <div v-if="error">
+      {{ error }}
     </div>
 
-    <div class="post" v-if="post">
+    <div class="post" v-else>
       <div class="wrap_header">
         <div class="wrap_left">
           <!-- Post Title -->
@@ -26,11 +26,11 @@
             class="btn_dropbox"
             :size="'sm'"
             :svg="'more'"
-            @click="$refs.ACTION_SLOT_EL.onToggle()"
+            @click="$refs.KEBAB_EL.onToggle()"
           />
 
           <Kebab
-            ref="ACTION_SLOT_EL"
+            ref="KEBAB_EL"
             :dropboxItems="!auth ? { '링크 복사': onCopyLink } : { '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }"
           />
         </div>
@@ -77,55 +77,64 @@
         </div>
       </div>
 
-
-    <Teleport to="#content">
-      <div class="wrap_toc">
-        <ul class="toc">
-          <li v-for="item in toc" :key="item">
-            <a :id="item.getAttribute('id')" :href="'#' + item.getAttribute('id')" class="a_toc_item" ref="toc_EL" :style="item.tagName === 'H2' ? { marginLeft: '0.8rem' } : item.tagName === 'H3' ? { marginLeft : '1.6rem' } : ''">{{ item.innerText }}</a>
-          </li>
-        </ul>
-      </div>
-    </Teleport>
-
+      <Teleport to="#content">
+        <div class="wrap_toc">
+          <ul class="toc">
+            <li v-for="item in toc" :key="item">
+              <a :id="item.getAttribute('id')" :href="'#' + item.getAttribute('id')" class="a_toc_item" ref="TOC_EL" :style="item.tagName === 'H2' ? { marginLeft: '0.8rem' } : item.tagName === 'H3' ? { marginLeft : '1.6rem' } : ''">{{ item.innerText }}</a>
+            </li>
+          </ul>
+        </div>
+      </Teleport>
     </div>
 
     <div class="comment">
+
+      <!-- Comments Editor -->
       <CommentEditor :postId="postId" />
 
+      <!-- Comments -->
       <div class="comments" ref="COMMENTS_EL">
-        <h2>댓글 {{ commentCount }}개</h2>
-        <ul class="comment_items" v-if="comments.length">
+        <h2>댓글 {{ $store.state.comment.commentCount }}개</h2>
+
+        <div v-if="error">
+          {{ error }}
+        </div>
+        
+        <ul class="comment_items" v-else>
           <Comment
-            v-for="comment in comments"
+            v-for="comment in $store.state.comment.comments"
             :key="comment._id"
             :comment="comment"
             :postId="postId"
-            :author="author"
-            :userId="userId"
+            :author="post.author?._id"
+            :userId="$store.state.auth.id"
           />
-        </ul>
+         </ul>
       </div>
+
     </div>
 </template>
 
 <script setup>
-  import { inject, ref, computed, watch, onUnmounted } from 'vue'
+  import { inject, ref, computed, nextTick, watch, onErrorCaptured, onUnmounted } from 'vue'
   import { useStore } from 'vuex'
   import { useRouter } from 'vue-router'
   import CommentEditor from '../../components/CommentEditor.vue'
   import Comment from '../../components/Comment.vue'
   import Markdown from 'vue3-markdown-it'
   import MarkdownEmoji from 'markdown-it-emoji'
-  import Action from '../../components/Action.vue'
   import User from '../../components/User.vue'
   import PostInfoSlot from '../../components/PostInfo.vue'
 
   const props = defineProps({
+    main: {
+      type: String,
+      required: true
+    },
     postId: {
       type: String,
-      required: true,
-      default: '',
+      required: true
     },
   })
 
@@ -139,23 +148,18 @@
 
   const CONTENT_EL = ref(null)
   const COMMENTS_EL = ref(null)
-  const toc_EL = ref(null)
-  const postError = ref(null)
-  const commentsError = ref(null)
-
-  const quickMove = computed(() => state.post.quickMove)
-  const post = computed(() => state.post.post)
-  const author = computed(() => state.post.post?.author?._id)
-  const userId = computed(() => state.auth.id)
-  const comments = computed(() => state.comment.comments)
-  const commentCount = computed(() => Number(state.comment.commentCount))
-
-  const auth = computed(() => state.auth.id && (post.value?.author?._id === state.auth.id))
+  const TOC_EL = ref(null)
 
   const toc = ref(null)
+  const error = ref(null)
+  const observedEl = ref(new Map())
+  const intersectEl = ref([])
+
+  const auth = computed(() => state.auth.id && (post.value.author?._id === state.auth.id))
+  const post = computed(() => state.post.post ?? new Object())
 
   const onUpdatePost = () => {
-    if (post.value?._id) push({ name: 'editor', query: { id: post.value?._id } })
+    if (post.value._id) push({ name: 'editor', query: { id: post.value._id } })
   }
 
   const onDeletePost = async () => {
@@ -168,12 +172,13 @@
         postId: post.value._id,
         authorId: post.value?.author?._id,
       })
-      if (!success) TOAST_EL.value.open('error', error)
+      if (!success) return TOAST_EL.value.open('error', error)
+
+      push({ name: 'posts', params: { main: props.main } })
     }
   }
 
   const onUpdateLike = async () => {
-    
     const { success, error } = !post.value.liked
       ? await dispatch('post/updateLike', { postId: post.value._id })
       : await dispatch('post/deleteLike', { postId: post.value._id })
@@ -195,26 +200,23 @@
     }
   }
 
-  const observedEl = ref(new Map())
-  const intersectEl = ref([])
-
   const callback = (entries, observer) => {
     entries.map((entry) => {
       if (entry.isIntersecting) {
         observedEl.value.set(entry.target.id, entry)
         intersectEl.value = [...observedEl.value.values()].filter((el) => el && el.isIntersecting)
-        toc_EL.value.forEach((el) => el.classList.remove('on'))
+        TOC_EL.value.forEach((el) => el.classList.remove('on'))
         if(intersectEl.value.length) {
-          toc_EL.value.find(el => el.getAttribute('id') === intersectEl.value[0].target.id).classList.add('on')
+          TOC_EL.value.find(el => el.getAttribute('id') === intersectEl.value[0].target.id).classList.add('on')
         }
         
       } else {
         const idx = intersectEl.value.findIndex(el => el.target.id === entry.target.id)
         if (idx !== -1) intersectEl.value.splice(idx, 1)
         observedEl.value.set(entry.target.id, entry)
-        toc_EL.value.forEach((el) => el.classList.remove('on'))
+        TOC_EL.value.forEach((el) => el.classList.remove('on'))
         if(intersectEl.value.length) {
-          toc_EL.value.find(el => el.getAttribute('id') === intersectEl.value[0].target.id).classList.add('on')
+          TOC_EL.value.find(el => el.getAttribute('id') === intersectEl.value[0].target.id).classList.add('on')
         }        
       }
     })
@@ -226,17 +228,15 @@
     () => props.postId,
     async () => {
       const { success, error } = await dispatch('post/getPost', { postId: props.postId })
-      if (!success) postError.value = error
+      if (!success) throw new Error(error)
 
       const { success: success2, error: error2 } = await dispatch('comment/getComments', props.postId)
-      if (!success2) commentsError.value = error2
+      if (!success2) throw new Error(error2)
 
-      if (quickMove.value && COMMENTS_EL.value) {
+      if (state.post.quickMove && COMMENTS_EL.value) {
         COMMENTS_EL.value.scrollIntoView({ behavior: 'smooth' })
         commit('post/SET_QUICKMOVE', false)
       }
-
-      document.title = post.value.title
 
       observer.disconnect()
       observedEl.value.clear()
@@ -252,14 +252,21 @@
           toc.value = Array.from(tocElements).map(el => el) 
         })
       }
-      
+
+      await nextTick()
+      document.title = post.value.title
     },
     { immediate: true }
   )
 
+  onErrorCaptured((err) => {
+    error.value = err
+    return true
+  })
+
   onUnmounted(() => {
     commit('post/SET_POST', null)
-    commit('comment/SET_COMMENTS', {})
+    commit('comment/SET_COMMENTS', [])
     observer.disconnect()
   })
 </script>

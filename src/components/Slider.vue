@@ -1,7 +1,7 @@
 <template>
  
   <!-- Slide toolbar -->
-  <div class="wrap_slide_toolbar">
+  <div class="wrap_slide_toolbar" v-if="!recent">
     <div class="slide_category">
       <span class="category">{{ category }}</span>
     </div>
@@ -26,6 +26,7 @@
       @click="nextSlide"
     />
   </div>
+
 </template>
 
 <script setup>
@@ -42,26 +43,41 @@
     },
     limit: {
       type: Number,
-      default: 10
+      default: 10,
+    },
+    target: {
+      type: Object
+    },
+    recent: {
+      type: Boolean,
+      default: false,
     },
   })
-
-  const emits = defineEmits(['slide'])
+  const { maxCount, limit, target } = toRefs(props)
 
   const isDesktop = inject('isDesktop')
   const isMobileDevices = inject('isMobileDevices')
 
-  const { maxCount, limit } = toRefs(props)
-
   const slidePage = ref(1) // 현재 보고 있는 페이지
   const slideIndex = ref(0) // 슬라이드 인덱스
   const slideLimit = computed(() => (isDesktop.value ? limit.value / 2 : limit.value / 4)) // 한 번의 슬라이드에 넘길 게시물 갯수
-  const slideMaxPage = computed(() => Math.ceil(maxCount.value / slideLimit.value)) // 슬라이드 가능한 페이지 상한값
+  const slideMaxPage = computed(() => Math.ceil(maxCount.value / slideLimit.value))        // 슬라이드 가능한 페이지 상한값
   const slideRest = computed(() => slideMaxPage.value * slideLimit.value - maxCount.value) // 슬라이드 마지막 페이지에 모자란 게시물 갯수
 
   const onUpdateSlidePage = (updatePage) => {
     if (slideMaxPage.value < updatePage) return
     slidePage.value = updatePage
+  }
+
+  const slide = (idx) => {
+    const child = target.value.querySelector(`li[data-index="${idx}"]`)
+    if (!child) return
+
+    const parent = target.value.getBoundingClientRect().left
+    const x = child.getBoundingClientRect().left - parent
+
+    target.value.style.transform = `translateX(-${x}px)`
+    target.value.style.transition = 'all 0.3s'
   }
 
   // Slide index is - (0) 4 8 12 ...
@@ -76,7 +92,7 @@
       ? (slidePage.value - 1) * slideLimit.value
       : (slidePage.value - 1) * slideLimit.value - slideRest.value
     slideIndex.value = idx
-    emits('slide', slideIndex.value)
+    slide(slideIndex.value)
   }
 
   // Slide index is - ... 12, 8, 4, 0
@@ -87,7 +103,7 @@
     //const idx = slidePage.value !== 1 ? (slidePage.value - 1) * slideLimit.value - slideRest.value : 0
     const idx = (slidePage.value - 1) * slideLimit.value
     slideIndex.value = idx
-    emits('slide', slideIndex.value)
+    slide(slideIndex.value)
   }
 
   watch(
@@ -96,11 +112,11 @@
       if (!newIsDesktop && oldIsDesktop) {
         // PC -> Mobile로 갈 때
         onUpdateSlidePage(slidePage.value * 2 - 1)
-        emits('slide', slideIndex.value)
+        slide(slideIndex.value)
       } else if (newIsDesktop && !oldIsDesktop) {
         // Mobile -> PC로 갈 때
         onUpdateSlidePage(Math.ceil(slidePage.value / 2))
-        emits('slide', slideIndex.value)
+        slide(slideIndex.value)
       }
     },
     { flush: 'post' }
@@ -111,7 +127,7 @@
 
   .wrap_slide_toolbar {
     display: flex;
-    margin: 6.4rem 0 4rem;
+    margin: 0 0 4rem;
 
     .slide_category {
       width: 30%;
@@ -160,14 +176,14 @@
 
   .wrap_btn_slidePage {
       position: absolute;
-      top: -0.5rem;
+      bottom: 0;
       width: 100%;
-      height: 100%;
+      height: 28.5rem;
       display: flex;
       align-items: center;
 
       @include mobile {
-        top: -2.5rem;
+        height: 26rem;
       }
 
       .btn_old,
@@ -179,9 +195,14 @@
         align-items: center;
         justify-content: center;
         position: relative;
+        top:-3.6rem;
         z-index: 10;
         background: var(--primary);
         color:#fff;
+
+        @include mobile {
+          top:-5rem;
+        }
       }
 
       .btn_old {

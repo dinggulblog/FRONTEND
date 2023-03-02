@@ -32,9 +32,7 @@
 </template>
 
 <script setup>
-  import { ref, provide, onMounted } from 'vue'
-  import { useStore } from 'vuex'
-  const { commit, state } = useStore()
+  import { ref, provide } from 'vue'
 
   const DIALOG_EL = ref(null)
   const TOAST_EL = ref(null)
@@ -45,10 +43,6 @@
   provide('TOAST_EL', TOAST_EL)
   provide('ACCOUNT_EL', ACCOUNT_EL)
   provide('CONTACT_EL', CONTACT_EL)
-
-  onMounted(() => {
-    commit('post/SET_INIT_POSTS', (state.menu.menus))
-  })
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
