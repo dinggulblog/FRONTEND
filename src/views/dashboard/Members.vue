@@ -53,8 +53,8 @@
     </div>
 
     <div class="wrap_btns">
-      <Button :shape="'line-round'" :size="'sm'" @click="onActiveMember" class="btn_active-member">회원 활성</Button>
-      <Button :shape="'line-round'" :size="'sm'" @click="onBlockMember" class="btn_block-member">회원 정지</Button>
+      <Button :shape="'line-round'" :size="'sm'" @click="onUpdateMembers(true)" class="btn_active-member">회원 활성</Button>
+      <Button :shape="'line-round'" :size="'sm'" @click="onUpdateMembers(false)" class="btn_block-member">회원 정지</Button>
     </div>
   </div>
 </template>
@@ -86,7 +86,7 @@ const getMembers = async () => {
   commit('auth/SET_MEMBERS', users)
 }
 
-/* 회원 정보 수정 : 단일 */
+/* 회원 정보 수정 : modal */
 const onUpdateMember = (member) => {
   commit('auth/SET_MEMBER', member)
   ACCOUNT_EL.value.open('admin-update')
@@ -101,32 +101,32 @@ const checkedMember = () => {
     const m = members.value.at(member.dataset.index)
     payload.push({
       _id: m._id,
-      isActive: m.isActive
+      isActive: m.isActive,
     })
   }
 }
 
-/* 비활성화 */
-const onBlockMember = () => {
-  checkedMember()
-  payload.forEach((el) => el.isActive = false)
-  onUpdateMembers(payload, '차단')
-  console.log('state', members.value)
+/* set payload */
+const onUpdateMembers = (active) => {
+  if (CHECKBOX_EL.value.some((checkbox) => checkbox.checked)) {
+    checkedMember()
+    payload.forEach((el) => (el.isActive = active))
+    updateMembers(payload, active)
+  } else {
+    alert('선택된 항목이 없습니다.')
+  }
 }
 
-/* 활성화 */
-const onActiveMember = () => {
-  checkedMember()
-  payload.forEach((el) => el.isActive = true)
-  onUpdateMembers(payload, '활성')
-  console.log('state', members.value)
-}
 
-/* 회원 정보 수정 : 다중 */
-const onUpdateMembers = async (payload, act) => {
+/* 회원 정보 수정 : checkbox */
+const updateMembers = async (payload, active) => {
   const { success, error } = await dispatch('auth/updateMember', payload)
   if (success) {
-    TOAST_EL.value.open('success', payload.length > 1 ? `${payload.at(0).nickname}+'님 외 '+${payload.length - 1}'명이 '+${act}+' 되었습니다.'` : `${payload.at(0).nickname}+'님이 '+${act}+' 되었습니다'`)
+    TOAST_EL.value.open(
+    'success', payload.length > 1
+    ? `${payload.at(0).nickname}+'님 외 '+${payload.length - 1}'명이 '+${active ? '활성' : '정지'}+' 되었습니다.'`
+    : `${payload.at(0).nickname}+'님이 '+${active ? '활성' : '정지'}+' 되었습니다'`
+    )
     resetCheckbox()
   } else {
     TOAST_EL.value.open('error', error)
@@ -135,7 +135,7 @@ const onUpdateMembers = async (payload, act) => {
 
 /* 체크박스 초기화 */
 const resetCheckbox = () => {
-  CHECKBOX_EL.value.forEach((checkbox) => checkbox.checked = false)
+  CHECKBOX_EL.value.forEach((checkbox) => (checkbox.checked = false))
 }
 
 await getMembers()
