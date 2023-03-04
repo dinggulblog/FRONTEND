@@ -1,129 +1,184 @@
 <template>
   <div class="member-list">
-
-  <div class="wrap_table">
-
-    <div class="table-header">
-      <div class="table-row">
-        <div class="table-head" v-for="head in tableHead" :key="head">
-          {{ head }}
+    <div class="wrap_table">
+      <div class="table-header">
+        <div class="table-row">
+          <div class="table-head" v-for="head in tableHeads" :key="head">
+            {{ head }}
+          </div>
         </div>
       </div>
-   </div>
 
-    <div class="table-body">
-      <div class="table-row" v-for="(data, val, idx) in tableData" :key="data">
-        <div class="table-cell" v-for="(value, key) in data" :key="key" :class="key">
-          <img :src="value" v-if="key === 'avatar'" :class="key" />
-          <span v-else v-for="v in value" :key="v" :class="v">{{ v }}</span>
+      <div class="table-body">
+        <div class="table-row" v-for="(member, idx) in members" :key="idx">
+          <div class="table-cell checkbox">
+            <input type="checkbox" ref="CHECKBOX_EL" :data-index="idx" />
+          </div>
+
+          <div class="table-cell avatar">
+            <img :src="member.avatar?.thumbnail ?? DEFAULT_AVATAR_64" class="img_avatar" @error="onGetDefaultImage" />
+          </div>
+
+          <div class="table-cell email">
+            <span>{{ member.email }}</span>
+          </div>
+
+          <div class="table-cell nickname">
+            <span>{{ member.nickname }}</span>
+          </div>
+
+          <div class="table-cell role">
+            <span v-for="role in member.roles" :key="role" :class="role.name">{{ role.name }}</span>
+          </div>
+
+          <div class="table-cell createdAt">
+            <span>{{ getTime(member.createdAt) }}</span>
+          </div>
+
+          <div class="table-cell lastLoggedAt">
+            <span>{{ getTime(member.updatedAt) }}</span>
+          </div>
+
+          <div class="table-cell isActive">
+            <span>{{ member.isActive ? '활성' : '비활성' }}</span>
+          </div>
+
+          <div class="table-cell">
+            <Button class="btn_dropbox" :size="'sm'" :svg="'more'" @click="$refs.KEBAB_SLOT_EL[idx].onToggle()" />
+
+            <Kebab ref="KEBAB_SLOT_EL" :dropboxItems="{ '회원 정보 수정': () => onUpdateMember(member) }" />
+          </div>
         </div>
+      </div>
+    </div>
 
-        <div class="table-cell">
-          <Button
-            class="btn_dropbox"
-            :size="'sm'"
-            :svg="'more'"
-            @click="$refs.KEBAB_SLOT_EL[idx].onToggle()"
-          />
-
-          <Kebab ref="KEBAB_SLOT_EL" :dropboxItems="dropboxItems" />
-        </div>
+    <div class="wrap_btns">
+      <Button :shape="'line-round'" :size="'sm'" @click="onBlockMember" class="btn_active-member">회원 활성</Button>
+      <Button :shape="'line-round'" :size="'sm'" @click="onBlockMember" class="btn_block-member">회원 정지</Button>
     </div>
   </div>
-
-  </div>
-
-  <div class="wrap_btns">
-    <Button :shape="'line-round'" :size="'sm'">회원 정지</Button>
-  </div>
-
-  </div>
-
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { ref, inject, computed } from 'vue'
+import { useStore } from 'vuex'
+import { getTime } from '../../common/time.js'
+import DEFAULT_AVATAR_64 from '../../assets/default_avatar_64.webp'
 
-const dropboxItems = reactive({})
+const { dispatch, commit, state } = useStore()
 
-const tableHead = ref(['아바타', '이메일', '닉네임', '권한', '가입일', '마지막 로그인', '상태', '옵션'])
-const tableData = ref({
-  solsol: {
-            avatar: 'https://m.animalfriends.co.kr/web/product/big/202102/a7af6abee9c55d71d86aeea5e6c88a8d.jpg',
-            email: 'cyes.0001@gmail.com',
-            name: 'solsol',
-            role: ['admin', 'user'],
-            createdAt: '2022년 12월 13일',
-            lastedLogin: '2023년 1월 2일',
-            isActive: '활성',
-  },
-  ming:   {
-            avatar: 'https://danonline.kr/snoopym/images/snoopy_spoon.png?crc=3980034464',
-            email: 'kimkusyeon@gmail.com',
-            name: 'ming',
-            role: ['admin', 'user'],
-            createdAt: '2022년 3월 13일',
-            lastedLogin: '2023년 5월 2일',
-            isActive: '비활성',
-  },
-})
+const TOAST_EL = inject('TOAST_EL')
+const ACCOUNT_EL = inject('ACCOUNT_EL')
+const CHECKBOX_EL = ref(null)
 
-const test1 = () => {
-  console.log('hi')
+const members = computed(() => state.auth.members)
+
+const tableHeads = ref(['선택', '아바타', '이메일', '닉네임', '권한', '가입일', '마지막 로그인', '상태', '옵션'])
+
+const onGetDefaultImage = (event) => {
+  event.target.src = DEFAULT_AVATAR_64
 }
 
-const test2 = (refs) => {
-  console.log(refs)
+const getMembers = async () => {
+  const { success, users, error } = await dispatch('auth/getMembers')
+  if (!success) TOAST_EL.value.open('error', error)
+  commit('auth/SET_MEMBERS', users)
 }
 
-const setDropboxItems = () => {
-      dropboxItems['회원 정보'] = test1
-      dropboxItems['회원 정지'] = test1
+const onUpdateMember = (member) => {
+  commit('auth/SET_MEMBER', member)
+  ACCOUNT_EL.value.open('admin-update')
+}
+
+const onBlockMember = async () => {
+  let payload = []
+  let checkedMembers = CHECKBOX_EL.value.filter((checkbox) => checkbox.checked)
+
+  for (const member of checkedMembers) {
+    commit('auth/SET_BLOCK_MEMBER', member.dataset.index)
+    payload.push(members.value.at(member.dataset.index))
   }
 
+  const { success, error } = await dispatch('auth/updateMember', payload)
+  if (success) {
+    TOAST_EL.value.open('success', payload.length > 1 ? `${payload.at(0).nickname}+'님 외'+${payload.length - 1}명이 차단되었습니다.` : `${payload.at(0).nickname}+님이 차단되었습니다`)
+    resetCheckbox()
+  } else {
+    TOAST_EL.value.open('error', error)
+  }
+}
 
-  onMounted(() => {
-    setDropboxItems()
-  })
+const resetCheckbox = () => {
+  CHECKBOX_EL.value.forEach((checkbox) => checkbox.checked = false)
+}
 
+await getMembers()
 </script>
 
-<style lang="scss" rel="stylesheet/scss">
-
-.wrap_table{ display: table; font-size:1.4rem; width:100%; }
-.table-row { display: table-row; }
-.table-header { display: table-header-group; }
-.table-head,.table-cell {display: table-cell;  vertical-align:middle; padding:1.6rem 1.6rem; }
-.table-head { font-weight: 500; color: var(--primary-dark); }
-.table-cell { color: var(--text4); }
-.table-body { display: table-row-group; }
+<style lang="scss" rel="stylesheet/scss" scoped>
+.wrap_table {
+  display: table;
+  font-size: 1.4rem;
+  width: 100%;
+}
+.table-row {
+  display: table-row;
+}
+.table-header {
+  display: table-header-group;
+}
+.table-head,
+.table-cell {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 1.6rem 1.6rem;
+}
+.table-head {
+  font-weight: 500;
+  color: var(--primary-dark);
+}
+.table-cell {
+  color: var(--text4);
+}
+.table-body {
+  display: table-row-group;
+}
 
 .avatar > img {
-  width:4.8rem;
-  height:4.8rem;
+  width: 4.8rem;
+  height: 4.8rem;
   border-radius: 50%;
   object-fit: cover;
   border: 1px solid var(--border3);
 }
 
 .role > span {
-  padding:0.4rem 0.8rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 0.4rem;
-  font-size:1.1rem;
+  font-size: 1rem;
   letter-spacing: 0.1rem;
-  margin:0 0.4rem 0 0;
+  margin: 0 0.4rem 0 0;
 
   &:last-child {
-     margin:0;
+    margin: 0;
   }
 
-  &.admin { background-color: var(--error-light); color: var(--error); }
-  &.user { background-color: #ececec; color: var(--text4); }
+  &.ADMIN {
+    background-color: var(--error-light);
+    color: var(--error);
+  }
+  &.USER {
+    background-color: #ececec;
+    color: var(--text4);
+  }
 }
 
 .wrap_btns {
   display: flex;
   justify-content: flex-end;
-}
 
+  .btn {
+    margin: 0 0 0 0.8rem;
+  }
+}
 </style>

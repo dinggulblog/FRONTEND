@@ -13,6 +13,7 @@ import Account from './components/global/Account.vue'
 import Contact from './components/global/ContactUs.vue'
 import TextInput from './components/ui/TextInput.vue'
 import TextArea from './components/ui/TextArea.vue'
+import Checkbox from './components/ui/Checkbox.vue'
 import Button from './components/ui/Button.vue'
 import Ico from './components/ui/Ico.vue'
 import Kebab from './components/ui/Kebab.vue'
@@ -34,6 +35,7 @@ app
   .component('Contact', Contact)
   .component('TextInput', TextInput)
   .component('TextArea', TextArea)
+  .component('Checkbox', Checkbox)
   .component('Button', Button)
   .component('Ico', Ico)
   .component('Kebab', Kebab)

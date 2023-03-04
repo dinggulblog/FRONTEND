@@ -45,5 +45,5 @@
 <script></script>
 
 <style lang="scss" rel="stylesheet/scss">
-  @import '../../scss/card.scss';
+@import '../../scss/card.scss';
 </style>

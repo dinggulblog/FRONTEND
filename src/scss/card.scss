@@ -26,13 +26,13 @@
   }
 
   .wrap_item {
-      @media (hover: hover) and (pointer: fine) {
-        transition: transform 0.25s ease-in 0s;
+    @media (hover: hover) and (pointer: fine) {
+      transition: transform 0.25s ease-in 0s;
 
-        &:hover {
-          transform: translateY(-0.4rem);
-        }
+      &:hover {
+        transform: translateY(-0.4rem);
       }
+    }
   }
 
   .thumbnail {
@@ -144,7 +144,7 @@
 
     div {
       display: flex;
-    align-items: center;
+      align-items: center;
     }
 
     span,

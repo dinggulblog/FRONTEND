@@ -1,6 +1,5 @@
 import axiosInstance from './axios'
 
-
 const setup = (store) => {
   axiosInstance.interceptors.request.use(
     (config) => {
@@ -22,7 +21,7 @@ const setup = (store) => {
 
     (error) => {
       return Promise.reject(error)
-    }
+    },
   )
 
   axiosInstance.interceptors.response.use(
@@ -66,7 +65,7 @@ const setup = (store) => {
       }
 
       return Promise.reject(error)
-    }
+    },
   )
 }
 

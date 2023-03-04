@@ -1,14 +1,6 @@
 <template>
   <div class="wrap_posts">
-
-    <Slider 
-      v-if="type === 'slide'"
-      :target="POST_EL"
-      :limit="limit"
-      :category="category"
-      :maxCount="maxCount"
-      :recent="recent"
-    />
+    <Slider v-if="type === 'slide'" :target="POST_EL" :limit="limit" :category="category" :maxCount="maxCount" :recent="recent" />
 
     <!-- List of Posts -->
     <div class="posts">
@@ -16,12 +8,7 @@
         <template v-if="posts.length">
           <TransitionGroup name="fade_up" @before-enter="beforeEnter" @after-enter="afterEnter" @enter-cancelled="afterEnter">
             <template v-for="(post, index) in posts" :key="index">
-              <PostsItem 
-                :main="main"
-                :type="type"
-                :post="post"
-                :data-index="index"
-              />
+              <PostsItem :main="main" :type="type" :post="post" :data-index="index" />
             </template>
           </TransitionGroup>
           <Observer v-if="type !== 'recent'" v-model:page="page" @updatePage="onUpdatePage"></Observer>
@@ -30,156 +17,147 @@
       </ul>
     </div>
   </div>
-
 </template>
 
 <script setup>
-  import { inject, ref, toRefs, computed, watch, watchEffect } from 'vue'
-  import { useStore } from 'vuex'
-  import PostsItem from './PostsItem.vue'
-  import Observer from './global/Observer.vue'
-  import Slider from './Slider.vue'
+import { inject, ref, toRefs, computed, watch, watchEffect } from 'vue'
+import { useStore } from 'vuex'
+import PostsItem from './PostsItem.vue'
+import Observer from './global/Observer.vue'
+import Slider from './Slider.vue'
 
-  const LIMIT_TYPE = {
-    list: 10,
-    card: 9,
-    slide: 8,
-    recent: 6
+const LIMIT_TYPE = {
+  list: 10,
+  card: 9,
+  slide: 8,
+  recent: 6,
+}
+
+const props = defineProps({
+  main: {
+    type: String,
+    required: true,
+  },
+  sub: {
+    type: String,
+    required: false,
+  },
+  category: {
+    type: String,
+    default: '전체',
+  },
+  type: {
+    type: String,
+    default: 'list',
+    validator: (value) => ['list', 'card', 'slide', 'recent'].includes(value),
+  },
+  sort: {
+    type: String,
+    required: false,
+    validator: (value) => ['view', 'like'].includes(value),
+  },
+  filter: {
+    type: String,
+    required: false,
+    validator: (value) => ['like', 'comment'].includes(value),
+  },
+  userId: {
+    type: String,
+    required: false,
+  },
+  recent: {
+    type: Boolean,
+    default: false,
+  },
+})
+const { dispatch } = useStore()
+const { main, sub, category, type, filter, userId, sort } = toRefs(props)
+
+const isMobileDevices = inject('isMobileDevices')
+const POST_EL = ref(null)
+
+const posts = ref([])
+const maxCount = ref(1)
+const page = ref(1)
+
+const limit = computed(() => LIMIT_TYPE[type.value])
+const maxPage = computed(() => Math.ceil(maxCount.value / limit.value))
+
+const onUpdatePage = (newPage) => {
+  if (maxPage.value < newPage) return
+
+  page.value = newPage
+  getPosts(newPage)
+}
+
+const getPosts = async (curPage) => {
+  const query = {
+    main: main.value,
+    skip: (page.value - 1) * limit.value,
+    limit: limit.value,
+    category: category.value,
   }
 
-  const props = defineProps({
-    main: {
-      type: String,
-      required: true,
-    },
-    sub: {
-      type: String,
-      required: false,
-    },
-    category: {
-      type: String,
-      default: '전체'
-    },
-    type: {
-      type: String,
-      default: 'list',
-      validator: (value) => ['list', 'card', 'slide', 'recent'].includes(value),
-    },
-    sort: {
-      type: String,
-      required: false,
-      validator: (value) => ['view', 'like'].includes(value),
-    },
-    filter: {
-      type: String,
-      required: false,
-      validator: (value) => ['like', 'comment'].includes(value),
-    },
-    userId: {
-      type: String,
-      required: false,
-    },
-    recent: {
-      type: Boolean,
-      default: false,
-    }
-  })
-  const { dispatch } = useStore()
-  const { main, sub, category, type, filter, userId, sort } = toRefs(props)
-
-  const isMobileDevices = inject('isMobileDevices')
-  const POST_EL = ref(null)
-
-  const posts = ref([])
-  const maxCount = ref(1)
-  const page = ref(1)
-
-  const limit = computed(() => LIMIT_TYPE[type.value])
-  const maxPage = computed(() => Math.ceil(maxCount.value / limit.value))
-
-  const onUpdatePage = (newPage) => {
-    if (maxPage.value < newPage) return
-
-    page.value = newPage
-    getPosts(newPage)
+  const subQuery = {
+    sub: sub.value,
+    sort: sort.value,
+    filter: filter.value,
+    userId: userId.value,
   }
 
-  const getPosts = async (curPage) => {
-    const query = {
-      main: main.value,
-      skip: (page.value - 1) * limit.value,
-      limit: limit.value,
-      category: category.value,
-    }
-
-    const subQuery = {
-      sub: sub.value,
-      sort: sort.value,
-      filter: filter.value,
-      userId: userId.value
-    }
-
-    Object.entries(subQuery).forEach(([key, value]) => {
-      if (value) query[key] = value
-    })
-
-    const res = await dispatch('post/getPosts', query)
-
-    if (!res.success) throw new Error('게시물을 받아오는 도중 에러가 발생하였습니다.')
-
-    if (res.maxCount) maxCount.value = type.value === 'recent' ? limit.value : res.maxCount
-    posts.value.splice((curPage - 1) * limit.value, limit.value, ...res.posts)
-  }
-
-  const beforeEnter = (el) => {
-    el.style.transitionDelay = 150 * parseInt(el.dataset.index % limit.value, 10) + 'ms'
-  }
-
-  const afterEnter = (el) => {
-    el.style.transitionDelay = ''
-  }
-
-  watch(
-    props,
-    () => {
-      posts.value = []
-      onUpdatePage(1)
-      getPosts(1)
-    }
-  )
-
-  watchEffect(() => {
-    if (isMobileDevices.value && type.value === 'slide') {
-      POST_EL.value.style.overflowX = 'auto'
-    }
+  Object.entries(subQuery).forEach(([key, value]) => {
+    if (value) query[key] = value
   })
 
-  await getPosts(1)
+  const res = await dispatch('post/getPosts', query)
+
+  if (!res.success) throw new Error('게시물을 받아오는 도중 에러가 발생하였습니다.')
+
+  if (res.maxCount) maxCount.value = props.recent ? limit.value : res.maxCount
+  posts.value.splice((curPage - 1) * limit.value, limit.value, ...res.posts)
+}
+
+const beforeEnter = (el) => {
+  el.style.transitionDelay = 150 * parseInt(el.dataset.index % limit.value, 10) + 'ms'
+}
+
+const afterEnter = (el) => {
+  el.style.transitionDelay = ''
+}
+
+watch(props, () => {
+  posts.value = []
+  onUpdatePage(1)
+  getPosts(1)
+})
+
+watchEffect(() => {
+  if (isMobileDevices.value && type.value === 'slide') {
+    POST_EL.value.style.overflowX = 'auto'
+  }
+})
+
+await getPosts(1)
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .wrap_posts {
-    position: relative;
+.wrap_posts {
+  position: relative;
 
-    .posts {
+  .posts {
+    overflow-x: clip;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 
-overflow-x: clip;
--ms-overflow-style: none;
-scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera*/
+    }
 
-&::-webkit-scrollbar {
- display: none; /* Chrome, Safari, Opera*/
-}
-
-
-.empty_posts {
-font-size: 1.4rem;
-color: var(--text3);
-text-transform: capitalize;
-}
-}
-
+    .empty_posts {
+      font-size: 1.4rem;
+      color: var(--text3);
+      text-transform: capitalize;
+    }
   }
-
-
+}
 </style>

@@ -1,12 +1,7 @@
 <template>
   <UserInfo>
     <template #avatar>
-      <img
-        class="avatar"
-        :src="profile?.avatar?.thumbnail ?? DEFAULT_AVATAR_192"
-        alt="profile_avatar"
-        @error="onGetDefaultImage"
-      />
+      <img class="avatar" :src="profile?.avatar?.thumbnail ?? DEFAULT_AVATAR_64" alt="profile_avatar" @error="onGetDefaultImage" />
     </template>
 
     <template #avatar_upload v-if="state === 'edit'">
@@ -14,12 +9,7 @@
         <label for="input_file">아바타 업로드</label>
         <input type="file" id="input_file" @change="emits('updateAvatar', $event)" accept="image/*" />
       </div>
-      <Button
-        class="btn_avatar_reset"
-        :size="'sm'"
-        :shape="'line-round'"
-        @click="emits('resetAvatar')"
-      >아바타 초기화</Button>
+      <Button class="btn_avatar_reset" :size="'sm'" :shape="'line-round'" @click="emits('resetAvatar')">아바타 초기화</Button>
     </template>
 
     <template #nickname>
@@ -31,34 +21,29 @@
     </template>
 
     <template #greetings_textarea v-else-if="state === 'edit'">
-      <textarea
-        class="textarea_greetings"
-        placeholder="인사말을 적어보세요."
-        :value="profile.greetings"
-        @change="emits('updateGreetings', $event)"
-      />
+      <textarea class="textarea_greetings" placeholder="인사말을 적어보세요." :value="profile.greetings" @change="emits('updateGreetings', $event)" />
     </template>
   </UserInfo>
 </template>
 
 <script setup>
-  import UserInfo from './slots/UserInfo.vue'
-  import DEFAULT_AVATAR_192 from '../assets/default_avatar_192.webp'
+import UserInfo from './slots/UserInfo.vue'
+import DEFAULT_AVATAR_64 from '../assets/default_avatar_64.webp'
 
-  const props = defineProps({
-    profile: {
-      type: Object,
-      required: true,
-      default: () => ({}),
-    },
-    state: {
-      type: String,
-    },
-  })
+const props = defineProps({
+  profile: {
+    type: Object,
+    required: true,
+    default: () => ({}),
+  },
+  state: {
+    type: String,
+  },
+})
 
-  const emits = defineEmits(['updateAvatar', 'updateGreetings', 'resetAvatar']) // views -> Profile function
+const emits = defineEmits(['updateAvatar', 'updateGreetings', 'resetAvatar']) // views -> Profile function
 
-  const onGetDefaultImage = (event) => {
-    event.target.src = DEFAULT_AVATAR_192
-  }
+const onGetDefaultImage = (event) => {
+  event.target.src = DEFAULT_AVATAR_64
+}
 </script>

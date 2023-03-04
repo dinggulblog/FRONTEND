@@ -19,6 +19,6 @@ export default createStore({
     draft: draftModule,
     comment: commentModule,
     loading: loadingModule,
-    openai: openaiModule
+    openai: openaiModule,
   },
 })

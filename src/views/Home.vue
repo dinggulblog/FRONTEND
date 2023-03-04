@@ -1,6 +1,5 @@
 <template>
   <div class="home">
-
     <div v-if="error">
       {{ error }}
     </div>
@@ -19,7 +18,7 @@
           </template>
           <template #fallback>
             <ul :id="'recent'">
-              <component v-for="skeleton in 6" :key="skeleton" :is="LAYOUTS['recent']"></component>
+              <Recent v-for="skeleton in 6" :key="skeleton" />
             </ul>
           </template>
         </Suspense>
@@ -29,11 +28,11 @@
       <h2 class="h2_recent_review_sol">Recent Review Posts by SOL</h2>
       <Suspense>
         <template #default>
-          <Posts :main="'sol'" :type="'slide'" :recent="true"/>
+          <Posts :main="'sol'" :type="'slide'" :recent="true" />
         </template>
         <template #fallback>
           <ul :id="'slide'">
-            <component v-for="skeleton in 4" :key="skeleton" :is="LAYOUTS['slide']"></component>
+            <Slide v-for="skeleton in 4" :key="skeleton" />
           </ul>
         </template>
       </Suspense>
@@ -42,117 +41,110 @@
       <h2 class="h2_recent_review_ming">Recent Review Posts by MING</h2>
       <Suspense>
         <template #default>
-          <Posts :main="'ming'" :type="'slide'" :recent="true"/>
+          <Posts :main="'ming'" :type="'slide'" :recent="true" />
         </template>
         <template #fallback>
           <ul :id="'slide'">
-            <component v-for="skeleton in 4" :key="skeleton" :is="LAYOUTS['slide']"></component>
+            <Slide v-for="skeleton in 4" :key="skeleton" />
           </ul>
         </template>
       </Suspense>
     </template>
-
   </div>
 </template>
 
 <script setup>
-  import { ref, onErrorCaptured } from 'vue'
-  import Posts from '../components/Posts.vue'
-  import slide from '../components/slots/Slide.vue'
-  import recent from '../components/slots/Recent.vue'
+import { ref, onErrorCaptured } from 'vue'
+import Posts from '../components/Posts.vue'
+import Slide from '../components/slots/Slide.vue'
+import Recent from '../components/slots/Recent.vue'
 
-  const LAYOUTS = {
-    slide: slide,
-    recent: recent
-  }
+const error = ref(null)
+const sort = ref('view')
 
-  const error = ref(null)
-  const sort = ref('view')
+const onChangeSort = (type) => {
+  sort.value = type
+}
 
-  const onChangeSort = (type) => {
-    sort.value = type
-  }
-
-  onErrorCaptured((err) => {
-    error.value = err
-    return true
-  })
+onErrorCaptured((err) => {
+  error.value = err
+  return true
+})
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .home {
-    font-size: 1.4rem;
-    color: var(--text3);
+.home {
+  font-size: 1.4rem;
+  color: var(--text3);
 
-    h2 {
-      margin: 6.4rem 0 3.2rem 0;
-      color: var(--primary);
+  h2 {
+    margin: 6.4rem 0 3.2rem 0;
+    color: var(--primary);
 
-      &:first-child {
-        margin: 0 0 3.2rem 0;
-      }
-    }
-
-    &:deep(#recent) {
-      display: flex;
-      flex-wrap: wrap;
-    }
-
-    &:deep(.recent_item) {
-      width: 56.4rem;
-      margin-right: 2.4rem;
-
-      @include tablet_landscape {
-        width: calc(100% / 2 - 2.4rem);
-        margin-right: 2.4rem;
-      }
-
-      @include tablet {
-        width: 100%;
-        margin-right: 0;
-      }
-
-      @include mobile {
-        width: 100%;
-        margin-right: 0;
-      }
-
-      &:nth-child(2n) {
-        margin-right: 0;
-      }
-    }
-
-    .recent_tranding_sort_btns {
-      display: flex;
-      margin-bottom: 3.2rem;
-
-      li:first-child {
-        margin-right: 0.8rem;
-      }
-
-      &:deep(.btn) {
-        position: relative;
-
-        &::after {
-          padding-bottom: 2rem;
-          border-bottom: solid 0.1rem var(--primary);
-          content: '';
-          inset: 0;
-          position: absolute;
-          transform: scaleX(0);
-          transition: transform 0.25s ease-in;
-          z-index: -1;
-        }
-
-        &:hover::after {
-          transform: scaleX(1);
-        }
-
-      }
-
-      .btn_sort_like {
-        margin:0 0 0 0.4rem;
-      }
+    &:first-child {
+      margin: 0 0 3.2rem 0;
     }
   }
+
+  &:deep(#recent) {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  &:deep(.recent_item) {
+    width: 56.4rem;
+    margin-right: 2.4rem;
+
+    @include tablet_landscape {
+      width: calc(100% / 2 - 2.4rem);
+      margin-right: 2.4rem;
+    }
+
+    @include tablet {
+      width: 100%;
+      margin-right: 0;
+    }
+
+    @include mobile {
+      width: 100%;
+      margin-right: 0;
+    }
+
+    &:nth-child(2n) {
+      margin-right: 0;
+    }
+  }
+
+  .recent_tranding_sort_btns {
+    display: flex;
+    margin-bottom: 3.2rem;
+
+    li:first-child {
+      margin-right: 0.8rem;
+    }
+
+    &:deep(.btn) {
+      position: relative;
+
+      &::after {
+        padding-bottom: 2rem;
+        border-bottom: solid 0.1rem var(--primary);
+        content: '';
+        inset: 0;
+        position: absolute;
+        transform: scaleX(0);
+        transition: transform 0.25s ease-in;
+        z-index: -1;
+      }
+
+      &:hover::after {
+        transform: scaleX(1);
+      }
+    }
+
+    .btn_sort_like {
+      margin: 0 0 0 0.4rem;
+    }
+  }
+}
 </style>

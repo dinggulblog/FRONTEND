@@ -11,8 +11,7 @@ const Editor = () => import(/* webpackChunkName: "editor" */ '../views/post/Edit
 const Profile = () => import(/* webpackChunkName: "profile" */ '../views/auth/Profile.vue')
 const FindAccount = () => import(/* webpackChunkName: "findAccount" */ '../views/auth/FindAccount.vue')
 const ResetPassword = () => import(/* webpackChunkName: "resetPassword" */ '../views/auth/ResetPassword.vue')
-const Dashboard = () => import(/* webpackChunkName: "dashboard" */ '../views/dashboard/Dashboard.vue')
-const Members = () => import(/* webpackChunkName: "members" */ '../views/dashboard/Members.vue')
+const Dashboard = () => import(/* webpackChunkName: "Dashboard" */ '../views/dashboard/Dashboard.vue')
 
 const routes = [
   { path: '/', redirect: 'home' },
@@ -24,8 +23,7 @@ const routes = [
   { path: '/post/:main/:postId', name: 'post', component: Post, props: true, meta: { title: 'Post' } },
   { path: '/search', name: 'search', component: Search, props: true, meta: { title: 'Search' } },
   { path: '/editor', name: 'editor', component: Editor, meta: { title: 'Editor', requiredAuth: true } },
-  { path: '/dashboard', name: 'dashboard', component: Dashboard, props: true, meta: { title: 'Dashboard', requiredAuth: true } },
-  { path: '/members', name: 'members', component: Members, props: true, meta: { title: 'Members', requiredAuth: true } },
+  { path: '/dashboard/:section', name: 'dashboard', component: Dashboard, props: true, meta: { title: 'Dashboard', requiredAuth: true } },
   { path: '/:catchAll(.*)+', name: 'notfound', component: NotFound, meta: { title: 'NotFoundError 404!' } },
 ]
 

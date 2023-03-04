@@ -8,6 +8,8 @@ const state = () => ({
   profile: {},
   isLogin: getItemWithTTL('isLogin', false),
   isAdmin: false,
+  member: '',
+  members: '',
 })
 
 const getters = {}
@@ -86,6 +88,20 @@ const actions = {
     }
   },
 
+  async getMembers({ commit }) {
+    try {
+      const { data } = await axios.get('v1/users/accounts')
+      const { success, data: { users } } = data
+
+      if (!success || !users) throw new Error('멤버 정보를 받아오는 도중 에러가 발생하였습니다')
+
+      return { success, users, error: null }
+    } catch (err) {
+      return { success: false, users: [], error: err?.response?.data?.message || err?.message }
+    }
+  },
+  
+
   // params: Object
   async updateAccount({ commit }, payload) {
     try {
@@ -99,10 +115,24 @@ const actions = {
     }
   },
 
+  async updateMember({ commit }, payload) {
+    try {
+      console.log('페이로드 값은?', payload)
+      const { data: { success } } = await axios.put('v1/users/account/', payload)
+
+      if (!success) throw new Error('계정 업데이트에 실패하였습니다.')
+      commit('UNSET_MEMBER')
+
+      return { success, error: null }
+    } catch (err) {
+      return { success: false, error: err?.response?.data?.message || err?.message }
+    }
+  },
+
   // params: none
   async deleteAccount({ commit }) {
     try {
-      const { data: { success } } = await axios.delete('v1' + '/users/account')
+      const { data: { success } } = await axios.delete('v1/users/account')
 
       if (!success) throw new Error('계정 삭제에 실패하였습니다.')
 
@@ -234,6 +264,26 @@ const mutations = {
     state.user = {}
     clearStorage()
   },
+
+  SET_MEMBER(state, member) {
+    state.member = member
+  },
+
+  UNSET_MEMBER(state) {
+    state.member = null
+  },
+
+  SET_MEMBERS(state, members) {
+    state.members = members
+  },
+
+  SET_ACTIVE_MEMBER(state, idx) {
+      state.members.at(idx).isActive = true
+  },
+
+  SET_BLOCK_MEMBER(state, idx) {
+      state.members.at(idx).isActive = false
+  }
 }
 
 export default {

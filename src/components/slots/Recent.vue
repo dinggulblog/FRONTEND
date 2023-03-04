@@ -33,5 +33,5 @@
 <script></script>
 
 <style lang="scss" rel="stylesheet/scss">
-  @import '../../scss/recent.scss';
+@import '../../scss/recent.scss';
 </style>

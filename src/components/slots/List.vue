@@ -32,7 +32,6 @@
         </div>
       </div>
 
-
       <slot name="thumbnail">
         <div class="thumbnail skeleton"></div>
       </slot>
@@ -43,5 +42,5 @@
 <script></script>
 
 <style lang="scss" rel="stylesheet/scss">
-  @import '../../scss/list.scss';
+@import '../../scss/list.scss';
 </style>

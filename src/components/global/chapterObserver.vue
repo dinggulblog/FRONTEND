@@ -1,12 +1,11 @@
 <script setup>
-  import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
-  const props = defineProps({
-    elements: {
-    },
-  })
+const props = defineProps({
+  elements: {},
+})
 
-  /*
+/*
   const observedEl = ref()
 
 
@@ -21,12 +20,12 @@
   const observer = new IntersectionObserver(callback, { threshold: 1.0 })
   */
 
-  onMounted(() => {
-    //const observeTarget = props.elements.forEach(el => observer.observe(el) )
-    console.log(props.elements)
-  })
+onMounted(() => {
+  //const observeTarget = props.elements.forEach(el => observer.observe(el) )
+  console.log(props.elements)
+})
 
-  onUnmounted(() => {
-    //observer.disconnect()
-  })
+onUnmounted(() => {
+  //observer.disconnect()
+})
 </script>
