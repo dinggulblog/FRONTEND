@@ -43,8 +43,8 @@
                 <fieldset>
                   <legend>회원 권한</legend>
                   <div class="wrap_checkbox">
-                    <Checkbox name="role" label="user" value="user" :check="$store.state.auth.member.roles.some((role) => role.name === 'USER')" />
-                    <Checkbox name="role" label="admin" value="admin" :check="$store.state.auth.member.roles.some((role) => role.name === 'ADMIN')" />
+                    <Checkbox name="roles" label="user" value="user" :check="$store.state.auth.member.roles.some((role) => role.name === 'USER')" />
+                    <Checkbox name="roles" label="admin" value="admin" :check="$store.state.auth.member.roles.some((role) => role.name === 'ADMIN')" />
                   </div>
                 </fieldset>
               </div>
@@ -123,9 +123,10 @@ const updateAccountSchema = Yup.object().shape({
 
 const updateMemberSchema = Yup.object().shape({
   nickname: Yup.string()
-    .default(user.value.nickname)
+    .default(member.value.nickname)
     .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
-  role: Yup.array().of(Yup.string().required()),
+  roles: Yup.array()
+    .of(Yup.string().required()),
 })
 
 const onLogin = async (values) => {
@@ -144,11 +145,12 @@ const onUpdateAccount = async (values) => {
 }
 
 const onUpdateMember = async (values) => {
-  const { success, error } = await dispatch('auth/updateMember', values)
+  values._id = member.value._id
+  const { success, error } = await dispatch('auth/updateMembers', [values])
 
   if(success) {
     close()
-    TOAST_EL.value.open('success', `${values.nickname}+님의 정보가 수정되었습니다.`)
+    TOAST_EL.value.open('success', `${values.nickname}님의 정보가 수정되었습니다.`)
   } else {
     TOAST_EL.value.open('error', error)
   }

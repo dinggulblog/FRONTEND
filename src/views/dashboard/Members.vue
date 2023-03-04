@@ -81,9 +81,8 @@ const onGetDefaultImage = (event) => {
 }
 
 const getMembers = async () => {
-  const { success, users, error } = await dispatch('auth/getMembers')
+  const { success, error } = await dispatch('auth/getMembers')
   if (!success) TOAST_EL.value.open('error', error)
-  commit('auth/SET_MEMBERS', users)
 }
 
 /* 회원 정보 수정 : modal */
@@ -101,6 +100,7 @@ const checkedMember = () => {
     const m = members.value.at(member.dataset.index)
     payload.push({
       _id: m._id,
+      nickname: m.nickname,
       isActive: m.isActive,
     })
   }
@@ -120,12 +120,12 @@ const onUpdateActive = (active) => {
 
 /* 회원 정보 수정 : checkbox */
 const updateMembers = async (payload, active) => {
-  const { success, error } = await dispatch('auth/updateMember', payload)
+  const { success, error } = await dispatch('auth/updateMembers', payload)
   if (success) {
     TOAST_EL.value.open(
     'success', payload.length > 1
-    ? `${payload.at(0).nickname}+'님 외 '+${payload.length - 1}'명이 '+${active ? '활성' : '정지'}+' 되었습니다.'`
-    : `${payload.at(0).nickname}+'님이 '+${active ? '활성' : '정지'}+' 되었습니다'`
+    ? `${payload.at(0).nickname}님 외 ${payload.length - 1}명이 ${active ? '활성' : '정지'} 되었습니다.`
+    : `${payload.at(0).nickname}님이 ${active ? '활성' : '정지'} 되었습니다`
     )
     resetCheckbox()
   } else {

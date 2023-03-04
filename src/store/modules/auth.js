@@ -8,8 +8,8 @@ const state = () => ({
   profile: {},
   isLogin: getItemWithTTL('isLogin', false),
   isAdmin: false,
-  member: '',
-  members: '',
+  member: {},
+  members: [],
 })
 
 const getters = {}
@@ -95,9 +95,11 @@ const actions = {
 
       if (!success || !users) throw new Error('멤버 정보를 받아오는 도중 에러가 발생하였습니다')
 
-      return { success, users, error: null }
+      commit('SET_MEMBERS', users)
+
+      return { success, error: null }
     } catch (err) {
-      return { success: false, users: [], error: err?.response?.data?.message || err?.message }
+      return { success: false, error: err?.response?.data?.message || err?.message }
     }
   },
   
@@ -115,15 +117,13 @@ const actions = {
     }
   },
 
-  async updateMember({ commit }, payload) {
+  async updateMembers({ commit }, payload) {
     try {
-      console.log('페이로드 값은?', payload)
-      const { data: { success, _id } } = await axios.put('v1/users/account/', payload)
+      const { data: { success } } = await axios.put('v1/users/accounts', { users: payload })
 
       if (!success) throw new Error('계정 업데이트에 실패하였습니다.')
-      commit('UNSET_MEMBER')
 
-      return { success, error: null }
+      return await actions.getMembers({ commit })
     } catch (err) {
       return { success: false, error: err?.response?.data?.message || err?.message }
     }
@@ -269,21 +269,9 @@ const mutations = {
     state.member = member
   },
 
-  UNSET_MEMBER(state) {
-    state.member = null
-  },
-
   SET_MEMBERS(state, members) {
     state.members = members
   },
-
-  SET_ACTIVE_MEMBER(state, idx) {
-      state.members.at(idx).isActive = true
-  },
-
-  SET_BLOCK_MEMBER(state, idx) {
-      state.members.at(idx).isActive = false
-  }
 }
 
 export default {
