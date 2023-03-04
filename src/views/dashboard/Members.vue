@@ -53,8 +53,8 @@
     </div>
 
     <div class="wrap_btns">
-      <Button :shape="'line-round'" :size="'sm'" @click="onUpdateMembers(true)" class="btn_active-member">회원 활성</Button>
-      <Button :shape="'line-round'" :size="'sm'" @click="onUpdateMembers(false)" class="btn_block-member">회원 정지</Button>
+      <Button :shape="'line-round'" :size="'sm'" @click="onUpdateActive(true)" class="btn_active-member">회원 활성</Button>
+      <Button :shape="'line-round'" :size="'sm'" @click="onUpdateActive(false)" class="btn_block-member">회원 정지</Button>
     </div>
   </div>
 </template>
@@ -106,8 +106,8 @@ const checkedMember = () => {
   }
 }
 
-/* set payload */
-const onUpdateMembers = (active) => {
+/* 체크된 항목 active 변경 */
+const onUpdateActive = (active) => {
   if (CHECKBOX_EL.value.some((checkbox) => checkbox.checked)) {
     checkedMember()
     payload.forEach((el) => (el.isActive = active))
