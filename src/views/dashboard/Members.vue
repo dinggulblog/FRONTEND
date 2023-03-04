@@ -53,7 +53,7 @@
     </div>
 
     <div class="wrap_btns">
-      <Button :shape="'line-round'" :size="'sm'" @click="onBlockMember" class="btn_active-member">회원 활성</Button>
+      <Button :shape="'line-round'" :size="'sm'" @click="onActiveMember" class="btn_active-member">회원 활성</Button>
       <Button :shape="'line-round'" :size="'sm'" @click="onBlockMember" class="btn_block-member">회원 정지</Button>
     </div>
   </div>
@@ -74,6 +74,7 @@ const CHECKBOX_EL = ref(null)
 const members = computed(() => state.auth.members)
 
 const tableHeads = ref(['선택', '아바타', '이메일', '닉네임', '권한', '가입일', '마지막 로그인', '상태', '옵션'])
+let payload = []
 
 const onGetDefaultImage = (event) => {
   event.target.src = DEFAULT_AVATAR_64
@@ -85,29 +86,54 @@ const getMembers = async () => {
   commit('auth/SET_MEMBERS', users)
 }
 
+/* 회원 정보 수정 : 단일 */
 const onUpdateMember = (member) => {
   commit('auth/SET_MEMBER', member)
   ACCOUNT_EL.value.open('admin-update')
 }
 
-const onBlockMember = async () => {
-  let payload = []
+/* 현재 체크박스 선택된 멤버들 */
+const checkedMember = () => {
+  payload = []
   let checkedMembers = CHECKBOX_EL.value.filter((checkbox) => checkbox.checked)
 
   for (const member of checkedMembers) {
-    commit('auth/SET_BLOCK_MEMBER', member.dataset.index)
-    payload.push(members.value.at(member.dataset.index))
+    const m = members.value.at(member.dataset.index)
+    payload.push({
+      _id: m._id,
+      isActive: m.isActive
+    })
   }
+}
 
+/* 비활성화 */
+const onBlockMember = () => {
+  checkedMember()
+  payload.forEach((el) => el.isActive = false)
+  onUpdateMembers(payload, '차단')
+  console.log('state', members.value)
+}
+
+/* 활성화 */
+const onActiveMember = () => {
+  checkedMember()
+  payload.forEach((el) => el.isActive = true)
+  onUpdateMembers(payload, '활성')
+  console.log('state', members.value)
+}
+
+/* 회원 정보 수정 : 다중 */
+const onUpdateMembers = async (payload, act) => {
   const { success, error } = await dispatch('auth/updateMember', payload)
   if (success) {
-    TOAST_EL.value.open('success', payload.length > 1 ? `${payload.at(0).nickname}+'님 외'+${payload.length - 1}명이 차단되었습니다.` : `${payload.at(0).nickname}+님이 차단되었습니다`)
+    TOAST_EL.value.open('success', payload.length > 1 ? `${payload.at(0).nickname}+'님 외 '+${payload.length - 1}'명이 '+${act}+' 되었습니다.'` : `${payload.at(0).nickname}+'님이 '+${act}+' 되었습니다'`)
     resetCheckbox()
   } else {
     TOAST_EL.value.open('error', error)
   }
 }
 
+/* 체크박스 초기화 */
 const resetCheckbox = () => {
   CHECKBOX_EL.value.forEach((checkbox) => checkbox.checked = false)
 }

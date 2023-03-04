@@ -118,7 +118,7 @@ const actions = {
   async updateMember({ commit }, payload) {
     try {
       console.log('페이로드 값은?', payload)
-      const { data: { success } } = await axios.put('v1/users/account/', payload)
+      const { data: { success, _id } } = await axios.put('v1/users/account/', payload)
 
       if (!success) throw new Error('계정 업데이트에 실패하였습니다.')
       commit('UNSET_MEMBER')
