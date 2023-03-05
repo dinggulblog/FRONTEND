@@ -52,10 +52,6 @@
       </div>
     </div>
   </Transition>
-
-  <Transition name="fade_down">
-    <div class="container_searchForm" v-if="isOpenSearch"></div>
-  </Transition>
 </template>
 
 <script setup>

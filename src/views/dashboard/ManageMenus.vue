@@ -1,10 +1,10 @@
 <template>
   <div class="wrap_menus">
     <ul class="ul_menus">
-      <li v-for="(value, key) in menus" :key="key" class="menu">
-        <span class="span_menu">💜 {{ key }}</span>
+      <li v-for="(value, key) in menus" :key="key" class="menu" @click="onEditMenu('main', value)">
+        <span class="span_main">💜 {{ key }}</span>
         <ul>
-          <li v-for="v in value" :key="v.sub" class="sub" @click="onEditMenu(v)">
+          <li v-for="v in value" :key="v.sub" class="sub" @click.stop="onEditMenu('sub', [v])">
             <span class="span_sub">📁 {{ v.sub }}</span>
           </li>
         </ul>
@@ -12,7 +12,7 @@
     </ul>
 
     <div class="wrap_edit">
-      <EditMenu :menu="targetMenu" ref="EDIT_EL" />
+      <EditMenu :target="target" :menu="targetMenu" ref="EDIT_EL" />
     </div>
   </div>
 </template>
@@ -27,10 +27,12 @@ const menus = computed(() => state.menu.menus)
 
 const EDIT_EL = ref(null)
 
-const targetMenu = ref(null)
+const target = ref()
+const targetMenu = ref()
 
-const onEditMenu = (sub) => {
-  targetMenu.value = sub
+const onEditMenu = (t, menus) => {
+  target.value = t
+  targetMenu.value = menus.at(0)
   EDIT_EL.value.open()
 }
 </script>
@@ -66,7 +68,7 @@ const onEditMenu = (sub) => {
       border-bottom: 1px dashed #ddd;
     }
 
-    .span_menu {
+    .span_main {
       margin: 0 0 0 2.4rem;
       font-weight: 700;
     }

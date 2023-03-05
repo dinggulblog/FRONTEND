@@ -6,29 +6,32 @@
         <Button class="btn_close" :svg="'close'" :theme="'primary'" @click="close" />
       </div>
 
-      <div class="wrap_sub">
-        <h2 v-if="!subState">{{ menu.sub }}</h2>
-        <input v-else label="카테고리명" type="text" v-model="updateSubName" ref="INPUT_SUB_EL" />
-        <Button size="sm" shape="line-round" theme="primary" @click="onUpdateSubName(!subState ? menu.sub : '')">{{ !subState ? '이름 변경' : '변경 완료' }}</Button>
-      </div>
+        <div class="wrap_menu">
+          <h2 v-if="!menuState">{{ target === 'main' ? menu.main : menu.sub }}</h2>
+          <input v-else type="text" v-model="updateMenuName" ref="INPUT_SUB_EL" />
+          <Button size="sm" shape="line-round" theme="primary" @click="onUpdateMenuName(!menuState ? (target === 'main' ? menu.main : menu.sub) : '')">
+          {{ !menuState ? '이름 변경' : '변경 완료' }}</Button>
+        </div>
 
-      <!--<input type="text" />-->
+        <!--<input type="text" />-->
 
-      <div class="wrap_categories">
-        <label>카테고리</label>
-        <ul>
-          <li v-for="(category, idx) in menu.categories" :key="idx" :data-index="idx">
-            <span>{{ category }}</span>
-            <span class="btn_del" @click="onDeleteCategory">❌</span>
-          </li>
-        </ul>
-      </div>
+        <div class="wrap_categories" v-if="target === 'sub'">
+          <label>카테고리</label>
+          <ul>
+            <li v-for="(category, idx) in menu.categories" :key="idx" :data-index="idx">
+              <span>{{ category }}</span>
+              <span class="btn_del" @click="onDeleteCategory">❌</span>
+            </li>
+          </ul>
+          
+          <label>카테고리 추가</label>
+          <div class="wrap_add-category">
+            <input label="카테고리명" type="text" v-model="addCategory" />
+            <Button size="sm" shape="line-round" theme="primary" @click="onAddCategory">추가</Button>
+          </div>
+        </div>
 
-      <label>카테고리 추가</label>
-      <div class="wrap_add-category">
-        <input label="카테고리명" type="text" v-model="addCategoryName" />
-        <Button size="sm" shape="line-round" theme="primary" @click="onAddCategory">추가</Button>
-      </div>
+        <Button shape="fill-round-full" theme="primary" @click="onUpdateMenu" class="btn-complete">수정 완료</Button>
     </div>
   </PopupModal>
 </template>
@@ -39,6 +42,9 @@ import { useStore } from 'vuex'
 import PopupModal from '../../components/ui/PopupModal.vue'
 
 const props = defineProps({
+  target: {
+    type: String,
+  },
   menu: {
     type: Object,
   },
@@ -51,29 +57,27 @@ const TOAST_EL = inject('TOAST_EL')
 const POPUP_EL = ref(null)
 const INPUT_SUB_EL = ref(null)
 
-const subState = ref(false)
-const updateSubName = ref(null)
-const addCategoryName = ref(null)
+const menuState = ref(false)
+const updateMenuName = ref(null)
+const addCategory = ref(null)
 let payload = {}
 
-const onUpdateSubName = (name) => {
-  if (!subState.value) {
-    subState.value = true
-    updateSubName.value = name
+
+const onUpdateMenuName = (name) => {
+  if (!menuState.value) {
+    menuState.value = true
+    updateMenuName.value = name
     //if(INPUT_SUB_EL.value) INPUT_SUB_EL.value.focus()
-    updateMenu(payload, '메뉴이름이 변경되었습니다')
   } else {
-    menu.value.sub = updateSubName.value
-    subState.value = false
+    menu.value[props.target === 'main' ? 'main' : 'sub'] = updateMenuName.value
+    menuState.value = false
   }
 }
 
 const onAddCategory = () => {
-  if (addCategoryName.value) {
-    menu.value.categories.push(addCategoryName.value)
-    payload['categories'].push(addCategoryName.value)
-    addCategoryName.value = null
-    updateMenu(payload, '카테고리가 추가되었습니다')
+  if (addCategory.value) {
+    menu.value.categories.push(addCategory.value)
+    addCategory.value = null
   } else {
     TOAST_EL.value.open('error', '카테고리명을 입력해주세요.')
   }
@@ -92,11 +96,12 @@ const setPayload = () => {
   }
 }
 
-const updateMenu = async (payload, act) => {
+const onUpdateMenu = async () => {
+  setPayload()
   const { success, error } = await dispatch('menu/updateMenu', payload)
   console.log('전송된 페이로드는?', payload)
   if (success) {
-    TOAST_EL.value.open('success', `${act}`)
+    TOAST_EL.value.open('success', `메뉴 변경이 완료되었습니다.}`)
   } else {
     TOAST_EL.value.open('error', error)
   }
@@ -109,12 +114,6 @@ const open = () => {
 const close = () => {
   POPUP_EL.value?.close()
 }
-
-watch(props,
-  () => {
-    setPayload()
-})
-
 
 defineExpose({ open, close })
 </script>
@@ -138,28 +137,29 @@ defineExpose({ open, close })
     margin: 0 0 2.4rem;
   }
 
-  .wrap_sub {
+  .wrap_menu {
     display: flex;
     align-items: center;
+    border-bottom: 1px solid var(--border2);
+    padding: 0 0 1rem;
 
     h2 {
       text-transform: uppercase;
-      width:78%;
+      width: 78%;
     }
 
     input {
       text-transform: uppercase;
-      width:78%;
+      width: 78%;
       font-size: 1.5em;
     }
   }
 
   .wrap_categories {
-    margin: 1rem 0 0;
-    border-top: 1px solid var(--border2);
-    padding: 2.4rem 0 3.2rem 0;
+    padding: 3.2rem 0 0;
 
     ul {
+      margin: 0 0 3.2rem 0;
       li {
         margin: 1.6rem 0 0;
         font-size: 1.4rem;
@@ -174,13 +174,16 @@ defineExpose({ open, close })
 
   .wrap_add-category {
     display: flex;
-    margin: 0 0 3.2rem 0;
 
     input {
       flex: auto;
       border-bottom: 1px solid #ddd;
       margin: 0 1.2rem 0 0;
     }
+  }
+  
+  .btn-complete {
+    margin:3.2rem 0 0;
   }
 }
 </style>
