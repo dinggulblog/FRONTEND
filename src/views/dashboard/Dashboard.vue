@@ -20,11 +20,13 @@ import { ref, watchEffect } from 'vue'
 import Chart from './Chart.vue'
 import Members from './Members.vue'
 import ManagePosts from './ManagePosts.vue'
+import ManageMenus from './ManageMenus.vue'
 
 const LAYOUTS = {
   chart: Chart,
   members: Members,
   'manage-posts': ManagePosts,
+  'manage-menus': ManageMenus,
 }
 
 const CHIPS = {

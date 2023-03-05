@@ -2,7 +2,9 @@
   <PopupModal ref="POPUP_EL">
     <div id="account">
       <!-- Close button -->
-      <Button class="btn_close" :svg="'close'" :theme="'primary'" @click="close" />
+      <div class="wrap_btn-close">
+        <Button class="btn_close" :svg="'close'" :theme="'primary'" @click="close" />
+      </div>
 
       <div class="wrap_account">
         <div class="account">
@@ -125,8 +127,7 @@ const updateMemberSchema = Yup.object().shape({
   nickname: Yup.string()
     .default(member.value.nickname)
     .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
-  roles: Yup.array()
-    .of(Yup.string().required()),
+  roles: Yup.array().of(Yup.string().required()),
 })
 
 const onLogin = async (values) => {
@@ -148,7 +149,7 @@ const onUpdateMember = async (values) => {
   values._id = member.value._id
   const { success, error } = await dispatch('auth/updateMembers', [values])
 
-  if(success) {
+  if (success) {
     close()
     TOAST_EL.value.open('success', `${values.nickname}님의 정보가 수정되었습니다.`)
   } else {
@@ -189,112 +190,118 @@ defineExpose({ open, close })
     height: 100%;
     border-radius: 0;
   }
-}
-.wrap_account {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 
-  /* account */
+  .wrap_btn-close {
+    display: flex;
+    justify-content: flex-end;
+  }
 
-  .account {
-    /* common */
-    width: 100%;
+  .wrap_account {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 
-    h2 {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.4rem;
-      color: var(--primary);
-      font-weight: 400;
-      margin: 0 0 calc(4.8rem - 3.2rem);
-      text-transform: capitalize;
-    }
+    /* account */
 
-    form {
-      display: flex;
-      flex-direction: column;
-      font-size: 1.3rem;
+    .account {
+      /* common */
+      width: 100%;
 
-      .wrap_roles {
-        margin: 3.2rem 0 0;
-
-        legend {
-          color: var(--primary);
-          margin: 0 0 1.6rem;
-        }
-        .wrap_checkbox {
-          display: flex;
-        }
-      }
-    }
-
-    .btn_submit {
-      margin: 4.8rem 0 0;
-
-      @media (hover: hover) and (pointer: fine) {
-        &:hover {
-          background-color: var(--primary-light);
-        }
-      }
-
-      &:active {
-        background-color: var(--primary-dark);
-      }
-    }
-
-    /* end common */
-
-    .update_account {
-      .wrap_btn_sign-out {
-        margin: 4.8rem 0 0;
+      h2 {
         display: flex;
         align-items: center;
         justify-content: center;
-        .btn_sign-out {
-          text-decoration: underline;
-        }
+        font-size: 2.4rem;
+        color: var(--primary);
+        font-weight: 400;
+        margin: 0 0 calc(4.8rem - 3.2rem);
+        text-transform: capitalize;
       }
-    }
 
-    /* login */
-    .login {
-      .btn_submit {
-        margin: 2.4rem 0 0;
-      }
-      .wrap_find_account {
-        margin: 3.2rem 0;
+      form {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        font-size: 1.3rem;
 
-        p {
-          font-size: 1.2rem;
-          color: var(--text3);
-          margin: 0 0 1.6rem;
-        }
+        .wrap_roles {
+          margin: 3.2rem 0 0;
 
-        .a_find-account {
-          text-decoration: underline;
-          font-size: 1.2rem;
-          color: var(--primary);
+          legend {
+            color: var(--primary);
+            margin: 0 0 1.6rem;
+          }
+          .wrap_checkbox {
+            display: flex;
+          }
         }
       }
 
-      .wrap_sign-up {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        border-top: 0.1rem solid var(--border3);
-        padding: 3.2rem 0 0;
+      .btn_submit {
+        margin: 4.8rem 0 0;
+
+        @media (hover: hover) and (pointer: fine) {
+          &:hover {
+            background-color: var(--primary-light);
+          }
+        }
+
+        &:active {
+          background-color: var(--primary-dark);
+        }
       }
 
-      .btn_create-account {
-        &:hover {
-          color: var(--primary-light);
+      /* end common */
+
+      .update_account {
+        .wrap_btn_sign-out {
+          margin: 4.8rem 0 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          .btn_sign-out {
+            text-decoration: underline;
+          }
+        }
+      }
+
+      /* login */
+      .login {
+        .btn_submit {
+          margin: 2.4rem 0 0;
+        }
+        .wrap_find_account {
+          margin: 3.2rem 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+
+          p {
+            font-size: 1.2rem;
+            color: var(--text3);
+            margin: 0 0 1.6rem;
+          }
+
+          .a_find-account {
+            text-decoration: underline;
+            font-size: 1.2rem;
+            color: var(--primary);
+          }
+        }
+
+        .wrap_sign-up {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          border-top: 0.1rem solid var(--border3);
+          padding: 3.2rem 0 0;
+        }
+
+        .btn_create-account {
+          &:hover {
+            color: var(--primary-light);
+          }
         }
       }
     }

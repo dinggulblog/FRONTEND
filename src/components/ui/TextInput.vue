@@ -1,6 +1,6 @@
 <template>
-  <div class="TextInput" :class="{ 'has-error': !!errorMessage, success: meta.valid }" :style="(type !== 'checkbox' && type !== 'radio') ? { flexDirection : 'column-reverse' } :{ flexDirection : 'row' }">
-    <p class="help-message" v-if="errorMessage || meta.valid && (type !== 'checkbox' && type !== 'radio')">{{ errorMessage || successMessage }}</p>
+  <div class="TextInput" :class="{ 'has-error': !!errorMessage, success: meta.valid }">
+    <label :for="label">{{ label }}</label>
     <input
       spellcheck="false"
       :name="name"
@@ -13,7 +13,7 @@
       @input="handleChange"
       @blur="handleBlur"
     />
-    <label :for="label">{{ label }}</label>
+    <p class="help-message" v-if="errorMessage || meta.valid">{{ errorMessage || successMessage }}</p>
   </div>
 </template>
 
@@ -76,8 +76,6 @@
   .TextInput {
     font-size: 1.4rem;
     margin: 3.2rem 0 3.2rem;
-    display: flex;
-    flex-direction: column-reverse;
     position: relative;
 
     label {
@@ -85,7 +83,7 @@
       color: var(--primary);
     }
 
-    input:not([type="checkbox"]):not([type="radio"]) {
+    input {
       padding: 0 0 1.6rem;
       margin: 1.6rem 0 0;
       outline: none;
@@ -94,12 +92,6 @@
       border-bottom: 0.1rem solid var(--border2);
       width: 100%;
       color: var(--text4);
-    }
-
-    input[type="checkbox"] {
-      margin:0 0.4rem 0;
-      display: flex;
-      justify-content: center;
     }
 
     input::placeholder {
@@ -119,18 +111,6 @@
 
     &.success .help-message {
       color: var(--warning);
-    }
-
-
-    &.checkbox {
-      display: flex;
-      line-height: 1.5;
-      margin: 0 1.2rem 0 0;
-      
-      label {
-        color:var(--text4);
-        font-size:1.2rem;
-      }
     }
   }
 </style>

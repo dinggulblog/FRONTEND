@@ -25,6 +25,19 @@ const actions = {
       return { success: false, error: err?.response?.data?.message ?? err.message }
     }
   },
+
+  async updateMenu({ commit }) {
+    try {
+      const { data } = await axios.get('v1/menus')
+      const { success } = data
+
+      if (!success) throw new Error('메뉴 업데이트에 실패하였습니다.')
+      
+      return await actions.getMenus({ commit })
+    } catch (err) {
+      return { success: false, error: err?.response?.data?.message ?? err.message }
+    }
+  },
 }
 
 const mutations = {
