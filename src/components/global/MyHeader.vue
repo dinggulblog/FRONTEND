@@ -2,7 +2,11 @@
   <div class="container_bar">
     <div class="bar">
       <div class="wrap_left">
-        <Button :class="isMobile ? 'btn_m-toggle' : 'btn_search'" :svg="isMobile ? 'menu' : isOpenSearch ? 'close' : 'search'" @click="isMobile ? onToggleGnb() : push({ name: 'search' })" />
+        <Button 
+          :class="isMobile ? 'btn_m-toggle' : 'btn_search'"
+          :svg="isMobile ? 'menu' : isOpenSearch ? 'close' : 'search'"
+          @click="isMobile ? onToggleGnb() : push({ name: 'search' })"
+        />
       </div>
 
       <div class="logo">

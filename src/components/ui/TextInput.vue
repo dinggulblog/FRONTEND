@@ -3,13 +3,12 @@
     <label :for="label">{{ label }}</label>
     <input
       spellcheck="false"
-      :name="name"
       :id="label"
+      :name="name"
       :type="type"
       :value="inputValue"
-      :placeholder="placeholder"
       :disabled="disabled"
-      :checked="checked"
+      :placeholder="placeholder"
       @input="handleChange"
       @blur="handleBlur"
     />
@@ -23,27 +22,19 @@
   import { debounce } from '../../common/util.js';
 
   const props = defineProps({
-    type: {
-      type: String,
-      default: 'text',
-    },
-    value: {
-      type: String,
-      default: '',
-    },
     name: {
       type: String,
       required: true,
+    },
+    type: {
+      type: String,
+      default: 'text',
     },
     label: {
       type: String,
       default: '',
     },
-    successMessage: {
-      type: String,
-      default: '',
-    },
-    placeholder: {
+    value: {
       type: String,
       default: '',
     },
@@ -51,9 +42,13 @@
       type: Boolean,
       default: false,
     },
-    checked: {
-      type: Boolean,
-      default: false,
+    placeholder: {
+      type: String,
+      default: '',
+    },
+    successMessage: {
+      type: String,
+      default: '',
     },
   })
 
@@ -69,11 +64,13 @@
     initialValue: props.value,
   })
 
-  watch(inputValue, debounce(() => emits('callback', inputValue.value), 250))
+  watch(inputValue, debounce(() => {
+    if (!errorMessage.value) emits('callback', inputValue.value)
+  }, 500))
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-  .TextInput {
+ .TextInput {
     font-size: 1.4rem;
     margin: 3.2rem 0 3.2rem;
     position: relative;

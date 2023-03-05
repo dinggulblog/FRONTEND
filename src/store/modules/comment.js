@@ -14,7 +14,7 @@ const getters = {
 
 const actions = {
   // params: String (post ID)
-  async getComments({ commit }, postId) {
+  async getComments({ commit }, { postId }) {
     try {
       const { data } = await axios.get(`v1/comments/${postId}`)
       const { success, data: { comments, commentCount } } = data

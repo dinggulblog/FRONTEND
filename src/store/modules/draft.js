@@ -7,9 +7,9 @@ const state = () => ({
 const getters = {}
 
 const actions = {
-  async getDraft({ commit }) {
+  async getDraft({ commit }, { draftId }) {
     try {
-      const { data } = await axios.get('v1/drafts')
+      const { data } = await axios.get(`v1/drafts/${draftId}`)
       const { success, data: { draft } } = data
 
       commit('SET_DRAFT', draft)

@@ -20,9 +20,9 @@ const routes = [
   { path: '/auth/find', name: 'findAccount', component: FindAccount, meta: { title: 'FindAccount' } },
   { path: '/auth/pwd-reset', name: 'resetPassword', component: ResetPassword, meta: { title: 'ResetPassword' } },
   { path: '/posts/:main/:sub?', name: 'posts', component: Posts, props: true, meta: { title: 'Posts' } },
-  { path: '/post/:main/:postId', name: 'post', component: Post, props: true, meta: { title: 'Post' } },
-  { path: '/search', name: 'search', component: Search, props: true, meta: { title: 'Search' } },
+  { path: '/post/:postId', name: 'post', component: Post, props: true, meta: { title: 'Post' } },
   { path: '/editor', name: 'editor', component: Editor, meta: { title: 'Editor', requiredAuth: true } },
+  { path: '/search', name: 'search', component: Search, props: true, meta: { title: 'Search' } },
   { path: '/dashboard/:section', name: 'dashboard', component: Dashboard, props: true, meta: { title: 'Dashboard', requiredAuth: true } },
   { path: '/:catchAll(.*)+', name: 'notfound', component: NotFound, meta: { title: 'NotFoundError 404!' } },
 ]

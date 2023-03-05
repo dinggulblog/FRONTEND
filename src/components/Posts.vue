@@ -1,6 +1,13 @@
 <template>
   <div class="wrap_posts">
-    <Slider v-if="type === 'slide'" :target="POST_EL" :limit="limit" :category="category" :maxCount="maxCount" :recent="recent" />
+    <Slider 
+      v-if="type === 'slide'"
+      :target="POST_EL"
+      :limit="limit"
+      :recent="recent"
+      :category="category"
+      :maxCount="maxCount"
+    />
 
     <!-- List of Posts -->
     <div class="posts">
@@ -8,10 +15,10 @@
         <template v-if="posts.length">
           <TransitionGroup name="fade_up" @before-enter="beforeEnter" @after-enter="afterEnter" @enter-cancelled="afterEnter">
             <template v-for="(post, index) in posts" :key="index">
-              <PostsItem :main="main" :type="type" :post="post" :data-index="index" />
+              <PostsItem :type="type" :post="post" :data-index="index" />
             </template>
           </TransitionGroup>
-          <Observer v-if="type !== 'recent'" v-model:page="page" @updatePage="onUpdatePage"></Observer>
+          <Observer v-if="!recent" :page="page" @update="onUpdatePage"></Observer>
         </template>
         <p v-else class="empty_posts">no posts yet</p>
       </ul>
@@ -36,15 +43,17 @@ const LIMIT_TYPE = {
 const props = defineProps({
   main: {
     type: String,
-    required: true,
   },
   sub: {
     type: String,
-    required: false,
   },
   category: {
     type: String,
     default: '전체',
+  },
+  recent: {
+    type: Boolean,
+    default: false,
   },
   type: {
     type: String,
@@ -65,13 +74,13 @@ const props = defineProps({
     type: String,
     required: false,
   },
-  recent: {
-    type: Boolean,
-    default: false,
-  },
+  searchText: {
+    type: String,
+    required: false,
+  }
 })
 const { dispatch } = useStore()
-const { main, sub, category, type, filter, userId, sort } = toRefs(props)
+const { main, sub, category, type, sort, filter, userId, searchText } = toRefs(props)
 
 const isMobileDevices = inject('isMobileDevices')
 const POST_EL = ref(null)
@@ -92,17 +101,18 @@ const onUpdatePage = (newPage) => {
 
 const getPosts = async (curPage) => {
   const query = {
-    main: main.value,
     skip: (page.value - 1) * limit.value,
     limit: limit.value,
     category: category.value,
   }
 
   const subQuery = {
+    main: main.value,
     sub: sub.value,
     sort: sort.value,
     filter: filter.value,
     userId: userId.value,
+    searchText: searchText.value
   }
 
   Object.entries(subQuery).forEach(([key, value]) => {
@@ -125,10 +135,9 @@ const afterEnter = (el) => {
   el.style.transitionDelay = ''
 }
 
-watch(props, () => {
+watch([main, sub, category, sort, filter, userId, searchText], () => {
   posts.value = []
   onUpdatePage(1)
-  getPosts(1)
 })
 
 watchEffect(() => {

@@ -33,16 +33,16 @@
 import { ref, onErrorCaptured } from 'vue'
 import Posts from '../../components/Posts.vue'
 import Toolbar from '../../components/Toolbar.vue'
-import card from '../../components/slots/Card.vue'
-import list from '../../components/slots/List.vue'
-import slide from '../../components/slots/Slide.vue'
-import recent from '../../components/slots/Recent.vue'
+import Card from '../../components/slots/Card.vue'
+import List from '../../components/slots/List.vue'
+import Slide from '../../components/slots/Slide.vue'
+import Recent from '../../components/slots/Recent.vue'
 
 const LAYOUTS = {
-  card: card,
-  list: list,
-  slide: slide,
-  recent: recent,
+  card: Card,
+  list: List,
+  slide: Slide,
+  recent: Recent,
 }
 
 const props = defineProps({

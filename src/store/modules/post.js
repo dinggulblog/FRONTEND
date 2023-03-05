@@ -2,7 +2,7 @@ import { stringify } from 'querystring'
 import axios from '../../services/axios'
 
 const state = () => ({
-  post: null,
+  post: {},
   quickMove: false,
 })
 
@@ -38,7 +38,10 @@ const actions = {
    */
   async getPosts({ rootState },{ main, sub, ...payload}) {
     try {
-      payload.menus = rootState.menu.menus[main].filter((menu) => !sub ? true : menu.sub === sub).map(({ _id }) => _id)
+      if (main) {
+        payload.menus = rootState.menu.menus[main].filter((menu) => !sub ? true : menu.sub === sub).map(({ _id }) => _id)
+      }
+
       const { data } = await axios.get('v1/posts', { params: payload , paramsSerializer: (params) => stringify(params) })
 
       const { success, data: { posts, maxCount } } = data
@@ -56,7 +59,7 @@ const actions = {
    * @param {Object} Post { title, content, menu, ... }
    * @return {Object} { success, post, error }
    */
-  async createPost({ rootState }, payload) {
+  async createPost({ rootState }, { payload }) {
     try {
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
 
@@ -74,18 +77,17 @@ const actions = {
    * @param {Object} Post { _id, title, content, menu, ... }
    * @return {Object} { success, post, images, error }
    */
-  async updatePost({ rootState }, { postId, authorId, payload }) {
+  async updatePost({ rootState }, { postId, payload }) {
     try {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
       if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
-      if (rootState.auth.id !== authorId) throw new Error('본인 소유의 게시물만 삭제가 가능합니다.')
 
       const { data } = await axios.put(`v1/posts/${postId}`, payload)
       const { success, data: { post, images } } = data
 
       return { success, post, images, error: null }
     } catch (err) {
-      return { success: false, post: null, images: null, error: err?.response?.data?.message || err.message }
+      return { success: false, post: null, images: [], error: err?.response?.data?.message || err.message }
     }
   },
 
@@ -171,29 +173,46 @@ const actions = {
 }
 
 const mutations = {
-  SET_PAGE(state, { main, category = '전체', page }) {
-    state[main][category].page = page
-  },
-
   SET_POST(state, post = {}) {
     state.post = post
+    if (typeof post.menu === 'object') {
+      state.main = post.menu.main
+      state.sub = post.menu.sub
+    }
   },
 
-  SET_INIT_POSTS(state, menus = {}) {
-    for (const menu in menus) {
-      state[menu] = menus[menu].reduce((acc, { sub, categories }) => {
-        categories.forEach(category => acc[category] = { posts: [], page: 1, maxCount: 0 })
-        acc[`전체-${sub}`] = { posts: [], page: 1, maxCount: 0 }
-        return acc
-        }, {})
-
-      state[menu]['전체'] = { posts: [], page: 1, maxCount: 0 }
-    } 
+  SET_MAIN(state, main) {
+    state.main = main
   },
 
-  SET_POSTS(state, { main, category = '전체', skip, limit, posts, maxCount }) {
-    state[main][category].posts.splice(skip, limit, ...posts)
-    state[main][category].maxCount = maxCount ? maxCount : state[main][category].maxCount
+  SET_SUB(state, sub) {
+    state.sub = sub
+  },
+
+  SET_TITLE(state, title) {
+    state.post.title = title
+  },
+
+  SET_CONTENT(state, content) {
+    state.post.content = content
+  },
+
+  SET_CATEGORY(state, category) {
+    state.post.category = category
+  },
+
+  SET_IS_PUBLIC(state, isPublic) {
+    state.post.isPublic = isPublic
+  },
+
+  SET_IMAGES(state, images = []) {
+    if (!Array.isArray(state.post.images)) state.post.images = []
+
+    state.post.images.push(...images)
+  },
+
+  SET_THUMBNAIL(state, thumbnail) {
+    state.post.thumbnail = thumbnail
   },
 
   SET_QUICKMOVE(state, boolean = false) {
@@ -214,8 +233,8 @@ const mutations = {
     }
   },
 
-  UNSET_POSTS(state, { main, category = '전체' }) {
-    state[main][category].posts = []
+  UNSET_IMAGE(state, index) {
+    if (Array.isArray(state.post.images)) state.post.images.splice(index, 1)
   }
 }
 

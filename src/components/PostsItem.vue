@@ -1,8 +1,8 @@
 <template>
-  <component :is="layouts[type]">
+  <component :is="LAYOUTS[type]">
     <template #thumbnail>
       <div v-if="post?.thumbnail" class="thumbnail">
-        <router-link :to="{ name: 'post', params: { main, postId: post._id } }">
+        <router-link :to="{ name: 'post', params: { postId: post._id } }">
           <img :src="post.thumbnail"/>
         </router-link>
 
@@ -21,7 +21,7 @@
     </template>
 
     <template #title>
-      <router-link :to="{ name: 'post', params: { main, postId: post._id } }">
+      <router-link :to="{ name: 'post', params: { postId: post._id } }">
         {{ post.title }}
       </router-link>
     </template>
@@ -46,7 +46,7 @@
     </template>
 
     <template #comment_count>
-      <router-link :to="{ name: 'post', params: { main, postId: post._id } }" @click="$store.commit('post/SET_QUICKMOVE', true)">
+      <router-link :to="{ name: 'post', params: { postId: post._id } }" @click="$store.commit('post/SET_QUICKMOVE', true)">
         댓글 {{ post.commentCount }}
       </router-link>
     </template>
@@ -58,34 +58,30 @@
 </template>
 
 <script setup>
-  import markdownText from 'markdown-to-text'
-  import DEFAULT_THUMBNAIL from '../assets/default_thumbnail.webp'
-  import card from './slots/Card.vue'
-  import list from './slots/List.vue'
-  import slide from './slots/Slide.vue'
-  import recent from './slots/Recent.vue'
-  import { getTime } from '../common/time.js'
+import markdownText from 'markdown-to-text'
+import DEFAULT_THUMBNAIL from '../assets/default_thumbnail.webp'
+import Card from './slots/Card.vue'
+import List from './slots/List.vue'
+import Slide from './slots/Slide.vue'
+import Recent from './slots/Recent.vue'
+import { getTime } from '../common/time.js'
 
-  const props = defineProps({
-    main: {
-      type: String,
-      required: true,
-    },
-    type: {
-      type: String,
-      default: 'list',
-      validator: (value) => ['list', 'card', 'slide', 'recent'].includes(value),
-    },
-    post: {
-      type: Object,
-      required: true
-    },
-  })
+const props = defineProps({
+  type: {
+    type: String,
+    default: 'list',
+    validator: (value) => ['list', 'card', 'slide', 'recent'].includes(value),
+  },
+  post: {
+    type: Object,
+    required: true
+  },
+})
 
-  const layouts = {
-    card: card,
-    list: list,
-    slide: slide,
-    recent: recent,
-  }
+const LAYOUTS = {
+  card: Card,
+  list: List,
+  slide: Slide,
+  recent: Recent,
+}
 </script>

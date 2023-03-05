@@ -1,9 +1,5 @@
 <template>
-  <div v-if="error">
-    {{ error }}
-  </div>
-
-  <div class="post" v-else>
+  <div class="post" v-if="post">
     <div class="wrap_header">
       <div class="wrap_left">
         <!-- Post Title -->
@@ -18,15 +14,22 @@
 
         <!-- Post Info -->
         <div class="wrap_info">
-          <PostInfoSlot :post="post" />
+          <Info>
+            <template #createdAt>
+              <li><span class="createdAt">{{ getTime(post.createdAt) }}</span></li>
+            </template>
+            <template #category>
+              <li><span class="category">{{ post.category }}</span></li>
+            </template>
+          </Info>
         </div>
-      </div>
+      </div><!-- wrap_left end -->
+
       <div class="wrap_right">
         <Button class="btn_dropbox" :size="'sm'" :svg="'more'" @click="$refs.KEBAB_EL.onToggle()" />
-
         <Kebab ref="KEBAB_EL" :dropboxItems="!auth ? { '링크 복사': onCopyLink } : { '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }" />
-      </div>
-    </div>
+      </div><!-- wrap_right end -->
+    </div><!-- wrap_header end -->
 
     <!-- Post Content -->
     <div class="content" ref="CONTENT_EL">
@@ -56,6 +59,7 @@
       </div>
     </div>
 
+    <!-- TOC -->
     <Teleport to="#content">
       <div class="wrap_toc">
         <ul class="toc">
@@ -71,7 +75,7 @@
         </ul>
       </div>
     </Teleport>
-  </div>
+  </div><!-- Post end -->
 
   <div class="comment">
     <!-- Comments Editor -->
@@ -81,33 +85,33 @@
     <div class="comments" ref="COMMENTS_EL">
       <h2>댓글 {{ $store.state.comment.commentCount }}개</h2>
 
-      <div v-if="error">
-        {{ error }}
-      </div>
-
-      <ul class="comment_items" v-else>
-        <Comment v-for="comment in $store.state.comment.comments" :key="comment._id" :comment="comment" :postId="postId" :author="post.author?._id" :userId="$store.state.auth.id" />
+      <ul class="comment_items">
+        <Comment 
+          v-for="comment in $store.state.comment.comments"
+          :key="comment._id"
+          :comment="comment"
+          :postId="postId"
+          :author="post.author?._id"
+          :userId="$store.state.auth.id"
+        />
       </ul>
     </div>
   </div>
 </template>
 
 <script setup>
-import { inject, ref, computed, nextTick, watch, onErrorCaptured, onUnmounted } from 'vue'
+import { inject, ref, computed, nextTick, watch, onErrorCaptured, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
-import CommentEditor from '../../components/CommentEditor.vue'
-import Comment from '../../components/Comment.vue'
 import Markdown from 'vue3-markdown-it'
 import MarkdownEmoji from 'markdown-it-emoji'
+import CommentEditor from '../../components/CommentEditor.vue'
+import Comment from '../../components/Comment.vue'
 import User from '../../components/User.vue'
-import PostInfoSlot from '../../components/PostInfo.vue'
+import Info from '../../components/slots/Info.vue'
+import { getTime } from '../../common/time'
 
 const props = defineProps({
-  main: {
-    type: String,
-    required: true,
-  },
   postId: {
     type: String,
     required: true,
@@ -117,7 +121,7 @@ const props = defineProps({
 const { state, dispatch, commit } = useStore()
 const { push } = useRouter()
 
-const plugins = ref([{ plugin: MarkdownEmoji }])
+const plugins = [{ plugin: MarkdownEmoji }]
 
 const DIALOG_EL = inject('DIALOG_EL')
 const TOAST_EL = inject('TOAST_EL')
@@ -127,15 +131,18 @@ const COMMENTS_EL = ref(null)
 const TOC_EL = ref(null)
 
 const toc = ref(null)
-const error = ref(null)
 const observedEl = ref(new Map())
 const intersectEl = ref([])
 
 const auth = computed(() => state.auth.id && post.value.author?._id === state.auth.id)
-const post = computed(() => state.post.post ?? new Object())
+const post = computed(() => state.post.post)
+
+const onPushPost = (_id) => {
+  if (_id) push({ name: 'post', params: { postId: _id } })
+}
 
 const onUpdatePost = () => {
-  if (post.value._id) push({ name: 'editor', query: { id: post.value._id } })
+  if (post.value._id) push({ name: 'editor', query: { postId: post.value._id } })
 }
 
 const onDeletePost = async () => {
@@ -144,32 +151,32 @@ const onDeletePost = async () => {
     message: '게시물을 삭제하시겠습니까?\n한번 삭제된 게시물은 되돌릴 수 없습니다.',
   })
   if (ok) {
+    const { main, sub } = post.value.menu
     const { success, error } = await dispatch('post/deletePost', {
       postId: post.value._id,
       authorId: post.value?.author?._id,
     })
+
     if (!success) return TOAST_EL.value.open('error', error)
 
-    push({ name: 'posts', params: { main: props.main } })
+    push({ name: 'posts', params: { main, sub } })
   }
 }
 
 const onUpdateLike = async () => {
-  const { success, error } = !post.value.liked ? await dispatch('post/updateLike', { postId: post.value._id }) : await dispatch('post/deleteLike', { postId: post.value._id })
+  const { success, error } = !post.value.liked
+    ? await dispatch('post/updateLike', { postId: post.value._id })
+    : await dispatch('post/deleteLike', { postId: post.value._id })
 
   if (!success) TOAST_EL.value.open('error', error)
-}
-
-const onPushPost = (postId) => {
-  if (postId) push({ name: 'post', params: { postId: postId } })
 }
 
 const onCopyLink = async () => {
   try {
     await navigator.clipboard.writeText(window.location.href)
-    alert('클립보드에 복사되었습니다')
+    TOAST_EL.value.open('success', '클립보드에 게시물 링크가 복사되었습니다')
   } catch {
-    alert('링크 복사에 실패하였습니다.')
+    TOAST_EL.value.open('error', '링크 복사에 실패하였습니다.')
   }
 }
 
@@ -197,47 +204,55 @@ const callback = (entries, observer) => {
 const observer = new IntersectionObserver(callback, { threshold: 0.7, rootMargin: '-114px 0px 0px 0px' })
 
 watch(
-  () => props.postId,
+  props,
   async () => {
     const { success, error } = await dispatch('post/getPost', { postId: props.postId })
     if (!success) throw new Error(error)
 
-    const { success: success2, error: error2 } = await dispatch('comment/getComments', props.postId)
+    const { success: success2, error: error2 } = await dispatch('comment/getComments', { postId: props.postId })
     if (!success2) throw new Error(error2)
-
-    if (state.post.quickMove && COMMENTS_EL.value) {
-      COMMENTS_EL.value.scrollIntoView({ behavior: 'smooth' })
-      commit('post/SET_QUICKMOVE', false)
-    }
-
-    observer.disconnect()
-    observedEl.value.clear()
-    intersectEl.value = []
-
-    let tocElements = CONTENT_EL.value?.querySelectorAll('h1, h2, h3')
-
-    if (tocElements && tocElements.length) {
-      tocElements.forEach((el) => {
-        el.style.scrollMarginTop = '11.4rem'
-        observer.observe(el)
-        observedEl.value.set(el.getAttribute('id'), null)
-        toc.value = Array.from(tocElements).map((el) => el)
-      })
-    }
-
-    await nextTick()
-    document.title = post.value.title
   },
   { immediate: true },
 )
 
+watch(
+  post,
+  async () => {
+    await nextTick()
+    
+    let tocElements = CONTENT_EL.value?.querySelectorAll('h1, h2, h3')
+    observer.disconnect()
+    observedEl.value.clear()
+    intersectEl.value = []
+
+    if (tocElements?.length) {
+      tocElements.forEach((el) => {
+        el.style.scrollMarginTop = '11.4rem'
+        toc.value = Array.from(tocElements).map((el) => el)
+        observedEl.value.set(el.getAttribute('id'), null)
+        observer.observe(el)
+      })
+    }
+
+    document.title = post.value?.title
+  },
+  { flush: 'post' }
+)
+
 onErrorCaptured((err) => {
-  error.value = err
+  TOAST_EL.value.open('error', err)
   return true
 })
 
+onMounted(() => {
+  if (state.post.quickMove && COMMENTS_EL.value) {
+    COMMENTS_EL.value.scrollIntoView({ behavior: 'smooth' })
+    commit('post/SET_QUICKMOVE', false)
+  }
+})
+
 onUnmounted(() => {
-  commit('post/SET_POST', null)
+  commit('post/SET_POST', {})
   commit('comment/SET_COMMENTS', [])
   observer.disconnect()
 })
