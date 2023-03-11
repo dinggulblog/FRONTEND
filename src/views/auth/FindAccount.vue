@@ -22,7 +22,6 @@ import { inject } from 'vue'
 import { useStore } from 'vuex'
 import { Form } from 'vee-validate'
 import * as Yup from 'yup'
-import TextInput from '../../components/ui/TextInput.vue'
 
 const { dispatch } = useStore()
 const TOAST_EL = inject('TOAST_EL')
@@ -33,7 +32,7 @@ const findSchema = Yup.object().shape({
 })
 
 const onSendEmail = async (values) => {
-  const { success, error } = await dispatch('auth/createResetLink', { email: values.email })
+  const { success, error } = await dispatch('auth/createResetLink', values)
 
   if (!success) {
     return TOAST_EL.value.open('error', error)

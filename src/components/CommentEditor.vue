@@ -1,22 +1,28 @@
 <template>
-  <div class="commentEditor" @click="!isLogin && ACCOUNT_EL.open('login')">
+  <div class="commentEditor" @mousedown="!$store.state.auth.user && ACCOUNT_EL.open('login')">
+
     <textarea
       ref="CONTENT_EL"
       rows="1"
       v-model="content"
-      :disabled="!isLogin"
-      @blur="handlerBlur"
+      :disabled="!$store.state.auth.user"
+      :placeholder="!$store.state.auth.user ? '로그인 후 댓글을 작성해보세요.' : placeholderText"
+      @blur="this.placeholder"
       @input="resizeTextarea"
     />
 
     <div class="wrap_btns">
       <div class="wrap_toggle">
-        <Toggle :isActive="isPublic" @update="onUpdatedIsPublic" />
+        <Toggle :isPublic="isPublic" @update="onUpdatedIsPublic" />
       </div>
       <div class="wrap_submit">
         <div class="submit">
-          <Button class="btn_submit" :shape="'fill-round'" :theme="'primary'" @click="!isUpdate ? onCreateComment() : onUpdateComment()">
-            {{ !isUpdate ? '댓글 작성' : '댓글 수정' }}
+          <Button 
+            class="btn_submit"
+            :shape="'fill-round'"
+            :theme="'primary'"
+            @click="commentId ? onUpdateComment() : onCreateComment()">
+            {{ commentId ? '댓글 수정' : '댓글 작성' }}
           </Button>
         </div>
       </div>
@@ -25,24 +31,23 @@
 </template>
 
 <script setup>
-  import { inject, ref, onMounted, watch, computed } from 'vue'
+  import { inject, ref, computed, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import { resizeTextarea } from '../common/util.js'
   import Toggle from './ui/Toggle.vue'
 
   const props = defineProps({
+    id: {
+      type: String,
+      default: 'comment'
+    },
     postId: {
       type: String,
-      default: '',
+      reqired: true,
     },
-    comment: {
-      type: Object,
-    },
-    isUpdate: {
+    isOwner: {
       type: Boolean,
-    },
-    isAuthorized: {
-      type: Boolean,
+      default: false
     },
     placeholderText: {
       type: String,
@@ -50,73 +55,61 @@
     },
   })
 
-  const emit = defineEmits(['closeEditor'])
+  const emits = defineEmits(['closeEditor'])
 
-  const { state, dispatch } = useStore()
-  const isLogin = computed(() => state.auth.isLogin)
+  const { state, dispatch, commit } = useStore()
 
   const CONTENT_EL = ref(null)
   const ACCOUNT_EL = inject('ACCOUNT_EL')
+  const TOAST_EL = inject('TOAST_EL')
 
-  const parentId = ref(null)
-  const content = ref('')
-  const isPublic = ref(true)
-  const placeholderText = computed(() => (isLogin.value ? props.placeholderText : '로그인 후 댓글을 작성해보세요.'))
-
-  const handlerBlur = () => {
-    CONTENT_EL.value.placeholder = placeholderText.value
-  }
+  const commentId = computed({
+    get: () => state.comment[props.id]._id
+  })
+  const isPublic = computed({
+    get: () => state.comment[props.id].isPublic,
+    set: (value) => commit('comment/SET_IS_PUBLIC', { id: props.id, isPublic: value })
+  })
+  const content = computed({
+    get: () => state.comment[props.id].content,
+    set: (value) => commit('comment/SET_CONTENT', { id: props.id, content: value })
+  })
 
   const onUpdatedIsPublic = (state) => {
-    if (!isLogin.value) return
     isPublic.value = state
   }
 
   const onCreateComment = async () => {
-    if (!isLogin.value) return
-    await dispatch('comment/createComment', {
+    const { success, error } = await dispatch('comment/createComment', {
+      parentId: props.id !== 'comment' ? props.id : undefined,
       postId: props.postId,
-      parentId: props.comment ? props.comment._id : '',
       content: content.value,
-      isPublic: isPublic.value,
+      isPublic: isPublic.value
     })
-    content.value = ''
-    isPublic.value = true
-    emit('closeEditor')
+
+    if (!success) return TOAST_EL.value.open('error', error)
+
+    emits('closeEditor')
     CONTENT_EL.value.style.height = ''
   }
 
   const onUpdateComment = async () => {
-    if (!isLogin.value) return
-    await dispatch('comment/updateComment', {
-      id: props.comment._id,
+    const { success, error } = await dispatch('comment/updateComment', {
+      commentId: commentId.value,
       postId: props.postId,
       content: content.value,
       isPublic: isPublic.value,
     })
-    content.value = ''
-    isPublic.value = true
-    emit('closeEditor')
+
+    if (!success) return TOAST_EL.value.open('error', error)
+
+    emits('closeEditor')
     CONTENT_EL.value.style.height = ''
   }
 
-  const remountContent = () => {
-    CONTENT_EL.value.placeholder = placeholderText.value
-    if (!props.comment) {
-      return
-    } else if (props.isUpdate) {
-      content.value = props.comment.content
-    } else {
-      parentId.value = props.comment.parentComment
-    }
-    CONTENT_EL.value.focus()
-  }
-
   onMounted(() => {
-    remountContent()
+    CONTENT_EL.value.focus()
   })
-
-  watch(() => props.isUpdate, remountContent)
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

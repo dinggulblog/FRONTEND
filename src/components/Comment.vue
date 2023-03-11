@@ -1,109 +1,92 @@
 <template>
-  <li v-if="comment.isActive" class="comment_item">
+  <li class="comment_item">
     <div class="wrap_item">
       <div class="wrap_header">
         <div class="wrap_left">
-          <!-- Comment Info -->
-
+          
+          <!-- Commenter -->
           <User :profile="comment.commenter" />
 
+          <!-- Comment Info -->
           <Info>
             <template #createdAt>
-              <li>
-                <span class="createdAt">{{ getTime(comment.createdAt) }}</span>
-              </li>
+              <li><span class="createdAt">{{ getTime(comment.createdAt) }}</span></li>
             </template>
           </Info>
 
-          <div class="wrap_reply_btn">
+          <!-- Reply Button -->
+          <div class="wrap_reply_btn" v-if="comment.isActive && !!$store.state.auth.user">
             <Button
               class="btn_reply"
-              :content="!isVisible.commentEditor ? '답글 작성' : '에디터 닫기'"
               :theme="'primary'"
-              @click="!isVisible.commentEditor ? onCreateEditor() : onCloseEditor()"
-            />
+              @click="!isOpenEditor ? onOpenEditor(false) : onCloseEditor()">
+              {{ !isOpenEditor ? '답글 작성' : '에디터 닫기' }}
+            </Button>
           </div>
-        </div>
-        <div class="wrap_right">
+
+        </div><!-- wrap_left end -->
+
+        <div class="wrap_right" v-if="comment.isActive">
           <Button
             class="btn_dropbox"
             :size="'sm'"
             :svg="'more'"
             @click="$refs.ACTION_SLOT_EL.onToggle()"
           />
+          <Kebab 
+            ref="ACTION_SLOT_EL"
+            :dropboxItems="!isOwner
+              ? { '댓글 복사': onCopyComment }
+              : { '댓글 복사': onCopyComment, '댓글 수정': () => onOpenEditor(true), '댓글 삭제': onDeleteComment }"
+          />
+        </div><!-- wrap_right end -->
+      </div><!-- wrap_header end -->
 
-          <Kebab ref="ACTION_SLOT_EL" :dropboxItems="dropboxItems" />
-        </div>
-      </div>
+      <!-- Content -->
       <div class="content">
         <p>
-          <span v-if="comment.parentComment" class="receiver">@ {{ parentComment?.commenter?.nickname }}</span>
-          <Ico v-if="!comment.isPublic" class="lock_ico" :size="'sm'" :svg="'lock'" :color="'var(--text2)'" />
-          <span v-if="!isAuthorized">비밀 댓글입니다. 작성자와 관리자만 볼 수 있어요</span>
+          <span v-if="parentComment" class="receiver">@ {{ parentComment?.commenter?.nickname }}</span>
+          <Ico  v-if="!comment.isPublic" class="lock_ico" :size="'sm'" :svg="'lock'" :color="'var(--text2)'" />
+          <span v-if="!comment.isActive"><i>*** 삭제된 댓글입니다. ***</i></span>
+          <span v-else-if="!comment.isPublic && !isAuthor && !isOwner"><strong>비밀</strong> 댓글입니다. 게시물 작성자와 관리자만 볼 수 있어요.</span>
           <span v-else>{{ comment.content }}</span>
         </p>
         <Button
           v-if="comment.childCommentCount"
           class="btn_childComment_toggle"
-          :svg="!isVisible.childComments ? 'arrow-down' : 'arrow-up'"
+          :svg="!isOpenChildren ? 'arrow-down' : 'arrow-up'"
           :size="'xs'"
-          :content="'답글 ' + comment.childCommentCount + '개'"
           :theme="'primary'"
-          @click="!isVisible.childComments ? onDisplayChildComment() : onHiddenChildComment()"
-        />
+          @click="onToggleChildren">
+          {{ '답글 ' + comment.childCommentCount + '개' }}
+        </Button>
       </div>
+
+      <!-- Hided Editor -->
       <CommentEditor
-        v-if="isVisible.commentEditor"
+        v-if="isOpenEditor"
+        :id="comment._id"
         :postId="postId"
-        :comment="comment"
-        :isUpdate="isUpdate"
         @closeEditor="onCloseEditor"
       />
-    </div>
+    </div><!-- wrap_item end -->
 
-    <ul class="comment_childItem" v-if="comment.childComments && isVisible.childComments">
+    <!-- Children Comments -->
+    <ul class="comment_childItem" v-if="comment.childComments && isOpenChildren">
       <Comment
         v-for="childComment in comment.childComments"
         :key="childComment._id"
-        :comment="childComment"
         :postId="postId"
-        :author="author"
-        :userId="userId"
-      />
-    </ul>
-  </li>
-
-  <!-- Non-active Comment -->
-  <li v-else class="not-is-acitve">
-    <div class="content">
-      <p>** 해당 댓글은 삭제된 댓글입니다 **</p>
-
-      <Button
-        v-if="comment.childCommentCount"
-        class="btn_childComment_toggle"
-        :svg="!isVisible.childComments ? 'arrow-down' : 'arrow-up'"
-        :size="'xs'"
-        :content="'답글 ' + comment.childCommentCount + '개'"
-        :theme="'primary'"
-        @click="!isVisible.childComments ? onDisplayChildComment() : onHiddenChildComment()"
-      />
-    </div>
-
-    <ul class="comment_childItem" v-if="comment.childComments && isVisible.childComments">
-      <Comment
-        v-for="childComment in comment.childComments"
-        :key="childComment._id"
         :comment="childComment"
-        :postId="postId"
-        :author="author"
-        :userId="userId"
+        :isOwner="childComment.commenter._id === $store.state.auth.user?._id"
+        :isAuthor="isAuthor"
       />
     </ul>
   </li>
 </template>
 
 <script setup>
-  import { inject, ref, reactive, computed, onMounted } from 'vue'
+  import { inject, ref, toRefs, computed } from 'vue'
   import { useStore } from 'vuex'
   import { getTime } from '../common/time.js'
   import Comment from './Comment.vue'
@@ -112,77 +95,54 @@
   import Info from './slots/Info.vue'
 
   const props = defineProps({
-    comment: {
-      type: Object,
-      required: true,
-      default: () => ({}),
-    },
     postId: {
       type: String,
       required: true,
       default: '',
     },
-    author: {
-      type: String,
+    comment: {
+      type: Object,
       required: true,
-      default: '',
+      default: () => ({}),
     },
-    userId: {
-      type: String,
-      required: false,
-      default: '',
+    isOwner: {
+      type: Boolean,
+      default: false
     },
+    isAuthor: {
+      type: Boolean,
+      default: false
+    }
   })
 
-  const { getters, dispatch } = useStore()
+  const { getters, dispatch, commit } = useStore()
 
   const DIALOG_EL = inject('DIALOG_EL')
   const TOAST_EL = inject('TOAST_EL')
 
-  const isUpdate = ref(false)
-  const dropboxItems = reactive({})
-  const isVisible = reactive({
-    commentEditor: false,
-    childComments: false,
-  })
-  const isAuthorized = computed(() => props.comment.isPublic || props.author === props.userId || props.comment?.commenter?._id === props.userId)
-  const parentComment = computed(() => getters['comment/getParentComment'](props.comment?.parentComment))
+  const { comment, postId, isOwner } = toRefs(props)
+  const isOpenEditor = ref(false)
+  const isOpenChildren = ref(false)
+  const parentComment = computed(() => getters['comment/getParentComment'](comment.value?.parentComment))
 
-  const setDropboxItems = () => {
-    if (props.comment?.commenter?._id === props.userId) {
-      dropboxItems['댓글 수정'] = onUpdateEditor
-      dropboxItems['댓글 삭제'] = onDeleteComment
-    }
-    dropboxItems['댓글 복사'] = onCopyComment
-  }
-
-  const onCreateEditor = () => {
-    isUpdate.value = false
-    isVisible.commentEditor = true
-  }
-
-  const onUpdateEditor = () => {
-    isUpdate.value = true
-    isVisible.commentEditor = true
+  const onOpenEditor = (update = false) => {
+    commit('comment/SET_COMMENT',{ update, comment: comment.value })
+    isOpenEditor.value = true
   }
 
   const onCloseEditor = () => {
-    isVisible.commentEditor = false
+    isOpenEditor.value = false
   }
 
-  const onDisplayChildComment = () => {
-    isVisible.childComments = true
-  }
-
-  const onHiddenChildComment = () => {
-    isVisible.childComments = false
+  const onToggleChildren = () => {
+    isOpenChildren.value = !isOpenChildren.value
   }
 
   const onCopyComment = async () => {
     try {
-      await navigator.clipboard.writeText(props.comment.content)
+      await navigator.clipboard.writeText(comment.value.content)
       TOAST_EL.value.open('success', '댓글 내용이 복사되었습니다')
-    } catch (err) {
+    } catch {
       TOAST_EL.value.open('error', '댓글 내용 복사에 실패하였습니다.')
     }
   }
@@ -195,16 +155,15 @@
     if (!ok) return
 
     const { success, error } = await dispatch('comment/deleteComment', {
-      id: props.comment._id,
-      postId: props.postId,
-      commenterId: props.userId,
+      commentId: comment.value._id,
+      postId: postId.value,
+      isOwner: isOwner.value
     })
-    success ? TOAST_EL.value.open('success', '댓글이 삭제되었습니다.') : TOAST_EL.value.open('error', error)
-  }
 
-  onMounted(() => {
-    setDropboxItems()
-  })
+    success
+      ? TOAST_EL.value.open('success', '댓글이 삭제되었습니다.')
+      : TOAST_EL.value.open('error', error)
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

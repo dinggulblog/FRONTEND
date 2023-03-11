@@ -35,30 +35,31 @@ const setup = (store) => {
 
       store.commit('loading/SET_LOADING', false)
 
-      console.log(`에러:
------------- Original  Config ------------
-      URL: ${originalConfig.url}
-      Method: ${originalConfig.method}
-      Message: ${error.message}
------------- Backend Response ------------
-      URL: ${error?.response?.request?.responseURL}
-      Status: ${error?.response?.status}
-      Message: ${error?.response?.data?.message}
-      Success: ${error?.response?.data?.success}
-      `)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`에러:
+          ------------ Original  Config ------------
+          URL: ${originalConfig.url}
+          Method: ${originalConfig.method}
+          Message: ${error.message}
+          ------------ Backend Response ------------
+          URL: ${error?.response?.request?.responseURL}
+          Status: ${error?.response?.status}
+          Message: ${error?.response?.data?.message}
+          Success: ${error?.response?.data?.success}
+        `)
+      }
+      
+      if (!originalConfig.url.endsWith('auth') && error.response && !originalConfig._retry) {
+        originalConfig._retry = true
 
-      if (!originalConfig.url.endsWith('auth') && error.response) {
         // 419 Error response => Refresh token was expired OR not exist => Logout
         if (error.response.status === 419) {
-          originalConfig._retry = true
-          alert(error.response.data?.message)
           await store.dispatch('auth/logout')
           return axiosInstance(originalConfig)
         }
 
         // Access token was not provided OR was expired
-        if (error.response.status === 401 && !originalConfig._retry) {
-          originalConfig._retry = true
+        if (error.response.status === 401) {
           await store.dispatch('auth/refresh')
           return axiosInstance(originalConfig)
         }

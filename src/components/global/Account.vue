@@ -21,14 +21,14 @@
           </Form>
 
           <!-- Update Form -->
-          <Form v-else-if="form === 'update'" as="div" class="update_account" v-slot="{ handleSubmit }" :validation-schema="updateAccountSchema">
+          <Form v-else-if="form === 'update' && user" as="div" class="update_account" v-slot="{ handleSubmit }" :validation-schema="updateAccountSchema">
             <h2>modify account</h2>
             <form @submit="handleSubmit($event, onUpdateAccount)">
-              <TextInput name="email" type="email" label="이메일" :disabled="true" :value="user?.email" success-message="이메일은 변경할 수 없습니다." />
+              <TextInput name="email" type="email" label="이메일" :disabled="true" :value="user.email" success-message="이메일은 변경할 수 없습니다." />
               <TextInput name="currentPassword" type="password" label="현재 비밀번호" placeholder="Current Password" />
               <TextInput name="newPassword" type="password" label="새 비밀번호" placeholder="New Password" />
               <TextInput name="passwordConfirmation" type="password" label="새 비밀번호 확인" placeholder="Type password again" success-message="비밀번호가 정상적으로 입력되었습니다." />
-              <TextInput name="nickname" label="닉네임" :value="user?.nickname" placeholder="Nickname" success-message="사용할 수 있는 닉네임입니다." />
+              <TextInput name="nickname" label="닉네임" :value="user.nickname" placeholder="Nickname" success-message="사용할 수 있는 닉네임입니다." />
               <Button type="submit" class="btn_submit" :shape="'fill-round-full'" :theme="'primary'">수정 완료</Button>
             </form>
 
@@ -37,7 +37,8 @@
             </div>
           </Form>
 
-          <Form v-else-if="form === 'admin-update'" as="div" class="update_account" v-slot="{ handleSubmit }" :validation-schema="updateMemberSchema">
+          <!-- Admin Update Form -->
+          <Form v-else-if="form === 'admin-update' && $store.state.auth.member" as="div" class="update_account" v-slot="{ handleSubmit }" :validation-schema="updateMemberSchema">
             <h2>{{ $store.state.auth.member.nickname }}님의 정보</h2>
             <form @submit="handleSubmit($event, onUpdateMember)">
               <TextInput name="nickname" label="닉네임" :value="$store.state.auth.member.nickname" placeholder="Nickname" success-message="사용할 수 있는 닉네임입니다." />
@@ -84,16 +85,15 @@ import { ref, computed, inject } from 'vue'
 import { useStore } from 'vuex'
 import { Form } from 'vee-validate'
 import * as Yup from 'yup'
-import PopupModal from '../ui/PopupModal.vue'
 
 const { state, dispatch } = useStore()
 
 const POPUP_EL = ref(null)
 const TOAST_EL = inject('TOAST_EL')
 
+const form = ref('login')
 const user = computed(() => state.auth.user)
 const member = computed(() => state.auth.member)
-const form = ref('login')
 
 const loginSchema = Yup.object().shape({
   email: Yup.string().required('이메일을 입력해 주세요.').email(),
@@ -101,33 +101,43 @@ const loginSchema = Yup.object().shape({
 })
 
 const createAccountSchema = Yup.object().shape({
-  email: Yup.string().required('이메일을 입력해 주세요.').email(),
+  email: Yup.string()
+    .required('이메일을 입력해 주세요.')
+    .email(),
   password: Yup.string()
     .required()
     .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
-  passwordConfirmation: Yup.string().oneOf([Yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
+  passwordConfirmation: Yup.string()
+    .min(4)
+    .oneOf([Yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
   nickname: Yup.string()
     .required('닉네임을 정해주세요.')
     .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
 })
 
 const updateAccountSchema = Yup.object().shape({
-  email: Yup.string().default(user.value.email).email(),
-  currentPassword: Yup.string().required(),
+  email: Yup.string()
+    .default(user.value?.email)
+    .email(),
+  currentPassword: Yup.string()
+    .required(),
   newPassword: Yup.string()
     .nullable(true)
     .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
-  passwordConfirmation: Yup.string().oneOf([Yup.ref('newPassword')], '비밀번호가 일치하지 않습니다.'),
+  passwordConfirmation: Yup.string()
+    .min(4)
+    .oneOf([Yup.ref('newPassword')], '비밀번호가 일치하지 않습니다.'),
   nickname: Yup.string()
-    .default(user.value.nickname)
+    .default(user.value?.nickname)
     .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
 })
 
 const updateMemberSchema = Yup.object().shape({
   nickname: Yup.string()
-    .default(member.value.nickname)
+    .default(member.value?.nickname)
     .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
-  roles: Yup.array().of(Yup.string().required()),
+  roles: Yup.array()
+    .of(Yup.string().required()),
 })
 
 const onLogin = async (values) => {
@@ -149,16 +159,14 @@ const onUpdateMember = async (values) => {
   values._id = member.value._id
   const { success, error } = await dispatch('auth/updateMembers', [values])
 
-  if (success) {
-    close()
-    TOAST_EL.value.open('success', `${values.nickname}님의 정보가 수정되었습니다.`)
-  } else {
-    TOAST_EL.value.open('error', error)
-  }
+  if (!success) TOAST_EL.value.open('error', error)
+  
+  close()
+  TOAST_EL.value.open('success', `${values.nickname}님의 정보가 수정되었습니다.`)
 }
 
 const onDeleteAccount = async (values) => {
-  if (!confirm('계정 탈퇴를 진행하시겠습니까?')) return
+  if (!confirm('계정 탈퇴를 진행하시겠습니까?\n삭제가 진행되면 15일 이내에 복구가 가능하며, 이후에는 데이터가 완전히 지워집니다.')) return
 
   const { success, error } = await dispatch('auth/deleteAccount', values)
   !success ? TOAST_EL.value.open('error', error) : close()

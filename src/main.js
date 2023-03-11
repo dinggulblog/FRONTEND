@@ -6,6 +6,7 @@ import router from './router'
 import store from './store'
 import setupInterceptors from './services/axios.interceptors'
 import MediaQuery from './plugins/MediaQuery'
+import VueGtag from 'vue-gtag-next'
 import MyHeader from './components/global/MyHeader.vue'
 import Toast from './components/global/ToastMessage.vue'
 import Dialog from './components/global/Dialog.vue'
@@ -17,6 +18,7 @@ import Checkbox from './components/ui/Checkbox.vue'
 import Button from './components/ui/Button.vue'
 import Ico from './components/ui/Ico.vue'
 import Kebab from './components/ui/Kebab.vue'
+import PopupModal from './components/ui/PopupModal.vue'
 
 config() // dotenv config
 setupInterceptors(store) // create axios instance
@@ -28,15 +30,21 @@ app
   .use(router)
   .use(VueDOMPurifyHTML)
   .use(MediaQuery)
-  .component('MyHeader', MyHeader)
-  .component('Toast', Toast)
-  .component('Dialog', Dialog)
-  .component('Account', Account)
-  .component('Contact', Contact)
-  .component('TextInput', TextInput)
-  .component('TextArea', TextArea)
-  .component('Checkbox', Checkbox)
-  .component('Button', Button)
+  .use(VueGtag, {
+    config: { 
+      id: process.env.VUE_APP_GA_MEASUREMENT_ID,
+    },
+  }, router)
   .component('Ico', Ico)
   .component('Kebab', Kebab)
+  .component('Button', Button)
+  .component('Checkbox', Checkbox)
+  .component('TextArea', TextArea)
+  .component('TextInput', TextInput)
+  .component('PopupModal', PopupModal)
+  .component('MyHeader', MyHeader)
+  .component('Account', Account)
+  .component('Toast', Toast)
+  .component('Dialog', Dialog)
+  .component('Contact', Contact)
   .mount('#app')

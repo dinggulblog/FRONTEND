@@ -2,53 +2,51 @@
   <div class="member-list">
     <div class="wrap_table">
       <div class="table-header">
-        <div class="table-row">
           <div class="table-head" v-for="head in tableHeads" :key="head">
             {{ head }}
           </div>
-        </div>
       </div>
 
       <div class="table-body">
-        <div class="table-row" v-for="(member, idx) in members" :key="idx">
-          <div class="table-cell checkbox">
-            <input type="checkbox" ref="CHECKBOX_EL" :data-index="idx" />
-          </div>
+          <div class="table-row" v-for="(member, idx) in members" :key="idx">
+            <div class="table-cell">
+              <input type="checkbox" ref="CHECKBOX_EL" :data-index="idx" class="checkbox" />
+            </div>
 
-          <div class="table-cell avatar">
-            <img :src="member.avatar?.thumbnail ?? DEFAULT_AVATAR_64" class="img_avatar" @error="onGetDefaultImage" />
-          </div>
+            <div class="table-cell">
+              <img :src="member.avatar?.thumbnail ?? DEFAULT_AVATAR_64" class="avatar img_avatar" @error="onGetDefaultImage" />
+            </div>
 
-          <div class="table-cell email">
-            <span>{{ member.email }}</span>
-          </div>
+            <div class="table-cell">
+              <span class="email">{{ member.email }}</span>
+            </div>
 
-          <div class="table-cell nickname">
-            <span>{{ member.nickname }}</span>
-          </div>
+            <div class="table-cell">
+              <span class="nickname">{{ member.nickname }}</span>
+            </div>
 
-          <div class="table-cell role">
-            <span v-for="role in member.roles" :key="role" :class="role.name">{{ role.name }}</span>
-          </div>
+            <div class="table-cell">
+              <span v-for="role in member.roles" :key="role" class="role" :class="role.name">{{ role.name }}</span>
+            </div>
 
-          <div class="table-cell createdAt">
-            <span>{{ getTime(member.createdAt) }}</span>
-          </div>
+            <div class="table-cell">
+              <span class="createdAt">{{ getTime(member.createdAt) }}</span>
+            </div>
 
-          <div class="table-cell lastLoggedAt">
-            <span>{{ getTime(member.updatedAt) }}</span>
-          </div>
+            <div class="table-cell">
+              <span class="lastLoggedAt">{{ getTime(member.updatedAt) }}</span>
+            </div>
 
-          <div class="table-cell isActive">
-            <span>{{ member.isActive ? '활성' : '비활성' }}</span>
-          </div>
+            <div class="table-cell">
+              <span class="isActive">{{ member.isActive ? '활성' : '비활성' }}</span>
+            </div>
 
-          <div class="table-cell">
-            <Button class="btn_dropbox" :size="'sm'" :svg="'more'" @click="$refs.KEBAB_SLOT_EL[idx].onToggle()" />
+            <div class="table-cell">
+              <Button class="btn_dropbox" :size="'sm'" :svg="'more'" @click="$refs.KEBAB_SLOT_EL[idx].onToggle()" />
 
-            <Kebab ref="KEBAB_SLOT_EL" :dropboxItems="{ '회원 정보 수정': () => onUpdateMember(member) }" />
+              <Kebab ref="KEBAB_SLOT_EL" :dropboxItems="{ '회원 정보 수정': () => onUpdateMember(member) }" />
+            </div>
           </div>
-        </div>
       </div>
     </div>
 
@@ -117,15 +115,13 @@ const onUpdateActive = (active) => {
   }
 }
 
-
 /* 회원 정보 수정 : checkbox */
 const updateMembers = async (payload, active) => {
   const { success, error } = await dispatch('auth/updateMembers', payload)
   if (success) {
     TOAST_EL.value.open(
-    'success', payload.length > 1
-    ? `${payload.at(0).nickname}님 외 ${payload.length - 1}명이 ${active ? '활성' : '정지'} 되었습니다.`
-    : `${payload.at(0).nickname}님이 ${active ? '활성' : '정지'} 되었습니다`
+      'success',
+      payload.length > 1 ? `${payload.at(0).nickname}님 외 ${payload.length - 1}명이 ${active ? '활성' : '정지'} 되었습니다.` : `${payload.at(0).nickname}님이 ${active ? '활성' : '정지'} 되었습니다`,
     )
     resetCheckbox()
   } else {
@@ -142,35 +138,14 @@ await getMembers()
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
+@import '../../scss/table.scss';
 .wrap_table {
   display: table;
   font-size: 1.4rem;
   width: 100%;
 }
-.table-row {
-  display: table-row;
-}
-.table-header {
-  display: table-header-group;
-}
-.table-head,
-.table-cell {
-  display: table-cell;
-  vertical-align: middle;
-  padding: 1.6rem 1.6rem;
-}
-.table-head {
-  font-weight: 500;
-  color: var(--primary-dark);
-}
-.table-cell {
-  color: var(--text4);
-}
-.table-body {
-  display: table-row-group;
-}
 
-.avatar > img {
+.avatar {
   width: 4.8rem;
   height: 4.8rem;
   border-radius: 50%;
@@ -178,7 +153,7 @@ await getMembers()
   border: 1px solid var(--border3);
 }
 
-.role > span {
+.role {
   padding: 0.4rem 0.8rem;
   border-radius: 0.4rem;
   font-size: 1rem;

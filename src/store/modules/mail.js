@@ -18,9 +18,9 @@ const actions = {
     }
   },
 
-  async createMailCode({ commit }, { email }) {
+  async createMailCode({ commit }, payload) {
     try {
-      const { data } = await axios.post(`v1/mails/${email}/code`)
+      const { data } = await axios.post(`v1/mails/code`, payload)
       const { success } = data
 
       if (!success) throw new Error('해당 이메일이 존재하지 않습니다.')

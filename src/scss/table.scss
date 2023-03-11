@@ -1,0 +1,22 @@
+.table-row {
+  display: table-row;
+}
+.table-header {
+  display: table-header-group;
+}
+.table-head,
+.table-cell {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 1.6rem 1.6rem;
+}
+.table-head {
+  font-weight: 500;
+  color: var(--primary-dark);
+}
+.table-cell {
+  color: var(--text4);
+}
+.table-body {
+  display: table-row-group;
+}

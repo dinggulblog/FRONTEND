@@ -89,10 +89,10 @@
         <Comment 
           v-for="comment in $store.state.comment.comments"
           :key="comment._id"
-          :comment="comment"
           :postId="postId"
-          :author="post.author?._id"
-          :userId="$store.state.auth.id"
+          :comment="comment"
+          :isOwner="comment.commenter._id === $store.state.auth.user?._id"
+          :isAuthor="post.author._id === $store.state.auth.user?._id"
         />
       </ul>
     </div>
@@ -100,7 +100,7 @@
 </template>
 
 <script setup>
-import { inject, ref, computed, nextTick, watch, onErrorCaptured, onMounted, onUnmounted } from 'vue'
+import { inject, ref, computed, nextTick, watch, onErrorCaptured, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import Markdown from 'vue3-markdown-it'
@@ -134,8 +134,8 @@ const toc = ref(null)
 const observedEl = ref(new Map())
 const intersectEl = ref([])
 
-const auth = computed(() => state.auth.id && post.value.author?._id === state.auth.id)
 const post = computed(() => state.post.post)
+const auth = computed(() => state.auth.user && post.value.author?._id === state.auth.user._id)
 
 const onPushPost = (_id) => {
   if (_id) push({ name: 'post', params: { postId: _id } })
@@ -146,6 +146,8 @@ const onUpdatePost = () => {
 }
 
 const onDeletePost = async () => {
+  if (!auth.value) return TOAST_EL.value.open('error', '본인이 작성한 게시물만 관리할 수 있습니다.')
+
   const ok = await DIALOG_EL.value.show({
     title: '게시물 삭제',
     message: '게시물을 삭제하시겠습니까?\n한번 삭제된 게시물은 되돌릴 수 없습니다.',
@@ -234,6 +236,11 @@ watch(
       })
     }
 
+    if (state.post.quickMove && COMMENTS_EL.value) {
+      COMMENTS_EL.value.scrollIntoView({ behavior: 'smooth' })
+      commit('post/SET_QUICKMOVE', false)
+    }
+
     document.title = post.value?.title
   },
   { flush: 'post' }
@@ -242,13 +249,6 @@ watch(
 onErrorCaptured((err) => {
   TOAST_EL.value.open('error', err)
   return true
-})
-
-onMounted(() => {
-  if (state.post.quickMove && COMMENTS_EL.value) {
-    COMMENTS_EL.value.scrollIntoView({ behavior: 'smooth' })
-    commit('post/SET_QUICKMOVE', false)
-  }
 })
 
 onUnmounted(() => {

@@ -14,7 +14,7 @@
         </ul>
         <Suspense>
           <template #default>
-            <Posts :main="'sol'" :type="'recent'" :recent="true" :sort="sort" />
+            <Posts :type="'recent'" :recent="true" :sort="sort" />
           </template>
           <template #fallback>
             <ul :id="'recent'">
@@ -28,7 +28,7 @@
       <h2 class="h2_recent_review_sol">Recent Review Posts by SOL</h2>
       <Suspense>
         <template #default>
-          <Posts :main="'sol'" :type="'slide'" :recent="true" />
+          <Posts :main="Object.keys($store.state.menu.menus)[0]" :type="'slide'" :recent="true" />
         </template>
         <template #fallback>
           <ul :id="'slide'">
@@ -41,7 +41,7 @@
       <h2 class="h2_recent_review_ming">Recent Review Posts by MING</h2>
       <Suspense>
         <template #default>
-          <Posts :main="'ming'" :type="'slide'" :recent="true" />
+          <Posts :main="Object.keys($store.state.menu.menus)[1]" :type="'slide'" :recent="true" />
         </template>
         <template #fallback>
           <ul :id="'slide'">

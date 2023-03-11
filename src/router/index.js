@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { trackRouter } from 'vue-gtag-next'
 import { getItem } from '../common/localStorage'
 import store from '../store/index'
 import Home from '../views/Home.vue'
@@ -31,15 +32,14 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
   scrollBehavior() {
-    document.getElementById('app').scrollIntoView({ behavior: 'smooth' });
-  }
+    document.getElementById('app').scrollIntoView({ behavior: 'smooth' })
+  },
 })
 
 router.beforeEach(async (to, from, next) => {
   try {
-    if (store.state.auth.isLogin && !store.state.auth.id) {
-      const user = getItem('user', null)
-      user ? store.commit('auth/SET_USER', user) : await store.dispatch('auth/getAccount')
+    if (store.state.auth.isLogin && !store.state.auth.user) {
+      await store.dispatch('auth/getAccount')
     }
 
     if (!store.state.menu.menus) {
@@ -54,11 +54,25 @@ router.beforeEach(async (to, from, next) => {
       store.commit('menu/SET_CURRENT_MENUS', { main: to.params.main, sub: to.params.sub })
     }
 
-    if (to.meta.requiredAuth && !store.state.auth.id) {
-      next({ name: 'home' })
-    } else {
-      next()
+    if (!to.meta.requiredAuth) {
+      return next()
     }
+
+    // Admin route
+    if (!store.state.auth.isAdmin) {
+      return next({ name: 'home' })
+    } else if (store.state.auth.isValidAdmin) {
+      return next()
+    }
+
+    // If localStorage set isAdmin -> Validate it from server once
+    const { user } = await store.dispatch('auth/getAccount')
+    if (!user || !user.roles.includes('ADMIN')) {
+      return next({ name: 'home' })
+    }
+
+    store.commit('auth/SET_ADMIN')
+    next()
   } catch (error) {
     next(error)
   }
@@ -67,13 +81,17 @@ router.beforeEach(async (to, from, next) => {
 router.afterEach((to, from, failure) => {
   if (to.name !== 'post') {
     document.title = to.params.sub
-    ? to.params.main.replace(/^[a-z]/, char => char.toUpperCase()) + ' / ' + to.params.sub.replace(/^[a-z]/, char => char.toUpperCase()) + ' - DINGGUL'
-    : to.params.main
-    ? to.params.main.replace(/^[a-z]/, char => char.toUpperCase()) + ' - DINGGUL'
-    : to.meta.title
-    ? to.meta.title + ' - DINGGUL'
-    : document.title
+      ? to.params.main.replace(/^[a-z]/, (char) => char.toUpperCase()) + ' / ' + to.params.sub.replace(/^[a-z]/, (char) => char.toUpperCase()) + ' - DINGGUL'
+      : to.params.main
+      ? to.params.main.replace(/^[a-z]/, (char) => char.toUpperCase()) + ' - DINGGUL'
+      : to.meta.title
+      ? to.meta.title + ' - DINGGUL'
+      : document.title
   }
+})
+
+trackRouter(router, {
+  useScreenview: true,
 })
 
 export default router

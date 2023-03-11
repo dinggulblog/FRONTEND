@@ -6,25 +6,21 @@
     </div>
 
     <!-- Login rink -->
-    <div class="m_menu_login" v-if="!user.nickname"><Button class="btn_login" :theme="'primary'" @click="ACCOUNT_EL.open('login')">로그인</Button>이 필요합니다.</div>
+    <div class="m_menu_login" v-if="!$store.state.auth.user">
+      <Button class="btn_login" :theme="'primary'" @click="ACCOUNT_EL.open('login')">로그인</Button>이 필요합니다.
+    </div>
 
     <!-- Account info -->
     <div class="wrap_auth" v-else>
       <div class="auth">
-        <User :profile="user" />
+        <User :profile="$store.state.auth.user" />
       </div>
 
       <div class="auth_items">
         <ul>
-          <li>
-            <span @click="emits('closeAll'), ACCOUNT_EL.open('update')">Account</span>
-          </li>
-          <li>
-            <router-link :to="{ name: 'profile', params: { nickname: user.nickname } }" @click="emits('closeAll')"> Profile </router-link>
-          </li>
-          <li v-if="$store.state.auth.isAdmin">
-            <router-link :to="{ name: 'dashboard', params: { section: 'chart' } }">Dashboard</router-link>
-          </li>
+          <li v-if="$store.state.auth.isAdmin"><router-link :to="{ name: 'dashboard', params: { section: 'chart' } }">Dashboard</router-link></li>
+          <li><span @click="emits('closeAll'), ACCOUNT_EL.open('update')">Account</span></li>
+          <li><router-link :to="{ name: 'profile', params: { nickname: $store.state.auth.user.nickname } }" @click="emits('closeAll')">Profile</router-link></li>
           <li><span @click="emits('logout')">Logout</span></li>
         </ul>
       </div>
@@ -36,7 +32,7 @@
         <li class="nav_item">
           <router-link :to="{ name: 'home' }" class="item_number" @click="emits('closeAll')">home</router-link>
         </li>
-        <li v-for="(subMenus, main) in menus" :key="main" class="nav_item dropdown">
+        <li v-for="(subMenus, main) in $store.state.menu.menus" :key="main" class="nav_item dropdown">
           <router-link :to="{ name: 'posts', params: { main } }" class="item_number" @click="emits('closeAll')">
             {{ main }}
           </router-link>
@@ -59,19 +55,13 @@
 </template>
 
 <script setup>
-import { inject, computed } from 'vue'
-import { useStore } from 'vuex'
+import { inject } from 'vue'
 import User from '../User.vue'
 
 const emits = defineEmits(['logout', 'closeAll'])
 
-const { state } = useStore()
-
 const CONTACT_EL = inject('CONTACT_EL')
 const ACCOUNT_EL = inject('ACCOUNT_EL')
-
-const menus = computed(() => state.menu.menus)
-const user = computed(() => state.auth.user)
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

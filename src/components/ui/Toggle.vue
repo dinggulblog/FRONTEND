@@ -2,21 +2,21 @@
   <div class="toggle">
     <Ico
       class="ico_toggle"
-      :svg="isActive ? 'toggle' : 'toggle-fill'"
+      :svg="isPublic ? 'toggle' : 'toggle-fill'"
       :size="'xl'"
-      :color="isActive ? 'var(--disable)' : 'primary'"
-      @click="emits('update', !isActive)"
+      :color="isPublic ? 'var(--disable)' : 'primary'"
+      @click="emits('update', !isPublic)"
     />
 
-    <span :style="[isActive ? { color: 'var(--text3)' } : { color: 'var(--primary)' }]">
-      {{ isActive ? '공개' : '비밀' }}
+    <span :style="[isPublic ? { color: 'var(--text3)' } : { color: 'var(--primary)' }]">
+      {{ isPublic ? '공개' : '비밀' }}
     </span>
   </div>
 </template>
 
 <script setup>
   const props = defineProps({
-    isActive: {
+    isPublic: {
       type: Boolean,
     },
   })

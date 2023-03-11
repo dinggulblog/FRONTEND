@@ -3,11 +3,11 @@ import axios from '../../services/axios'
 import router from '../../router'
 
 const state = () => ({
-  id: null,
-  user: getItem('user', {}),
-  profile: {},
+  user: getItem('user', null),
+  isAdmin: getItem('isAdmin', false),
   isLogin: getItemWithTTL('isLogin', false),
-  isAdmin: false,
+  isValidAdmin: false,
+  profile: {},
   member: {},
   members: [],
 })
@@ -81,10 +81,10 @@ const actions = {
 
       commit('SET_USER', user)
 
-      return { success, error: null }
+      return { success, user, error: null }
     } catch (err) {
       commit('UNSET_USER')
-      return { success: false, error: err?.response?.data?.message || err?.message }
+      return { success: false, user: null, error: err?.response?.data?.message || err?.message }
     }
   },
 
@@ -231,22 +231,20 @@ const actions = {
 }
 
 const mutations = {
+  SET_ADMIN(state) {
+    state.isValidAdmin = true
+  },
+
   SET_LOGIN(state) {
     state.isLogin = true
     setItemWithTTL('isLogin', true, 1000 * 60 * 60 * 2)
   },
 
-  SET_USER(state, user) {
-    state.id = user._id
+  SET_USER(state, { roles, ...user }) {
     state.user = user
-    state.isAdmin = user?.roles?.includes('ADMIN') ?? false
-    setItem('user', user)
-  },
-
-  SET_PROFILE(state, profile) {
-    state.id = profile._id
-    state.profile = profile
-    setItem('profile', state.profile)
+    state.isAdmin = roles && roles.includes('ADMIN')
+    setItem('user', state.user)
+    setItem('isAdmin', state.isAdmin)
   },
 
   SET_PROFILE_INTRO(state, { greetings, introduce }) {
@@ -260,8 +258,7 @@ const mutations = {
   },
 
   UNSET_USER(state) {
-    state.id = null
-    state.user = {}
+    state.user = null
     clearStorage()
   },
 

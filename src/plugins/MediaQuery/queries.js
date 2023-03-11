@@ -7,16 +7,19 @@ const isMobileDevices = computed(() => navigator.userAgent.match(MOBILE_LIST) ==
 
 const isDesktop = useMedia('(min-width: 1200px)')
 
-const isMobile = useMedia('only screen and (max-width: 767px)')
+const isMobileAndTablet = useMedia('only screen and (max-width: 1199px)')
 
 const isTabletLandScape = useMedia('(min-width: 1024px) and (max-width: 1199px)')
 
 const isTablet = useMedia('(min-width: 768px) and (max-width: 1023px)')
 
+const isMobile = useMedia('only screen and (max-width: 767px)')
+
 export default {
   isMobileDevices,
   isDesktop,
-  isMobile,
+  isMobileAndTablet,
   isTabletLandScape,
+  isMobile,
   isTablet
 }

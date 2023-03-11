@@ -33,7 +33,7 @@
 
       <!-- Public scope toggle button -->
       <div class="wrap_toggle">
-        <Toggle :isActive="isPublic" @update="onChangeIsPublic" />
+        <Toggle :isPublic="isPublic" @update="onChangeIsPublic" />
       </div>
     </div>
 

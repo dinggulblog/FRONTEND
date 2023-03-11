@@ -1,5 +1,5 @@
 <template>
-  <button class="btn" type="button" @click="onClick" ref="BTN_EL">
+  <button ref="BTN_EL" class="btn" type="button" :disabled="$store.state.loading.isLoading" @click="onClick">
     <Ico :svg="svg" :size="size"></Ico>
     <slot></slot>
   </button>
@@ -8,7 +8,6 @@
 <script setup>
   import { computed } from 'vue'
   import { throttle } from '../../common/util.js'
-  import Ico from './Ico.vue'
 
   const props = defineProps({
     shape: {
@@ -67,7 +66,7 @@
     svgMargin: props.svg && props.content ? '0.8rem' : undefined,
   }))
 
-  const onClick = throttle(() => { emits('click') }, 250)
+  const onClick = throttle(() => emits('click'), 1000)
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

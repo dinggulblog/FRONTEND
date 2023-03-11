@@ -61,7 +61,7 @@ const actions = {
    */
   async createPost({ rootState }, { payload }) {
     try {
-      if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
+      if (!rootState.auth.user) throw new Error('로그인 후 사용 가능합니다.')
 
       const { data } = await axios.post('v1/posts', payload)
       const { success, data: { post } } = data
@@ -80,7 +80,7 @@ const actions = {
   async updatePost({ rootState }, { postId, payload }) {
     try {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
-      if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
+      if (!rootState.auth.user) throw new Error('로그인 후 사용 가능합니다.')
 
       const { data } = await axios.put(`v1/posts/${postId}`, payload)
       const { success, data: { post, images } } = data
@@ -99,7 +99,7 @@ const actions = {
   async updateLike({ rootState, commit }, { postId }) {
     try {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
-      if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
+      if (!rootState.auth.user) throw new Error('로그인 후 사용 가능합니다.')
 
       const { data: { success } } = await axios.put(`v1/posts/${postId}/like`)
 
@@ -119,8 +119,7 @@ const actions = {
   async deletePost({ rootState, commit }, { postId, authorId }) {
     try {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
-      if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
-      if (rootState.auth.id !== authorId) throw new Error('본인 소유의 게시물만 삭제가 가능합니다.')
+      if (!rootState.auth.user) throw new Error('로그인 후 사용 가능합니다.')
 
       const { data: { success } } = await axios.delete(`v1/posts/${postId}`)
 
@@ -141,7 +140,7 @@ const actions = {
   async deleteFile({ rootState }, { postId, imageId }) {
     try {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
-      if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
+      if (!rootState.auth.user) throw new Error('로그인 후 사용 가능합니다.')
 
       const { data: { success } } = await axios.delete(`v1/posts/${postId}/file`, { data: { image: imageId } })
 
@@ -159,7 +158,7 @@ const actions = {
   async deleteLike({ rootState, commit }, { postId }) {
     try {
       if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
-      if (!rootState.auth.isLogin) throw new Error('로그인 후 사용 가능합니다.')
+      if (!rootState.auth.user) throw new Error('로그인 후 사용 가능합니다.')
 
       const { data: { success } } = await axios.delete(`v1/posts/${postId}/like`)
 

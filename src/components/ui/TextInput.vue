@@ -73,6 +73,7 @@
  .TextInput {
     font-size: 1.4rem;
     margin: 3.2rem 0 3.2rem;
+    width:100%;
     position: relative;
 
     label {

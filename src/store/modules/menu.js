@@ -8,6 +8,7 @@ const state = () => ({
   menus: getItem('menus', null),
   subMenus: [],
   curMenus: [],
+  editMenus: [],
 })
 
 const getters = {}
@@ -26,12 +27,40 @@ const actions = {
     }
   },
 
-  async updateMenu({ commit }) {
+  async createMenu({ commit, state }, payload) {
     try {
-      const { data } = await axios.get('v1/menus')
+      const { data } = await axios.post('v1/menus', payload)
+      const { success, data: { menu } } = data
+
+      if (!success) throw new Error('메뉴 생성에 실패하였습니다.')
+
+      if(state.editMenus.length) commit('SET_ADD_EDIT_MENUS', menu)
+
+      return await actions.getMenus({ commit })
+    } catch (err) {
+      return { success: false, error: err?.response?.data?.message ?? err.message }
+    }
+  },
+
+  async updateMenu({ commit }, { menuId, payload }) {
+    try {
+      const { data } = await axios.put(`v1/menus/${menuId}`, payload)
       const { success } = data
 
       if (!success) throw new Error('메뉴 업데이트에 실패하였습니다.')
+      
+      return await actions.getMenus({ commit })
+    } catch (err) {
+      return { success: false, error: err?.response?.data?.message ?? err.message }
+    }
+  },
+
+  async deleteMenu({ commit }, { menuId }) {
+    try {
+      const { data } = await axios.delete(`v1/menus/${menuId}`)
+      const { success } = data
+
+      if (!success) throw new Error('메뉴 삭제에 실패하였습니다.')
       
       return await actions.getMenus({ commit })
     } catch (err) {
@@ -73,6 +102,14 @@ const mutations = {
       state.categories = [...new Set(state.subMenus.flatMap(({ categories }) => categories))]
     }
   },
+
+  SET_EDIT_MENUS(state, menus) {
+    state.editMenus = menus
+  },
+
+  SET_ADD_EDIT_MENUS(state, menu) {
+    state.editMenus.push(menu)
+  }
 }
 
 export default {

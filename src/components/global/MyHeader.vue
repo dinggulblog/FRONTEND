@@ -5,7 +5,7 @@
         <Button 
           :class="isMobile ? 'btn_m-toggle' : 'btn_search'"
           :svg="isMobile ? 'menu' : isOpenSearch ? 'close' : 'search'"
-          @click="isMobile ? onToggleGnb() : push({ name: 'search' })"
+          @click="isMobile ? onToggleGnb() : $router.push({ name: 'search' })"
         />
       </div>
 
@@ -16,31 +16,23 @@
       </div>
 
       <div class="wrap_right">
-        <Button v-if="!isMobile && !isLogin" :class="'btn_login'" :svg="'lock'" @click="ACCOUNT_EL.open('login')" />
+        <Button v-if="isMobile" class="btn_search" :svg="isOpenSearch ? 'close' : 'search'" @click="onToggleSearch" />
 
-        <div class="wrap_auth" v-else-if="!isMobile && user.nickname">
+        <Button v-else-if="!$store.state.auth.user" :class="'btn_login'" :svg="'lock'" @click="ACCOUNT_EL.open('login')" />
+
+        <div class="wrap_auth" v-else>
           <div class="auth dropdown">
-            <User :profile="user" />
+            <User :profile="$store.state.auth.user" />
             <div class="auth_items dropdown_items">
               <ul>
-                <li>
-                  <span @click="ACCOUNT_EL.open('update')">Account</span>
-                </li>
-                <li>
-                  <router-link :to="{ name: 'profile', params: { nickname: user.nickname } }">Profile</router-link>
-                </li>
-                <li v-if="$store.state.auth.isAdmin">
-                  <router-link :to="{ name: 'dashboard', params: { section: 'chart' } }">Dashboard</router-link>
-                </li>
-                <li>
-                  <span @click="onLogout">Logout</span>
-                </li>
+                <li v-if="$store.state.auth.isAdmin"><router-link :to="{ name: 'dashboard', params: { section: 'chart' } }">Dashboard</router-link></li>
+                <li><span @click="ACCOUNT_EL.open('update')">Account</span></li>
+                <li><router-link :to="{ name: 'profile', params: { nickname: $store.state.auth.user.nickname } }">Profile</router-link></li>
+                <li><span @click="onLogout">Logout</span></li>
               </ul>
             </div>
           </div>
         </div>
-
-        <Button v-else class="btn_search" :svg="isOpenSearch ? 'close' : 'search'" @click="onToggleSearch" />
       </div>
     </div>
   </div>
@@ -55,34 +47,21 @@
 </template>
 
 <script setup>
-import { inject, ref, computed } from 'vue'
-import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
-import { useMedia } from '../../common/mediaQuery'
+import { inject, ref } from 'vue'
 import Navigation from './Navigation.vue'
 import User from '../User.vue'
 import LOGO from '../../assets/logo.png'
 
-const props = defineProps({
-  isLogin: {
-    type: Boolean,
-    default: false,
-  },
-})
-
-const { state, dispatch } = useStore()
-const { push } = useRouter()
+const emits = defineEmits(['logout'])
 
 const ACCOUNT_EL = inject('ACCOUNT_EL')
 
 const isOpenGnb = ref(false)
 const isOpenSearch = ref(false)
-const isMobile = useMedia('only screen and (max-width: 1199px)')
-
-const user = computed(() => state.auth.user)
+const isMobile = inject('isMobileAndTablet')
 
 const onLogout = async () => {
-  await dispatch('auth/logout')
+  emits('logout')
 }
 
 const onCloseGnb = () => {
