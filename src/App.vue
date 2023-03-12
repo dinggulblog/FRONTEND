@@ -4,7 +4,7 @@
   </div>
 
   <div class="content-container">
-    <div id="content">
+    <div id="content" :style="$route.name === 'dashboard' ? { width: '80%' } : ''">
       <div>
         <router-view />
       </div>

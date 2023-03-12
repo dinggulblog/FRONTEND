@@ -51,8 +51,8 @@
     </div>
 
     <div class="wrap_btns">
-      <Button :shape="'line-round'" :size="'sm'" @click="onUpdateActive(true)" class="btn_active-member">회원 활성</Button>
-      <Button :shape="'line-round'" :size="'sm'" @click="onUpdateActive(false)" class="btn_block-member">회원 정지</Button>
+      <Button :shape="'line-round'" :size="'sm'" @click="() => onUpdateActive(true)" class="btn_active-member">회원 활성</Button>
+      <Button :shape="'line-round'" :size="'sm'" @click="() => onUpdateActive(false)" class="btn_block-member">회원 정지</Button>
     </div>
   </div>
 </template>
@@ -70,9 +70,9 @@ const ACCOUNT_EL = inject('ACCOUNT_EL')
 const CHECKBOX_EL = ref(null)
 
 const members = computed(() => state.auth.members)
+const editMembers = computed(() => state.auth.editMembers)
 
 const tableHeads = ref(['선택', '아바타', '이메일', '닉네임', '권한', '가입일', '마지막 로그인', '상태', '옵션'])
-let payload = []
 
 const onGetDefaultImage = (event) => {
   event.target.src = DEFAULT_AVATAR_64
@@ -85,22 +85,17 @@ const getMembers = async () => {
 
 /* 회원 정보 수정 : modal */
 const onUpdateMember = (member) => {
-  commit('auth/SET_MEMBER', member)
+  commit('auth/SET_EDIT_MEMBERS', member)
   ACCOUNT_EL.value.open('admin-update')
 }
 
 /* 현재 체크박스 선택된 멤버들 */
 const checkedMember = () => {
-  payload = []
   let checkedMembers = CHECKBOX_EL.value.filter((checkbox) => checkbox.checked)
 
   for (const member of checkedMembers) {
     const m = members.value.at(member.dataset.index)
-    payload.push({
-      _id: m._id,
-      nickname: m.nickname,
-      isActive: m.isActive,
-    })
+    commit('auth/SET_EDIT_MEMBERS', { _id: m._id, nickname: m.nickname, isActive: m.isActive })
   }
 }
 
@@ -108,8 +103,8 @@ const checkedMember = () => {
 const onUpdateActive = (active) => {
   if (CHECKBOX_EL.value.some((checkbox) => checkbox.checked)) {
     checkedMember()
-    payload.forEach((el) => (el.isActive = active))
-    updateMembers(payload, active)
+    commit('auth/EDIT_MEMBERS_ACTIVE', active)
+    updateMembers(editMembers.value, active)
   } else {
     alert('선택된 항목이 없습니다.')
   }
@@ -143,9 +138,8 @@ await getMembers()
   display: table;
   font-size: 1.4rem;
   width: 100%;
-}
 
-.avatar {
+  .avatar {
   width: 4.8rem;
   height: 4.8rem;
   border-radius: 50%;
@@ -173,10 +167,12 @@ await getMembers()
     color: var(--text4);
   }
 }
+}
 
 .wrap_btns {
   display: flex;
   justify-content: flex-end;
+  margin:2.4rem 0 0;
 
   .btn {
     margin: 0 0 0 0.8rem;

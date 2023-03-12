@@ -5,7 +5,7 @@
         <!-- Main menu select box -->
         <div class="main">
           <select required v-model="main" @change="onChangeMainMenu">
-            <option selected disabled hidden :value="''">게시판 선택</option>
+            <option selected disabled hidden :value="''">메뉴 선택</option>
             <option v-for="main in Object.keys($store.state.menu.menus)" :key="main" :value="main">{{ main }}</option>
           </select>
         </div>
@@ -13,7 +13,7 @@
         <!-- Sub menu select box -->
         <div class="sub">
           <select required v-model="sub" :disabled="!main" @change="onChangeSubMenu">
-            <option selected disabled hidden :value="''">메뉴 선택</option>
+            <option selected disabled hidden :value="''">게시판 선택</option>
             <template v-if="main">
               <option v-for="{ sub } in $store.state.menu.menus[main]" :key="sub" :value="sub">{{ sub }}</option>
             </template>
@@ -142,6 +142,10 @@ const sub = computed({
   get: () => state.post.sub ?? '',
   set: (value) => commit('post/SET_SUB', value)
 })
+const category = computed({
+  get: () => state.post.category ?? '',
+  set: (value) => commit('post/SET_CATEGORY', value)
+})
 const title = computed({
   get: () => state.post.post.title ?? '',
   set: (value) => commit('post/SET_TITLE', value)
@@ -149,10 +153,6 @@ const title = computed({
 const content = computed({
   get: () => state.post.post.content ?? '',
   set: (value) => commit('post/SET_CONTENT', value)
-})
-const category = computed({
-  get: () => state.post.post.category ?? '',
-  set: (value) => commit('post/SET_CATEGORY', value)
 })
 const isPublic = computed({
   get: () => state.post.post.isPublic,
@@ -370,6 +370,7 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('beforeunload', unloadEvent)
   clearInterval(autoSave)
+  commit('post/UNSET_POST')
 })
 
 onBeforeRouteLeave(async (to, from, next) => {

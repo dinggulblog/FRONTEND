@@ -16,7 +16,7 @@
     </div>
 
     <div class="wrap_btns">
-      <Button shape="line-round" theme="primary" @click="onSetLayout('add-menu')" class="btn-submit">메인 메뉴 생성</Button>
+      <Button shape="line-round" theme="primary" @click="() => onSetLayout('add-menu')" class="btn-submit">메인 메뉴 생성</Button>
     </div>
   </div>
 </template>

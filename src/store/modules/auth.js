@@ -8,8 +8,8 @@ const state = () => ({
   isLogin: getItemWithTTL('isLogin', false),
   isValidAdmin: false,
   profile: {},
-  member: {},
   members: [],
+  editMembers: [],
 })
 
 const getters = {}
@@ -122,6 +122,8 @@ const actions = {
       const { data: { success } } = await axios.put('v1/users/accounts', { users: payload })
 
       if (!success) throw new Error('계정 업데이트에 실패하였습니다.')
+
+      commit('UNSET_EDIT_MEMBERS')
 
       return await actions.getMembers({ commit })
     } catch (err) {
@@ -262,13 +264,23 @@ const mutations = {
     clearStorage()
   },
 
-  SET_MEMBER(state, member) {
-    state.member = member
-  },
-
   SET_MEMBERS(state, members) {
     state.members = members
   },
+
+  SET_EDIT_MEMBERS(state, members) {
+    state.editMembers.push(members)
+  },
+
+  EDIT_MEMBERS_ACTIVE(state, active) {
+    state.editMembers.forEach((member) => {
+      member.isActive = active
+    })
+  },
+
+  UNSET_EDIT_MEMBERS(state) {
+    state.editMembers = []
+  }
 }
 
 export default {

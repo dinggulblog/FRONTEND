@@ -4,6 +4,7 @@ import axios from '../../services/axios'
 const state = () => ({
   post: {},
   quickMove: false,
+  editPosts: [],
 })
 
 const getters = {}
@@ -91,6 +92,20 @@ const actions = {
     }
   },
 
+  async updatePosts({ commit }, payload) {
+    try {
+      const { data: { success } } = await axios.put('v1/posts', { posts: payload })
+
+      if (!success) throw new Error('게시물 업데이트에 실패하였습니다.')
+
+      commit('UNSET_EDIT_POSTS')
+
+      return await actions.getPosts({ commit })
+    } catch (err) {
+      return { success: false, error: err?.response?.data?.message || err?.message }
+    }
+  },
+
   /**
    * Add my ID from the like field of a post
    * @param {String} payload Post ID
@@ -174,6 +189,7 @@ const actions = {
 const mutations = {
   SET_POST(state, post = {}) {
     state.post = post
+    state.category = post.category
     if (typeof post.menu === 'object') {
       state.main = post.menu.main
       state.sub = post.menu.sub
@@ -234,7 +250,36 @@ const mutations = {
 
   UNSET_IMAGE(state, index) {
     if (Array.isArray(state.post.images)) state.post.images.splice(index, 1)
-  }
+  },
+
+  UNSET_POST(state) {
+    state.post = {}
+    state.main = ''
+    state.sub = ''
+    state.category = ''
+  },
+
+  SET_EDIT_POSTS(state, post) {
+    state.editPosts.push(post)
+  },
+
+  UNSET_EDIT_POSTS(state) {
+    state.editPosts = []
+  },
+
+  CHANGE_EDIT_POSTS(state) {
+    state.editPosts.forEach((post) => {
+      post.main = state.main
+      post.sub = state.sub
+      post.category = state.category
+    })
+  },
+
+  ACTIVE_EDIT_POSTS(state, active) {
+    state.editPosts.forEach((post) => {
+      post.active = active
+    })
+  },
 }
 
 export default {

@@ -19,18 +19,20 @@
       </div>
     </div>
 
-    <div class="wrap_visit_chart">
+    <div class="wrap_chart" style="display: flex;">
+      <div class="wrap_visit_chart" style="width:50%;">
       <h2>연간 사이트 방문</h2>
       <div class="visit_chart">
         <canvas ref="CHART1_EL"></canvas>
       </div>
     </div>
 
-    <div class="wrap_views_chart">
+    <div class="wrap_views_chart" style="width:50%;">
       <h2>연간 페이지 뷰</h2>
       <div class="views_chart">
         <canvas ref="CHART2_EL"></canvas>
       </div>
+    </div>
     </div>
   </div>
 </template>

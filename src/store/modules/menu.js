@@ -34,7 +34,7 @@ const actions = {
 
       if (!success) throw new Error('메뉴 생성에 실패하였습니다.')
 
-      if(state.editMenus.length) commit('SET_ADD_EDIT_MENUS', menu)
+      if(state.editMenus.length) commit('ADD_EDIT_MENUS', menu)
 
       return await actions.getMenus({ commit })
     } catch (err) {
@@ -107,9 +107,18 @@ const mutations = {
     state.editMenus = menus
   },
 
-  SET_ADD_EDIT_MENUS(state, menu) {
+  ADD_EDIT_MENUS(state, menu) {
     state.editMenus.push(menu)
+  },
+
+  ADD_CATEGORY(state, category) {
+    state.editMenus.categories.push(category)
+  },
+
+  DEL_CATEGORY(state, idx) {
+    state.editMenus.categories.splice(idx, 1)
   }
+  
 }
 
 export default {

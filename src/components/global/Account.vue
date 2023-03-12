@@ -38,16 +38,16 @@
           </Form>
 
           <!-- Admin Update Form -->
-          <Form v-else-if="form === 'admin-update' && $store.state.auth.member" as="div" class="update_account" v-slot="{ handleSubmit }" :validation-schema="updateMemberSchema">
-            <h2>{{ $store.state.auth.member.nickname }}님의 정보</h2>
+          <Form v-else-if="form === 'admin-update' && member" as="div" class="update_account" v-slot="{ handleSubmit }" :validation-schema="updateMemberSchema">
+            <h2>{{ member.nickname }}님의 정보</h2>
             <form @submit="handleSubmit($event, onUpdateMember)">
-              <TextInput name="nickname" label="닉네임" :value="$store.state.auth.member.nickname" placeholder="Nickname" success-message="사용할 수 있는 닉네임입니다." />
+              <TextInput name="nickname" label="닉네임" :value="member.nickname" placeholder="Nickname" success-message="사용할 수 있는 닉네임입니다." />
               <div class="wrap_roles">
                 <fieldset>
                   <legend>회원 권한</legend>
                   <div class="wrap_checkbox">
-                    <Checkbox name="roles" label="user" value="user" :check="$store.state.auth.member.roles.some((role) => role.name === 'USER')" />
-                    <Checkbox name="roles" label="admin" value="admin" :check="$store.state.auth.member.roles.some((role) => role.name === 'ADMIN')" />
+                    <Checkbox name="roles" label="user" value="user" :check="member.roles.some((role) => role.name === 'USER')" />
+                    <Checkbox name="roles" label="admin" value="admin" :check="member.roles.some((role) => role.name === 'ADMIN')" />
                   </div>
                 </fieldset>
               </div>
@@ -86,14 +86,14 @@ import { useStore } from 'vuex'
 import { Form } from 'vee-validate'
 import * as Yup from 'yup'
 
-const { state, dispatch } = useStore()
+const { state, dispatch, commit } = useStore()
 
 const POPUP_EL = ref(null)
 const TOAST_EL = inject('TOAST_EL')
 
 const form = ref('login')
 const user = computed(() => state.auth.user)
-const member = computed(() => state.auth.member)
+const member = computed(() => state.auth.editMembers.at(0))
 
 const loginSchema = Yup.object().shape({
   email: Yup.string().required('이메일을 입력해 주세요.').email(),
@@ -101,9 +101,7 @@ const loginSchema = Yup.object().shape({
 })
 
 const createAccountSchema = Yup.object().shape({
-  email: Yup.string()
-    .required('이메일을 입력해 주세요.')
-    .email(),
+  email: Yup.string().required('이메일을 입력해 주세요.').email(),
   password: Yup.string()
     .required()
     .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
@@ -116,11 +114,8 @@ const createAccountSchema = Yup.object().shape({
 })
 
 const updateAccountSchema = Yup.object().shape({
-  email: Yup.string()
-    .default(user.value?.email)
-    .email(),
-  currentPassword: Yup.string()
-    .required(),
+  email: Yup.string().default(user.value?.email).email(),
+  currentPassword: Yup.string().required(),
   newPassword: Yup.string()
     .nullable(true)
     .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{4,30}$/, '4~30자 영문 대 소문자, 숫자, 특수문자를 사용하세요.'),
@@ -136,8 +131,7 @@ const updateMemberSchema = Yup.object().shape({
   nickname: Yup.string()
     .default(member.value?.nickname)
     .matches(/^[가-힣a-zA-Z\d\S]{2,15}$/, '한글과 영문 대 소문자를 사용하세요. (특수기호, 공백 사용 불가)'),
-  roles: Yup.array()
-    .of(Yup.string().required()),
+  roles: Yup.array().of(Yup.string().required()),
 })
 
 const onLogin = async (values) => {
@@ -159,10 +153,12 @@ const onUpdateMember = async (values) => {
   values._id = member.value._id
   const { success, error } = await dispatch('auth/updateMembers', [values])
 
-  if (!success) TOAST_EL.value.open('error', error)
-  
-  close()
-  TOAST_EL.value.open('success', `${values.nickname}님의 정보가 수정되었습니다.`)
+  if (!success) {
+    TOAST_EL.value.open('error', error)
+  } else {
+    close()
+    TOAST_EL.value.open('success', `${values.nickname}님의 정보가 수정되었습니다.`)
+  }
 }
 
 const onDeleteAccount = async (values) => {

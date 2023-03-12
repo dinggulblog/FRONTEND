@@ -38,7 +38,7 @@ import { ref, inject, nextTick, computed } from 'vue'
 import { useStore } from 'vuex'
 import PopupModal from '../../components/ui/PopupModal.vue'
 
-const { state, dispatch } = useStore()
+const { state, dispatch, commit } = useStore()
 
 const menu = computed(() => state.menu.editMenus)
 
@@ -58,7 +58,7 @@ const onEdit = async () => {
 
 const onAddCategory = () => {
   if (categoryName.value) {
-    menu.value.categories.push(categoryName.value)
+    commit('menu/ADD_CATEGORY', categoryName.value)
     categoryName.value = null
   } else {
     TOAST_EL.value.open('error', '카테고리명을 입력해주세요.')
@@ -66,7 +66,7 @@ const onAddCategory = () => {
 }
 
 const onDelCategory = (idx) => {
-  menu.value.categories.splice(idx, 1)
+  commit('menu/DEL_CATEGORY', idx)
 }
 
 const onUpdateMenu = async () => {
