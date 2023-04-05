@@ -178,7 +178,7 @@
       position: absolute;
       bottom: 0;
       width: 100%;
-      height: 28.5rem;
+      height: calc(100% - 5.5rem);
       display: flex;
       align-items: center;
 

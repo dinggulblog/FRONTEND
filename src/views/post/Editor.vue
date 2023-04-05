@@ -5,27 +5,25 @@
         <!-- Main menu select box -->
         <div class="main">
           <select required v-model="main" @change="onChangeMainMenu">
-            <option selected disabled hidden :value="''">메뉴 선택</option>
-            <option v-for="main in Object.keys($store.state.menu.menus)" :key="main" :value="main">{{ main }}</option>
+            <option disabled hidden :value="''">메뉴 선택</option>
+            <option v-for="main_menu in Object.keys($store.state.menu.menus)" :key="main_menu" :value="main_menu">{{ main_menu }}</option>
           </select>
         </div>
 
         <!-- Sub menu select box -->
         <div class="sub">
           <select required v-model="sub" :disabled="!main" @change="onChangeSubMenu">
-            <option selected disabled hidden :value="''">게시판 선택</option>
-            <template v-if="main">
-              <option v-for="{ sub } in $store.state.menu.menus[main]" :key="sub" :value="sub">{{ sub }}</option>
-            </template>
+            <option disabled hidden :value="''">게시판 선택</option>
+            <option v-for="sub_menu in $store.state.menu.menus[main]" :key="sub_menu.sub" :value="sub_menu.sub">{{ sub_menu.sub }}</option>
           </select>
         </div>
 
         <!-- Category select box -->
         <div class="category">
           <select v-model="category" :disabled="!sub">
-            <option selected disabled hidden :value="''">카테고리 선택</option>
+            <option disabled hidden :value="''">카테고리 선택</option>
             <template v-if="sub">
-              <option v-for="category in $store.state.menu.categories" :key="category" :value="category">{{ category }}</option>
+              <option v-for="category_menu in $store.state.menu.categories" :key="category_menu" :value="category_menu">{{ category_menu }}</option>
             </template>
           </select>
         </div>
@@ -46,8 +44,7 @@
 
     <!-- Content -->
     <div class="content">
-      <textarea ref="CONTENT_EL" v-model="content" placeholder="당신의 이야기를 적어보세요..." @keydown="onChangeCanLeavePage(false)" />
-      <markdown class="markdown" :source="content" :plugins="plugins" :breaks="true" :xhtmlOut="true" :typographer="true" />
+      <MdEditor v-model="content" language="ko-KR" placeholder="당신의 이야기를 적어보세요..." ref="CONTENT_EL" @keydown="onChangeCanLeavePage(false)" :toolbars="toolbars" emojiExtension="true"/>
     </div>
 
     <!-- GPT Buttons -->
@@ -81,13 +78,13 @@
           <div class="wrap_thumbnail">
             <img 
               :src="`${file.thumbnail}`"
-              :class="file._id === thumbnail ? 'selected_thumbnail' : ''"
+              :class="file.thumbnail === thumbnail ? 'selected_thumbnail' : ''"
               @click="onSelectImage(file), onInsertImage(file.thumbnail)"
             />
             <Button class="image_del_btn" 
               :svg="'del-image'" 
               :theme="'primary'"
-              @click="onDeleteImage(file, index)"
+              @click="onDeleteImage(file._id, index)"
             />
           </div>
         </li>
@@ -111,17 +108,52 @@
 import { inject, ref, reactive, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
-import Markdown from 'vue3-markdown-it'
-import MarkdownEmoji from 'markdown-it-emoji'
+import MdEditor from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
 import Toggle from '../../components/ui/Toggle.vue'
-import 'highlight.js/styles/atom-one-dark.css'
+import { KO_KR } from '../../common/KO_KR.js'
 
 const route = useRoute()
 const { push } = useRouter()
 const { state, dispatch, commit } = useStore()
-const { postId, draftId } = route.query
 
-const plugins = [{ plugin: MarkdownEmoji }]
+MdEditor.config({
+  editorConfig: {
+    languageUserDefined: {
+      'ko-KR': KO_KR,
+    },
+  },
+})
+
+const toolbars = [
+  'bold',
+  'underline',
+  'italic',
+  '-',
+  'title',
+  'strikeThrough',
+  'quote',
+  'unorderedList',
+  'orderedList',
+  'task',
+  '-',
+  'codeRow',
+  'code',
+  'link',
+  'image',
+  'table',
+  'mermaid',
+  'katex',
+  '=',
+  'revoke',
+  'next',
+  'save',
+  'pageFullscreen',
+  'preview',
+  'htmlPreview',
+  'catalog',
+  'Emoji'
+]
 
 const isMobile = inject('isMobile')
 const DIALOG_EL = inject('DIALOG_EL')
@@ -135,15 +167,15 @@ let eventSource = null
 let canLeavePage = true
 
 const main = computed({
-  get: () => state.post.main ?? '',
+  get: () => state.post.post.menu?.main ?? '',
   set: (value) => commit('post/SET_MAIN', value)
 })
 const sub = computed({
-  get: () => state.post.sub ?? '',
+  get: () => state.post.post.menu?.sub ?? '',
   set: (value) => commit('post/SET_SUB', value)
 })
 const category = computed({
-  get: () => state.post.category ?? '',
+  get: () => state.post.post.category ?? '',
   set: (value) => commit('post/SET_CATEGORY', value)
 })
 const title = computed({
@@ -163,7 +195,7 @@ const images = computed({
   set: (value) => commit('post/SET_IMAGES', value)
 })
 const thumbnail = computed({
-  get: () => state.post.post.thumbnail,
+  get: () => state.post.post.thumbnail ?? '',
   set: (value) => commit('post/SET_THUMBNAIL', value)
 })
 
@@ -174,7 +206,7 @@ const postState = reactive({
   content,
   category,
   isPublic,
-  images: images.value.map((image) => image._id),
+  images: computed(() => images.value.length > 0 ? images.value.map((image) => image._id) : []),
   thumbnail
 })
 
@@ -191,39 +223,30 @@ const onChangeIsPublic = (state) => {
   isPublic.value = Boolean(state)
 }
 
-const onUpdateDraft = async (formData) => {
-  if (!sub.value) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
+const onUpdateDraft = async ({ payload }) => {
+  if (!tempId) {
+    const { success, draft, error } = await dispatch('draft/createDraft', { payload: postState })
+    if (!success) return { success, images: [], error }
 
-  const { success, draft, images: updatedImages } = await dispatch('draft/updateDraft', { 
-    draftId: tempId,
-    payload: formData ? formData : postState
-  })
-
-  if (!success) {
-    TOAST_EL.value.open('error', '임시저장에 실패하였습니다')
-  } else {
-    TOAST_EL.value.open('success', '임시저장 되었습니다.')
     tempId = draft._id
   }
 
-  return { success, images: updatedImages }
+  const { success, images: updatedImages, error } = await dispatch('draft/updateDraft', { draftId: tempId, payload: payload ? payload : postState })
+  if (success) TOAST_EL.value.open('success', '임시저장 되었습니다.')
+
+  return { success, images: updatedImages, error }
 }
 
 const onUpdatePost = async () => {
-  if (!sub.value) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
-
-  const { success, post, error } = postId
-    ? await dispatch('post/updatePost', { payload: postState, postId: postId })
+  const { success, error } = route.query.postId
+    ? await dispatch('post/updatePost', { payload: postState })
     : await dispatch('post/createPost', { payload: postState })
 
   if (!success) return TOAST_EL.value.open('error', error)
-
-  return push({ name: 'post', params: { postId: post._id } })
 }
 
 const onUploadImages = async (event) => {
   if (!event.target.files.length) return
-  if (!sub.value) return TOAST_EL.value.open('error', '게시글을 삽입할 메뉴를 선택해야 합니다.')
 
   for (const { name } of event.target.files) {
     if (String(name).split('.')[0].length > 32) {
@@ -235,37 +258,33 @@ const onUploadImages = async (event) => {
   Object.values(event.target.files).forEach((file) => formData.append('images', file))
   Object.entries(postState).forEach(([key, value]) => formData.append(key, value))
 
-  const { success, images: updatedImages, error } = postId
-    ? await dispatch('post/updatePost', { postId: postId, payload: formData })
-    : await onUpdateDraft(formData)
+  const { success, images: updatedImages, error } = route.query.postId
+    ? await dispatch('post/updatePost', { payload: formData })
+    : await onUpdateDraft({ payload: formData })
 
   if (!success) return TOAST_EL.value.open('error', error)
 
   if (Array.isArray(updatedImages) && updatedImages.length) {
     images.value = updatedImages
     onSelectImage(updatedImages[0])
+
     for await (const image of updatedImages) {
-      await nextTick()
+      nextTick()
       onInsertImage(image.thumbnail)
     }
   }
 }
 
-const onDeleteImage = async (file, index) => {
-  if (typeof file !== 'object') return
-
-  const { success, error } = postId
-    ? await dispatch('post/deleteFile', { postId: postId, imageId: file._id })
-    : await dispatch('draft/deleteFile', { draftId: tempId, imageId: file._id })
+const onDeleteImage = async (fileId, index) => {
+  const { success, error } = route.query.postId
+    ? await dispatch('post/deleteFile', { imageId: fileId, index })
+    : await dispatch('draft/deleteFile', { imageId: fileId, index, draftId: tempId })
 
   if (!success) return TOAST_EL.value.open('error', error)
-
-  commit('post/UNSET_IMAGE', index)
 }
 
 const onSelectImage = (file) => {
-  if (typeof file !== 'object') return
-  thumbnail.value = file._id
+  thumbnail.value = file?.thumbnail
 }
 
 const onInsertImage = (url) => {
@@ -283,7 +302,7 @@ const onCreateCompletions = async () => {
   if (eventSource && (eventSource.readyState === 0 || eventSource.readyState === 1)) {
     return TOAST_EL.value.open('error', '초안 생성 중입니다. 생성 종료 버튼을 눌러 진행을 멈추거나 생성이 종료된 후 다시 시도해 주세요.')
   }
-  if (title.value?.length < 6) {
+  if (title.value.length < 6) {
     return TOAST_EL.value.open('error', '제목을 최소 5글자 이상 입력해주세요.')
   }
 
@@ -321,7 +340,7 @@ watch(
   () => canLeavePage,
   (newCanLeavePage, oldCanLeavePage) => {
     if (newCanLeavePage && !oldCanLeavePage && !autoSave) {
-      autoSave = postId ? setInterval(onUpdatePost, 1000 * 60 * 5) : setInterval(onUpdateDraft, 1000 * 60 * 5)
+      autoSave = route.query.postId ? setInterval(onUpdatePost, 1000 * 60 * 5) : setInterval(onUpdateDraft, 1000 * 60 * 5)
     }
   },
 )
@@ -332,34 +351,38 @@ watch(
     if (main.value) {
       commit('menu/SET_CURRENT_MENUS', { main: main.value, sub: sub.value })
     } 
-  }
+  },
+  { immediate: true }
 )
 
 watch(
   () => route.query,
   async () => {
-    if (postId) {
-      const { success, error } = await dispatch('post/getPost', { postId: postId })
+    if (route.query.postId && route.query.postId !== state.post.post._id) {
+      const { success, error } = await dispatch('post/getPost', { postId: route.query.postId })
 
       if (!success) {
         TOAST_EL.value.open('error', error)
         return push({ name: 'editor' })
       }
-    } 
-    else if (draftId) {
-      const { success, error } = await dispatch('post/getDraft', { draftId: draftId })
+    }
+
+    else if (route.query.draftId) {
+      const { success, error } = await dispatch('post/getDraft', { draftId: route.query.draftId })
 
       if (!success) {
         TOAST_EL.value.open('error', error)
         return push({ name: 'editor' })
       }
 
-      tempId = draftId
+      tempId = route.query.draftId
     }
-    else {
-      commit('post/SET_POST', {})
+
+    else if (!route.fullPath.includes('?')){
+      commit('post/UNSET_POST')
     }
-  }, { immediate: true }
+  },
+  { immediate: true }
 )
 
 onMounted(() => {
@@ -370,7 +393,6 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('beforeunload', unloadEvent)
   clearInterval(autoSave)
-  commit('post/UNSET_POST')
 })
 
 onBeforeRouteLeave(async (to, from, next) => {
@@ -378,7 +400,7 @@ onBeforeRouteLeave(async (to, from, next) => {
   else {
     const ok = await DIALOG_EL.value.show({
       title: '현재 페이지에서 나가시겠습니까?',
-      message: '임시 저장되지 않은 내용은 사라집니다.',
+      message: '임시 저장되지 않은 내용은 사라질 수 있습니다.',
       okButton: '나가기',
       cancelButton: '잠시만요!',
     })

@@ -1,6 +1,6 @@
 <template>
   <div id="header">
-    <MyHeader @logout="$store.dispatch('auth/logout')"/>
+    <MyHeader />
   </div>
 
   <div class="content-container">

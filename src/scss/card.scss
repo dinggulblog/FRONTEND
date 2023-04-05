@@ -41,6 +41,10 @@
     height: 20.8rem;
     border-radius: 0.8rem;
 
+    @include mobile {
+      height: 15.2rem;
+    }
+
     img {
       position: absolute;
       width: 100%;

@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { onBeforeMount, inject, ref, reactive, computed } from 'vue'
+import { inject, ref, reactive, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { QuillEditor } from '@vueup/vue-quill'
@@ -64,7 +64,7 @@ import Posts from '../../components/Posts.vue'
 import Recent from '../../components/slots/Recent.vue'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
-const { go, currentRoute: route } = useRouter()
+const { go, currentRoute } = useRouter()
 const { state, dispatch } = useStore()
 
 const TOAST_EL = inject('TOAST_EL')
@@ -91,7 +91,7 @@ const options = ref({
 })
 
 const profileState = reactive({
-  nickname: route.value.params.nickname,
+  nickname: computed(() => currentRoute.value.params.nickname),
   _id: '',
   avatar: '',
   greetings: '',
@@ -172,20 +172,25 @@ const onUpdateIntroduce = async () => {
   onChangeState('view')
 }
 
-onBeforeMount(async () => {
-  if (route.value.params.nickname) {
-    const { success, profile } = await dispatch('auth/getProfile', {
+watch(
+  currentRoute,
+  async () => {
+    const { profile, error } = await dispatch('auth/getProfile', {
       nickname: profileState.nickname,
     })
 
-    if (!success) return go(-1)
+    if (error) {
+      alert(error)
+      return go(-1)
+    }
 
     profileState._id = profile._id
     profileState.avatar = profile.avatar
     profileState.greetings = profile.greetings
     profileState.introduce = profile.introduce
-  }
-})
+  },
+  { immediate: true }
+)
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>

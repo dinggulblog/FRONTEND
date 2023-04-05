@@ -1,10 +1,24 @@
 import { stringify } from 'querystring'
 import axios from '../../services/axios'
+import router from '../../router'
 
 const state = () => ({
-  post: {},
-  quickMove: false,
+  post: {
+    menu: {
+      main: '',
+      sub: '',
+    },
+    category: '',
+    title: '',
+    content: '',
+    isPublic: true,
+    isActive: true,
+    images: [],
+    thumbnail: '',
+  },
+  posts: [],
   editPosts: [],
+  quickMove: false,
 })
 
 const getters = {}
@@ -22,7 +36,9 @@ const actions = {
       const { data } = await axios.get(`v1/posts/${postId}`)
       const { success, data: { post } } = data
 
-      if (!post?.isActive) throw new Error('비활성화된 게시물입니다.')
+      if (!post) {
+        throw new Error('존재하지 않는 게시물입니다.')
+      }
 
       commit('SET_POST', post)
 
@@ -44,10 +60,11 @@ const actions = {
       }
 
       const { data } = await axios.get('v1/posts', { params: payload , paramsSerializer: (params) => stringify(params) })
-
       const { success, data: { posts, maxCount } } = data
 
-      if (!success || !posts) throw new Error('네트워크 에러가 발생하였습니다. 잠시 후에 다시 시도해 주세요.')
+      if (!success || !posts) {
+        throw new Error('게시물을 받아오는데 실패하였습니다.')
+      }
 
       return { success, posts, maxCount, error: null }
     } catch (err) {
@@ -60,12 +77,23 @@ const actions = {
    * @param {Object} Post { title, content, menu, ... }
    * @return {Object} { success, post, error }
    */
-  async createPost({ rootState }, { payload }) {
+  async createPost({ rootState, state }, { payload }) {
     try {
-      if (!rootState.auth.user) throw new Error('로그인 후 사용 가능합니다.')
-
+      if (!rootState.auth.user) {
+        throw new Error('로그인 후 사용 가능합니다.')
+      }
+      if (!state.post.menu.main || !state.post.menu.sub) {
+        throw new Error('게시물을 삽입할 메뉴를 선택해 주세요.')
+      }
+      
       const { data } = await axios.post('v1/posts', payload)
       const { success, data: { post } } = data
+
+      if (!success || !post) {
+        throw new Error('게시물 작성에 실패하였습니다.')
+      }
+
+      router.push({ name: 'post', params: { postId: post._id } })
 
       return { success, post, error: null }
     } catch (err) {
@@ -78,13 +106,29 @@ const actions = {
    * @param {Object} Post { _id, title, content, menu, ... }
    * @return {Object} { success, post, images, error }
    */
-  async updatePost({ rootState }, { postId, payload }) {
+  async updatePost({ rootState, state }, { payload }) {
     try {
-      if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
-      if (!rootState.auth.user) throw new Error('로그인 후 사용 가능합니다.')
+      if (!state.post._id) {
+        throw new Error('존재하지 않는 게시물입니다.')
+      }
+      if (!rootState.auth.user) {
+        throw new Error('로그인 후 사용 가능합니다.')
+      }
+      if (!rootState.auth.isAdmin || rootState.auth.user._id !== state.post.author._id) {
+        throw new Error('본인이 작성한 게시물만 삭제 및 수정할 수 있습니다.')
+      }
+      if (!state.post.menu.main || !state.post.menu.sub) {
+        throw new Error('게시물을 삽입할 메뉴를 선택해 주세요.')
+      }
 
-      const { data } = await axios.put(`v1/posts/${postId}`, payload)
+      const { data } = await axios.put(`v1/posts/${state.post._id}`, payload)
       const { success, data: { post, images } } = data
+
+      if (!success) {
+        throw new Error('게시물 업데이트에 실패하였습니다.')
+      }
+
+      router.push({ name: 'post', params: { postId: post._id } })
 
       return { success, post, images, error: null }
     } catch (err) {
@@ -92,11 +136,17 @@ const actions = {
     }
   },
 
-  async updatePosts({ commit }, payload) {
+  async updatePosts({ rootState, commit }, payload) {
     try {
+      if (!rootState.auth.isAdmin) {
+        throw new Error('관리자 권한이 없습니다.')
+      }
+
       const { data: { success } } = await axios.put('v1/posts', { posts: payload })
 
-      if (!success) throw new Error('게시물 업데이트에 실패하였습니다.')
+      if (!success) {
+        throw new Error('게시물 업데이트에 실패하였습니다.')
+      }
 
       commit('UNSET_EDIT_POSTS')
 
@@ -111,12 +161,20 @@ const actions = {
    * @param {String} payload Post ID
    * @return {Object} { success, error }
    */
-  async updateLike({ rootState, commit }, { postId }) {
+  async updateLike({ rootState, state, commit }) {
     try {
-      if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
-      if (!rootState.auth.user) throw new Error('로그인 후 사용 가능합니다.')
+      if (!state.post._id) {
+        throw new Error('존재하지 않는 게시물입니다.')
+      }
+      if (!rootState.auth.user) {
+        throw new Error('로그인 후 사용 가능합니다.')
+      }
 
-      const { data: { success } } = await axios.put(`v1/posts/${postId}/like`)
+      const { data: { success } } = await axios.put(`v1/posts/${state.post._id}/like`)
+
+      if (!success) {
+        throw new Error('좋아요 요청에 실패하였습니다.')
+      }
 
       commit('ADD_POST_LIKE')
 
@@ -131,14 +189,27 @@ const actions = {
    * @param {String} payload Post ID
    * @return {Object} { success, error }
    */
-  async deletePost({ rootState, commit }, { postId, authorId }) {
+  async deletePost({ rootState, state, commit }) {
     try {
-      if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
-      if (!rootState.auth.user) throw new Error('로그인 후 사용 가능합니다.')
+      if (!state.post._id) {
+        throw new Error('존재하지 않는 게시물입니다.')
+      }
+      if (!rootState.auth.user) {
+        throw new Error('로그인 후 사용 가능합니다.')
+      }
+      if (!rootState.auth.isAdmin || rootState.auth.user._id !== state.post.author._id) {
+        throw new Error('본인이 작성한 게시물만 삭제 및 수정할 수 있습니다.')
+      }
 
-      const { data: { success } } = await axios.delete(`v1/posts/${postId}`)
+      const { main, sub } = state.post.menu
+      const { data: { success } } = await axios.delete(`v1/posts/${state.post._id}`)
 
-      commit('SET_POST', null)
+      if (!success) {
+        throw new Error('게시물 삭제에 실패하였습니다.')
+      }
+
+      commit('UNSET_POST')
+      router.push({ name: 'posts', params: { main, sub } })
 
       return { success, error: null }
     } catch (err) {
@@ -152,12 +223,25 @@ const actions = {
    * @param {String} imageId
    * @return {Object} { success, error }
    */
-  async deleteFile({ rootState }, { postId, imageId }) {
+  async deleteFile({ rootState, state, commit }, { imageId, index }) {
     try {
-      if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
-      if (!rootState.auth.user) throw new Error('로그인 후 사용 가능합니다.')
+      if (!state.post._id) {
+        throw new Error('존재하지 않는 게시물입니다.')
+      }
+      if (!rootState.auth.user) {
+        throw new Error('로그인 후 사용 가능합니다.')
+      }
+      if (!rootState.auth.isAdmin || rootState.auth.user._id !== state.post.author._id) {
+        throw new Error('본인이 작성한 게시물만 삭제 및 수정할 수 있습니다.')
+      }
 
-      const { data: { success } } = await axios.delete(`v1/posts/${postId}/file`, { data: { image: imageId } })
+      const { data: { success } } = await axios.delete(`v1/posts/${state.post._id}/file`, { data: { image: imageId } })
+
+      if (!success) {
+        throw new Error('파일 삭제에 실패하였습니다.')
+      }
+
+      commit('UNSET_IMAGE', index)
 
       return { success, error: null }
     } catch (err) {
@@ -170,12 +254,20 @@ const actions = {
    * @param {String} payload
    * @return {Object} { success, error }
    */
-  async deleteLike({ rootState, commit }, { postId }) {
+  async deleteLike({ rootState, state, commit }) {
     try {
-      if (!postId) throw new Error('게시물을 찾을 수 없습니다.')
-      if (!rootState.auth.user) throw new Error('로그인 후 사용 가능합니다.')
+      if (!state.post._id) {
+        throw new Error('존재하지 않는 게시물입니다.')
+      }
+      if (!rootState.auth.user) {
+        throw new Error('로그인 후 사용 가능합니다.')
+      }
 
-      const { data: { success } } = await axios.delete(`v1/posts/${postId}/like`)
+      const { data: { success } } = await axios.delete(`v1/posts/${state.post._id}/like`)
+
+      if (!success) {
+        throw new Error('좋아요 취소 요청에 실패하였습니다.')
+      }
 
       commit('DELETE_POST_LIKE')
 
@@ -187,21 +279,20 @@ const actions = {
 }
 
 const mutations = {
-  SET_POST(state, post = {}) {
+  SET_POST(state, post) {
     state.post = post
-    state.category = post.category
-    if (typeof post.menu === 'object') {
-      state.main = post.menu.main
-      state.sub = post.menu.sub
-    }
   },
 
   SET_MAIN(state, main) {
-    state.main = main
+    state.post.menu.main = main
   },
 
   SET_SUB(state, sub) {
-    state.sub = sub
+    state.post.menu.sub = sub
+  },
+
+  SET_CATEGORY(state, category) {
+    state.post.category = category
   },
 
   SET_TITLE(state, title) {
@@ -212,16 +303,16 @@ const mutations = {
     state.post.content = content
   },
 
-  SET_CATEGORY(state, category) {
-    state.post.category = category
-  },
-
   SET_IS_PUBLIC(state, isPublic) {
     state.post.isPublic = isPublic
   },
 
+  SET_IS_ACTIVE(state, isActive) {
+    state.post.isActive = isActive
+  },
+
   SET_IMAGES(state, images = []) {
-    if (!Array.isArray(state.post.images)) state.post.images = []
+    if (!Array.isArray(state.post.images)) return
 
     state.post.images.push(...images)
   },
@@ -230,37 +321,48 @@ const mutations = {
     state.post.thumbnail = thumbnail
   },
 
+  SET_EDIT_POSTS(state, post) {
+    state.editPosts.push(post)
+  },
+
   SET_QUICKMOVE(state, boolean = false) {
     state.quickMove = boolean
   },
 
   ADD_POST_LIKE(state) {
-    if (typeof state.post === 'object') {
+    if (!state.post.liked) {
       state.post.liked = true
       state.post.likeCount = parseInt(state.post.likeCount, 10) + 1
     }
   },
 
   DELETE_POST_LIKE(state) {
-    if (typeof state.post === 'object') {
+    if (state.post.liked) {
       state.post.liked = false
       state.post.likeCount = parseInt(state.post.likeCount, 10) - 1
     }
   },
 
-  UNSET_IMAGE(state, index) {
-    if (Array.isArray(state.post.images)) state.post.images.splice(index, 1)
-  },
-
   UNSET_POST(state) {
-    state.post = {}
-    state.main = ''
-    state.sub = ''
-    state.category = ''
+    state.post = {
+      menu: {
+        main: '',
+        sub: '',
+      },
+      category: '',
+      title: '',
+      content: '',
+      isPublic: true,
+      isActive: true,
+      images: [],
+      thumbnail: '',
+    }
   },
 
-  SET_EDIT_POSTS(state, post) {
-    state.editPosts.push(post)
+  UNSET_IMAGE(state, index) {
+    if (!Array.isArray(state.post.images)) return
+    
+    state.post.images.splice(index, 1)
   },
 
   UNSET_EDIT_POSTS(state) {

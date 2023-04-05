@@ -34,7 +34,7 @@
   })
 </script>
 
-<style>
+<style lang="scss" rel="stylesheet/scss" scoped>
   .observer {
     width: 100%;
     height: 0;

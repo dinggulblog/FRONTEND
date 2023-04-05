@@ -1,6 +1,7 @@
 const { defineConfig } = require('@vue/cli-service')
 const path = require('path')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 module.exports = defineConfig({
   outputDir: path.resolve('../backend/public'),
@@ -16,7 +17,10 @@ module.exports = defineConfig({
   },
   configureWebpack: {
     plugins: [
-      new NodePolyfillPlugin()
+      new NodePolyfillPlugin(),
+      new MiniCssExtractPlugin({
+        filename: 'style.css'
+      })
     ],
     resolve: {
       fallback: {

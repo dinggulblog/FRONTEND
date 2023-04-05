@@ -30,11 +30,7 @@ app
   .use(router)
   .use(VueDOMPurifyHTML)
   .use(MediaQuery)
-  .use(VueGtag, {
-    config: { 
-      id: process.env.VUE_APP_GA_MEASUREMENT_ID,
-    },
-  }, router)
+  .use(VueGtag, { config: { id: process.env.VUE_APP_GA_MEASUREMENT_ID } }, router)
   .component('Ico', Ico)
   .component('Kebab', Kebab)
   .component('Button', Button)

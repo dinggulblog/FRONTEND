@@ -27,7 +27,14 @@
 
       <div class="wrap_right">
         <Button class="btn_dropbox" :size="'sm'" :svg="'more'" @click="$refs.KEBAB_EL.onToggle()" />
-        <Kebab ref="KEBAB_EL" :dropboxItems="!auth ? { '링크 복사': onCopyLink } : { '글 수정': onUpdatePost, '글 삭제': onDeletePost, '링크 복사': onCopyLink }" />
+        <Kebab
+          ref="KEBAB_EL"
+          :dropboxItems="!auth
+            ? { '링크 복사': onCopyLink }
+            : { '글 수정': () => $router.push({ name: 'editor', query: { postId: $store.state.post.post._id } }),
+                '글 삭제': onDeletePost,
+                '링크 복사': onCopyLink, }"
+          />
       </div><!-- wrap_right end -->
     </div><!-- wrap_header end -->
 
@@ -55,7 +62,7 @@
       <div v-for="linkedPost in post.linkedPosts" :key="linkedPost?._id" class="link">
         <span v-if="linkedPost.rel === 'prev'">이전글</span>
         <span v-else>다음글</span>
-        <Button class="btn_link" @click="onPushPost(linkedPost._id)"> {{ linkedPost.title }} </Button>
+        <Button class="btn_link" @click="() => $router.push({ name: 'post', params: { postId: linkedPost._id } })"> {{ linkedPost.title }} </Button>
       </div>
     </div>
 
@@ -100,9 +107,8 @@
 </template>
 
 <script setup>
-import { inject, ref, computed, nextTick, watch, onErrorCaptured, onUnmounted } from 'vue'
+import { inject, ref, computed, nextTick, watch, onErrorCaptured, onBeforeMount, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
 import Markdown from 'vue3-markdown-it'
 import MarkdownEmoji from 'markdown-it-emoji'
 import CommentEditor from '../../components/CommentEditor.vue'
@@ -119,7 +125,6 @@ const props = defineProps({
 })
 
 const { state, dispatch, commit } = useStore()
-const { push } = useRouter()
 
 const plugins = [{ plugin: MarkdownEmoji }]
 
@@ -137,38 +142,22 @@ const intersectEl = ref([])
 const post = computed(() => state.post.post)
 const auth = computed(() => state.auth.user && post.value.author?._id === state.auth.user._id)
 
-const onPushPost = (_id) => {
-  if (_id) push({ name: 'post', params: { postId: _id } })
-}
-
-const onUpdatePost = () => {
-  if (post.value._id) push({ name: 'editor', query: { postId: post.value._id } })
-}
-
 const onDeletePost = async () => {
-  if (!auth.value) return TOAST_EL.value.open('error', '본인이 작성한 게시물만 관리할 수 있습니다.')
-
   const ok = await DIALOG_EL.value.show({
     title: '게시물 삭제',
     message: '게시물을 삭제하시겠습니까?\n한번 삭제된 게시물은 되돌릴 수 없습니다.',
   })
+
   if (ok) {
-    const { main, sub } = post.value.menu
-    const { success, error } = await dispatch('post/deletePost', {
-      postId: post.value._id,
-      authorId: post.value?.author?._id,
-    })
-
+    const { success, error } = await dispatch('post/deletePost')
     if (!success) return TOAST_EL.value.open('error', error)
-
-    push({ name: 'posts', params: { main, sub } })
   }
 }
 
 const onUpdateLike = async () => {
   const { success, error } = !post.value.liked
-    ? await dispatch('post/updateLike', { postId: post.value._id })
-    : await dispatch('post/deleteLike', { postId: post.value._id })
+    ? await dispatch('post/updateLike')
+    : await dispatch('post/deleteLike')
 
   if (!success) TOAST_EL.value.open('error', error)
 }
@@ -251,9 +240,12 @@ onErrorCaptured((err) => {
   return true
 })
 
+onBeforeMount(() => {
+  commit('post/UNSET_POST')
+  commit('comment/UNSET_COMMENTS')
+})
+
 onUnmounted(() => {
-  commit('post/SET_POST', {})
-  commit('comment/SET_COMMENTS', [])
   observer.disconnect()
 })
 </script>

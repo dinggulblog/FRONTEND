@@ -9,8 +9,14 @@ const getters = {}
 const actions = {
   async getDraft({ commit }, { draftId }) {
     try {
+      if (!draftId) throw new Error('게시물을 찾을 수 없습니다.')
+
       const { data } = await axios.get(`v1/drafts/${draftId}`)
       const { success, data: { draft } } = data
+
+      if (!draft) {
+        throw new Error('존재하지 않는 게시물입니다.')
+      }
 
       commit('SET_DRAFT', draft)
       
@@ -20,10 +26,21 @@ const actions = {
     }
   },
 
-  async createDraft({ commit }, payload) {
+  async createDraft({ rootState, commit }, { payload }) {
     try {
+      if (!rootState.auth.user) {
+        throw new Error('로그인 후 사용 가능합니다.')
+      }
+      if (!rootState.post.post.menu.main || !rootState.post.post.menu.sub) {
+        throw new Error('게시물을 삽입할 메뉴를 선택해 주세요.')
+      }
+
       const { data } = await axios.post('v1/drafts', payload)
       const { success, data: { draft, images } } = data
+
+      if (!success || !draft) {
+        throw new Error('게시물 작성에 실패하였습니다.')
+      }
 
       commit('SET_DRAFT', draft)
 
@@ -34,8 +51,18 @@ const actions = {
   },
 
   // params: Object (draft)
-  async updateDraft({ commit }, { draftId, payload }) {
+  async updateDraft({ rootState, commit }, { draftId, payload }) {
     try {
+      if (!draftId) {
+        throw new Error('존재하지 않는 게시물입니다.')
+      }
+      if (!rootState.auth.user) {
+        throw new Error('로그인 후 사용 가능합니다.')
+      }
+      if (!rootState.post.post.menu.main || !rootState.post.post.menu.sub) {
+        throw new Error('게시물을 삽입할 메뉴를 선택해 주세요.')
+      }
+
       const { data } = await axios.put(`v1/drafts/${draftId}`, payload)
       const { success, data: { draft, images } } = data
 
@@ -48,9 +75,18 @@ const actions = {
   },
 
   // params: String (draft ID)
-  async deleteDraft({ commit }, payload) {
+  async deleteDraft({ rootState, commit }, { draftId }) {
     try {
-      const { data: { success } } = await axios.delete(`v1/drafts/${payload}`)
+      if (!draftId) {
+        throw new Error('존재하지 않는 게시물입니다.')
+      }
+      if (!rootState.auth.user) {
+        throw new Error('로그인 후 사용 가능합니다.')
+      }
+
+      const { data: { success } } = await axios.delete(`v1/drafts/${draftId}`)
+
+      commit('UNSET_DRAFT')
       
       return { success, error: null }
     } catch (err) {
@@ -58,9 +94,15 @@ const actions = {
     }
   },
 
-  async deleteFile({ commit }, { draftId, imageId }) {
+  async deleteFile({ commit }, { draftId, imageId, index }) {
     try {
       const { data: { success } } = await axios.delete(`v1/drafts/${draftId}/file`, { data: { image: imageId } })
+
+      if (!success) {
+        throw new Error('파일 삭제에 실패하였습니다.')
+      }
+
+      commit('post/UNSET_IMAGE', index, { root: true })
 
       return { success, error: null }
     } catch (err) {
@@ -74,12 +116,9 @@ const mutations = {
     state.draft = draft
   },
 
-  DELETE_DRAFT_FILE(state, imageId) {
-    const index = [...state.draft.images].findIndex((image) => image._id === imageId)
-    if (index !== -1) {
-      state.draft.images.splice(index, 1)
-    }
-  },
+  UNSET_DRAFT(state) {
+    state.draft = {}
+  }
 }
 
 export default {

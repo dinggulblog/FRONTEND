@@ -28,7 +28,7 @@
                 <li v-if="$store.state.auth.isAdmin"><router-link :to="{ name: 'dashboard', params: { section: 'chart' } }">Dashboard</router-link></li>
                 <li><span @click="ACCOUNT_EL.open('update')">Account</span></li>
                 <li><router-link :to="{ name: 'profile', params: { nickname: $store.state.auth.user.nickname } }">Profile</router-link></li>
-                <li><span @click="onLogout">Logout</span></li>
+                <li><span @click="$store.dispatch('auth/logout')">Logout</span></li>
               </ul>
             </div>
           </div>
@@ -40,7 +40,7 @@
   <Transition name="fade_left">
     <div class="container_gnb" v-if="!isMobile || isOpenGnb">
       <div class="gnb">
-        <Navigation @logout="onLogout" @closeAll="onCloseAll" />
+        <Navigation @closeAll="onCloseAll" />
       </div>
     </div>
   </Transition>
@@ -52,17 +52,11 @@ import Navigation from './Navigation.vue'
 import User from '../User.vue'
 import LOGO from '../../assets/logo.png'
 
-const emits = defineEmits(['logout'])
-
 const ACCOUNT_EL = inject('ACCOUNT_EL')
 
 const isOpenGnb = ref(false)
 const isOpenSearch = ref(false)
 const isMobile = inject('isMobileAndTablet')
-
-const onLogout = async () => {
-  emits('logout')
-}
 
 const onCloseGnb = () => {
   isOpenGnb.value = false
@@ -79,10 +73,6 @@ const onCloseAll = () => {
 
 const onToggleGnb = () => {
   isOpenGnb.value = !isOpenGnb.value
-}
-
-const onToggleSearch = () => {
-  isOpenSearch.value = !isOpenSearch.value
 }
 </script>
 

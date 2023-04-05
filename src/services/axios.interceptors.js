@@ -64,6 +64,9 @@ const setup = (store) => {
           return axiosInstance(originalConfig)
         }
       }
+      else if (error.message?.includes('Network')) {
+        error.message = '네트워크에 문제가 발생하였습니다. 잠시 후 다시 시도해 주세요.'
+      }
 
       return Promise.reject(error)
     },

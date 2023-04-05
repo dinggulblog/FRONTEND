@@ -134,6 +134,7 @@
       align-items: center;
       font-size: 1.2rem;
       margin: 0 0 4.8rem;
+      z-index:999;
 
       @include mobile {
         flex-direction: column;

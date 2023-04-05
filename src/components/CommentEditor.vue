@@ -7,7 +7,7 @@
       v-model="content"
       :disabled="!$store.state.auth.user"
       :placeholder="!$store.state.auth.user ? '로그인 후 댓글을 작성해보세요.' : placeholderText"
-      @blur="this.placeholder"
+      @blur="!$store.state.auth.user ? '로그인 후 댓글을 작성해보세요.' : placeholderText"
       @input="resizeTextarea"
     />
 
@@ -108,6 +108,7 @@
   }
 
   onMounted(() => {
+    if(props.id === 'comment') return
     CONTENT_EL.value.focus()
   })
 </script>

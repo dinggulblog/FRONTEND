@@ -105,6 +105,11 @@ const mutations = {
       content: '',
       isPublic: true
     }
+  },
+
+  UNSET_COMMENTS(state) {
+    state.comments = []
+    state.commentCount - 0
   }
 }
 

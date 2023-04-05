@@ -16,7 +16,7 @@
     .contents {
       flex-shrink: 1;
       flex-grow: 1;
-      flex-basis: 83rem;
+      flex-basis: 0.83rem;
 
       @include tablet_landscape {
         width: calc(100% - 22.2rem - 4.8rem);

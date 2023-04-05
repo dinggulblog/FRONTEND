@@ -21,7 +21,7 @@
           <li v-if="$store.state.auth.isAdmin"><router-link :to="{ name: 'dashboard', params: { section: 'chart' } }">Dashboard</router-link></li>
           <li><span @click="emits('closeAll'), ACCOUNT_EL.open('update')">Account</span></li>
           <li><router-link :to="{ name: 'profile', params: { nickname: $store.state.auth.user.nickname } }" @click="emits('closeAll')">Profile</router-link></li>
-          <li><span @click="emits('logout')">Logout</span></li>
+          <li><span @click="$store.dispatch('auth/logout')">Logout</span></li>
         </ul>
       </div>
     </div>
@@ -58,7 +58,7 @@
 import { inject } from 'vue'
 import User from '../User.vue'
 
-const emits = defineEmits(['logout', 'closeAll'])
+const emits = defineEmits(['closeAll'])
 
 const CONTACT_EL = inject('CONTACT_EL')
 const ACCOUNT_EL = inject('ACCOUNT_EL')
