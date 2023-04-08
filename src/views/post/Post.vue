@@ -16,35 +16,35 @@
         <div class="wrap_info">
           <Info>
             <template #createdAt>
-              <li><span class="createdAt">{{ getTime(post.createdAt) }}</span></li>
+              <li>
+                <span class="createdAt">{{ getTime(post.createdAt) }}</span>
+              </li>
             </template>
             <template #category>
-              <li><span class="category">{{ post.category }}</span></li>
+              <li>
+                <span class="category">{{ post.category }}</span>
+              </li>
             </template>
           </Info>
         </div>
-      </div><!-- wrap_left end -->
+      </div>
+      <!-- wrap_left end -->
 
       <div class="wrap_right">
         <Button class="btn_dropbox" :size="'sm'" :svg="'more'" @click="$refs.KEBAB_EL.onToggle()" />
         <Kebab
           ref="KEBAB_EL"
-          :dropboxItems="!auth
-            ? { '링크 복사': onCopyLink }
-            : { '글 수정': () => $router.push({ name: 'editor', query: { postId: $store.state.post.post._id } }),
-                '글 삭제': onDeletePost,
-                '링크 복사': onCopyLink, }"
-          />
-      </div><!-- wrap_right end -->
-    </div><!-- wrap_header end -->
+          :dropboxItems="
+            !auth ? { '링크 복사': onCopyLink } : { '글 수정': () => $router.push({ name: 'editor', query: { postId: $store.state.post.post._id } }), '글 삭제': onDeletePost, '링크 복사': onCopyLink }
+          " />
+      </div>
+      <!-- wrap_right end -->
+    </div>
+    <!-- wrap_header end -->
 
     <!-- Post Content -->
     <div class="content" ref="CONTENT_EL">
-      <MdEditor
-        previewOnly
-        :modelValue="post.content"
-        @onHtmlChanged="updated"
-      />
+      <MdEditor previewOnly :modelValue="post.content" @onHtmlChanged="updated" />
     </div>
 
     <!-- Post Likes -->
@@ -81,12 +81,14 @@
               class="a_toc_item"
               ref="TOC_EL"
               :style="item.tagName === 'H2' ? { marginLeft: '0.8rem' } : item.tagName === 'H3' ? { marginLeft: '1.6rem' } : ''"
-              >{{ item.innerText }}</a>
+              >{{ item.innerText }}</a
+            >
           </li>
         </ul>
       </div>
     </Teleport>
-  </div><!-- Post end -->
+  </div>
+  <!-- Post end -->
 
   <div class="comment">
     <!-- Comments Editor -->
@@ -97,14 +99,13 @@
       <h2>댓글 {{ $store.state.comment.commentCount }}개</h2>
 
       <ul class="comment_items">
-        <Comment 
+        <Comment
           v-for="comment in $store.state.comment.comments"
           :key="comment._id"
           :postId="postId"
           :comment="comment"
           :isOwner="comment.commenter._id === $store.state.auth.user?._id"
-          :isAuthor="post.author._id === $store.state.auth.user?._id"
-        />
+          :isAuthor="post.author._id === $store.state.auth.user?._id" />
       </ul>
     </div>
   </div>
@@ -119,7 +120,7 @@ import Comment from '../../components/Comment.vue'
 import User from '../../components/User.vue'
 import Info from '../../components/slots/Info.vue'
 import { getTime } from '../../common/time'
-import 'md-editor-v3/lib/style.css';
+import 'md-editor-v3/lib/style.css'
 
 const props = defineProps({
   postId: {
@@ -157,9 +158,7 @@ const onDeletePost = async () => {
 }
 
 const onUpdateLike = async () => {
-  const { success, error } = !post.value.liked
-    ? await dispatch('post/updateLike')
-    : await dispatch('post/deleteLike')
+  const { success, error } = !post.value.liked ? await dispatch('post/updateLike') : await dispatch('post/deleteLike')
 
   if (!success) TOAST_EL.value.open('error', error)
 }
@@ -202,12 +201,12 @@ const updated = async () => {
   observedEl.value.clear()
   toc.value = []
   intersectEl.value = []
-  
+
   const tocElements = CONTENT_EL.value?.querySelectorAll('h1, h2, h3')
 
   if (tocElements?.length) {
     tocElements.forEach((el) => {
-      console.log(el)
+      document.getElementById('md-editor-v3-preview-wrapper').style.overflow = 'initial'
       el.style.scrollMarginTop = '11.4rem'
       toc.value = Array.from(tocElements).map((el) => el)
       observedEl.value.set(el.getAttribute('id'), null)
@@ -226,7 +225,7 @@ watch(
     if (!success2) throw new Error(error2)
 
     document.title = post.value?.title
-    
+
     if (state.post.quickMove && COMMENTS_EL.value) {
       COMMENTS_EL.value.scrollIntoView({ behavior: 'smooth' })
       commit('post/SET_QUICKMOVE', false)
@@ -303,7 +302,6 @@ onUnmounted(() => {
     font-size: 1.4rem;
     color: var(--text3);
     line-height: 1.5;
-
 
     .markdown {
       p {
@@ -465,4 +463,16 @@ onUnmounted(() => {
     margin: 0 0 3.2rem 0;
   }
 }
+
+.md-editor-content .md-editor-preview-wrapper {
+  overflow: auto !important;
+}
+
+[class*='md-editor'] {
+  overflow: initial !important;
+}
+
+
+
+
 </style>

@@ -19,7 +19,7 @@ module.exports = defineConfig({
     plugins: [
       new NodePolyfillPlugin(),
       new MiniCssExtractPlugin({
-        filename: 'style.css'
+        filename: '[name].css'
       })
     ],
     resolve: {

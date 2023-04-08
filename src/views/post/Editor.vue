@@ -36,7 +36,7 @@
     </div>
 
     <!-- Title and File button -->
-    <div class="wrap_title_file-add-btn">
+    <div class="wrap_title">
       <div class="title">
         <input type="text" v-model="title" placeholder="제목을 입력하세요." onfocus="this.placeholder=''" onblur="this.placeholder='제목을 입력하세요.'" />
       </div>
@@ -50,6 +50,7 @@
         language="ko-KR"
         placeholder="당신의 이야기를 적어보세요..."
         :toolbars="toolbars"
+        :preview="!isMobile"
         @keydown="onChangeCanLeavePage(false)"
       >
         <template #defToolbars>
@@ -59,9 +60,9 @@
     </div>
 
     <!-- GPT Buttons -->
-    <div>
-      <Button :thema="'primary'" @click="onCreateCompletions">초안 만들기 </Button>
-      <Button :thema="'primary'" @click="onCloseCompletions">생성 멈춰! </Button>
+    <div class="wrap_gpt_btns">
+      <Button :size="'sm'" :shape="'line-round'" @click="onCreateCompletions">GPT 초안 생성</Button>
+      <Button :size="'sm'" :shape="'line-round'" @click="onCloseCompletions">GPT 초안 정지</Button>
     </div>
 
     <!-- Image Buttons -->
@@ -271,12 +272,13 @@ const onSelectImage = (file) => {
 }
 
 const onInsertImage = (url) => {
-  let start = CONTENT_EL.value.value.substring(0, CONTENT_EL.value.selectionStart)
-  let end = CONTENT_EL.value.value.substring(CONTENT_EL.value.selectionEnd, CONTENT_EL.value.value.length)
+  const textarea = document.querySelector('#md-editor-v3-textarea')
+  let start = textarea.value.substring(0, textarea.selectionStart)
+  let end = textarea.value.substring(textarea.selectionEnd, textarea.value.length)
 
   const innerText = `\n!` + `[` + `]` + `(` + `${url}` + `)\n`
   content.value = start + innerText + end
-  CONTENT_EL.value.focus()
+  textarea.focus()
 }
 
 const onCreateCompletions = async () => {
@@ -426,7 +428,6 @@ onBeforeRouteLeave(async (to, from, next) => {
         width: 27rem;
         font-size: 1.4rem;
         margin-right: 2.4rem;
-        padding: 0 2.4rem;
 
         @include mobile {
           width: 100%;
@@ -468,7 +469,7 @@ onBeforeRouteLeave(async (to, from, next) => {
     }
   }
 
-  .wrap_title_file-add-btn {
+  .wrap_title {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -476,7 +477,6 @@ onBeforeRouteLeave(async (to, from, next) => {
     margin: 2.4rem 0 1.6rem;
     width: 100%;
     height: 4.8rem;
-    padding: 0 2.4rem;
 
     @include mobile {
       margin: 1.6rem 0;
@@ -501,7 +501,6 @@ onBeforeRouteLeave(async (to, from, next) => {
   .content {
     display: flex;
     flex-direction: row;
-    border-bottom: 1px solid #ddd;
 
     textarea,
     .markdown {
@@ -543,6 +542,15 @@ onBeforeRouteLeave(async (to, from, next) => {
       @include mobile_all {
         display: none;
       }
+    }
+  }
+
+  .wrap_gpt_btns {
+    display: flex;
+    margin: 2.4rem 0 0;
+    
+    button {
+      margin:0 0.8rem 0 0;
     }
   }
 
@@ -631,6 +639,11 @@ onBeforeRouteLeave(async (to, from, next) => {
       width: 100%;
     }
   }
+}
+
+
+.md-editor, .md-editor-toolbar-wrapper {
+  border:0 !important;
 }
 
 

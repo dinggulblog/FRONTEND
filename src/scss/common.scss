@@ -362,3 +362,20 @@ input {
 .emojis * {
   user-select: none;
 }
+
+
+.default-theme img {
+  padding:0 !important;
+  border: 0 !important;
+  border-radius:0 !important;
+}
+
+.md-editor-content .md-editor-input-wrapper textarea {
+  font-size: 1.6rem !important;
+  -webkit-font-smoothing: antialiased !important;
+  font-family: "Pretendard", "Malgun Gothic", sans-serif !important;
+}
+
+.md-editor-footer-label {
+  font-family: "Pretendard", "Malgun Gothic", sans-serif !important;
+}
