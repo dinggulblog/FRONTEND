@@ -7,7 +7,7 @@
 
     <!-- Login rink -->
     <div class="m_menu_login" v-if="!$store.state.auth.user">
-      <Button class="btn_login" :theme="'primary'" @click="ACCOUNT_EL.open('login')">로그인</Button>이 필요합니다.
+      <Button class="btn_login" :theme="'primary'" @click="ACCOUNT_EL.open('login')">로그인</Button><span>이 필요합니다.</span>
     </div>
 
     <!-- Account info -->

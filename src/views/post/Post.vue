@@ -40,7 +40,11 @@
 
     <!-- Post Content -->
     <div class="content" ref="CONTENT_EL">
-      <markdown class="markdown" :source="post.content" :plugins="plugins" :breaks="true" :xhtmlOut="true" :typographer="true" />
+      <MdEditor
+        previewOnly
+        :modelValue="post.content"
+        @onHtmlChanged="updated"
+      />
     </div>
 
     <!-- Post Likes -->
@@ -109,13 +113,13 @@
 <script setup>
 import { inject, ref, computed, nextTick, watch, onErrorCaptured, onBeforeMount, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
-import Markdown from 'vue3-markdown-it'
-import MarkdownEmoji from 'markdown-it-emoji'
+import MdEditor from 'md-editor-v3'
 import CommentEditor from '../../components/CommentEditor.vue'
 import Comment from '../../components/Comment.vue'
 import User from '../../components/User.vue'
 import Info from '../../components/slots/Info.vue'
 import { getTime } from '../../common/time'
+import 'md-editor-v3/lib/style.css';
 
 const props = defineProps({
   postId: {
@@ -125,8 +129,6 @@ const props = defineProps({
 })
 
 const { state, dispatch, commit } = useStore()
-
-const plugins = [{ plugin: MarkdownEmoji }]
 
 const DIALOG_EL = inject('DIALOG_EL')
 const TOAST_EL = inject('TOAST_EL')
@@ -192,7 +194,27 @@ const callback = (entries, observer) => {
   })
 }
 
-const observer = new IntersectionObserver(callback, { threshold: 0.7, rootMargin: '-114px 0px 0px 0px' })
+const observer = new IntersectionObserver(callback, { threshold: 0.5, rootMargin: '-114px 0px 0px 0px' })
+
+const updated = async () => {
+  await nextTick()
+  observer.disconnect()
+  observedEl.value.clear()
+  toc.value = []
+  intersectEl.value = []
+  
+  const tocElements = CONTENT_EL.value?.querySelectorAll('h1, h2, h3')
+
+  if (tocElements?.length) {
+    tocElements.forEach((el) => {
+      console.log(el)
+      el.style.scrollMarginTop = '11.4rem'
+      toc.value = Array.from(tocElements).map((el) => el)
+      observedEl.value.set(el.getAttribute('id'), null)
+      observer.observe(el)
+    })
+  }
+}
 
 watch(
   props,
@@ -202,37 +224,15 @@ watch(
 
     const { success: success2, error: error2 } = await dispatch('comment/getComments', { postId: props.postId })
     if (!success2) throw new Error(error2)
-  },
-  { immediate: true },
-)
 
-watch(
-  post,
-  async () => {
-    await nextTick()
+    document.title = post.value?.title
     
-    let tocElements = CONTENT_EL.value?.querySelectorAll('h1, h2, h3')
-    observer.disconnect()
-    observedEl.value.clear()
-    intersectEl.value = []
-
-    if (tocElements?.length) {
-      tocElements.forEach((el) => {
-        el.style.scrollMarginTop = '11.4rem'
-        toc.value = Array.from(tocElements).map((el) => el)
-        observedEl.value.set(el.getAttribute('id'), null)
-        observer.observe(el)
-      })
-    }
-
     if (state.post.quickMove && COMMENTS_EL.value) {
       COMMENTS_EL.value.scrollIntoView({ behavior: 'smooth' })
       commit('post/SET_QUICKMOVE', false)
     }
-
-    document.title = post.value?.title
   },
-  { flush: 'post' }
+  { immediate: true },
 )
 
 onErrorCaptured((err) => {
@@ -304,11 +304,6 @@ onUnmounted(() => {
     color: var(--text3);
     line-height: 1.5;
 
-    h1,
-    h2,
-    h3 {
-      margin-top: 11.4rem;
-    }
 
     .markdown {
       p {

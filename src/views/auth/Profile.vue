@@ -4,7 +4,7 @@
     <form v-on:submit.prevent="submitForm">
       <div class="wrap_author">
         <User :profile="profileState" :state="displayState.state" @updateAvatar="onUpdateAvatar" @resetAvatar="resetAvatar" @updateGreetings="updateGreetings" />
-        <div class="wrap_btn-edit" v-if="profileState.nickname === user.nickname">
+        <div class="wrap_btn-edit" v-if="profileState.nickname === user?.nickname">
           <button class="btn_edit" @click="displayState.state === 'edit' ? onUpdateGreetings() : onChangeState('edit')">
             {{ displayState.state === 'edit' ? '편집 완료' : '기본 정보 편집' }}
           </button>
@@ -30,7 +30,7 @@
       <div v-else class="content_intro" v-dompurify-html="profileState.introduce ? profileState.introduce : '작성된 소개글이 없습니다.'"></div>
 
       <Button
-        v-if="profileState.nickname === user.nickname"
+        v-if="profileState.nickname === user?.nickname"
         class="btn_edit_introduce"
         :size="'sm'"
         :shape="'fill-round'"
@@ -91,7 +91,7 @@ const options = ref({
 })
 
 const profileState = reactive({
-  nickname: computed(() => currentRoute.value.params.nickname),
+  nickname: '',
   _id: '',
   avatar: '',
   greetings: '',
@@ -176,7 +176,7 @@ watch(
   currentRoute,
   async () => {
     const { profile, error } = await dispatch('auth/getProfile', {
-      nickname: profileState.nickname,
+      nickname: currentRoute.value.params.nickname,
     })
 
     if (error) {
@@ -185,6 +185,7 @@ watch(
     }
 
     profileState._id = profile._id
+    profileState.nickname = profile.nickname
     profileState.avatar = profile.avatar
     profileState.greetings = profile.greetings
     profileState.introduce = profile.introduce

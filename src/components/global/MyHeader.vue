@@ -2,10 +2,17 @@
   <div class="container_bar">
     <div class="bar">
       <div class="wrap_left">
-        <Button 
-          :class="isMobile ? 'btn_m-toggle' : 'btn_search'"
-          :svg="isMobile ? 'menu' : isOpenSearch ? 'close' : 'search'"
-          @click="isMobile ? onToggleGnb() : $router.push({ name: 'search' })"
+        <Button
+          v-if="isMobile"
+          class="btn_m-toggle"
+          svg="menu"
+          @click="onToggleGnb"
+        />
+        <Button
+          v-else
+          class="btn_search"
+          svg="search"
+          @click="$router.push({ name: 'search' })"
         />
       </div>
 
@@ -16,11 +23,21 @@
       </div>
 
       <div class="wrap_right">
-        <Button v-if="isMobile" class="btn_search" :svg="isOpenSearch ? 'close' : 'search'" @click="onToggleSearch" />
+        <Button 
+          v-if="isMobile"
+          class="btn_search"
+          svg="search"
+          @click="$router.push({ name: 'search' })" 
+        />
 
-        <Button v-else-if="!$store.state.auth.user" :class="'btn_login'" :svg="'lock'" @click="ACCOUNT_EL.open('login')" />
+        <Button 
+          v-else-if="!$store.state.auth.user"
+          class="btn_login"
+          svg="lock"
+          @click="ACCOUNT_EL.open('login')"
+        />
 
-        <div class="wrap_auth" v-else>
+        <div v-else class="wrap_auth">
           <div class="auth dropdown">
             <User :profile="$store.state.auth.user" />
             <div class="auth_items dropdown_items">
@@ -40,7 +57,7 @@
   <Transition name="fade_left">
     <div class="container_gnb" v-if="!isMobile || isOpenGnb">
       <div class="gnb">
-        <Navigation @closeAll="onCloseAll" />
+        <Navigation @closeAll="onCloseGnb" />
       </div>
     </div>
   </Transition>
@@ -52,23 +69,12 @@ import Navigation from './Navigation.vue'
 import User from '../User.vue'
 import LOGO from '../../assets/logo.png'
 
-const ACCOUNT_EL = inject('ACCOUNT_EL')
-
 const isOpenGnb = ref(false)
-const isOpenSearch = ref(false)
 const isMobile = inject('isMobileAndTablet')
+const ACCOUNT_EL = inject('ACCOUNT_EL')
 
 const onCloseGnb = () => {
   isOpenGnb.value = false
-}
-
-const onCloseSearch = () => {
-  isOpenSearch.value = false
-}
-
-const onCloseAll = () => {
-  onCloseGnb()
-  onCloseSearch()
 }
 
 const onToggleGnb = () => {

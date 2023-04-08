@@ -1,4 +1,4 @@
-export const KO_KR = {
+export const en_US = {
   toolbarTips: {
     bold: 'bold',
     underline: 'underline',

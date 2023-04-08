@@ -107,7 +107,7 @@
 
 /* CSS RESET */
 
-*:not(.content_intro ul, ol, li) {
+*:not(.content_intro ul, ol, li, [class*='md-editor'], [class*='emoji']) {
   margin: 0;
   padding: 0;
   border: 0;
@@ -331,4 +331,34 @@ input {
   100% {
     transform: translateX(100%);
   }
+}
+
+.emojis {
+  position: relative;
+  width: 363px;
+}
+
+.emojis li {
+  cursor: pointer;
+  float: left;
+  border: 1px solid #e8e8e8;
+  height: 24px;
+  width: 32px;
+  overflow: hidden;
+  margin: -1px 0 0 -1px;
+  padding: 4px 0px;
+  text-align: center;
+  list-style: none;
+  z-index: 11;
+  font-size: 1.8rem;
+
+  &:hover {
+    border: 1px solid var(--primary);
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.emojis * {
+  user-select: none;
 }

@@ -141,7 +141,7 @@ watch([main, sub, category, sort, filter, userId, searchText], () => {
 })
 
 watchEffect(() => {
-  if (isMobileDevices.value && type.value === 'slide') {
+  if (POST_EL.value && isMobileDevices.value && type.value === 'slide') {
     POST_EL.value.style.overflowX = 'auto'
   }
 })

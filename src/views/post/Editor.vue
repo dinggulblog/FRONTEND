@@ -44,7 +44,18 @@
 
     <!-- Content -->
     <div class="content">
-      <MdEditor v-model="content" language="ko-KR" placeholder="당신의 이야기를 적어보세요..." ref="CONTENT_EL" @keydown="onChangeCanLeavePage(false)" :toolbars="toolbars" emojiExtension="true"/>
+      <MdEditor
+        ref="CONTENT_EL"
+        v-model="content"
+        language="ko-KR"
+        placeholder="당신의 이야기를 적어보세요..."
+        :toolbars="toolbars"
+        @keydown="onChangeCanLeavePage(false)"
+      >
+        <template #defToolbars>
+          <EmojiExtension @insert="onInsertEmoji" />
+        </template>
+      </MdEditor>
     </div>
 
     <!-- GPT Buttons -->
@@ -109,51 +120,23 @@ import { inject, ref, reactive, computed, nextTick, watch, onMounted, onUnmounte
 import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
 import MdEditor from 'md-editor-v3'
-import 'md-editor-v3/lib/style.css'
 import Toggle from '../../components/ui/Toggle.vue'
-import { KO_KR } from '../../common/KO_KR.js'
-
-const route = useRoute()
-const { push } = useRouter()
-const { state, dispatch, commit } = useStore()
+import EmojiExtension from '../../components/EmojiExtension.vue'
+import { toolbars } from '../../common/editor/toolbars.js'
+import { ko_KR } from '../../common/editor/ko_KR.js'
+import 'md-editor-v3/lib/style.css'
 
 MdEditor.config({
   editorConfig: {
     languageUserDefined: {
-      'ko-KR': KO_KR,
+      'ko-KR': ko_KR,
     },
   },
 })
 
-const toolbars = [
-  'bold',
-  'underline',
-  'italic',
-  '-',
-  'title',
-  'strikeThrough',
-  'quote',
-  'unorderedList',
-  'orderedList',
-  'task',
-  '-',
-  'codeRow',
-  'code',
-  'link',
-  'image',
-  'table',
-  'mermaid',
-  'katex',
-  '=',
-  'revoke',
-  'next',
-  'save',
-  'pageFullscreen',
-  'preview',
-  'htmlPreview',
-  'catalog',
-  'Emoji'
-]
+const route = useRoute()
+const { push } = useRouter()
+const { state, dispatch, commit } = useStore()
 
 const isMobile = inject('isMobile')
 const DIALOG_EL = inject('DIALOG_EL')
@@ -327,6 +310,10 @@ const onCloseCompletions = () => {
 
 const onChangeCanLeavePage = (bool) => {
   canLeavePage = bool
+}
+
+const onInsertEmoji = (generator) => {
+  CONTENT_EL.value?.insert(generator)
 }
 
 const unloadEvent = (event) => {
@@ -645,4 +632,7 @@ onBeforeRouteLeave(async (to, from, next) => {
     }
   }
 }
+
+
+
 </style>
