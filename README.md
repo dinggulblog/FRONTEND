@@ -2,7 +2,7 @@
 
 website link: https://dinggul.me/
 
-# 
+# Basic Features
 
 + Manage posts and media
 + Categorize posts
