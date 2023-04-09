@@ -2,7 +2,19 @@
 
 website link: https://dinggul.me/
 
-# Installaion
+# 
+
++ Manage posts and media
++ Categorize posts
++ Various post viewing
++ Member Roles
++ Markdown Editor
++ Content moderation
++ User Profile moderation
++ Amazon S3 integration
++ Statistics like pageviews via Google Analystics(incomplete)
+
+## Installaion
 
 Backend repository: https://github.com/dinggulblog/BACKEND
 
@@ -32,14 +44,14 @@ HTML5<br>
 CSS3<br>
 SCSS<br>
 
-## Project prototype design
+### Project prototype design
 
 < AdobeXD ><br>
 https://xd.adobe.com/view/9f7ff999-9b8e-47e9-a9f4-b27506588bd4-ca2c/grid/<br>
 <br>
 ※ 초기 시안으로 현재 사이트에 맞추어 변경 예정
 
-## License
+### License
 
 Dinggule Blog is open-sourced software licensed under the MIT license.<br>
 (※ Excluding design)
