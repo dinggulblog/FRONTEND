@@ -3,7 +3,7 @@
     <template #thumbnail>
       <div v-if="post?.thumbnail" class="thumbnail">
         <router-link :to="{ name: 'post', params: { postId: post._id } }">
-          <img :src="post.thumbnail"/>
+          <img :src="post.thumbnail" alt="image"/>
         </router-link>
 
         <div class="ico_like" v-if="post.liked">
@@ -12,7 +12,7 @@
       </div>
       
       <div class="thumbnail" v-else :style="type === 'list' ? { display: 'none', width: '0' } : ''">
-        <img :src="DEFAULT_THUMBNAIL"/>
+        <img :src="DEFAULT_THUMBNAIL" alt="default thumbnail"/>
       </div>
     </template>
 
@@ -21,7 +21,7 @@
     </template>
 
     <template #title>
-      <router-link :to="{ name: 'post', params: { postId: post._id } }">
+      <router-link :to="{ name: 'post', params: { postId: post._id } }" :aria-label="post.title">
         {{ post.title }}
       </router-link>
     </template>

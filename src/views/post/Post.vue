@@ -31,7 +31,7 @@
       <!-- wrap_left end -->
 
       <div class="wrap_right">
-        <Button class="btn_dropbox" :size="'sm'" :svg="'more'" @click="$refs.KEBAB_EL.onToggle()" />
+        <Button class="btn_dropbox" :size="'sm'" :svg="'more'" @click="$refs.KEBAB_EL.onToggle()" aria-label="option" />
         <Kebab
           ref="KEBAB_EL"
           :dropboxItems="
@@ -76,9 +76,8 @@
         <ul class="toc">
           <li v-for="item in toc" :key="item">
             <a
-              :id="item.getAttribute('id')"
               :href="'#' + item.getAttribute('id')"
-              class="a_toc_item"
+              :class="item.getAttribute('id')"
               ref="TOC_EL"
               :style="item.tagName === 'H2' ? { marginLeft: '0.8rem' } : item.tagName === 'H3' ? { marginLeft: '1.6rem' } : ''"
               >{{ item.innerText }}</a
@@ -179,7 +178,7 @@ const callback = (entries, observer) => {
       intersectEl.value = [...observedEl.value.values()].filter((el) => el && el.isIntersecting)
       TOC_EL.value.forEach((el) => el.classList.remove('on'))
       if (intersectEl.value.length) {
-        TOC_EL.value.find((el) => el.getAttribute('id') === intersectEl.value[0].target.id).classList.add('on')
+        TOC_EL.value.find((el) => el.getAttribute('class') === intersectEl.value[0].target.id).classList.add('on')
       }
     } else {
       const idx = intersectEl.value.findIndex((el) => el.target.id === entry.target.id)
@@ -187,7 +186,7 @@ const callback = (entries, observer) => {
       observedEl.value.set(entry.target.id, entry)
       TOC_EL.value.forEach((el) => el.classList.remove('on'))
       if (intersectEl.value.length) {
-        TOC_EL.value.find((el) => el.getAttribute('id') === intersectEl.value[0].target.id).classList.add('on')
+        TOC_EL.value.find((el) => el.getAttribute('class') === intersectEl.value[0].target.id).classList.add('on')
       }
     }
   })

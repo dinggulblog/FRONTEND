@@ -1,9 +1,11 @@
 <template>
   <div class="dashboard">
     <ul class="ul_chips">
-      <router-link v-for="(value, key) in CHIPS" :key="key" :to="{ name: 'dashboard', params: { section: key } }" custom v-slot="{ navigate }">
-        <li @click="navigate" :data-set="key" role="link" class="chip" ref="CHIP_EL">{{ value }}</li>
-      </router-link>
+      <li v-for="(value, key) in CHIPS" :key="key" class="chip">
+        <router-link :to="{ name: 'dashboard', params: { section: key } }" custom v-slot="{ navigate }">
+          <span @click="navigate" :data-set="key" role="link" ref="CHIP_EL">{{ value }}</span>
+        </router-link>
+      </li>
     </ul>
 
     <Suspense>
@@ -61,12 +63,12 @@ watchEffect(() => {
     display: flex;
     margin: 0 0 3.2rem;
 
-    li {
+    li { 
+      margin: 0 0.8rem 0 0;
       padding: 0.8rem 1.2rem;
       border-radius: 1.6rem;
       font-size: 1.4rem;
       letter-spacing: 0.1rem;
-      margin: 0 0.8rem 0 0;
       background-color: #ededed;
       color: var(--text4);
       cursor: pointer;
@@ -74,6 +76,9 @@ watchEffect(() => {
       &:last-child {
         margin: 0;
       }
+    }
+
+    span {
 
       &.on {
         color: var(--primary);

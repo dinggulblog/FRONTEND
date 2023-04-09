@@ -18,10 +18,10 @@
 
       <div class="auth_items">
         <ul>
-          <li v-if="$store.state.auth.isAdmin"><router-link :to="{ name: 'dashboard', params: { section: 'chart' } }">Dashboard</router-link></li>
-          <li><span @click="emits('closeAll'), ACCOUNT_EL.open('update')">Account</span></li>
-          <li><router-link :to="{ name: 'profile', params: { nickname: $store.state.auth.user.nickname } }" @click="emits('closeAll')">Profile</router-link></li>
-          <li><span @click="$store.dispatch('auth/logout')">Logout</span></li>
+          <li v-if="$store.state.auth.isAdmin"><router-link :to="{ name: 'dashboard', params: { section: 'chart' } }" aria-label="Dashboard" @click="emits('closeAll')">Dashboard</router-link></li>
+          <li><span @click="emits('closeAll'), ACCOUNT_EL.open('update')" aria-label="Account">Account</span></li>
+          <li><router-link :to="{ name: 'profile', params: { nickname: $store.state.auth.user.nickname } }" @click="emits('closeAll')" aria-label="Profile">Profile</router-link></li>
+          <li><span @click="$store.dispatch('auth/logout')" aria-label="Logout">Logout</span></li>
         </ul>
       </div>
     </div>
@@ -33,13 +33,13 @@
           <router-link :to="{ name: 'home' }" class="item_number" @click="emits('closeAll')">home</router-link>
         </li>
         <li v-for="(subMenus, main) in $store.state.menu.menus" :key="main" class="nav_item dropdown">
-          <router-link :to="{ name: 'posts', params: { main } }" class="item_number" @click="emits('closeAll')">
+          <router-link :to="{ name: 'posts', params: { main } }" class="item_number" @click="emits('closeAll')" :aria-label="main">
             {{ main }}
           </router-link>
           <div class="wrap_nav_item_child dropdown_items">
             <ul class="nav_item_child">
               <li v-for="{ _id, sub } in subMenus" :key="_id">
-                <router-link :to="{ name: 'posts', params: { main, sub } }" @click="emits('closeAll')">
+                <router-link :to="{ name: 'posts', params: { main, sub } }" @click="emits('closeAll')" :aria-label="sub">
                   {{ sub }}
                 </router-link>
               </li>

@@ -4,21 +4,23 @@
       <div class="wrap_left">
         <Button
           v-if="isMobile"
-          class="btn_m-toggle"
+          class="btn_m-bar"
           svg="menu"
           @click="onToggleGnb"
+          aria-label="mobile menu"
         />
         <Button
           v-else
           class="btn_search"
           svg="search"
           @click="$router.push({ name: 'search' })"
+          aria-label="search"
         />
       </div>
 
       <div class="logo">
         <router-link :to="{ name: 'home' }" class="a_logo">
-          <img :src="LOGO" />
+          <img :src="LOGO" alt="logo"/>
         </router-link>
       </div>
 
@@ -27,7 +29,8 @@
           v-if="isMobile"
           class="btn_search"
           svg="search"
-          @click="$router.push({ name: 'search' })" 
+          @click="$router.push({ name: 'search' })"
+          aria-label="search"
         />
 
         <Button 
@@ -35,6 +38,7 @@
           class="btn_login"
           svg="lock"
           @click="ACCOUNT_EL.open('login')"
+          aria-label="login"
         />
 
         <div v-else class="wrap_auth">
@@ -138,7 +142,8 @@ const onToggleGnb = () => {
         font-size: 2.4rem;
 
         img {
-          width: 100%;
+          width: 10.5rem;
+          height:2.6rem;
         }
       }
     }

@@ -19,7 +19,8 @@
             <Button
               class="btn_reply"
               :theme="'primary'"
-              @click="!isOpenEditor ? onOpenEditor(false) : onCloseEditor()">
+              @click="!isOpenEditor ? onOpenEditor(false) : onCloseEditor()"
+              aria-label="create reply">
               {{ !isOpenEditor ? '답글 작성' : '에디터 닫기' }}
             </Button>
           </div>
@@ -32,6 +33,7 @@
             :size="'sm'"
             :svg="'more'"
             @click="$refs.ACTION_SLOT_EL.onToggle()"
+            aria-label="option"
           />
           <Kebab 
             ref="ACTION_SLOT_EL"
@@ -55,9 +57,10 @@
           v-if="comment.childCommentCount"
           class="btn_childComment_toggle"
           :svg="!isOpenChildren ? 'arrow-down' : 'arrow-up'"
-          :size="'xs'"
+          :size="'sm'"
           :theme="'primary'"
-          @click="onToggleChildren">
+          @click="onToggleChildren"
+          aria-label="open reply">
           {{ '답글 ' + comment.childCommentCount + '개' }}
         </Button>
       </div>

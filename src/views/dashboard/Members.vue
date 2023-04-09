@@ -10,7 +10,7 @@
       <div class="table-body">
           <div class="table-row" v-for="(member, idx) in members" :key="idx">
             <div class="table-cell">
-              <input type="checkbox" ref="CHECKBOX_EL" :data-index="idx" class="checkbox" />
+              <input type="checkbox" ref="CHECKBOX_EL" :data-index="idx" class="checkbox" aria-label="checkbox"/>
             </div>
 
             <div class="table-cell">
@@ -42,7 +42,7 @@
             </div>
 
             <div class="table-cell">
-              <Button class="btn_dropbox" :size="'sm'" :svg="'more'" @click="$refs.KEBAB_SLOT_EL[idx].onToggle()" />
+              <Button class="btn_dropbox" :size="'sm'" :svg="'more'" @click="$refs.KEBAB_SLOT_EL[idx].onToggle()" aria-label="option"/>
 
               <Kebab ref="KEBAB_SLOT_EL" :dropboxItems="{ '회원 정보 수정': () => onUpdateMember(member) }" />
             </div>

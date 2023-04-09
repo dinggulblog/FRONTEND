@@ -18,12 +18,14 @@
       class="btn_old"
       :svg="'arrow-left'"
       @click="prevSlide"
+      aria-label="prevSlide"
     />
     <Button
       v-if="slidePage !== slideMaxPage"
       class="btn_next"
       :svg="'arrow-right'"
       @click="nextSlide"
+      aria-label="nextSilde"
     />
   </div>
 

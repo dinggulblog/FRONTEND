@@ -93,8 +93,6 @@ const actions = {
         throw new Error('게시물 작성에 실패하였습니다.')
       }
 
-      router.push({ name: 'post', params: { postId: post._id } })
-
       return { success, post, error: null }
     } catch (err) {
       return { success: false, post: null, error: err?.response?.data?.message || err.message }
@@ -127,8 +125,6 @@ const actions = {
       if (!success) {
         throw new Error('게시물 업데이트에 실패하였습니다.')
       }
-
-      router.push({ name: 'post', params: { postId: post._id } })
 
       return { success, post, images, error: null }
     } catch (err) {

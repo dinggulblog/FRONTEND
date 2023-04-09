@@ -61,8 +61,8 @@
 
     <!-- GPT Buttons -->
     <div class="wrap_gpt_btns">
-      <Button :size="'sm'" :shape="'line-round'" @click="onCreateCompletions">GPT 초안 생성</Button>
-      <Button :size="'sm'" :shape="'line-round'" @click="onCloseCompletions">GPT 초안 정지</Button>
+      <Button :size="'sm'" :shape="'line-round'" @click="onCreateCompletions" aria-label="GPT CREATE START">GPT 초안 생성</Button>
+      <Button :size="'sm'" :shape="'line-round'" @click="onCloseCompletions" aria-label="GPT CREATE STOP">GPT 초안 정지</Button>
     </div>
 
     <!-- Image Buttons -->
@@ -91,12 +91,15 @@
             <img 
               :src="`${file.thumbnail}`"
               :class="file.thumbnail === thumbnail ? 'selected_thumbnail' : ''"
+              :alt="file.serverFileName"
               @click="onSelectImage(file), onInsertImage(file.thumbnail)"
+              @error.once="onChangeImage($event, `post/${file.serverFileName}`)"
             />
             <Button class="image_del_btn" 
               :svg="'del-image'" 
               :theme="'primary'"
               @click="onDeleteImage(file._id, index)"
+              aria-label="DELETE IMAGE"
             />
           </div>
         </li>
@@ -222,11 +225,13 @@ const onUpdateDraft = async ({ payload }) => {
 }
 
 const onUpdatePost = async () => {
-  const { success, error } = route.query.postId
+  const { success, post, error } = route.query.postId
     ? await dispatch('post/updatePost', { payload: postState })
     : await dispatch('post/createPost', { payload: postState })
 
   if (!success) return TOAST_EL.value.open('error', error)
+
+  push({ name: 'post', params: { postId: post._id } })
 }
 
 const onUploadImages = async (event) => {
@@ -257,6 +262,10 @@ const onUploadImages = async (event) => {
       onInsertImage(image.thumbnail)
     }
   }
+}
+
+const onChangeImage = (event, url) => {
+  event.target.src = process.env.VUE_APP_IMAGE_URL + url
 }
 
 const onDeleteImage = async (fileId, index) => {

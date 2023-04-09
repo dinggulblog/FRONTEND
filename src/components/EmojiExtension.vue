@@ -12,7 +12,7 @@
       </div>
     </template>
     <template #trigger>
-      <button class="md-editor-icon" aria-hidden="true">
+      <button class="md-editor-icon">
         🙂
       </button>
       <!--

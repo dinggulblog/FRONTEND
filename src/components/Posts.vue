@@ -18,9 +18,9 @@
               <PostsItem :type="type" :post="post" :data-index="index" />
             </template>
           </TransitionGroup>
-          <Observer v-if="!recent" :page="page" @update="onUpdatePage"></Observer>
+          <li v-if="!recent"><Observer :page="page" @update="onUpdatePage"></Observer></li>
         </template>
-        <p v-else class="empty_posts">no posts yet</p>
+        <li v-else><p class="empty_posts">no posts yet</p></li>
       </ul>
     </div>
   </div>
