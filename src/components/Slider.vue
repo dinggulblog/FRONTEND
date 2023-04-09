@@ -178,7 +178,7 @@
       position: absolute;
       bottom: 0;
       width: 100%;
-      height: calc(100% - 5.5rem);
+      height: 28.5rem;
       display: flex;
       align-items: center;
 
@@ -195,7 +195,7 @@
         align-items: center;
         justify-content: center;
         position: relative;
-        top:-3.6rem;
+        top:-3.2rem;
         z-index: 10;
         background: var(--primary);
         color:#fff;

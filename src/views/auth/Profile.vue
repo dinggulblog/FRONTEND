@@ -23,11 +23,25 @@
 
     <!-- Tab content - Introduce -->
     <div v-if="displayState.tab === 'intro'" class="introduce">
-      <span v-if="displayState.state === 'introEdit'">
-        <QuillEditor v-model:content="profileState.introduce" contentType="html" :options="options" />
-      </span>
+        <MdEditor
+          v-if="displayState.state === 'introEdit'"
+          ref="PROFILE_EL"
+          v-model="profileState.introduce"
+          language="ko-KR"
+          :toolbars="toolbars"
+          :preview="!isMobile"
+          >
+          <template #defToolbars>
+            <EmojiExtension @insert="onInsertEmoji" />
+          </template>
+        </MdEditor>
 
-      <div v-else class="content_intro" v-dompurify-html="profileState.introduce ? profileState.introduce : '작성된 소개글이 없습니다.'"></div>
+         <MdEditor
+          v-else
+          v-model="profileState.introduce"
+          previewOnly
+          >
+        </MdEditor>
 
       <Button
         v-if="profileState.nickname === user?.nickname"
@@ -58,37 +72,35 @@
 import { inject, ref, reactive, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { QuillEditor } from '@vueup/vue-quill'
 import User from '../../components/User.vue'
 import Posts from '../../components/Posts.vue'
 import Recent from '../../components/slots/Recent.vue'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import MdEditor from 'md-editor-v3'
+import EmojiExtension from '../../components/EmojiExtension.vue'
+import { toolbars } from '../../common/editor/toolbars'
+import { ko_KR } from '../../common/editor/ko_KR.js'
+import 'md-editor-v3/lib/style.css'
 
 const { go, currentRoute } = useRouter()
 const { state, dispatch } = useStore()
 
+const isMobile = inject('isMobile')
 const TOAST_EL = inject('TOAST_EL')
+const PROFILE_EL = ref(null)
+
+MdEditor.config({
+  editorConfig: {
+    languageUserDefined: {
+      'ko-KR': ko_KR,
+    },
+  },
+})
+
 const tabs = ref([
   { name: 'intro', content: '소개글' },
   { name: 'like', content: '좋아요 한 게시물' },
   { name: 'comment', content: '댓글 단 게시물' },
 ])
-const options = ref({
-  theme: 'snow',
-  placeholder: '소개글을 작성해 주세요.',
-  modules: {
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      [{ size: ['small', false, 'large', 'huge'] }],
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      [{ color: [] }, { background: [] }],
-      [{ align: [] }],
-      ['clean'],
-    ],
-  },
-})
 
 const profileState = reactive({
   nickname: '',
@@ -172,6 +184,10 @@ const onUpdateIntroduce = async () => {
   onChangeState('view')
 }
 
+const onInsertEmoji = (generator) => {
+  PROFILE_EL.value?.insert(generator)
+}
+
 watch(
   currentRoute,
   async () => {
@@ -190,7 +206,7 @@ watch(
     profileState.greetings = profile.greetings
     profileState.introduce = profile.introduce
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 
