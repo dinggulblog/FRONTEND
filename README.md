@@ -1,24 +1,41 @@
-# vue-app
+# dinggul blog project
 
-## Project setup
-```
-npm install
-```
+website link: https://dinggul.me/
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+# Installaion
 
-### Compiles and minifies for production
-```
-npm run build
-```
+1. Download this repo and frontend repo together.
+The backend folder and the frontend folder must be located on the same path like below.
 
-### Lints and fixes files
-```
-npm run lint
-```
+2. Run the following commands at the root of each folder<br>
+``` npm install --save-dev ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+3. Create the ```.env.develop``` file in the same path and insert the appropriate key-values referring to the ```env-example.json``` file.<br>
+> Required keys in .env:
+> + HOST
+> + HOST_MAIL
+> + MONGO_ATLAS_CONNECT_URL
+> + COOKIE_SECRET
+> + SECRET_KEY_DIR
+> + JWT_PUBLIC_DIR
+> + JWT_PRIVATE_DIR
+
+## Project Frontend stack
+
+VUE.js / Vuex
+Javascript
+HTML5
+CSS3
+SCSS
+
+## Project prototype design
+
+< AdobeXD >
+https://xd.adobe.com/view/9f7ff999-9b8e-47e9-a9f4-b27506588bd4-ca2c/grid/
+
+※ 초기 시안으로 현재 사이트에 맞추어 변경 예정
+
+## License
+
+Dinggule Blog is open-sourced software licensed under the MIT license.
+(※ Excluding design)
