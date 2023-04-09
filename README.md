@@ -4,6 +4,8 @@ website link: https://dinggul.me/
 
 # Installaion
 
+Backend repository: https://github.com/dinggulblog/BACKEND
+
 1. Download this repo and frontend repo together.
 The backend folder and the frontend folder must be located on the same path like below.
 
