@@ -53,5 +53,5 @@ https://xd.adobe.com/view/9f7ff999-9b8e-47e9-a9f4-b27506588bd4-ca2c/grid/<br>
 
 ### License
 
-Dinggule Blog is open-sourced software licensed under the MIT license.<br>
+Dinggul Blog is open-sourced software licensed under the MIT license.<br>
 (※ Excluding design)
