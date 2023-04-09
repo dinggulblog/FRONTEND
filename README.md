@@ -1,4 +1,4 @@
-# inggul blog project
+# Dinggul blog project
 
 website link: https://dinggul.me/
 
@@ -28,13 +28,12 @@ The backend folder and the frontend folder must be located on the same path like
 
 3. Create the ```.env.develop``` file in the same path and insert the appropriate key-values referring to the ```env-example.json``` file.<br>
 > Required keys in .env:
-> + HOST
-> + HOST_MAIL
-> + MONGO_ATLAS_CONNECT_URL
-> + COOKIE_SECRET
-> + SECRET_KEY_DIR
-> + JWT_PUBLIC_DIR
-> + JWT_PRIVATE_DIR
+> + NODE_ENV
+> + VUE_APP_PORT
+> + VUE_APP_TITLE
+> + VUE_APP_SECRET_KEY
+> + VUE_APP_BASE_URL
+> + VUE_APP_IMAGE_URL
 
 ## Project Frontend stack
 
