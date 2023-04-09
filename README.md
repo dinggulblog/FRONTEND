@@ -1,4 +1,4 @@
-# dinggul blog project
+# inggul blog project
 
 website link: https://dinggul.me/
 
