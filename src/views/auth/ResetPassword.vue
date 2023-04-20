@@ -47,9 +47,7 @@ const onUpdatePassword = async (values) => {
 
 <style lang="scss" rel="stylesheet/scss" scoped>
 .resetPassword {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  @include flex(column);
 
   .resetPassword_form {
     padding: 3.2rem;
@@ -59,9 +57,7 @@ const onUpdatePassword = async (values) => {
     }
 
     h2 {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include flex-center;
       font-size: 2.4rem;
       color: var(--primary);
       font-weight: 400;
@@ -80,9 +76,7 @@ const onUpdatePassword = async (values) => {
     }
 
     form {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      @include flex(column);
       font-size: 1.3rem;
       width: 37rem;
 
@@ -92,27 +86,8 @@ const onUpdatePassword = async (values) => {
     }
 
     .btn_submit {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 4rem;
-      color: var(--text1);
-      background-color: var(--primary);
-      border-radius: 3.2rem;
-      margin: 2.4rem 0 0;
-      font-weight: 500;
-      font-size: 1.3rem;
-
-      @media (hover: hover) and (pointer: fine) {
-        &:hover {
-          background-color: var(--primary-light);
-        }
-      }
-
-      &:active {
-        background-color: var(--primary-dark);
-      }
+      @include hover-bg;
+      @include active-bg;
     }
   }
 }

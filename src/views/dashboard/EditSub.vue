@@ -119,14 +119,12 @@ defineExpose({ open, close })
   }
 
   .wrap_btn-close {
-    display: flex;
-    justify-content: flex-end;
+    @include flex-right;
     margin: 0 0 2.4rem;
   }
 
   .wrap_menu {
-    display: flex;
-    align-items: center;
+    @include flex;
     border-bottom: 1px solid var(--border2);
     padding: 0 0 1rem;
 
@@ -162,7 +160,7 @@ defineExpose({ open, close })
   }
 
   .wrap_add-category {
-    display: flex;
+    @include flex($ai: initial);
     margin: 0.8rem 0 0;
 
     input {

@@ -410,29 +410,23 @@ onBeforeRouteLeave(async (to, from, next) => {
 <style lang="scss" rel="stylesheet/scss" scoped>
 .editor {
   .wrap_select_toggle {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    @include flex;
 
     @include mobile {
-      flex-direction: column;
-      align-items: flex-end;
+      @include flex(column, $ai: end);
     }
 
     .select {
-      display: flex;
-      flex-direction: row;
+      @include flex;
       width: 90%;
 
       @include mobile {
-        flex-direction: column;
+        @include flex(column);
         width: 100%;
       }
 
       div {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include flex-center;
         border-bottom: 1px solid var(--border3);
         width: 27rem;
         font-size: 1.4rem;
@@ -460,8 +454,7 @@ onBeforeRouteLeave(async (to, from, next) => {
     }
 
     .wrap_toggle {
-      display: flex;
-      justify-content: flex-end;
+      @include flex-right;
       width: 10%;
 
       &:deep(.toggle) {
@@ -479,9 +472,7 @@ onBeforeRouteLeave(async (to, from, next) => {
   }
 
   .wrap_title {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    @include flex;
     border-bottom: 1px solid var(--border3);
     margin: 2.4rem 0 1.6rem;
     width: 100%;
@@ -507,55 +498,8 @@ onBeforeRouteLeave(async (to, from, next) => {
     }
   }
 
-  .content {
-    display: flex;
-    flex-direction: row;
-
-    textarea,
-    .markdown {
-      width: 50%;
-      min-height: 48rem;
-      padding: 2.4rem;
-      font-size: 1.4rem;
-      color: var(--text3);
-      overflow-y: auto;
-      max-height: 64rem;
-      line-height: 1.5;
-
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
-
-      &::-webkit-scrollbar {
-        display: none; /* Chrome, Safari, Opera*/
-      }
-    }
-
-    textarea {
-      margin: 0 2.4rem 0 0;
-      resize: vertical;
-
-      @include mobile_all {
-        width: 100%;
-        margin: 0;
-      }
-    }
-
-    textarea::placeholder {
-      color: var(--text2);
-      font-size: 1.4rem;
-    }
-
-    .markdown {
-      @include mobile_all {
-        display: none;
-      }
-    }
-  }
-
   .wrap_gpt_btns {
-    display: flex;
+    @include flex;
     margin: 2.4rem 0 0;
     
     button {
@@ -566,14 +510,13 @@ onBeforeRouteLeave(async (to, from, next) => {
   .images_add_btn {
     margin: 1.6rem 0 2.4rem;
     label.upload_label {
+      @include flex;
       font-size: 1.2rem;
       line-height: 1.8rem;
       cursor: pointer;
       text-transform: uppercase;
       letter-spacing: 0.1rem;
       color: var(--text3);
-      display: flex;
-      align-items: center;
       padding: 1.2rem 2.4rem 1.2rem 0;
 
       .ico_add-image {
@@ -593,8 +536,7 @@ onBeforeRouteLeave(async (to, from, next) => {
   .images {
     margin: 0 0 2.4rem 0;
     ul {
-      display: flex;
-      flex-direction: row;
+      @include flex;
       flex-wrap: wrap;
       margin: calc(3.2rem - 1.2rem) 0 0;
 
@@ -604,7 +546,8 @@ onBeforeRouteLeave(async (to, from, next) => {
         margin: 0rem 2.4rem 0 0;
 
         .wrap_thumbnail {
-          position: relative;
+          @include position;
+
           img {
             width: 100%;
             height: 7.4rem;
@@ -617,9 +560,7 @@ onBeforeRouteLeave(async (to, from, next) => {
             }
           }
           .image_del_btn {
-            position: absolute;
-            bottom: -0.6rem;
-            right: -0.6rem;
+            @include position(absolute, $b: -0.6rem, $r: -0.6rem);
             color: var(--primary);
 
             i {
@@ -636,17 +577,7 @@ onBeforeRouteLeave(async (to, from, next) => {
   }
 
   .wrap_btns {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-
-    .wrap_image_btns {
-      display: flex;
-      align-items: center;
-      margin: 1.6rem 0 2rem;
-      justify-content: flex-start;
-      width: 100%;
-    }
+    @include flex(column, $ai:end);
   }
 }
 

@@ -61,9 +61,8 @@ onErrorCaptured((err) => {
 .search {
   border-bottom: 1px solid var(--primary);
   .wrap_search-form {
-    display: flex;
-    align-items: center;
-    position: relative;
+    @include flex;
+    @include position;
     padding: 0 0 1.2rem;
 
     input {
@@ -82,8 +81,7 @@ onErrorCaptured((err) => {
     }
 
     .ico_search {
-      position: absolute;
-      right: 0;
+      @include position(absolute, $r: 0);
     }
   }
 }

@@ -82,9 +82,9 @@ defineExpose({ show })
 
     p {
       margin-top: 2.4rem;
-      text-align: left;
       font-size: 1.4rem;
       color: var(--text3);
+      white-space: pre;
 
       @include mobile {
         font-size: 1.6rem;
@@ -93,9 +93,7 @@ defineExpose({ show })
   }
 
   .btns {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
+    @include flex($jc: end);
     margin-top: 3.2rem;
 
     button:nth-child(1) {

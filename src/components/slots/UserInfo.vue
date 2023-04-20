@@ -16,8 +16,7 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
 .user-info {
-  display: flex;
-  align-items: center;
+  @include flex;
   font-size: 1.3rem;
   color: var(--text3);
   font-weight: 500;
@@ -26,10 +25,8 @@
     margin: 0 1.2rem 0 0;
 
     &:deep(.avatar) {
-      width: 3.2rem;
-      height: 3.2rem;
-      border-radius: 50%;
       object-fit: cover;
+      @include circle(3.2, 3.2);
     }
   }
 

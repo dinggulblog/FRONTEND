@@ -45,9 +45,13 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   .TextArea {
+    @include position;
     font-size: 1.4rem;
     width: 100%;
-    position: relative;
+    
+    textarea {
+      @include placeholder(text2);
+    }
 
     label {
       white-space: nowrap;
@@ -55,10 +59,9 @@
     }
 
     .help-message {
+      @include position(absolute, $t: 7.7rem);
       margin: 0;
       font-size: 1.2rem;
-      position: absolute;
-      top: 7.7rem;
     }
 
     &.has-error .help-message {

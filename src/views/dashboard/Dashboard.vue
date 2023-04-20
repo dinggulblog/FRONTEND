@@ -60,7 +60,7 @@ watchEffect(() => {
 <style lang="scss" rel="stylesheet/scss" scoped>
 .dashboard {
   .ul_chips {
-    display: flex;
+    @include flex;
     margin: 0 0 3.2rem;
 
     li { 

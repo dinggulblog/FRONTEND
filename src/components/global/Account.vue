@@ -196,26 +196,16 @@ defineExpose({ open, close })
   }
 
   .wrap_btn-close {
-    display: flex;
-    justify-content: flex-end;
+    @include flex-right;
   }
 
   .wrap_account {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    /* account */
-
     .account {
       /* common */
       width: 100%;
 
       h2 {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include flex-center;
         font-size: 2.4rem;
         color: var(--primary);
         font-weight: 400;
@@ -224,8 +214,7 @@ defineExpose({ open, close })
       }
 
       form {
-        display: flex;
-        flex-direction: column;
+        @include flex(column, $ai: start);
         font-size: 1.3rem;
 
         .wrap_roles {
@@ -236,7 +225,7 @@ defineExpose({ open, close })
             margin: 0 0 1.6rem;
           }
           .wrap_checkbox {
-            display: flex;
+            @include flex;
           }
         }
       }
@@ -244,25 +233,16 @@ defineExpose({ open, close })
       .btn_submit {
         margin: 4.8rem 0 0;
 
-        @media (hover: hover) and (pointer: fine) {
-          &:hover {
-            background-color: var(--primary-light);
-          }
-        }
-
-        &:active {
-          background-color: var(--primary-dark);
-        }
+        @include hover-bg;
+        @include active-bg;
       }
 
       /* end common */
 
       .update_account {
         .wrap_btn_sign-out {
+          @include flex-center;
           margin: 4.8rem 0 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
           .btn_sign-out {
             text-decoration: underline;
           }
@@ -276,9 +256,7 @@ defineExpose({ open, close })
         }
         .wrap_find_account {
           margin: 3.2rem 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
+          @include flex-col-center;
 
           p {
             font-size: 1.2rem;
@@ -294,18 +272,15 @@ defineExpose({ open, close })
         }
 
         .wrap_sign-up {
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          @include flex-center;
           width: 100%;
           border-top: 0.1rem solid var(--border3);
           padding: 3.2rem 0 0;
         }
 
         .btn_create-account {
-          &:hover {
-            color: var(--primary-light);
-          }
+          @include hover;
+          @include active;
         }
       }
     }

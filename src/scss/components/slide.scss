@@ -1,15 +1,4 @@
 .slide_item {
-  overflow: hidden;
-
-  width: 27rem;
-
-  @include tablet {
-    width: 22.2rem;
-  }
-
-  @include mobile {
-    width: 15.2rem;
-  }
 
   .thumbnail {
     position: relative;
@@ -17,10 +6,15 @@
 
     border-radius: 0.8rem;
 
-    width: 100%;
+    width: 27rem;
     height: 20.8rem;
 
+    @include tablet {
+      width: 22.2rem;
+    }
+
     @include mobile {
+      width: 15.2rem;
       height: 15.2rem;
     }
 

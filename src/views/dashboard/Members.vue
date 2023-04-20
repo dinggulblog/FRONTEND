@@ -170,8 +170,7 @@ await getMembers()
 }
 
 .wrap_btns {
-  display: flex;
-  justify-content: flex-end;
+  @include flex-right;
   margin:2.4rem 0 0;
 
   .btn {

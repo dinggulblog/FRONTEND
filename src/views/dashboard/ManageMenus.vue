@@ -50,8 +50,6 @@ const onSetLayout = async (k, menus) => {
 
 <style lang="scss" rel="stylesheet/scss" scoped>
 .wrap_menus {
-  display: flex;
-  flex-direction: column;
   color: var(--text4);
 
   .ul_menus {

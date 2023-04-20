@@ -62,18 +62,15 @@ onMounted(async () => {
 @import './scss/fade.scss';
 
 #header {
-  position: sticky;
-  top: 0;
-  z-index: 997;
+  @include position(sticky, $t:0, $z: 997);
   background: var(--bg1);
 }
 
 .content-container {
-  display: flex;
-  justify-content: center;
+  @include flex-center;
 
   #content {
-    position: relative;
+    @include position;
     width: calc(120rem - 4.8rem);
     margin: 4.8rem 2.4rem;
     box-sizing: border-box;
@@ -96,20 +93,18 @@ onMounted(async () => {
 }
 
 #footer {
+  @include flex-center;
   width: 100%;
+  height: 8rem;
   font-size: 1.2rem;
   color: #a5a5a5;
   letter-spacing: 0.05rem;
   border-top: 1px solid var(--border2);
-  height: 8rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 
   .wrap_contents {
+    @include flex;
     width: calc(120rem - 4.8rem);
     text-transform: capitalize;
-    display: flex;
 
     @include mobile {
       width: calc(100% - 4rem);
@@ -128,9 +123,8 @@ onMounted(async () => {
 
     .links {
       a {
+        @include flex;
         color: var(--primary);
-        display: flex;
-        align-items: center;
         font-weight: 500;
 
         .ico_link {
@@ -142,20 +136,14 @@ onMounted(async () => {
 }
 
 .btn_create {
-  position: absolute;
-  bottom: 4.8rem;
-  right: 4.8rem;
-  z-index: 15;
+  @include position(absolute, $b: 4.8rem, $r: 4.8rem, $z: 15);
 
   @include mobile {
-    bottom: 2.4rem;
-    right: 2.4rem;
+    @include position(absolute, $b: 2.4rem, $r: 2.4rem);
   }
 
   .a_create {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    @include flex-center;
     width: 4.8rem;
     height: 4.8rem;
     color: var(--text1);

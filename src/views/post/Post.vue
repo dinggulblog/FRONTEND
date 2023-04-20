@@ -251,11 +251,10 @@ onUnmounted(() => {
 <style lang="scss" rel="stylesheet/scss" scoped>
 .post {
   .wrap_header {
-    display: flex;
+    @include flex;
 
     .wrap_left {
-      display: flex;
-      flex-direction: column;
+      @include flex(column, $ai: start);
       flex-basis: 80%;
       padding: 0 0 0 2.4rem;
       border-left: 1px solid var(--primary);
@@ -263,20 +262,13 @@ onUnmounted(() => {
       .wrap_title {
         margin-bottom: 2.4rem;
         .title {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
+          @include flex;
 
           h2 {
             font-size: 2rem;
             color: var(--text4);
             font-weight: 400;
-            overflow: hidden;
-            white-space: normal;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 1;
-            -webkit-box-orient: vertical;
+            @include ellipsis(1);
             white-space: pre-wrap;
           }
 
@@ -288,11 +280,8 @@ onUnmounted(() => {
     }
 
     .wrap_right {
-      display: flex;
-      flex-direction: column;
+      @include flex(column, $jc: center, $ai:end);
       flex-basis: 20%;
-      align-items: flex-end;
-      justify-content: center;
     }
   }
 
@@ -314,14 +303,10 @@ onUnmounted(() => {
   }
 
   .wrap_like {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    @include flex-col-center;
 
     .liked_count {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      @include flex-center;
       border: 1px solid var(--border3);
       border-radius: 3.2rem;
       padding: 0.6rem 1.2rem;
@@ -339,9 +324,7 @@ onUnmounted(() => {
 
     .liked_user {
       ul > li {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        @include flex-col-center;
 
         img {
           border-radius: 50%;
@@ -360,7 +343,7 @@ onUnmounted(() => {
   }
 
   .wrap_author {
-    position: relative;
+    @include position;
     margin: 6.4rem 0 0;
 
     &:deep(.user-info) {
@@ -381,9 +364,7 @@ onUnmounted(() => {
           font-size: 1.6rem;
           font-weight: 500;
           width: 10rem;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
+          @include ellipsis(1);
           word-break: break-all;
           color: var(--text3);
         }
@@ -391,12 +372,7 @@ onUnmounted(() => {
         .greetings {
           margin: 1.6rem 0 0;
           font-size: 1.4rem;
-          overflow: hidden;
-          white-space: normal;
-          text-overflow: ellipsis;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
+          @include ellipsis(2);
           color: var(--text3);
 
           @include mobile {
@@ -407,9 +383,7 @@ onUnmounted(() => {
     }
 
     .a_link {
-      position: absolute;
-      top: 0;
-      right: 0;
+      @include position(absolute, $t: 0, $r: 0);
       font-size: 1.4rem;
       text-decoration: underline;
       color: var(--primary);
@@ -422,7 +396,7 @@ onUnmounted(() => {
     border-top: 1px solid var(--border2);
 
     .link {
-      display: flex;
+      @include flex;
       padding: 1.6rem 0;
       width: 100%;
 
@@ -440,11 +414,8 @@ onUnmounted(() => {
       }
 
       .btn_link {
-        display: block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
         font-size: 1.4rem;
+        @include ellipsis(1);
       }
     }
   }

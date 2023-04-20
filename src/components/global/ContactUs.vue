@@ -86,21 +86,12 @@ defineExpose({ open, close })
   }
 
   .wrap_contact-us {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    /* account */
-
     .contact-us {
       /* common */
       width: 100%;
 
       h2 {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include flex-center;
         font-size: 2.4rem;
         color: var(--primary);
         font-weight: 400;
@@ -114,9 +105,7 @@ defineExpose({ open, close })
       }
 
       form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        @include flex(column);
 
         &:deep(.TextInput) {
           margin: 0 0 4.8rem;
@@ -136,17 +125,11 @@ defineExpose({ open, close })
           resize: none;
           border-bottom: 1px solid var(--border2);
           color: var(--text4);
-
-          &::placeholder {
-            color: var(--text2);
-          }
         }
       }
 
       .btn_submit {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include flex-center;
         width: 100%;
         height: 4rem;
         color: var(--text1);
@@ -154,15 +137,8 @@ defineExpose({ open, close })
         border-radius: 3.2rem;
         margin: 4.8rem 0 0;
 
-        @media (hover: hover) and (pointer: fine) {
-          &:hover {
-            background-color: var(--primary-light);
-          }
-        }
-
-        &:active {
-          background-color: var(--primary-dark);
-        }
+        @include hover;
+        @include active;
       }
 
       /* end common */

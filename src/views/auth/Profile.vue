@@ -213,19 +213,13 @@ watch(
 <style lang="scss" rel="stylesheet/scss" scoped>
 .profile {
   .wrap_author {
-    position: relative;
+    @include position;
     margin: 0 0 4.8rem;
 
     &:deep(.user-info) {
       align-items: center;
-
-      @include mobile {
-        align-items: center;
-      }
       .wrap_avatar {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        @include flex(column);
         .avatar {
           width: 9.6rem;
           height: 9.6rem;
@@ -261,12 +255,7 @@ watch(
         .greetings {
           margin: 1.6rem 0 0;
           font-size: 1.4rem;
-          overflow: hidden;
-          white-space: normal;
-          text-overflow: ellipsis;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
+          @include ellipsis(2);
           white-space: pre-wrap;
         }
 
@@ -279,7 +268,7 @@ watch(
           min-height: 12rem;
           resize: none;
           font-size: 1.4rem;
-          color: var(--text2);
+          color: var(--text4);
 
           @include mobile {
             min-height: 12rem;
@@ -289,9 +278,7 @@ watch(
     }
 
     .btn_edit {
-      position: absolute;
-      top: 0;
-      right: 0;
+      @include position(absolute, $t: 0, $r: 0);
       font-size: 1.4rem;
       text-decoration: underline;
       color: var(--primary);
@@ -302,13 +289,12 @@ watch(
     margin: 0 0 3.2rem 0;
 
     .tab {
-      display: flex;
-      flex-wrap: wrap;
+      @include flex;
+
       li {
         flex: 0 0 auto;
         padding: 0.8rem 1.6rem;
         margin: 0 1.6rem 0 0;
-        text-align: center;
         border: 1px solid var(--border3);
         border-radius: 3.2rem;
         transition: border-color ease 0.5s;

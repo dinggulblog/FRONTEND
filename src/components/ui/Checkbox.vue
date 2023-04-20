@@ -44,8 +44,8 @@ onMounted(() => {
 .TextInput {
   font-size: 1.4rem;
   margin: 3.2rem 0 3.2rem;
-  display: flex;
-  position: relative;
+  @include flex;
+  @include position;
 
   label {
     white-space: nowrap;
@@ -65,8 +65,6 @@ onMounted(() => {
 
   input[type='checkbox'] {
     margin: 0 0.4rem 0;
-    display: flex;
-    justify-content: center;
   }
 
   input::placeholder {
@@ -76,8 +74,7 @@ onMounted(() => {
   .help-message {
     margin: 0;
     font-size: 1.2rem;
-    position: absolute;
-    top: 7.7rem;
+    @include position(absolute, $t: 7.7rem);
   }
 
   &.has-error .help-message {
@@ -89,7 +86,7 @@ onMounted(() => {
   }
 
   &.checkbox {
-    display: flex;
+    @include flex;
     line-height: 1.5;
     margin: 0 1.2rem 0 0;
 

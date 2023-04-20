@@ -114,10 +114,10 @@ defineExpose({ open, close })
   }
 
   h2 {
-    display: flex;
-    justify-content: center;
+    @include flex($jc: center);
     color: var(--primary);
     margin:0 0 3.2rem;
+    font-weight: 500;
   }
 
   label {
@@ -126,14 +126,12 @@ defineExpose({ open, close })
   }
 
   .wrap_btn-close {
-    display: flex;
-    justify-content: flex-end;
+    @include flex-right;
     margin: 0 0 1.2rem;
   }
 
   .wrap_menu {
-    display: flex;
-    flex-direction: column;
+    @include flex(column, $ai: start);
 
     input {
       width: 100%;
@@ -146,6 +144,8 @@ defineExpose({ open, close })
   }
 
   .wrap_categories {
+    width:100%; 
+    
     input {
       width: 78%;
     }
@@ -169,8 +169,8 @@ defineExpose({ open, close })
   }
 
   .wrap_add-category {
+    @include flex;
     margin: 0.8rem 0 0;
-    display: flex;
 
     input {
       flex: auto;

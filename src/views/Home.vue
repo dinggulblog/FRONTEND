@@ -87,8 +87,8 @@ onErrorCaptured((err) => {
   }
 
   &:deep(#recent) {
-    display: flex;
     flex-wrap: wrap;
+    @include flex;
   }
 
   &:deep(.recent_item) {
@@ -116,7 +116,7 @@ onErrorCaptured((err) => {
   }
 
   .recent_tranding_sort_btns {
-    display: flex;
+    @include flex;
     margin-bottom: 3.2rem;
 
     li:first-child {
@@ -131,10 +131,9 @@ onErrorCaptured((err) => {
         border-bottom: solid 0.1rem var(--primary);
         content: '';
         inset: 0;
-        position: absolute;
+        @include position(absolute, $z: -1);
         transform: scaleX(0);
         transition: transform 0.25s ease-in;
-        z-index: -1;
       }
 
       &:hover::after {

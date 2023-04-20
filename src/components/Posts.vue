@@ -86,7 +86,7 @@ const isMobileDevices = inject('isMobileDevices')
 const POST_EL = ref(null)
 
 const posts = ref([])
-const maxCount = ref(1)
+const maxCount = ref(0)
 const page = ref(1)
 
 const limit = computed(() => LIMIT_TYPE[type.value])
@@ -151,7 +151,7 @@ await getPosts(1)
 
 <style lang="scss" rel="stylesheet/scss" scoped>
 .wrap_posts {
-  position: relative;
+  @include position;
 
   .posts {
     overflow-x: clip;

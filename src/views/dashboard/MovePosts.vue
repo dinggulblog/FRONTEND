@@ -10,7 +10,7 @@
         <div class="main">
           <select v-model="main" @change="onChangeMainMenu">
             <option selected disabled hidden :value="''">메뉴 선택</option>
-            <option v-for="main in Object.keys($store.state.menu.menus)" :key="main"> {{ main }}</option>
+            <option v-for="main in Object.keys($store.state.menu.menus)" :key="main">{{ main }}</option>
           </select>
         </div>
 
@@ -52,15 +52,15 @@ const POPUP_EL = ref(null)
 
 const main = computed({
   get: () => state.post.main ?? '',
-  set: (value) => commit('post/SET_MAIN', value)
+  set: (value) => commit('post/SET_MAIN', value),
 })
 const sub = computed({
   get: () => state.post.sub ?? '',
-  set: (value) => commit('post/SET_SUB', value)
+  set: (value) => commit('post/SET_SUB', value),
 })
 const category = computed({
   get: () => state.post.category ?? '',
-  set: (value) => commit('post/SET_CATEGORY', value)
+  set: (value) => commit('post/SET_CATEGORY', value),
 })
 
 const onChangeMainMenu = () => {
@@ -80,7 +80,7 @@ const onUpdatePosts = async () => {
   setPayload()
   const { success, error } = await dispatch('post/updatePosts', editPosts.value)
   if (success) {
-     TOAST_EL.value.open('success', '게시물 이동이 완료되었습니다.')
+    TOAST_EL.value.open('success', '게시물 이동이 완료되었습니다.')
     close()
   } else {
     TOAST_EL.value.open('error', error)
@@ -120,16 +120,19 @@ defineExpose({ open, close })
   }
 
   .wrap_btn-close {
-    display: flex;
-    justify-content: flex-end;
+    @include flex-right;
     margin: 0 0 2.4rem;
   }
 
   .wrap_menu {
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid var(--border2);
-    padding: 0 0 1rem;
+    margin:0 0 3.2rem;
+
+    div {
+      width:100%;
+      border-bottom: 1px solid var(--border2);
+      padding: 0 0 1.6rem;
+      margin:1.6rem 0 0;
+    }
 
     h2 {
       text-transform: uppercase;
@@ -163,8 +166,8 @@ defineExpose({ open, close })
   }
 
   .wrap_add-sub {
-    display: flex;
-    margin:0.8rem 0 0 0;
+    @include flex($ai: initial);
+    margin: 0.8rem 0 0 0;
 
     input {
       flex: auto;

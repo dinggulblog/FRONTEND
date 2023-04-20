@@ -27,14 +27,7 @@ defineExpose({ open, close })
 <style lang="scss" rel="stylesheet/scss" scoped>
 .popup-modal {
   background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  position: fixed;
-  align-items: center;
-  justify-content: center;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 998;
+  @include flex-center;
+  @include position(fixed, 0, 0, 0, 0, 998);
 }
 </style>

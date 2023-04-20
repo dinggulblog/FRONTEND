@@ -115,8 +115,6 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   .commentEditor {
-    display: flex;
-    flex-direction: column;
     margin: 2.4rem 0 0 0;
     border: 1px solid var(--border2);
     border-radius: 0.8rem;
@@ -130,9 +128,7 @@
       overflow-y: hidden;
       height: 4.8rem;
 
-      &::placeholder {
-        color: var(--text2);
-      }
+      @include placeholder(text2);
 
       &:disabled {
         background-color: transparent;
@@ -140,15 +136,13 @@
     }
 
     .wrap_btns {
-      display: flex;
-      align-items: flex-end;
+      @include flex-right;
 
       .wrap_toggle {
         flex-basis: 50%;
 
         .toggle {
-          display: flex;
-          align-items: center;
+          @include flex;
           user-select: none;
           cursor: pointer;
 
@@ -162,9 +156,8 @@
       }
 
       .wrap_submit {
-        display: flex;
+        @include flex-right;
         flex-basis: 50%;
-        justify-content: flex-end;
       }
     }
   }

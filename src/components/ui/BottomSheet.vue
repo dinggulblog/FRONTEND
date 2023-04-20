@@ -52,26 +52,16 @@
   .bottom-sheet {
     background-color: rgba(0, 0, 0, 0.5);
     display: none;
-    position: fixed;
-    align-items: flex-end;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 999;
+    @include position(fixed, $t:0, $b: 0, $l:0, $r:0, $z:999);
 
     &.show {
-      display: flex;
+      @include flex($ai: end);
     }
   }
 
   .wrap_items {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
     margin: 0 auto;
     width: 100%;
-    font-weight: 400;
     letter-spacing: 0.05rem;
     box-shadow: var(--shadow1);
     background: var(--bg1);

@@ -131,16 +131,12 @@ onMounted(() => {
 <style lang="scss" rel="stylesheet/scss" scoped>
 .chart {
   .wrap_count {
-    display: flex;
+    @include flex;
 
     & > div {
+      @include flex(column, $jc: center, $ai: center);
       width: 100%;
       height: 9.6rem;
-      background: #ededed;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       margin: 0 0.8rem 0 0;
       border-radius: 1.6rem;
 

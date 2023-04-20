@@ -40,12 +40,8 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   .toast-message {
-    display: flex;
-    position: fixed;
-    align-items: center;
-    top: 2.4rem;
-    right: 2.4rem;
-    z-index: 999;
+    @include flex;
+    @include position(fixed, $t: 2.4rem, $r: 2.4rem, $z: 999);
     width: 32rem;
     height: 6.4rem;
     border-radius: 0.8rem;

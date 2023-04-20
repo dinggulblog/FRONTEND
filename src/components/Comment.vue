@@ -179,13 +179,11 @@
       margin: 0 0 6.4rem;
 
       .wrap_header {
-        display: flex;
-        align-items: center;
+        @include flex;
         margin: 0 0 2.4rem;
 
         .wrap_left {
-          display: flex;
-          align-items: center;
+          @include flex;
           width: 90%;
 
           &:deep(.user-info) {
@@ -202,27 +200,17 @@
         }
 
         .wrap_right {
-          display: flex;
-          flex-direction: column;
+          @include flex(column, $jc: center, $ai: end);
           flex-basis: 20%;
-          align-items: flex-end;
-          justify-content: center;
         }
       }
 
       .content {
-        display: flex;
-        flex-direction: column;
-
-        &:deep(.btn) {
-          justify-content: start;
-        }
 
         p {
-          display: flex;
-          align-items: center;
           color: var(--text3);
           font-size: 1.4rem;
+          white-space: pre;
 
           .lock_ico {
             margin: 0 0.8rem 0 0;
@@ -240,8 +228,6 @@
   }
 
   .not-is-acitve {
-    display: flex;
-    flex-direction: column;
     margin: 0 0 0rem;
     font-size: 1.4rem;
     color: var(--text3);

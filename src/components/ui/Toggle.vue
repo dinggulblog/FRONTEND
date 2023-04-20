@@ -26,9 +26,8 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   .toggle {
-    display: flex;
+    @include flex;
     cursor: pointer;
-    align-items: center;
     user-select: none;
     line-height: 1.5;
 

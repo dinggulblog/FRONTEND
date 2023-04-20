@@ -2,44 +2,20 @@
   <div class="container_bar">
     <div class="bar">
       <div class="wrap_left">
-        <Button
-          v-if="isMobile"
-          class="btn_m-bar"
-          svg="menu"
-          @click="onToggleGnb"
-          aria-label="mobile menu"
-        />
-        <Button
-          v-else
-          class="btn_search"
-          svg="search"
-          @click="$router.push({ name: 'search' })"
-          aria-label="search"
-        />
+        <Button v-if="isMobile" class="btn_m-bar" svg="menu" @click="onToggleGnb" aria-label="mobile menu" />
+        <Button v-else class="btn_search" svg="search" @click="$router.push({ name: 'search' })" aria-label="search" />
       </div>
 
       <div class="logo">
         <router-link :to="{ name: 'home' }" class="a_logo">
-          <img :src="LOGO" alt="logo"/>
+          <img :src="LOGO" alt="logo" />
         </router-link>
       </div>
 
       <div class="wrap_right">
-        <Button 
-          v-if="isMobile"
-          class="btn_search"
-          svg="search"
-          @click="$router.push({ name: 'search' })"
-          aria-label="search"
-        />
+        <Button v-if="isMobile" class="btn_search" svg="search" @click="$router.push({ name: 'search' })" aria-label="search" />
 
-        <Button 
-          v-else-if="!$store.state.auth.user"
-          class="btn_login"
-          svg="lock"
-          @click="ACCOUNT_EL.open('login')"
-          aria-label="login"
-        />
+        <Button v-else-if="!$store.state.auth.user" class="btn_login" svg="lock" @click="ACCOUNT_EL.open('login')" aria-label="login" />
 
         <div v-else class="wrap_auth">
           <div class="auth dropdown">
@@ -92,17 +68,13 @@ const onToggleGnb = () => {
 }
 
 .container_bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @include flex-center;
   width: 100%;
-  margin: 0 0 0;
+  margin: 0;
   border-bottom: 1px solid var(--border2);
 
   .bar {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    @include flex;
     min-width: calc(120rem - 4.8rem);
     max-width: calc(120rem - 4.8rem);
     height: 6.4rem;
@@ -134,47 +106,41 @@ const onToggleGnb = () => {
     }
 
     .logo {
-      display: flex;
+      @include flex($jc: center);
       flex-basis: 60%;
       flex-shrink: 2;
-      justify-content: center;
+
       .a_logo {
         font-size: 2.4rem;
 
         img {
           width: 10.5rem;
-          height:2.6rem;
+          height: 2.6rem;
         }
       }
     }
     .wrap_left {
-      display: flex;
       flex-basis: 20%;
       flex-shrink: 1;
     }
     .wrap_right {
-      display: flex;
+      @include flex($jc: end);
       flex-shrink: 1;
       flex-basis: 20%;
-      justify-content: flex-end;
-      align-items: center;
 
       .ico_lock {
         cursor: pointer;
       }
 
       .wrap_auth {
-        display: flex;
-        align-items: center;
+        @include flex;
         .a_create {
           @include mobile_all {
             display: none;
           }
         }
         .auth {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
+          @include flex;
           margin: 0 0 0 4.8rem;
 
           &:deep(.user-info) {
@@ -189,12 +155,11 @@ const onToggleGnb = () => {
             padding: 4rem 0 0;
 
             ul {
+              @include position($z:999);
               background-color: var(--bg2);
               border: 1px solid var(--border2);
               border-radius: 1.2rem;
               cursor: default;
-              position: relative;
-              z-index: 999;
             }
 
             li {
@@ -218,15 +183,8 @@ const onToggleGnb = () => {
                   font-size: 1.6rem;
                 }
 
-                @media (hover: hover) and (pointer: fine) {
-                  &:hover {
-                    color: var(--primary-light);
-                  }
-                }
-
-                &:active {
-                  color: var(--primary-dark);
-                }
+                @include hover;
+                @include active;
               }
             }
           }
@@ -235,30 +193,24 @@ const onToggleGnb = () => {
 
       .a_create,
       .a_login {
-        display: flex;
-        align-items: center;
+        @include flex;
       }
     }
   }
 }
 
 .container_gnb {
-  display: flex;
-  justify-content: center;
+  @include flex-center;
   width: 100%;
   border-bottom: 1px solid var(--border2);
 
   @include mobile_all {
-    display: flex;
-    justify-content: flex-start;
-    box-shadow: 0 0;
-    position: fixed;
-    top: 0;
+    @include flex($jc: start);
+    @include position(fixed, $t:0);
   }
 
   .gnb {
-    display: flex;
-    align-items: center;
+    @include flex;
     width: calc(120rem - 4.8rem);
     height: 4.8rem;
     background-color: var(--bg1);

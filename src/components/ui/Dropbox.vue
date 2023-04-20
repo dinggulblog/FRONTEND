@@ -48,14 +48,11 @@
 
 <style lang="scss" rel="stylesheet/scss" scoped>
   .dropbox {
-    position: relative;
+    @include position;
 
     .wrap_dropbox_items {
       display: none;
-      position: absolute;
-      top: 1.2rem;
-      right: 0;
-      z-index: 30;
+      @include position(absolute, $t: 1.2rem, $r: 0, $z: 30);
 
       ul {
         width: 9.6rem;
@@ -65,11 +62,10 @@
         background: var(--bg1);
 
         &:deep(li) {
-          display: flex;
-          justify-content: center;
           margin: 2rem 0;
           font-size: 1.2rem;
           color: var(--text3);
+          @include flex-center;
 
           span {
             cursor: pointer;

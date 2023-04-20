@@ -7,10 +7,11 @@ module.exports = defineConfig({
   outputDir: path.resolve('../backend/public'),
   css: {
     loaderOptions: {
-      sass: {
+      scss: {
         additionalData: `
-          @import '@/scss/variables.scss';
-          @import '@/scss/mixin.scss';
+          @import '@/scss/helpers/mixin.scss';
+          @import '@/scss/helpers/meidaQuery.scss';
+          @import '@/scss/variables/_color.scss';
         `,
       },
     },

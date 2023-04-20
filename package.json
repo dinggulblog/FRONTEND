@@ -19,6 +19,7 @@
     "markdown-to-text": "^0.1.1",
     "md-editor-v3": "^2.11.0",
     "node-polyfill-webpack-plugin": "^2.0.1",
+    "sass-loader": "^13.2.2",
     "vee-validate": "^4.5.7",
     "vue": "^3.0.0",
     "vue-dompurify-html": "^3.1.1",
@@ -38,7 +39,6 @@
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.0",
     "mini-css-extract-plugin": "^2.7.3",
-    "sass": "^1.26.5",
-    "sass-loader": "^10.2.0"
+    "sass": "^1.26.5"
   }
 }
