@@ -1,11 +1,10 @@
-import { setItem, getItem, setItemWithTTL, getItemWithTTL, clearStorage } from '../../common/localStorage'
+import { setItem, getItem, clearStorage } from '../../common/localStorage'
 import axios from '../../services/axios'
 import router from '../../router'
 
 const state = () => ({
   user: getItem('user', null),
   isAdmin: getItem('isAdmin', false),
-  isLogin: getItemWithTTL('isLogin', false),
   isValidAdmin: false,
   profile: {},
   members: [],
@@ -231,11 +230,6 @@ const actions = {
 const mutations = {
   SET_ADMIN(state) {
     state.isValidAdmin = true
-  },
-
-  SET_LOGIN(state) {
-    state.isLogin = true
-    setItemWithTTL('isLogin', true, 1000 * 60 * 60 * 2)
   },
 
   SET_USER(state, { roles, ...user }) {

@@ -19,7 +19,7 @@
     </div>
   </div>
 
-  <div class="btn_create" v-if="$store.state.auth.isLogin">
+  <div class="btn_create" v-if="$store.state.auth.user">
     <router-link :to="{ name: 'editor' }" class="a_create"><Ico :size="'md'" :svg="'create'" aria-label="create post"/></router-link>
   </div>
 

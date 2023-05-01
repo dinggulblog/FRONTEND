@@ -1,13 +1,15 @@
 .slide_item {
   overflow: hidden;
-
+  min-width:27rem;
   width: 27rem;
 
   @include tablet {
+    min-width:22.2rem;
     width: 22.2rem;
   }
 
   @include mobile {
+    min-width:15.2rem;
     width: 15.2rem;
   }
 
