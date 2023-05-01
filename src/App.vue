@@ -6,7 +6,7 @@
   <div class="content-container">
     <div id="content" :style="$route.name === 'dashboard' ? { width: '80%' } : ''">
       <div>
-        <router-view />
+        <router-view @vnode-before-mount="getItem('user', null) && $store.dispatch('auth/refresh')" />
       </div>
     </div>
   </div>
@@ -30,10 +30,8 @@
 </template>
 
 <script setup>
-import { ref, provide, onMounted } from 'vue'
-import { useStore } from 'vuex'
-
-const { state, dispatch } = useStore()
+import { getItem } from './common/localStorage'
+import { ref, provide } from 'vue'
 
 const DIALOG_EL = ref(null)
 const TOAST_EL = ref(null)
@@ -44,17 +42,6 @@ provide('DIALOG_EL', DIALOG_EL)
 provide('TOAST_EL', TOAST_EL)
 provide('ACCOUNT_EL', ACCOUNT_EL)
 provide('CONTACT_EL', CONTACT_EL)
-
-onMounted(async () => {
-  if (!state.auth.user) return
-
-  const { success } = await dispatch('auth/refresh')
-
-  if (!success) {
-    await dispatch('auth/logout')
-    TOAST_EL.value.open('error', '계정에 문제가 발생하여 로그아웃 처리되었습니다.\n해당 증상이 반복되면 관리자에게 문의하세요.')
-  }
-})
 </script>
 
 <style lang="scss" rel="stylesheet/scss">

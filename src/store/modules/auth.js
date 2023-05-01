@@ -22,8 +22,6 @@ const actions = {
 
       if (!success) throw new Error('로그인에 실패하였습니다.')
 
-      commit('SET_LOGIN')
-
       return await actions.getAccount({ commit })
     } catch (err) {
       return { success: false, error: err?.response?.data?.message || err.message }
@@ -36,8 +34,6 @@ const actions = {
       const { data: { success } } = await axios.put('v1/auth')
 
       if (!success) throw new Error('로그인 갱신에 실패하였습니다.')
-
-      commit('SET_LOGIN')
 
       return { success, error: null }
     } catch (err) {
@@ -251,16 +247,16 @@ const mutations = {
 
   SET_PROFILE_INTRO(state, { greetings, introduce }) {
     state.profile = { greetings, introduce, ...state.profile }
-    setItem('profile', state.profile)
   },
 
   SET_PROFILE_AVATAR(state, { avatar }) {
     state.profile = { avatar, ...state.profile }
-    setItem('profile', state.profile)
   },
 
   UNSET_USER(state) {
     state.user = null
+    state.isAdmin = false
+    state.isValidAdmin = false
     clearStorage()
   },
 

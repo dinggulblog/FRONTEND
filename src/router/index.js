@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { trackRouter } from 'vue-gtag-next'
-import { getItem } from '../common/localStorage'
 import store from '../store/index'
 import Home from '../views/Home.vue'
 import Post from '../views/post/Post.vue'
@@ -38,10 +37,6 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   try {
-    if (store.state.auth.isLogin && !store.state.auth.user) {
-      await store.dispatch('auth/getAccount')
-    }
-
     if (!store.state.menu.menus) {
       await store.dispatch('menu/getMenus')
     }
@@ -58,10 +53,11 @@ router.beforeEach(async (to, from, next) => {
       return next()
     }
 
-    // Admin route
+    // Admin route (required authentication)
     if (!store.state.auth.isAdmin) {
       return next({ name: 'home' })
-    } else if (store.state.auth.isValidAdmin) {
+    } 
+    if (store.state.auth.isValidAdmin) {
       return next()
     }
 
@@ -72,7 +68,7 @@ router.beforeEach(async (to, from, next) => {
     }
 
     store.commit('auth/SET_ADMIN')
-    next()
+    return next()
   } catch (error) {
     next(error)
   }
