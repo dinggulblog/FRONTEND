@@ -13,12 +13,9 @@ export const formatTime = (time) => {
 
 export const getTime = (createdAt) => {
   const createTime = new Date(createdAt).getTime()
-  const curTime = new Date().getTime() + 9 * 60 * 60 * 1000 // 한국 시간으로 계산 +9시간
-  const calcTime = (curTime - createTime) / 1000 // getTime() ms 단위
-  const RelativeTimeFormat = new Intl.RelativeTimeFormat('ko', {
-    numeric: 'always',
-  })
-
+  const curTime = new Date().getTime()            //  + 9 * 60 * 60 * 1000 한국 시간으로 계산 +9시간
+  const calcTime = (curTime - createTime) / 1000  // getTime() ms 단위
+  const RelativeTimeFormat = new Intl.RelativeTimeFormat('ko', { numeric: 'always' })
   const time = ref(null)
 
   // 60 = 1분

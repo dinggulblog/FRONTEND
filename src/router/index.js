@@ -2,16 +2,16 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { trackRouter } from 'vue-gtag-next'
 import store from '../store/index'
 import Home from '../views/Home.vue'
-import Post from '../views/post/Post.vue'
 import Posts from '../views/post/Posts.vue'
 import Search from '../views/post/Search.vue'
 import NotFound from '../views/NotFound.vue'
 
+const Post = () => import(/* webpackChunkName: "post" */ '../views/post/Post.vue')
 const Editor = () => import(/* webpackChunkName: "editor" */ '../views/post/Editor.vue')
 const Profile = () => import(/* webpackChunkName: "profile" */ '../views/auth/Profile.vue')
 const FindAccount = () => import(/* webpackChunkName: "findAccount" */ '../views/auth/FindAccount.vue')
 const ResetPassword = () => import(/* webpackChunkName: "resetPassword" */ '../views/auth/ResetPassword.vue')
-const Dashboard = () => import(/* webpackChunkName: "Dashboard" */ '../views/dashboard/Dashboard.vue')
+const Dashboard = () => import(/* webpackChunkName: "dashboard" */ '../views/dashboard/Dashboard.vue')
 
 const routes = [
   { path: '/', redirect: 'home' },

@@ -88,18 +88,17 @@
       <ul>
         <li v-for="(file, index) in images" :key="index">
           <div class="wrap_thumbnail">
-            <img 
+            <Image
               :src="`${file.thumbnail}`"
               :class="file.thumbnail === thumbnail ? 'selected_thumbnail' : ''"
-              :alt="file.serverFileName"
+              :filename="file.serverFileName"
               @click="onSelectImage(file), onInsertImage(file.thumbnail)"
-              @error.once="onChangeImage($event, `post/${file.serverFileName}`)"
             />
             <Button class="image_del_btn" 
+              aria-label="DELETE IMAGE"
               :svg="'del-image'" 
               :theme="'primary'"
               @click="onDeleteImage(file._id, index)"
-              aria-label="DELETE IMAGE"
             />
           </div>
         </li>
@@ -237,14 +236,8 @@ const onUpdatePost = async () => {
 const onUploadImages = async (event) => {
   if (!event.target.files.length) return
 
-  for (const { name } of event.target.files) {
-    if (String(name).split('.')[0].length > 32) {
-      return TOAST_EL.value.open('error', '파일명은 32자 이하만 가능합니다.')
-    }
-  }
-
   const formData = new FormData()
-  Object.values(event.target.files).forEach((file) => formData.append('images', file))
+  Object.values(event.target.files).forEach((file) => formData.append('images', file, file.name.replace(/(\s)/g, '')))
   Object.entries(postState).forEach(([key, value]) => formData.append(key, value))
 
   const { success, images: updatedImages, error } = route.query.postId
@@ -262,10 +255,6 @@ const onUploadImages = async (event) => {
       onInsertImage(image.thumbnail)
     }
   }
-}
-
-const onChangeImage = (event, url) => {
-  event.target.src = process.env.VUE_APP_IMAGE_URL + url
 }
 
 const onDeleteImage = async (fileId, index) => {

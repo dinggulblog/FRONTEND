@@ -49,7 +49,7 @@ const setup = (store) => {
         `)
       }
       
-      if (!originalConfig.url.endsWith('auth') && error.response && !originalConfig._retry) {
+      if (error.response && !originalConfig._retry) {
         originalConfig._retry = true
 
         // 419 Error response => Refresh token was expired OR not exist => Logout
@@ -59,12 +59,13 @@ const setup = (store) => {
         }
 
         // Access token was not provided OR was expired
-        if (error.response.status === 401) {
+        if (!originalConfig.url.endsWith('auth') && error.response.status === 401) {
           await store.dispatch('auth/refresh')
           return axiosInstance(originalConfig)
         }
       }
-      else if (error.message?.includes('Network')) {
+
+      if (error.message?.includes('Network')) {
         error.message = '네트워크에 문제가 발생하였습니다. 잠시 후 다시 시도해 주세요.'
       }
 

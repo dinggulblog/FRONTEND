@@ -12,7 +12,7 @@
       </div>
     </template>
     <template #trigger>
-      <button class="md-editor-icon">
+      <button class="md-editor-icon" tabindex="-1">
         🙂
       </button>
       <!--

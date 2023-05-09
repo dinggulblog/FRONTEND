@@ -233,11 +233,6 @@ watch(
   { immediate: true },
 )
 
-onErrorCaptured((err) => {
-  TOAST_EL.value.open('error', err)
-  return true
-})
-
 onBeforeMount(() => {
   commit('post/UNSET_POST')
   commit('comment/UNSET_COMMENTS')

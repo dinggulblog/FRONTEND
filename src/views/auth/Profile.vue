@@ -3,19 +3,28 @@
     <!-- Profile -->
     <form v-on:submit.prevent="submitForm">
       <div class="wrap_author">
-        <User :profile="profileState" :state="displayState.state" @updateAvatar="onUpdateAvatar" @resetAvatar="resetAvatar" @updateGreetings="updateGreetings" />
-        <div class="wrap_btn-edit" v-if="profileState.nickname === user?.nickname">
+
+        <User 
+          :profile="profileState" 
+          :state="displayState.state"
+          @updateAvatar="onUpdateAvatar"
+          @resetAvatar="onDeleteAvatar"
+          @updateGreetings="onChangeGreetings"
+        />
+
+        <div class="wrap_btn-edit" v-if="profileState.nickname === $store.state.auth.user?.nickname">
           <button class="btn_edit" @click="displayState.state === 'edit' ? onUpdateGreetings() : onChangeState('edit')">
             {{ displayState.state === 'edit' ? '편집 완료' : '기본 정보 편집' }}
           </button>
         </div>
+
       </div>
     </form>
 
     <!-- Tab menu -->
     <div class="wrap_tab">
       <ul class="tab">
-        <li v-for="tab in tabs" :key="tab.name" :class="tab.name === displayState.tab ? 'isActive' : ''" @click="onChangeTab(tab.name)">
+        <li v-for="tab in TABS" :key="tab.name" :class="tab.name === displayState.tab ? 'isActive' : ''" @click="onChangeTab(tab.name)">
           {{ tab.content }}
         </li>
       </ul>
@@ -23,28 +32,27 @@
 
     <!-- Tab content - Introduce -->
     <div v-if="displayState.tab === 'intro'" class="introduce">
-        <MdEditor
-          v-if="displayState.state === 'introEdit'"
-          ref="PROFILE_EL"
-          v-model="profileState.introduce"
-          language="ko-KR"
-          :toolbars="toolbars"
-          :preview="!isMobile"
-          >
-          <template #defToolbars>
-            <EmojiExtension @insert="onInsertEmoji" />
-          </template>
-        </MdEditor>
+      <MdEditor
+        v-if="displayState.state === 'introEdit'"
+        ref="PROFILE_EL"
+        v-model="profileState.introduce"
+        language="ko-KR"
+        :toolbars="toolbars"
+        :preview="!isMobile"
+        >
+        <template #defToolbars>
+          <EmojiExtension @insert="onInsertEmoji" />
+        </template>
+      </MdEditor>
 
-         <MdEditor
-          v-else
-          v-model="profileState.introduce"
-          previewOnly
-          >
-        </MdEditor>
+      <MdEditor
+        v-else
+        v-model="profileState.introduce"
+        previewOnly
+      />
 
       <Button
-        v-if="profileState.nickname === user?.nickname"
+        v-if="profileState.nickname === $store.state.auth.user?.nickname"
         class="btn_edit_introduce"
         :size="'sm'"
         :shape="'fill-round'"
@@ -69,7 +77,7 @@
 </template>
 
 <script setup>
-import { inject, ref, reactive, computed, watch } from 'vue'
+import { inject, ref, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import User from '../../components/User.vue'
@@ -81,13 +89,6 @@ import { toolbars } from '../../common/editor/toolbars'
 import { ko_KR } from '../../common/editor/ko_KR.js'
 import 'md-editor-v3/lib/style.css'
 
-const { go, currentRoute } = useRouter()
-const { state, dispatch } = useStore()
-
-const isMobile = inject('isMobile')
-const TOAST_EL = inject('TOAST_EL')
-const PROFILE_EL = ref(null)
-
 MdEditor.config({
   editorConfig: {
     languageUserDefined: {
@@ -96,11 +97,18 @@ MdEditor.config({
   },
 })
 
-const tabs = ref([
+const TABS = [
   { name: 'intro', content: '소개글' },
   { name: 'like', content: '좋아요 한 게시물' },
   { name: 'comment', content: '댓글 단 게시물' },
-])
+]
+
+const { push, currentRoute } = useRouter()
+const { dispatch } = useStore()
+
+const isMobile = inject('isMobile')
+const TOAST_EL = inject('TOAST_EL')
+const PROFILE_EL = ref(null)
 
 const profileState = reactive({
   nickname: '',
@@ -109,13 +117,10 @@ const profileState = reactive({
   greetings: '',
   introduce: '',
 })
-
 const displayState = reactive({
   tab: 'intro',
   state: 'view',
 })
-
-const user = computed(() => state.auth.user)
 
 const onChangeState = (state) => {
   displayState.state = state
@@ -125,67 +130,58 @@ const onChangeTab = (tab) => {
   displayState.tab = tab
 }
 
+const onChangeGreetings = (event) => {
+  profileState.greetings = event.target.value
+}
+
+const onInsertEmoji = (generator) => {
+  PROFILE_EL.value?.insert(generator)
+}
+
 const onUpdateAvatar = async (event) => {
-  if (user.value.nickname !== profileState.nickname) return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
-
   const formData = new FormData()
-  formData.append('avatar', event.target.files[0])
+  formData.append('avatar', event.target.files[0], event.target.files[0].name.replace(/(\s)/g, ''))
 
-  const { success, profile } = await dispatch('auth/updateProfileAvatar', {
+  const { success, profile, error } = await dispatch('auth/updateProfileAvatar', {
     nickname: profileState.nickname,
-    payload: formData,
+    payload: formData
   })
 
-  if (!success) return TOAST_EL.value.open('error', '아바타 업데이트 도중 에러가 발생하였습니다.')
-
+  if (!success) return TOAST_EL.value.open('error', error)
   profileState.avatar = profile.avatar
 }
 
-const resetAvatar = async () => {
-  if (user.value.nickname !== profileState.nickname) return TOAST_EL.value.open('error', '본인 프로필만 수정 가능합니다.')
-
-  const { success } = await dispatch('auth/deleteProfileAvatar', {
+const onDeleteAvatar = async () => {
+  const { success, error } = await dispatch('auth/deleteProfileAvatar', {
     nickname: profileState.nickname,
   })
 
-  if (!success) return TOAST_EL.value.open('error', '아바타 업데이트 도중 에러가 발생하였습니다.')
-
-  profileState.avatar = null
-}
-
-const updateGreetings = (event) => {
-  profileState.greetings = event.target.value
+  if (!success) return TOAST_EL.value.open('error', error)
+  profileState.avatar = ''
 }
 
 const onUpdateGreetings = async () => {
   if (profileState.greetings.length > 150) return TOAST_EL.value.open('error', '글자 수 제한을 초과하였습니다. (최대 150자까지 허용)')
-  const { success, profile } = await dispatch('auth/updateProfile', {
+
+  const { success, profile, error } = await dispatch('auth/updateProfile', {
     nickname: profileState.nickname,
     payload: { greetings: profileState.greetings },
   })
 
-  if (!success) return
-
+  if (!success) return TOAST_EL.value.open('error', error)
   profileState.greetings = profile.greetings
   onChangeState('view')
 }
 
 const onUpdateIntroduce = async () => {
-  const { success, profile } = await dispatch('auth/updateProfile', {
+  const { success, profile, error } = await dispatch('auth/updateProfile', {
     nickname: profileState.nickname,
-    payload: {
-      introduce: profileState.introduce,
-    },
+    payload: { introduce: profileState.introduce }
   })
 
-  if (!success) return
-
+  if (!success) return TOAST_EL.value.open('error', error)
   profileState.introduce = profile.introduce
   onChangeState('view')
-}
-
-const onInsertEmoji = (generator) => {
-  PROFILE_EL.value?.insert(generator)
 }
 
 watch(
@@ -196,15 +192,15 @@ watch(
     })
 
     if (error) {
-      alert(error)
-      return go(-1)
+      TOAST_EL.value.open('error', error)
+      return push({ name: 'home' })
     }
 
-    profileState._id = profile._id
-    profileState.nickname = profile.nickname
-    profileState.avatar = profile.avatar
-    profileState.greetings = profile.greetings
-    profileState.introduce = profile.introduce
+    profileState._id = profile?._id ?? ''
+    profileState.nickname = profile?.nickname ?? ''
+    profileState.avatar = profile?.avatar ?? ''
+    profileState.greetings = profile?.greetings ?? ''
+    profileState.introduce = profile?.introduce ?? ''
   },
   { immediate: true },
 )

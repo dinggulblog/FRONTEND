@@ -1,9 +1,9 @@
 <template>
   <component :is="LAYOUTS[type]">
     <template #thumbnail>
-      <div v-if="post?.thumbnail" class="thumbnail">
+      <div v-if="post.thumbnail" class="thumbnail">
         <router-link :to="{ name: 'post', params: { postId: post._id } }">
-          <img :src="post.thumbnail" alt="image"/>
+          <Image :src="post.thumbnail" />
         </router-link>
 
         <div class="ico_like" v-if="post.liked">
@@ -12,7 +12,7 @@
       </div>
       
       <div class="thumbnail" v-else :style="type === 'list' ? { display: 'none', width: '0' } : ''">
-        <img :src="DEFAULT_THUMBNAIL" alt="default thumbnail"/>
+        <Image :src="DEFAULT_THUMBNAIL" />
       </div>
     </template>
 
@@ -59,11 +59,11 @@
 
 <script setup>
 import markdownText from 'markdown-to-text'
-import DEFAULT_THUMBNAIL from '../assets/default_thumbnail.webp'
 import Card from './slots/Card.vue'
 import List from './slots/List.vue'
 import Slide from './slots/Slide.vue'
 import Recent from './slots/Recent.vue'
+import DEFAULT_THUMBNAIL from '../assets/default_thumbnail.webp'
 import { getTime } from '../common/time.js'
 
 const props = defineProps({
@@ -74,7 +74,8 @@ const props = defineProps({
   },
   post: {
     type: Object,
-    required: true
+    required: true,
+    default: () => ({})
   },
 })
 

@@ -13,7 +13,7 @@
   <!-- Slide button -->
   <div class="wrap_btn_slidePage" v-if="maxCount">
     <Button v-if="slidePage !== 1" class="btn_old" :svg="'arrow-left'" @click="prevSlide" aria-label="prevSlide" />
-    <Button v-if="slideMaxPage > 1 && slidePage !== slideMaxPage" class="btn_next" :svg="'arrow-right'" @click="nextSlide" aria-label="nextSilde" />
+    <Button v-if="slidePage !== slideMaxPage && slideMaxPage > 1" class="btn_next" :svg="'arrow-right'" @click="nextSlide" aria-label="nextSilde" />
   </div>
 </template>
 
@@ -46,10 +46,10 @@ const { maxCount, limit, target } = toRefs(props)
 const isDesktop = inject('isDesktop')
 const isMobileDevices = inject('isMobileDevices')
 
-const slidePage = ref(1) // 현재 보고 있는 페이지
+const slidePage = ref(1)  // 현재 보고 있는 슬라이드된 페이지
 const slideIndex = ref(0) // 슬라이드 인덱스
 const slideLimit = computed(() => (isDesktop.value ? limit.value / 2 : limit.value / 4)) // 한 번의 슬라이드에 넘길 게시물 갯수
-const slideMaxPage = computed(() => Math.ceil(maxCount.value / slideLimit.value)) // 슬라이드 가능한 페이지 상한값
+const slideMaxPage = computed(() => Math.ceil(maxCount.value / slideLimit.value))        // 슬라이드 가능한 페이지 상한값
 const slideRest = computed(() => slideMaxPage.value * slideLimit.value - maxCount.value) // 슬라이드 마지막 페이지에 모자란 게시물 갯수
 
 const onUpdateSlidePage = (updatePage) => {

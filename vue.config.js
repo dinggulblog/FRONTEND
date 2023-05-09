@@ -19,9 +19,7 @@ module.exports = defineConfig({
   configureWebpack: {
     plugins: [
       new NodePolyfillPlugin(),
-      new MiniCssExtractPlugin({
-        filename: '[name].css'
-      })
+      new MiniCssExtractPlugin({ filename: '[name].css' })
     ],
     resolve: {
       fallback: {

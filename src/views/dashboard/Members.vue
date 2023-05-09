@@ -14,7 +14,7 @@
             </div>
 
             <div class="table-cell">
-              <img :src="member.avatar?.thumbnail ?? DEFAULT_AVATAR_64" class="avatar img_avatar" @error="onGetDefaultImage" />
+              <Image class="avatar img_avatar" :src="member.avatar?.thumbnail ?? DEFAULT_AVATAR_64"  />
             </div>
 
             <div class="table-cell">
@@ -73,10 +73,6 @@ const members = computed(() => state.auth.members)
 const editMembers = computed(() => state.auth.editMembers)
 
 const tableHeads = ref(['선택', '아바타', '이메일', '닉네임', '권한', '가입일', '마지막 로그인', '상태', '옵션'])
-
-const onGetDefaultImage = (event) => {
-  event.target.src = DEFAULT_AVATAR_64
-}
 
 const getMembers = async () => {
   const { success, error } = await dispatch('auth/getMembers')

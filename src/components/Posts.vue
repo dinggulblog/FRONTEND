@@ -1,12 +1,12 @@
 <template>
   <div class="wrap_posts">
     <Slider 
-      v-if="type === 'slide'"
+      v-if="type === 'slide' && !isMobileDevices"
       :target="POST_EL"
       :limit="limit"
       :recent="recent"
       :category="category"
-      :maxCount="maxCount"
+      :maxCount="recent ? Math.min(maxCount, 8) : maxCount"
     />
 
     <!-- List of Posts -->
@@ -17,10 +17,10 @@
             <template v-for="(post, index) in posts" :key="index">
               <PostsItem :type="type" :post="post" :data-index="index" />
             </template>
+            <li v-if="!recent"><Observer :page="page" @update="onUpdatePage"></Observer></li>
           </TransitionGroup>
-          <li v-if="!recent"><Observer :page="page" @update="onUpdatePage"></Observer></li>
         </template>
-        <li v-else><p class="empty_posts">no posts yet</p></li>
+        <li v-else><p class="empty_posts">게시물이 비어있습니다.</p></li>
       </ul>
     </div>
   </div>
@@ -86,15 +86,14 @@ const isMobileDevices = inject('isMobileDevices')
 const POST_EL = ref(null)
 
 const posts = ref([])
-const maxCount = ref(0)
 const page = ref(1)
-
+const maxCount = ref(0)
 const limit = computed(() => LIMIT_TYPE[type.value])
 const maxPage = computed(() => Math.ceil(maxCount.value / limit.value))
 
 const onUpdatePage = (newPage) => {
   if (maxPage.value < newPage) return
-
+  
   page.value = newPage
   getPosts(newPage)
 }
@@ -123,7 +122,7 @@ const getPosts = async (curPage) => {
 
   if (!res.success) throw new Error('게시물을 받아오는 도중 에러가 발생하였습니다.')
 
-  if (res.maxCount) maxCount.value = props.recent ? limit.value : res.maxCount
+  if (res.maxCount) maxCount.value = res.maxCount
   posts.value.splice((curPage - 1) * limit.value, limit.value, ...res.posts)
 }
 
@@ -137,7 +136,9 @@ const afterEnter = (el) => {
 
 watch([main, sub, category, sort, filter, userId, searchText], () => {
   posts.value = []
-  onUpdatePage(1)
+  maxCount.value = 0
+  page.value = 1
+  getPosts(1)
 })
 
 watchEffect(() => {

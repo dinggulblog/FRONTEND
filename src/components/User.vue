@@ -1,7 +1,8 @@
 <template>
   <UserInfo>
     <template #avatar>
-      <img class="avatar" :src="profile?.avatar?.thumbnail ?? DEFAULT_AVATAR_64" alt="profile_avatar" @error="onGetDefaultImage" />
+      <Image v-if="profile.avatar" class="avatar" :src="profile.avatar?.thumbnail" />
+      <Image v-else class="avatar" :src="DEFAULT_AVATAR_64" />
     </template>
 
     <template #avatar_upload v-if="state === 'edit'">
@@ -42,8 +43,4 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['updateAvatar', 'updateGreetings', 'resetAvatar']) // views -> Profile function
-
-const onGetDefaultImage = (event) => {
-  event.target.src = DEFAULT_AVATAR_64
-}
 </script>

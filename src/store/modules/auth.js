@@ -6,7 +6,6 @@ const state = () => ({
   user: getItem('user', null),
   isAdmin: getItem('isAdmin', false),
   isValidAdmin: false,
-  profile: {},
   members: [],
   editMembers: [],
 })
@@ -14,7 +13,6 @@ const state = () => ({
 const getters = {}
 
 const actions = {
-  // param: Object (email, password)
   async login({ commit }, payload) {
     try {
       const { data: { success } } = await axios.post('v1/auth', payload)
@@ -27,7 +25,6 @@ const actions = {
     }
   },
 
-  // params: none
   async refresh({ commit }) {
     try {
       const { data: { success } } = await axios.put('v1/auth')
@@ -40,7 +37,6 @@ const actions = {
     }
   },
 
-  // params: none
   async logout({ commit }) {
     try {
       const { data: { success } } = await axios.delete('v1/auth')
@@ -53,7 +49,6 @@ const actions = {
     }
   },
 
-  // params: Object
   async createAccount({ commit }, payload) {
     try {
       const { data: { success } } = await axios.post('v1/users/account', payload)
@@ -66,7 +61,6 @@ const actions = {
     }
   },
 
-  // params: none
   async getAccount({ commit }) {
     try {
       const { data } = await axios.get('v1/users/account')
@@ -83,23 +77,6 @@ const actions = {
     }
   },
 
-  async getMembers({ commit }) {
-    try {
-      const { data } = await axios.get('v1/users/accounts')
-      const { success, data: { users } } = data
-
-      if (!success || !users) throw new Error('멤버 정보를 받아오는 도중 에러가 발생하였습니다')
-
-      commit('SET_MEMBERS', users)
-
-      return { success, error: null }
-    } catch (err) {
-      return { success: false, error: err?.response?.data?.message || err?.message }
-    }
-  },
-  
-
-  // params: Object
   async updateAccount({ commit }, payload) {
     try {
       const { data: { success } } = await axios.put('v1/users/account', payload)
@@ -112,21 +89,6 @@ const actions = {
     }
   },
 
-  async updateMembers({ commit }, payload) {
-    try {
-      const { data: { success } } = await axios.put('v1/users/accounts', { users: payload })
-
-      if (!success) throw new Error('계정 업데이트에 실패하였습니다.')
-
-      commit('UNSET_EDIT_MEMBERS')
-
-      return await actions.getMembers({ commit })
-    } catch (err) {
-      return { success: false, error: err?.response?.data?.message || err?.message }
-    }
-  },
-
-  // params: none
   async deleteAccount({ commit }) {
     try {
       const { data: { success } } = await axios.delete('v1/users/account')
@@ -141,13 +103,14 @@ const actions = {
     }
   },
 
-  // params: Object
   async getProfile({ commit }, { nickname }) {
     try {
       const { data } = await axios.get(`v1/users/profile/${nickname}`)
       const { success, data: { profile } } = data
 
-      if (!success || !profile) throw new Error('프로필을 받아오는 도중 에러가 발생하였습니다.')
+      if (!success || !profile) {
+        throw new Error('프로필을 받아오는 도중 에러가 발생하였습니다.')
+      }
 
       return { success, profile, error: null }
     } catch (err) {
@@ -155,14 +118,18 @@ const actions = {
     }
   },
 
-  async updateProfile({ commit }, { nickname, payload }) {
+  async updateProfile({ state }, { nickname, payload }) {
     try {
+      if (nickname !== state.user?.nickname) {
+        throw new Error('본인 프로필만 수정 가능합니다.')
+      }
+
       const { data } = await axios.put(`v1/users/profile/${nickname}`, payload)
       const { success, data: { profile } } = data
 
-      if (!success || !profile) throw new Error('프로필 업데이트에 실패하였습니다.')
-
-      commit('SET_PROFILE_INTRO', profile)
+      if (!success || !profile) {
+        throw new Error('프로필 업데이트에 실패하였습니다.')
+      }
 
       return { success, profile, error: null }
     } catch (err) {
@@ -170,14 +137,20 @@ const actions = {
     }
   },
 
-  async updateProfileAvatar({ commit }, { nickname, payload }) {
+  async updateProfileAvatar({ state, commit }, { nickname, payload }) {
     try {
+      if (nickname !== state.user?.nickname) {
+        throw new Error('본인 프로필만 수정 가능합니다.')
+      }
+
       const { data } = await axios.put(`v1/users/profile/${nickname}/avatar`, payload)
       const { success, data: { profile } } = data
 
-      if (!success || !profile) throw new Error('프로필 아바타 업로드를 실패하였습니다.')
+      if (!success || !profile?.avatar) {
+        throw new Error('프로필 아바타 업로드를 실패하였습니다.')
+      }
 
-      commit('SET_PROFILE_AVATAR', profile)
+      commit('SET_USER_AVATAR', profile.avatar)
 
       return { success, profile, error: null }
     } catch (err) {
@@ -185,16 +158,21 @@ const actions = {
     }
   },
 
-  async deleteProfileAvatar({ commit }, { nickname }) {
+  async deleteProfileAvatar({ state, commit }, { nickname }) {
     try {
-      const { data } = await axios.delete(`v1/users/profile/${nickname}/avatar`)
-      const { success, data: { profile } } = data
+      if (nickname !== state.user?.nickname) {
+        throw new Error('본인 프로필만 수정 가능합니다.')
+      }
 
-      if (!success) throw new Error('프로필 아바타 삭제에 실패하였습니다.')
+      const { data: { success } } = await axios.delete(`v1/users/profile/${nickname}/avatar`)
 
-      commit('SET_PROFILE_AVATAR', profile)
+      if (!success) {
+        throw new Error('프로필 아바타 삭제에 실패하였습니다.')
+      }
 
-      return { success, profile, error: null }
+      commit('SET_USER_AVATAR', '')
+
+      return { success, error: null }
     } catch (err) {
       return { success: false, error: err?.response?.data?.message || err?.message }
     }
@@ -225,13 +203,38 @@ const actions = {
       return { success: false, error: err?.response?.data?.message || err?.message }
     }
   },
+
+  async getMembers({ commit }) {
+    try {
+      const { data } = await axios.get('v1/users/accounts')
+      const { success, data: { users } } = data
+
+      if (!success || !users) throw new Error('멤버 정보를 받아오는 도중 에러가 발생하였습니다')
+
+      commit('SET_MEMBERS', users)
+
+      return { success, error: null }
+    } catch (err) {
+      return { success: false, error: err?.response?.data?.message || err?.message }
+    }
+  },
+
+  async updateMembers({ commit }, payload) {
+    try {
+      const { data: { success } } = await axios.put('v1/users/accounts', { users: payload })
+
+      if (!success) throw new Error('계정 업데이트에 실패하였습니다.')
+
+      commit('UNSET_EDIT_MEMBERS')
+
+      return await actions.getMembers({ commit })
+    } catch (err) {
+      return { success: false, error: err?.response?.data?.message || err?.message }
+    }
+  },
 }
 
 const mutations = {
-  SET_ADMIN(state) {
-    state.isValidAdmin = true
-  },
-
   SET_USER(state, { roles, ...user }) {
     state.user = user
     state.isAdmin = roles && roles.includes('ADMIN')
@@ -239,12 +242,11 @@ const mutations = {
     setItem('isAdmin', state.isAdmin)
   },
 
-  SET_PROFILE_INTRO(state, { greetings, introduce }) {
-    state.profile = { greetings, introduce, ...state.profile }
-  },
-
-  SET_PROFILE_AVATAR(state, { avatar }) {
-    state.profile = { avatar, ...state.profile }
+  SET_USER_AVATAR(state, avatar) {
+    if (state.user) {
+      state.user.avatar = avatar
+      setItem('user', state.user)
+    }
   },
 
   UNSET_USER(state) {
@@ -252,6 +254,10 @@ const mutations = {
     state.isAdmin = false
     state.isValidAdmin = false
     clearStorage()
+  },
+
+  SET_ADMIN(state) {
+    state.isValidAdmin = true
   },
 
   SET_MEMBERS(state, members) {
