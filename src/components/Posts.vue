@@ -151,6 +151,7 @@ await getPosts(1)
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
+@import '../scss/components/posts.scss';
 .wrap_posts {
   @include position;
 

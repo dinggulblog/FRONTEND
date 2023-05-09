@@ -45,8 +45,13 @@ provide('CONTACT_EL', CONTACT_EL)
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-@import './scss/common.scss';
-@import './scss/fade.scss';
+@import './scss/base/reset.scss';
+@import './scss/base/common.scss';
+@import './scss/helpers/fade.scss';
+@import './scss/vendors/mdEditor.scss';
+@import './scss/variables/_size.scss';
+@import './scss/variables/_svg.scss';
+@import './scss/variables/_color.scss';
 
 #header {
   @include position(sticky, $t:0, $z: 997);

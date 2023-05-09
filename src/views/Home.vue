@@ -73,6 +73,8 @@ onErrorCaptured((err) => {
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
+@import '../scss/components/posts.scss';
+
 .home {
   font-size: 1.4rem;
   color: var(--text3);

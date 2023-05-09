@@ -11,7 +11,6 @@ module.exports = defineConfig({
         additionalData: `
           @import '@/scss/helpers/mixin.scss';
           @import '@/scss/helpers/meidaQuery.scss';
-          @import '@/scss/variables/_color.scss';
         `,
       },
     },

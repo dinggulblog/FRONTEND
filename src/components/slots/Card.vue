@@ -10,6 +10,8 @@
           <slot name="title">
             <p class="skeleton-title"></p>
           </slot>
+
+          <slot name="lock_ico"></slot>
         </div>
       </div>
 
@@ -45,5 +47,5 @@
 <script></script>
 
 <style lang="scss" rel="stylesheet/scss">
-@import '../../scss/card.scss';
+@import '../../scss/components/card.scss';
 </style>

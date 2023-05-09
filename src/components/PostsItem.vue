@@ -86,3 +86,7 @@ const LAYOUTS = {
   recent: Recent,
 }
 </script>
+
+<style lang="scss" rel="stylesheet/scss">
+@import '../scss/components/skeleton.scss';
+</style>

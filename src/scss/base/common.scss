@@ -1,0 +1,61 @@
+/* Font cdn - Noto Sans KR, Roboto */
+
+@font-face {
+  font-family: 'Pretendard';
+  font-weight: 400;
+  font-display: swap;
+  src: local('Pretendard Regular'), url('./assets/Pretendard-Regular.subset.woff2') format('woff2'), url('./assets/Pretendard-Regular.subset.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  font-weight: 500;
+  font-display: swap;
+  src: local('Pretendard Medium'), url('./assets/Pretendard-Medium.subset.woff2') format('woff2'), url('./assets/Pretendard-Medium.subset.woff') format('woff');
+}
+
+/* dropdown menu */
+
+.dropdown {
+  @include position;
+  cursor: pointer;
+
+  &:hover .dropdown_items {
+    @include flex;
+  }
+}
+
+.dropdown_items {
+  @include position(absolute, $t: 0, $r: 0);
+  display: none;
+}
+
+/* post toc */
+
+.wrap_toc {
+  @include position(absolute, $t: 0, $r: -20rem);
+  height: 100%;
+
+  ul {
+    @include position(sticky, $t: 16rem);
+    max-height: calc(100vh - 12rem);
+    overflow: auto;
+
+    li {
+      @include ellipsis;
+      margin: 0 0 1.2rem 0;
+      width: 16rem;
+
+      a {
+        font-size: 1.6rem;
+        color: var(--text3);
+        transition: all 0.125s ease-in 0s;
+
+        &.on {
+          color: var(--primary);
+          transition: all 0.125s ease-in 0s;
+        }
+      }
+    }
+  }
+}

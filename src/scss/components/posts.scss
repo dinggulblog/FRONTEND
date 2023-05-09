@@ -1,0 +1,51 @@
+/* posts list, card, slide */
+
+#list {
+  @include flex($fd: column, $ai: initial);
+}
+
+#card {
+  @include flex;
+  flex-wrap: wrap;
+  width: 100%;
+
+  @include tablet_landscape {
+    & .card_item:nth-child(3n + 0) {
+      margin-right: 0;
+    }
+  }
+
+  @include desktop {
+    & .card_item:nth-child(3n + 0) {
+      margin-right: 0;
+    }
+  }
+
+  @include mobile_tablet {
+    & .card_item:nth-child(2n + 0) {
+      margin-right: 0;
+    }
+  }
+}
+
+#slide {
+  @include flex;
+  @include position($z: 9);
+  margin: 0 0 0rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  li {
+    margin: 0 2.4rem 0 0;
+  }
+
+  li:last-of-type {
+    margin: 0;
+  }
+}

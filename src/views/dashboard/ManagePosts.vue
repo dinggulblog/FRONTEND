@@ -196,7 +196,7 @@ await getPosts()
 </script>
 
 <style lang="scss" rel="stylesheet/scss" scoped>
-@import '../../scss/table.scss';
+@import '../../scss/components/table.scss';
 .wrap_table {
   display: table;
   font-size: 1.4rem;

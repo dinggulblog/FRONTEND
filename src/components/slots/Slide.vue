@@ -37,5 +37,5 @@
 <script></script>
 
 <style lang="scss" rel="stylesheet/scss">
-@import '../../scss/slide.scss';
+@import '../../scss/components/slide.scss';
 </style>

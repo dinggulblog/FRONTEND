@@ -19,13 +19,7 @@
   max-width: 24rem;
 
   span:not(.role),a {
-    overflow: hidden;
-    white-space: normal;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    white-space: pre-wrap;
+    @include ellipsis;
     color: var(--text4);
   }
 }

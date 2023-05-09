@@ -42,5 +42,5 @@
 <script></script>
 
 <style lang="scss" rel="stylesheet/scss">
-@import '../../scss/list.scss';
+@import '../../scss/components/list.scss';
 </style>

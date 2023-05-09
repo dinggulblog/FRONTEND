@@ -2,11 +2,9 @@
   margin: 0 0 6.4rem;
 
   .wrap_contents {
+    @include flex;
     border-top: 1px solid var(--border2);
     padding: 6.4rem 0 0 0;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
     max-width: 100%;
 
     @include mobile {
@@ -14,9 +12,8 @@
     }
 
     .contents {
-      flex-shrink: 1;
-      flex-grow: 1;
-      flex-basis: 0.83rem;
+      flex: 1 1 0.83rem;
+      width: calc(100% - 27rem - 4.8rem);
 
       @include tablet_landscape {
         width: calc(100% - 22.2rem - 4.8rem);
@@ -31,22 +28,15 @@
       }
 
       .title {
-        display: flex;
-        align-items: center;
+        @include flex;
         margin: 0 0 2.4rem;
         width: calc(100% - 2.4rem);
 
         a {
+          @include ellipsis;
           font-size: 1.6rem;
           color: var(--text4);
           font-weight: 400;
-          overflow: hidden;
-          white-space: normal;
-          text-overflow: ellipsis;
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-          white-space: pre-wrap;
         }
 
         .wrap_ico_lock {
@@ -58,10 +48,7 @@
         height: calc(2rem * 2);
 
         p {
-          display: -webkit-box;
-          -webkit-box-orient: vertical;
-          -webkit-line-clamp: 2;
-          overflow: hidden;
+          @include ellipsis(2);
           line-height: 2rem;
           font-size: 1.4rem;
           color: var(--text2);
@@ -69,7 +56,7 @@
       }
 
       .wrap_info {
-        display: flex;
+        @include flex;
         line-height: 1.5;
         width: 100%;
         margin: 4.8rem 0 0;
@@ -91,22 +78,13 @@
         }
 
         div {
-          display: flex;
-          align-items: center;
+          @include flex;
         }
 
         span,
         a {
           font-size: 1.2rem;
           color: var(--text2);
-        }
-
-        .wrap_comment_like {
-          display: flex;
-
-          @include mobile {
-            margin: 1.2rem 0 0;
-          }
         }
 
         .createdAt {
@@ -118,22 +96,17 @@
         }
 
         .like_count {
-          display: flex;
-          align-items: center;
           margin: 0 0 0 1.6rem;
         }
       }
     }
 
     .thumbnail {
-      flex-shrink: 1;
-      flex-grow: 1;
-      display: flex;
-      justify-content: flex-end;
+      @include position;
+      flex:1 1 auto;
       min-width: 27rem;
       max-width: 27rem;
       margin: 0 0 0 4.8rem;
-      position: relative;
       height: 16rem;
 
       @include tablet_landscape {
@@ -154,18 +127,15 @@
       }
 
       img {
+        @include position(absolute, $l: 0);
         width: 100%;
-        position: absolute;
         height: 100%;
         border-radius: 0.8rem;
         object-fit: cover;
-        left: 0;
       }
 
       .ico_like {
-        position: absolute;
-        top: 2rem;
-        right: 2rem;
+        @include position(absolute, $t: 2rem, $r: 2rem);
       }
     }
   }
