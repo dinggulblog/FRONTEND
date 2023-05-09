@@ -126,6 +126,7 @@
       margin: 0 0 1.6rem;
       resize: none;
       overflow-y: hidden;
+      width:100%;
       height: 4.8rem;
 
       @include placeholder(text2);

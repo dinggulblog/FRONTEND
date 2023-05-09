@@ -175,7 +175,7 @@ onMounted(() => {
 
           &:last-child a {
             color: var(--primary);
-            text-decoration: underline;
+            font-weight: 500;
           }
         }
       }

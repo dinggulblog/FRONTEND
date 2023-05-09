@@ -1,6 +1,6 @@
 <template>
   <div class="TextInput" :class="{ 'has-error': !!errorMessage, success: meta.valid }">
-    <label :for="label">{{ label }}</label>
+    <label :for="label" v-if="label">{{ label }}</label>
     <input spellcheck="false" :id="label" :name="name" :type="type" :value="inputValue" :disabled="disabled" :placeholder="placeholder" @input="handleChange" @blur="handleBlur" />
     <p class="help-message" v-if="errorMessage || meta.valid">{{ errorMessage || successMessage }}</p>
   </div>

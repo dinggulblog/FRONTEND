@@ -20,7 +20,7 @@
             <li v-if="!recent"><Observer :page="page" @update="onUpdatePage"></Observer></li>
           </TransitionGroup>
         </template>
-        <li v-else><p class="empty_posts">게시물이 비어있습니다.</p></li>
+        <li v-else><p class="empty_posts">게시물이 존재하지 않습니다.</p></li>
       </ul>
     </div>
   </div>

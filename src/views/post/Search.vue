@@ -5,7 +5,6 @@
         <TextInput
           name="text"
           type="text"
-          label="검색어"
           placeholder="검색어를 입력해주세요"
           @callback="handleSubmit($event, onSearch)" />
       </form>
@@ -22,8 +21,8 @@
         />
       </template>
       <template #fallback>
-        <ul :id="'list'">
-          <List v-for="skeleton in 6" :key="skeleton" />
+        <ul :id="'recent'">
+          <Recent v-for="skeleton in 6" :key="skeleton" />
         </ul>
       </template>
     </Suspense>
@@ -65,24 +64,30 @@ onErrorCaptured((err) => {
     @include position;
     padding: 0 0 1.2rem;
 
-    input {
-      width: 85%;
-      padding: 0 0 0.2rem;
-      font-size: 2.4rem;
-      font-weight: 300;
-      color: var(--primary);
+    form {
+      width:90%;
     }
 
-    input::placeholder,
-    input {
-      font-size: 2.4rem;
-      font-weight: 300;
-      color: var(--primary);
+    &:deep(.TextInput) {
+      width:100%;
+      margin:0;
+
+      input {
+        border:0;
+        margin:0;
+        padding:1.6rem 0;
+        font-size:2rem;
+      }
+
     }
 
-    .ico_search {
+     .ico_search {
       @include position(absolute, $r: 0);
     }
   }
+}
+
+.posts {
+  margin:6.4rem 0 0;
 }
 </style>
